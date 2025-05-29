@@ -1,0 +1,287 @@
+@page
+@model Barangay.Pages.User.SettingsModel
+@{
+    ViewData["Title"] = "Settings";
+    Layout = "_UserLayout";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-cog me-3 fs-4"></i>
+                    <div>
+                        <strong>Account Settings</strong>
+                        <p class="mb-0">Manage your account preferences and personal information.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Settings Menu</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush" id="settings-tab" role="tablist">
+                        <a class="list-group-item list-group-item-action active" id="profile-tab" data-bs-toggle="list" href="#profile" role="tab">
+                            <i class="fas fa-user me-2"></i> Profile
+                        </a>
+                        <a class="list-group-item list-group-item-action" id="security-tab" data-bs-toggle="list" href="#security" role="tab">
+                            <i class="fas fa-lock me-2"></i> Security
+                        </a>
+                        <a class="list-group-item list-group-item-action" id="notifications-tab" data-bs-toggle="list" href="#notifications" role="tab">
+                            <i class="fas fa-bell me-2"></i> Notifications
+                        </a>
+                        <a class="list-group-item list-group-item-action" id="privacy-tab" data-bs-toggle="list" href="#privacy" role="tab">
+                            <i class="fas fa-shield-alt me-2"></i> Privacy
+                        </a>
+                        <a class="list-group-item list-group-item-action" id="connected-tab" data-bs-toggle="list" href="#connected" role="tab">
+                            <i class="fas fa-link me-2"></i> Connected Accounts
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-body">
+                    <div class="tab-content">
+                        <!-- Profile Settings -->
+                        <div class="tab-pane fade show active" id="profile" role="tabpanel">
+                            <h4 class="mb-4">Profile Information</h4>
+                            <form>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="firstName" class="form-label">First Name</label>
+                                        <input type="text" class="form-control" id="firstName" value="Ben">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="lastName" class="form-label">Last Name</label>
+                                        <input type="text" class="form-control" id="lastName" value="Garcia">
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="email" class="form-label">Email Address</label>
+                                        <input type="email" class="form-control" id="email" value="ben.garcia@example.com">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="phone" class="form-label">Phone Number</label>
+                                        <input type="tel" class="form-control" id="phone" value="(+63) 912-345-6789">
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="address" class="form-label">Address</label>
+                                    <input type="text" class="form-control" id="address" value="123 Main Street, Barangay Example, City">
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="dob" class="form-label">Date of Birth</label>
+                                        <input type="date" class="form-control" id="dob" value="1985-06-15">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="gender" class="form-label">Gender</label>
+                                        <select class="form-select" id="gender">
+                                            <option value="male" selected>Male</option>
+                                            <option value="female">Female</option>
+                                            <option value="other">Other</option>
+                                            <option value="prefer-not">Prefer not to say</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="profilePicture" class="form-label">Profile Picture</label>
+                                    <input class="form-control" type="file" id="profilePicture">
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i> Save Changes
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Security Settings -->
+                        <div class="tab-pane fade" id="security" role="tabpanel">
+                            <h4 class="mb-4">Security Settings</h4>
+                            
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Change Password</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form>
+                                        <div class="mb-3">
+                                            <label for="currentPassword" class="form-label">Current Password</label>
+                                            <input type="password" class="form-control" id="currentPassword">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="newPassword" class="form-label">New Password</label>
+                                            <input type="password" class="form-control" id="newPassword">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                                            <input type="password" class="form-control" id="confirmPassword">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Update Password</button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Two-Factor Authentication</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="enable2FA">
+                                        <label class="form-check-label" for="enable2FA">Enable Two-Factor Authentication</label>
+                                    </div>
+                                    <p class="text-muted">Enhance your account security by enabling two-factor authentication.</p>
+                                    <button type="button" class="btn btn-outline-primary">Setup 2FA</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notifications Settings -->
+                        <div class="tab-pane fade" id="notifications" role="tabpanel">
+                            <h4 class="mb-4">Notification Settings</h4>
+                            
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="mb-3">Email Notifications</h5>
+                                    <div class="mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="appointmentReminders" checked>
+                                            <label class="form-check-label" for="appointmentReminders">Appointment Reminders</label>
+                                        </div>
+                                        <small class="text-muted">Receive email reminders for upcoming appointments</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="prescriptionAlerts" checked>
+                                            <label class="form-check-label" for="prescriptionAlerts">Prescription Alerts</label>
+                                        </div>
+                                        <small class="text-muted">Receive notifications when prescriptions are ready or about to expire</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="healthTips">
+                                            <label class="form-check-label" for="healthTips">Health Tips & Updates</label>
+                                        </div>
+                                        <small class="text-muted">Receive occasional health tips and updates from our healthcare providers</small>
+                                    </div>
+                                    
+                                    <hr>
+                                    
+                                    <h5 class="mb-3">SMS Notifications</h5>
+                                    <div class="mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="smsAppointmentReminders" checked>
+                                            <label class="form-check-label" for="smsAppointmentReminders">SMS Appointment Reminders</label>
+                                        </div>
+                                        <small class="text-muted">Receive SMS reminders for upcoming appointments</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="smsHealthAlerts">
+                                            <label class="form-check-label" for="smsHealthAlerts">SMS Health Alerts</label>
+                                        </div>
+                                        <small class="text-muted">Receive urgent health alerts via SMS</small>
+                                    </div>
+                                    
+                                    <button type="button" class="btn btn-primary mt-3">Save Preferences</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Privacy Settings -->
+                        <div class="tab-pane fade" id="privacy" role="tabpanel">
+                            <h4 class="mb-4">Privacy Settings</h4>
+                            
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="mb-3">Data Sharing Preferences</h5>
+                                    <div class="mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="shareWithDoctors" checked>
+                                            <label class="form-check-label" for="shareWithDoctors">Share data with healthcare providers</label>
+                                        </div>
+                                        <small class="text-muted">Allow your medical data to be shared with healthcare providers within our system</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="shareForResearch">
+                                            <label class="form-check-label" for="shareForResearch">Share anonymized data for research</label>
+                                        </div>
+                                        <small class="text-muted">Allow your anonymized medical data to be used for health research purposes</small>
+                                    </div>
+                                    
+                                    <button type="button" class="btn btn-primary mt-3">Save Privacy Settings</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Connected Accounts -->
+                        <div class="tab-pane fade" id="connected" role="tabpanel">
+                            <h4 class="mb-4">Connected Accounts</h4>
+                            
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="connected-account d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <i class="fab fa-google fs-4 me-3 text-danger"></i>
+                                            <strong>Google</strong>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-primary">Connect</button>
+                                    </div>
+                                    
+                                    <div class="connected-account d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <i class="fab fa-facebook fs-4 me-3 text-primary"></i>
+                                            <strong>Facebook</strong>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-danger">Disconnect</button>
+                                    </div>
+                                    
+                                    <div class="connected-account d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <i class="fab fa-apple fs-4 me-3"></i>
+                                            <strong>Apple</strong>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-primary">Connect</button>
+                                    </div>
+                                    
+                                    <p class="text-muted mt-4">
+                                        <small>Connected accounts allow for quicker sign-in and enhanced services.</small>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Initialize Bootstrap tooltips
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+        });
+    </script>
+} 

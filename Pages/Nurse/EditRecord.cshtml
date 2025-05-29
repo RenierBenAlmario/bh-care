@@ -1,0 +1,139 @@
+@page "{id:int}"
+@model Barangay.Pages.Nurse.EditRecordModel
+@{
+    ViewData["Title"] = "Edit Patient Record";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Edit Patient Record</h5>
+                        <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-arrow-left"></i> Back
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <input type="hidden" asp-for="PatientRecord.Id" />
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="PatientRecord.Name" class="form-label">Patient Name</label>
+                                    <input asp-for="PatientRecord.Name" class="form-control" readonly />
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label asp-for="PatientRecord.MedicalRecordNo" class="form-label">Medical Record No.</label>
+                                    <input asp-for="PatientRecord.MedicalRecordNo" class="form-control" readonly />
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label asp-for="PatientRecord.Room" class="form-label">Room/Bed</label>
+                                    <input asp-for="PatientRecord.Room" class="form-control" />
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label asp-for="PatientRecord.Status" class="form-label">Status</label>
+                                    <select asp-for="PatientRecord.Status" class="form-select">
+                                        <option value="Waiting">Waiting</option>
+                                        <option value="In Progress">In Progress</option>
+                                        <option value="Completed">Completed</option>
+                                        <option value="Cancelled">Cancelled</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="PatientRecord.Allergies" class="form-label">Allergies</label>
+                                    <textarea asp-for="PatientRecord.Allergies" class="form-control" rows="2"></textarea>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label asp-for="PatientRecord.Diagnosis" class="form-label">Current Diagnosis</label>
+                                    <textarea asp-for="PatientRecord.Diagnosis" class="form-control" rows="2"></textarea>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label asp-for="PatientRecord.Alert" class="form-label">Medical Alerts</label>
+                                    <textarea asp-for="PatientRecord.Alert" class="form-control" rows="2"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label class="form-label">Nurse Notes</label>
+                                    <textarea name="NurseNotes" class="form-control" rows="3" 
+                                              placeholder="Add your nursing notes here..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Vital Signs</label>
+                                    <div class="row g-2">
+                                        <div class="col-md-3">
+                                            <input type="text" name="Temperature" class="form-control" 
+                                                   placeholder="Temperature" />
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="text" name="BloodPressure" class="form-control" 
+                                                   placeholder="Blood Pressure" />
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="text" name="PulseRate" class="form-control" 
+                                                   placeholder="Pulse Rate" />
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="text" name="RespiratoryRate" class="form-control" 
+                                                   placeholder="Respiratory Rate" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Save Changes
+                            </button>
+                            <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Add client-side validation if needed
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(e) {
+                const requiredFields = form.querySelectorAll('[required]');
+                let isValid = true;
+
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        isValid = false;
+                        field.classList.add('is-invalid');
+                    } else {
+                        field.classList.remove('is-invalid');
+                    }
+                });
+
+                if (!isValid) {
+                    e.preventDefault();
+                    alert('Please fill in all required fields.');
+                }
+            });
+        });
+    </script>
+} 

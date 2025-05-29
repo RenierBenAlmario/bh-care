@@ -1,0 +1,202 @@
+@using Microsoft.AspNetCore.Identity
+@using Barangay.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    var isAuthenticated = User.Identity?.IsAuthenticated ?? false;
+    var isAdmin = User.IsInRole("Admin");
+    var isDoctor = User.IsInRole("Doctor");
+    var isNurse = User.IsInRole("Nurse");
+    var isUser = User.IsInRole("User");
+    
+    // Determine current page/controller for active state
+    var currentPage = "";
+    var currentController = "";
+    
+    // Check if we're in a Razor Page or Controller context
+    if (ViewContext.RouteData.Values["page"] != null)
+    {
+        currentPage = ViewContext.RouteData.Values["page"]?.ToString()?.ToLower() ?? "";
+    }
+    else if (ViewContext.RouteData.Values["controller"] != null)
+    {
+        currentController = ViewContext.RouteData.Values["controller"]?.ToString()?.ToLower() ?? "";
+    }
+    
+    var isUserDashboard = currentPage.Contains("user") || (currentController.Equals("user") && !isAuthenticated);
+    var isDoctorDashboard = currentPage.Contains("doctor") || (currentController.Equals("doctor") && !isAuthenticated);
+    var isNurseDashboard = currentPage.Contains("nurse") || (currentController.Equals("nurse") && !isAuthenticated);
+    var isAdminDashboard = currentPage.Contains("admin") || (currentController.Equals("admin") && !isAuthenticated);
+    
+    // Get current user's name
+    var userName = "";
+    if (isAuthenticated)
+    {
+        try
+        {
+            if(SignInManager != null && UserManager != null)
+            {
+                var user = await UserManager.GetUserAsync(User);
+                userName = user?.FullName ?? User.Identity.Name;
+            }
+            else
+            {
+                userName = User.Identity.Name;
+            }
+        }
+        catch
+        {
+            userName = User.Identity.Name;
+        }
+    }
+}
+
+<nav class="navbar navbar-expand-sm navbar-dark bg-primary py-2">
+    <div class="container">
+        <div class="d-flex align-items-center">
+            @if(isAuthenticated)
+            {
+                @if (isAdmin)
+                {
+                    <a class="navbar-brand" asp-page="/Admin/AdminDashboard">
+                        <i class="fas fa-heartbeat me-2"></i> Barangay Health Center
+                    </a>
+                    <span class="text-white ms-2 small">Admin Portal</span>
+                }
+                else if (isDoctor)
+                {
+                    <a class="navbar-brand" asp-page="/Doctor/DoctorDashboard">
+                        <i class="fas fa-heartbeat me-2"></i> Barangay Health Center
+                    </a>
+                }
+                else if (isNurse)
+                {
+                    <a class="navbar-brand" asp-page="/Nurse/NurseDashboard">
+                        <i class="fas fa-heartbeat me-2"></i> Barangay Health Center
+                    </a>
+                }
+                else
+                {
+                    <a class="navbar-brand" asp-page="/User/UserDashboard">
+                        <i class="fas fa-heartbeat me-2"></i> Barangay Health Center
+                    </a>
+                }
+            }
+            else
+            {
+                <a class="navbar-brand" asp-page="/Index">
+                    <i class="fas fa-heartbeat me-2"></i> Barangay Health Center
+                </a>
+            }
+        </div>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" 
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
+            <ul class="navbar-nav align-items-center">
+                @if (isAuthenticated)
+                {
+                    <!-- Only show Admin Navigation Menu items in navbar for Admin -->
+                    @if (isAdmin)
+                    {
+                        <!-- Dashboard link for Admin -->
+                        <li class="nav-item">
+                            <a class="nav-link @(isAdminDashboard ? "active" : "")" asp-page="/Admin/AdminDashboard">
+                                <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+                            </a>
+                        </li>
+                        
+                        <!-- Admin Navigation Menu -->
+                        @await Component.InvokeAsync("NavMenu", new { role = "Admin" })
+                    }
+                    
+                    <!-- Notification Bell -->
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" href="#">
+                            <i class="fas fa-bell"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                1
+                                <span class="visually-hidden">unread alerts</span>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    <!-- User name display -->
+                    <li class="nav-item mx-2">
+                        <span class="nav-link">Hello, @userName!</span>
+                    </li>
+                    
+                    <!-- Logout Form -->
+                    <li class="nav-item">
+                        <form id="logoutForm" class="form-inline" asp-page="/Account/Logout" method="post">
+                            <button type="button" id="logoutButton" class="btn btn-outline-light">
+                                <i class="fas fa-sign-out-alt me-1"></i> Logout
+                            </button>
+                        </form>
+                    </li>
+                }
+                else
+                {
+                    <!-- Home -->
+                    <li class="nav-item">
+                        <a class="nav-link @(currentPage == "index" || currentController == "home" ? "active" : "")" asp-page="/Index">
+                            <i class="fas fa-home me-1"></i> Home
+                        </a>
+                    </li>
+                    <!-- Sign Up -->
+                    <li class="nav-item">
+                        <a class="nav-link @(currentPage.Contains("signup") || currentController.Contains("account") && ViewContext.RouteData.Values["action"]?.ToString() == "SignUp" ? "active" : "")" asp-page="/Account/SignUp">
+                            <i class="fas fa-user-plus me-1"></i> Sign Up
+                        </a>
+                    </li>
+                    <!-- Help -->
+                    <li class="nav-item">
+                        <a class="nav-link @(currentPage.Contains("help") || currentController.Contains("help") ? "active" : "")" asp-page="/Help">
+                            <i class="fas fa-question-circle me-1"></i> Help
+                        </a>
+                    </li>
+                    <!-- Login Button -->
+                    <li class="nav-item ms-2">
+                        <a class="btn btn-outline-light" asp-page="/Account/Login">
+                            <i class="fas fa-sign-in-alt me-1"></i> Login
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+</nav>
+
+@if (isAuthenticated && !currentPage.Contains("index") && !string.IsNullOrEmpty(currentPage) && isAdmin)
+{
+    <div class="breadcrumb-container">
+        <div class="container-fluid px-3">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    @if (isAdmin)
+                    {
+                        <li class="breadcrumb-item"><a href="/Admin/AdminDashboard">Dashboard</a></li>
+                    }
+                    else if (isDoctor)
+                    {
+                        <li class="breadcrumb-item"><a href="/Doctor/DoctorDashboard">Dashboard</a></li>
+                    }
+                    else if (isNurse)
+                    {
+                        <li class="breadcrumb-item"><a href="/Nurse/NurseDashboard">Dashboard</a></li>
+                    }
+                    else
+                    {
+                        <li class="breadcrumb-item"><a href="/User/UserDashboard">Dashboard</a></li>
+                    }
+                    
+                    <li class="breadcrumb-item active">@ViewData["Title"]</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+} 

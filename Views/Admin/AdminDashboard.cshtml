@@ -1,0 +1,169 @@
+@using Barangay.Models
+@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+        <div class="d-flex">
+            <span class="text-muted me-2">Overview as of @DateTime.Now.ToString("dddd, MMMM dd, yyyy 'at' h:mm tt")</span>
+        </div>
+    </div>
+
+    <!-- Dashboard Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-primary h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Staff</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalStaff</div>
+                            <div class="text-muted small">@Model.DoctorCount Doctors, @Model.NurseCount Nurses</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-warning h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending Requests</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.PendingAppointments</div>
+                            <div class="text-muted small">Appointments to review</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-success h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Active Staff</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.ActiveStaff</div>
+                            <div class="text-muted small">Currently active members</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-check fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Staff Overview -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h6 class="m-0 font-weight-bold text-primary">Staff Overview</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="staffTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Role</th>
+                            <th>Department</th>
+                            <th>Status</th>
+                            <th>Last Active</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var staff in Model.StaffMembers)
+                        {
+                            <tr>
+                                <td>@staff.Name</td>
+                                <td>@staff.Role</td>
+                                <td>@staff.Department</td>
+                                <td>
+                                    <span class="badge bg-@(staff.Status == "Active" ? "success" : "danger")">
+                                        @staff.Status
+                                    </span>
+                                </td>
+                                <td>@(staff.LastActive?.ToString("MMM dd, yyyy HH:mm") ?? "Never")</td>
+                                <td>
+                                    <button class="btn btn-sm btn-info view-staff" data-id="@staff.Id">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-primary edit-staff" data-id="@staff.Id">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Staff Details Modal -->
+<div class="modal fade" id="staffDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Staff Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="staffDetailsContent">
+                    <!-- Content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Initialize DataTable
+            $('#staffTable').DataTable({
+                order: [[4, 'desc']]
+            });
+
+            // Handle View Staff button click
+            $('.view-staff').click(function () {
+                const staffId = $(this).data('id');
+                const modal = $('#staffDetailsModal');
+                const content = $('#staffDetailsContent');
+
+                content.html('<div class="text-center"><div class="spinner-border" role="status"></div></div>');
+                modal.modal('show');
+
+                $.get('/Admin/GetStaffDetails/' + staffId)
+                    .done(function (response) {
+                        content.html(response);
+                    })
+                    .fail(function (error) {
+                        content.html('<div class="alert alert-danger">Error loading staff details. Please try again.</div>');
+                        console.error('Error:', error);
+                    });
+            });
+
+            // Handle Edit Staff button click
+            $('.edit-staff').click(function () {
+                const staffId = $(this).data('id');
+                window.location.href = '/Admin/EditStaff/' + staffId;
+            });
+        });
+    </script>
+} 

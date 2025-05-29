@@ -1,0 +1,14 @@
+@model List<Barangay.ViewComponents.NavMenuItem>
+@{
+    var currentUrl = Context.Request.Path.Value?.ToLower() ?? "";
+}
+
+@foreach (var item in Model)
+{
+    var isActive = currentUrl.Contains(item.Url.ToLower());
+    <li class="nav-item">
+        <a class="nav-link @(isActive ? "active" : "")" href="@item.Url">
+            <i class="fas fa-@item.Icon me-1"></i> @item.Text
+        </a>
+    </li>
+} 

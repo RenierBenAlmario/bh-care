@@ -1,0 +1,132 @@
+@model Barangay.Models.Patient
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@{
+    var token = Antiforgery.GetAndStoreTokens(Context).RequestToken;
+}
+
+<div class="patient-details">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h6>Personal Information</h6>
+            <table class="table table-sm">
+                <tr>
+                    <th style="width: 150px;">Full Name</th>
+                    <td>@Model.Name</td>
+                </tr>
+                <tr>
+                    <th>Gender</th>
+                    <td>@(Model.Gender == "Other" ? "Not specified" : Model.Gender)</td>
+                </tr>
+                <tr>
+                    <th>Date of Birth</th>
+                    <td>@Model.BirthDate.ToString("MMM dd, yyyy")</td>
+                </tr>
+                <tr>
+                    <th>Age</th>
+                    <td>@Model.Age years</td>
+                </tr>
+                <tr>
+                    <th>Status</th>
+                    <td><span class="badge bg-@(Model.Status == "Active" ? "success" : "secondary")">@Model.Status</span></td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-md-6">
+            <h6>Contact Information</h6>
+            <table class="table table-sm">
+                <tr>
+                    <th style="width: 150px;">Address</th>
+                    <td>@(Model.Address ?? "Not specified")</td>
+                </tr>
+                <tr>
+                    <th>Contact Number</th>
+                    <td>@(Model.ContactNumber ?? "Not specified")</td>
+                </tr>
+                <tr>
+                    <th>Emergency Contact</th>
+                    <td>@(Model.EmergencyContact ?? "Not specified")</td>
+                </tr>
+                <tr>
+                    <th>Emergency Number</th>
+                    <td>@(Model.EmergencyContactNumber ?? "Not specified")</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+        <div class="row">
+            <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6>Medical Information</h6>
+                <button type="button" class="btn btn-primary btn-sm" id="editMedicalInfoBtn">
+                    <i class="bi bi-pencil"></i> Edit Medical Information
+                </button>
+            </div>
+            
+            <!-- Read-only view -->
+            <div id="medicalInfoView">
+                <table class="table table-sm">
+                        <tr>
+                            <th style="width: 150px;">Allergies</th>
+                        <td>@(Model.Allergies ?? "None specified")</td>
+                        </tr>
+                        <tr>
+                            <th>Current Medications</th>
+                        <td>@(Model.CurrentMedications ?? "None specified")</td>
+                        </tr>
+                        <tr>
+                            <th>Medical History</th>
+                        <td>@(Model.MedicalHistory ?? "None specified")</td>
+                        </tr>
+                </table>
+            </div>
+
+            <!-- Edit form -->
+            <div id="medicalInfoEdit" style="display: none;">
+                <form id="medicalInfoForm" data-patient-id="@Model.UserId">
+                    <input type="hidden" name="__RequestVerificationToken" value="@token" />
+                    <div class="mb-3">
+                        <label class="form-label">Allergies</label>
+                        <textarea class="form-control" id="allergies" rows="2">@Model.Allergies</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Current Medications</label>
+                        <textarea class="form-control" id="currentMedications" rows="2">@Model.CurrentMedications</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Medical History</label>
+                        <textarea class="form-control" id="medicalHistory" rows="3">@Model.MedicalHistory</textarea>
+                    </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary" id="cancelMedicalInfoBtn">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="updateMedicalInfoBtn">Update Medical Information</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const editBtn = document.getElementById('editMedicalInfoBtn');
+        const cancelBtn = document.getElementById('cancelMedicalInfoBtn');
+        const updateBtn = document.getElementById('updateMedicalInfoBtn');
+        const viewDiv = document.getElementById('medicalInfoView');
+        const editDiv = document.getElementById('medicalInfoEdit');
+
+        editBtn.addEventListener('click', function() {
+            viewDiv.style.display = 'none';
+            editDiv.style.display = 'block';
+            editBtn.style.display = 'none';
+        });
+
+        cancelBtn.addEventListener('click', function() {
+            viewDiv.style.display = 'block';
+            editDiv.style.display = 'none';
+            editBtn.style.display = 'inline-block';
+        });
+
+        updateBtn.addEventListener('click', updateMedicalInformation);
+    });
+</script>

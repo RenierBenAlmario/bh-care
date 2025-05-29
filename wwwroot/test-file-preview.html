@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Preview Test</title>
+    <link rel="stylesheet" href="/css/custom-file-preview.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            margin-top: 0;
+        }
+        .test-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .test-button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .test-button:hover {
+            background-color: #0069d9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>File Preview Test</h1>
+        <p>Click the buttons below to test the file preview functionality with different file types:</p>
+        
+        <div class="test-buttons">
+            <button class="test-button document-preview-btn" 
+                    data-filename="sample_residency_proof.pdf" 
+                    data-filepath="/uploads/residency_proofs/sample_residency_proof.pdf" 
+                    data-type="pdf">
+                Test PDF Preview
+            </button>
+            
+            <button class="test-button document-preview-btn" 
+                    data-filename="sample_residency_proof.png" 
+                    data-filepath="/uploads/residency_proofs/sample_residency_proof.png" 
+                    data-type="image">
+                Test Image Preview
+            </button>
+            
+            <!-- Add a test for a file that doesn't exist -->
+            <button class="test-button document-preview-btn" 
+                    data-filename="nonexistent_file.pdf" 
+                    data-filepath="/uploads/residency_proofs/nonexistent_file.pdf" 
+                    data-type="pdf">
+                Test Error Handling
+            </button>
+        </div>
+    </div>
+    
+    <script src="/js/file-preview.js"></script>
+</body>
+</html> 

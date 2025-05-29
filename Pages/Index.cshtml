@@ -1,0 +1,241 @@
+﻿@page
+@model Barangay.Pages.IndexModel
+@{
+    ViewData["Title"] = "Home";
+    var isLoggedIn = User.Identity?.IsAuthenticated ?? false;
+}
+
+@section Styles {
+    <style>
+        body:not(.logged-in) .navbar {
+            box-shadow: none;
+        }
+    </style>
+}
+
+<!-- Display logout success message if present -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
+        <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Hero Section with Login Form -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 hero-content">
+                <h1 class="text-white hero-title">Barangay Health Care System</h1>
+                <p class="text-white hero-text">A community-based health information system for Barangay 161, designed to provide accessible health services to all residents.</p>
+                <div class="hero-buttons">
+                    <a asp-page="/Account/SignUp" class="btn btn-light btn-lg signup-btn">
+                        <i class="fas fa-user-plus me-2"></i>Register Now
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="login-card">
+                    <h3>Login to Your Account</h3>
+                    <form method="post" id="loginForm">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="form-group">
+                            <label asp-for="Input.Email" class="text-dark">Email Address</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-envelope"></i>
+                                    </span>
+                                </div>
+                                <input asp-for="Input.Email" class="form-control" aria-label="Email Address" placeholder="Enter your email" />
+                            </div>
+                            <span asp-validation-for="Input.Email" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Input.Password" class="text-dark">Password</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-lock"></i>
+                                    </span>
+                                </div>
+                                <input asp-for="Input.Password" class="form-control" type="password" aria-label="Password" placeholder="Enter your password" />
+                            </div>
+                            <span asp-validation-for="Input.Password" class="text-danger"></span>
+                        </div>
+                        <div class="form-group form-check">
+                            <input asp-for="Input.RememberMe" class="form-check-input" />
+                            <label asp-for="Input.RememberMe" class="form-check-label text-dark">Remember Me</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block" id="loginButton">
+                            <i class="fas fa-sign-in-alt me-2"></i>
+                            <span id="loginText">Log In</span>
+                            <span id="loginSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                        </button>
+                        
+                        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                        {
+                            <div class="alert alert-warning mt-3" role="alert">
+                                <div class="d-flex">
+                                    <div class="me-2">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    </div>
+                                    <div>
+                                        @if (Model.ErrorMessage.Contains("pending approval"))
+                                        {
+                                            <strong>Account Pending Approval</strong>
+                                            <p>Your account is pending approval. Please contact the system administrator at <a href="mailto:admin@barangay.health">admin@barangay.health</a> for verification.</p>
+                                            <a href="#" class="btn btn-sm btn-outline-secondary" id="contactAdminBtn">Contact Admin</a>
+                                        }
+                                        else
+                                        {
+                                            @Model.ErrorMessage
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </form>
+                    <div class="signup-link">
+                        <span class="text-dark">Don't have an account?</span> <a asp-page="/Account/SignUp" class="btn btn-outline-primary">Sign Up</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Our Services Section -->
+<section class="services-section" id="services">
+    <div class="container py-5">
+        <h2 class="section-title">
+            <i class="fas fa-hand-holding-medical me-2"></i>
+            Our Services
+        </h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-calendar-check text-white"></i>
+                    </div>
+                    <h3>Appointments</h3>
+                    <p class="text-dark">Schedule medical appointments with Barangay doctors and nurses at your convenience.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-file-medical text-white"></i>
+                    </div>
+                    <h3>Health Records</h3>
+                    <p class="text-dark">Access medical records and prescriptions online.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-prescription text-white"></i>
+                    </div>
+                    <h3>Prescriptions</h3>
+                    <p class="text-dark">Get prescriptions from doctors and medication reminders for your treatment.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="how-it-works-section" id="how-it-works">
+    <div class="container py-5">
+        <h2 class="section-title">
+            <i class="fas fa-question-circle me-2"></i>
+            How It Works
+        </h2>
+        <div class="steps-container">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Register</h3>
+                    <p class="text-dark">Sign up with your details and upload your Barangay clearance for verification.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Verification</h3>
+                    <p class="text-dark">Wait for admin approval after identity and residency verification.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Book Appointment</h3>
+                    <p class="text-dark">Schedule appointments with doctors and nurses based on availability.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>Get Care</h3>
+                    <p class="text-dark">Visit the Barangay Health Center on your appointment date to receive care.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Add logged-in class to body if user is authenticated
+            @if (isLoggedIn) {
+                <text>$('body').addClass('logged-in');</text>
+            }
+            
+            // Show loading spinner when form is submitted
+            $("#loginForm").on("submit", function() {
+                $("#loginText").addClass("d-none");
+                $("#loginSpinner").removeClass("d-none");
+                $("#loginButton").attr("disabled", true);
+            });
+            
+            // Contact admin button functionality
+            $("#contactAdminBtn").on("click", function(e) {
+                e.preventDefault();
+                window.location.href = "mailto:admin@barangay.health?subject=Account%20Approval%20Request&body=Hello%20Admin,%0A%0AI%20recently%20registered%20for%20the%20Barangay%20Health%20Care%20System%20and%20my%20account%20is%20pending%20approval.%20Could%20you%20please%20verify%20my%20account?%0A%0AThank%20you.";
+            });
+            
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(function() {
+                $('.alert-dismissible').alert('close');
+            }, 5000);
+            
+            // Add hover effects to buttons
+            $(".signup-btn").hover(
+                function() {
+                    $(this).addClass("shadow-lg").css("transform", "translateY(-3px)");
+                },
+                function() {
+                    $(this).removeClass("shadow-lg").css("transform", "translateY(0)");
+                }
+            );
+            
+            // Add fade-in animation for steps
+            $(".step").each(function(index) {
+                $(this).css({
+                    'opacity': '0',
+                    'transform': 'translateY(20px)'
+                });
+                
+                setTimeout(() => {
+                    $(this).css({
+                        'transition': 'opacity 0.5s ease, transform 0.5s ease',
+                        'opacity': '1',
+                        'transform': 'translateY(0)'
+                    });
+                }, 300 + (index * 200));
+            });
+        });
+    </script>
+}

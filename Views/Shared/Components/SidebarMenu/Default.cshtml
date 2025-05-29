@@ -1,0 +1,21 @@
+@model List<Barangay.ViewComponents.SidebarMenuItem>
+
+@foreach (var item in Model)
+{
+    <li class="nav-item">
+        <a class="nav-link @(item.IsActive ? "active" : "")" href="@item.Url" data-title="@item.Text">
+            <i class="fas fa-@item.Icon"></i>
+            <span>@item.Text</span>
+        </a>
+    </li>
+}
+
+@if (!Model.Any())
+{
+    <li class="nav-item">
+        <div class="px-3 py-2 text-muted">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <small>No menu items available</small>
+        </div>
+    </li>
+} 

@@ -1,0 +1,144 @@
+@page
+@model Barangay.Pages.User.ProfileModel
+@{
+    ViewData["Title"] = "User Profile";
+}
+
+<div class="container mt-5 pt-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="/User/UserDashboard" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+        <h1 class="fw-bold mb-0">@ViewData["Title"]</h1>
+        <div style="width: 135px;"></div>
+    </div>
+    <hr class="mb-5" />
+    <div class="row justify-content-center align-items-start g-4">
+        <div class="col-lg-4 d-flex justify-content-center">
+            <div class="card mb-4 shadow-lg border-0" style="min-width:320px;">
+                <div class="card-body text-center">
+                    <div class="mx-auto mb-3" style="width: 140px; height: 140px;">
+                        <img src="@(string.IsNullOrEmpty(Model.CurrentUser.ProfileImage) ? "/images/default-profile.png" : Model.CurrentUser.ProfileImage)" 
+                             class="img-fluid rounded-circle border border-3 border-primary shadow" style="width: 140px; height: 140px; object-fit: cover; background: #f8f9fa;" alt="Profile Picture" />
+                    </div>
+                    <h4 class="fw-semibold">@Model.CurrentUser.FullName</h4>
+                    <p class="text-muted mb-3">@Model.CurrentUser.Email</p>
+                    <a class="btn btn-primary px-4" asp-page="/User/EditProfile"><i class="fas fa-edit me-2"></i>Edit Profile</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="card mb-4 shadow-sm border-0">
+                <div class="card-header bg-white border-0 pb-0">
+                    <h5 class="fw-bold mb-0"><i class="fas fa-user me-2 text-primary"></i>Personal Information</h5>
+                </div>
+                <div class="card-body pt-2">
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <h6 class="mb-0">Full Name</h6>
+                        </div>
+                        <div class="col-sm-9 text-secondary">
+                            @Model.CurrentUser.FullName
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <h6 class="mb-0">Email</h6>
+                        </div>
+                        <div class="col-sm-9 text-secondary">
+                            @Model.CurrentUser.Email
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <h6 class="mb-0">Gender</h6>
+                        </div>
+                        <div class="col-sm-9 text-secondary">
+                            @(string.IsNullOrEmpty(Model.CurrentUser.Gender) ? "Not specified" : Model.CurrentUser.Gender)
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <h6 class="mb-0">Date of Birth</h6>
+                        </div>
+                        <div class="col-sm-9 text-secondary">
+                            @Model.CurrentUser.BirthDate.ToString("MM/dd/yyyy")
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <h6 class="mb-0">Phone</h6>
+                        </div>
+                        <div class="col-sm-9 text-secondary">
+                            @(string.IsNullOrEmpty(Model.CurrentUser.PhoneNumber) ? "Not provided" : Model.CurrentUser.PhoneNumber)
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <h6 class="mb-0">Address</h6>
+                        </div>
+                        <div class="col-sm-9 text-secondary">
+                            @(string.IsNullOrEmpty(Model.CurrentUser.Address) ? "Not provided" : Model.CurrentUser.Address)
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <h6 class="mb-0">Emergency Contact</h6>
+                        </div>
+                        <div class="col-sm-9 text-secondary">
+                            @(string.IsNullOrEmpty(Model.PatientData?.EmergencyContact) ? "Not provided" : Model.PatientData.EmergencyContact)
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <h6 class="mb-0">Emergency Number</h6>
+                        </div>
+                        <div class="col-sm-9 text-secondary">
+                            @(string.IsNullOrEmpty(Model.PatientData?.EmergencyContactNumber) ? "Not provided" : Model.PatientData.EmergencyContactNumber)
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <h6 class="mb-0">PhilHealth ID</h6>
+                        </div>
+                        <div class="col-sm-9 text-secondary">
+                            @(string.IsNullOrEmpty(Model.CurrentUser.PhilHealthId) ? "Not provided" : Model.CurrentUser.PhilHealthId)
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card shadow-sm border-0 mt-4">
+                <div class="card-header bg-white border-0 pb-0">
+                    <h5 class="fw-bold mb-0"><i class="fas fa-notes-medical me-2 text-success"></i>Medical Information</h5>
+                </div>
+                <div class="card-body pt-2">
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <h6 class="mb-0">Allergies</h6>
+                        </div>
+                        <div class="col-sm-9 text-secondary">
+                            @(string.IsNullOrEmpty(Model.PatientData?.Allergies) ? "None specified" : Model.PatientData.Allergies)
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <h6 class="mb-0">Current Medications</h6>
+                        </div>
+                        <div class="col-sm-9 text-secondary">
+                            @(string.IsNullOrEmpty(Model.PatientData?.CurrentMedications) ? "None specified" : Model.PatientData.CurrentMedications)
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <h6 class="mb-0">Medical History</h6>
+                        </div>
+                        <div class="col-sm-9 text-secondary">
+                            @(string.IsNullOrEmpty(Model.PatientData?.MedicalHistory) ? "None specified" : Model.PatientData.MedicalHistory)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

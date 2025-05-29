@@ -1,0 +1,284 @@
+/* Staff Permissions Page Styles */
+
+.staff-list {
+    max-height: 600px;
+    overflow-y: auto;
+    border-radius: 0 0 4px 4px;
+    background-color: #fff;
+}
+
+.staff-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.2s;
+    background-color: #fff;
+}
+
+.staff-item:hover {
+    background-color: #f0f7ff;
+    color: #333;
+    text-decoration: none;
+}
+
+.staff-item.active {
+    background-color: #e9f0ff;
+    border-left: 4px solid #007bff;
+    color: #333;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #007bff;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+
+.staff-info {
+    flex: 1;
+}
+
+.staff-name {
+    font-weight: 500;
+    margin-bottom: 3px;
+    color: #333;
+}
+
+.staff-role .badge {
+    font-weight: 500;
+}
+
+.permission-category {
+    margin-bottom: 15px;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    background-color: #fff;
+}
+
+.permission-category-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    color: #333;
+    justify-content: space-between;
+}
+
+.permission-category-header:hover {
+    background-color: #f0f7ff;
+}
+
+.permission-category-header i.fa-chevron-down {
+    transition: transform 0.3s;
+}
+
+.permission-category-header[aria-expanded="true"] i.fa-chevron-down {
+    transform: rotate(180deg);
+}
+
+.permission-list {
+    padding: 10px 15px;
+    border: 1px solid #eee;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    background-color: #fff;
+}
+
+.permission-item {
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+    background-color: #fff;
+}
+
+.permission-item:last-child {
+    border-bottom: none;
+}
+
+.permission-name {
+    font-weight: 500;
+    color: #333;
+}
+
+.permission-description {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: 3px;
+}
+
+/* Form check customization */
+.form-check {
+    padding-left: 2rem;
+    margin-bottom: 0;
+}
+
+.form-check-input {
+    width: 1.2rem;
+    height: 1.2rem;
+    margin-top: 0.25rem;
+    border-color: #dee2e6;
+}
+
+.form-check-label {
+    color: #333;
+    cursor: pointer;
+}
+
+/* Badge customization */
+.badge {
+    font-weight: 500;
+    padding: 0.35em 0.65em;
+}
+
+/* Category badges */
+.permission-category-header .badge {
+    background-color: #e9ecef;
+    color: #6c757d;
+    margin-left: 8px;
+}
+
+/* Button styles */
+.btn-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+/* Alert customization */
+.alert-info {
+    background-color: #e9f5ff;
+    border-color: #b8e2ff;
+    color: #333;
+}
+
+/* Dark mode styles */
+.dark-mode .staff-list {
+    background-color: #1a1a1a;
+}
+
+.dark-mode .permission-category {
+    background-color: #1a1a1a;
+}
+
+.dark-mode .permission-category-header {
+    background-color: #2d2d2d;
+    color: #ffffff;
+}
+
+.dark-mode .permission-category-header .badge {
+    background-color: #404040;
+    color: #adb5bd;
+}
+
+.dark-mode .permission-category-header:hover {
+    background-color: #363636;
+}
+
+.dark-mode .permission-list {
+    background-color: #1a1a1a;
+    border-color: #404040;
+}
+
+.dark-mode .permission-item {
+    border-color: #404040;
+    background-color: #1a1a1a;
+}
+
+.dark-mode .permission-description {
+    color: #adb5bd;
+}
+
+.dark-mode .staff-item {
+    color: #ffffff;
+    border-color: #404040;
+    background-color: #2d2d2d;
+}
+
+.dark-mode .staff-item:hover {
+    background-color: #363636;
+    color: #ffffff;
+}
+
+.dark-mode .staff-item.active {
+    background-color: rgba(13, 110, 253, 0.2);
+    color: #ffffff;
+}
+
+.dark-mode .staff-name {
+    color: #ffffff;
+}
+
+.dark-mode .permission-name {
+    color: #ffffff;
+}
+
+.dark-mode .form-check-label {
+    color: #ffffff;
+}
+
+.dark-mode .form-check-input {
+    background-color: #2d2d2d;
+    border-color: #404040;
+}
+
+.dark-mode .form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.dark-mode .alert-info {
+    background-color: #2d2d2d;
+    border-color: #404040;
+    color: #ffffff;
+}
+
+.dark-mode .card {
+    background-color: #1a1a1a;
+    border-color: #404040;
+}
+
+.dark-mode .card-header {
+    background-color: #2d2d2d;
+}
+
+.dark-mode .input-group-text {
+    background-color: #2d2d2d;
+    border-color: #404040;
+    color: #ffffff;
+}
+
+.dark-mode #staffSearch {
+    background-color: #2d2d2d;
+    border-color: #404040;
+    color: #ffffff;
+}
+
+.dark-mode #staffSearch::placeholder {
+    color: #adb5bd;
+}
+
+.input-group-text {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    color: #6c757d;
+}
+
+#staffSearch {
+    border-color: #dee2e6;
+    color: #333;
+} 

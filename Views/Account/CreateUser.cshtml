@@ -1,0 +1,163 @@
+@model Barangay.Models.CreateUserViewModel
+
+<div class="container mt-4">
+    <h2>Create User</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-action="CreateUser" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Email" class="control-label"></label>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Password" class="control-label"></label>
+                    <input asp-for="Password" class="form-control" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="ConfirmPassword" class="control-label">Confirm Password</label>
+                    <input asp-for="ConfirmPassword" class="form-control" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="FullName" class="control-label">Full Name</label>
+                    <input asp-for="FullName" class="form-control" />
+                    <span asp-validation-for="FullName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Address" class="control-label"></label>
+                    <input asp-for="Address" class="form-control" />
+                    <span asp-validation-for="Address" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="BirthDate" class="control-label">Birth Date</label>
+                    <input asp-for="BirthDate" class="form-control" type="date" id="birthDate" />
+                    <small class="text-muted">For users under 18, guardian information is required</small>
+                    <span asp-validation-for="BirthDate" class="text-danger"></span>
+                </div>
+
+                <!-- Guardian Information Section -->
+                <div id="guardianInfoSection" class="form-group mb-3 border p-3 rounded" style="display: none;">
+                    <h5>Guardian Information</h5>
+                    <p class="text-info">Required for users under 18 years old</p>
+                    
+                    <div class="form-group mb-3">
+                        <label asp-for="GuardianFullName" class="control-label">Guardian Full Name</label>
+                        <input asp-for="GuardianFullName" class="form-control" id="guardianFullName" />
+                        <span asp-validation-for="GuardianFullName" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label asp-for="GuardianContactNumber" class="control-label">Guardian Contact Number</label>
+                        <input asp-for="GuardianContactNumber" class="form-control" id="guardianContactNumber" />
+                        <span asp-validation-for="GuardianContactNumber" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Gender" class="control-label"></label>
+                    <select asp-for="Gender" class="form-control">
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <span asp-validation-for="Gender" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Specialization" class="control-label"></label>
+                    <input asp-for="Specialization" class="form-control" />
+                    <span asp-validation-for="Specialization" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Role" class="control-label"></label>
+                    <select asp-for="Role" class="form-control">
+                        <option value="">Select Role</option>
+                        <option value="Admin">Admin</option>
+                        <option value="Doctor">Doctor</option>
+                        <option value="Patient">Patient</option>
+                        <option value="Staff">Staff</option>
+                    </select>
+                    <span asp-validation-for="Role" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-primary" />
+                    <a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // Handle birthdate change to show/hide guardian information
+        document.addEventListener('DOMContentLoaded', function() {
+            const birthDateInput = document.getElementById('birthDate');
+            const guardianInfoSection = document.getElementById('guardianInfoSection');
+            const guardianFullNameInput = document.getElementById('guardianFullName');
+            const guardianContactNumberInput = document.getElementById('guardianContactNumber');
+            
+            function calculateAge(birthdate) {
+                const today = new Date();
+                const birthDate = new Date(birthdate);
+                let age = today.getFullYear() - birthDate.getFullYear();
+                const monthDiff = today.getMonth() - birthDate.getMonth();
+                
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                    age--;
+                }
+                
+                return age;
+            }
+            
+            function handleBirthdateChange() {
+                if (!birthDateInput || !guardianInfoSection) return;
+                
+                const birthDateValue = birthDateInput.value;
+                if (!birthDateValue) return;
+                
+                const age = calculateAge(birthDateValue);
+                
+                if (age < 18) {
+                    // Show guardian section
+                    guardianInfoSection.style.display = 'block';
+                    
+                    // Make guardian fields required for client-side validation
+                    if (guardianFullNameInput) guardianFullNameInput.setAttribute('required', 'required');
+                    if (guardianContactNumberInput) guardianContactNumberInput.setAttribute('required', 'required');
+                } else {
+                    // Hide guardian section
+                    guardianInfoSection.style.display = 'none';
+                    
+                    // Remove required attribute
+                    if (guardianFullNameInput) guardianFullNameInput.removeAttribute('required');
+                    if (guardianContactNumberInput) guardianContactNumberInput.removeAttribute('required');
+                }
+            }
+            
+            // Add event listener to birthdate input
+            if (birthDateInput) {
+                birthDateInput.addEventListener('change', handleBirthdateChange);
+                
+                // Initialize on page load if birthdate already has a value
+                if (birthDateInput.value) {
+                    handleBirthdateChange();
+                }
+            }
+        });
+    </script>
+} 

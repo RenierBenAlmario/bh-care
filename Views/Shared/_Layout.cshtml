@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Barangay Health Center</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/custom-custom-custom-site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/custom-sidebar.css" asp-append-version="true" />
+</head>
+<body>
+    @{
+        var isAdmin = User.IsInRole("Admin");
+        var isNurse = User.IsInRole("Nurse");
+        var isDoctor = User.IsInRole("Doctor");
+        var needsSidebar = (isNurse || isDoctor) && !isAdmin;
+        var userName = User.Identity?.Name ?? "";
+        
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            try
+            {
+                var userManager = Context.RequestServices.GetService<Microsoft.AspNetCore.Identity.UserManager<Barangay.Models.ApplicationUser>>();
+                if (userManager != null)
+                {
+                    var user = await userManager.GetUserAsync(User);
+                    userName = user?.FullName ?? User.Identity.Name;
+                }
+            }
+            catch
+            {
+                // Fallback to the default username if anything fails
+            }
+        }
+    }
+
+    @if (isAdmin)
+    {
+        <header>
+            <partial name="_SharedNavBar" />
+        </header>
+    }
+    else if (needsSidebar)
+    {
+        <!-- Only show minimal header for Nurse and Doctor roles -->
+        <nav class="navbar navbar-dark bg-primary py-2">
+            <div class="container">
+                <div class="d-flex align-items-center">
+                    @if (isDoctor)
+                    {
+                        <a class="navbar-brand" asp-page="/Doctor/DoctorDashboard">
+                            <i class="fas fa-heartbeat me-2"></i> Barangay Health Center
+                        </a>
+                    }
+                    else if (isNurse)
+                    {
+                        <a class="navbar-brand" asp-page="/Nurse/NurseDashboard">
+                            <i class="fas fa-heartbeat me-2"></i> Barangay Health Center
+                        </a>
+                    }
+                </div>
+            </div>
+        </nav>
+    }
+    else
+    {
+        <header>
+            <partial name="_SharedNavBar" />
+        </header>
+    }
+
+    @if (needsSidebar)
+    {
+        <div class="wrapper d-flex">
+            <!-- Sidebar -->
+            <nav id="sidebar">
+                <div class="sidebar-header">
+                    <h3>@(isNurse ? "Nurse" : "Doctor") Menu</h3>
+                    <button type="button" id="sidebarCollapse" class="btn">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+
+                <ul class="list-unstyled components">
+                    @if (isNurse)
+                    {
+                        @await Component.InvokeAsync("SidebarMenu", new { role = "Nurse" })
+                    }
+                    else if (isDoctor)
+                    {
+                        @await Component.InvokeAsync("SidebarMenu", new { role = "Doctor" })
+                    }
+                </ul>
+                
+                <!-- User profile and logout section -->
+                <div class="sidebar-user-section">
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="user-name">@userName</div>
+                    </div>
+                    <form id="logoutForm" asp-page="/Account/Logout" method="post">
+                        <button type="submit" class="logout-btn">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </button>
+                    </form>
+                </div>
+            </nav>
+
+            <!-- Page Content -->
+            <div id="content">
+                <main role="main" class="pb-3">
+                    @RenderBody()
+                </main>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="container">
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
+        </div>
+    }
+
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 footer-section">
+                    <h5>Barangay Health Center</h5>
+                    <p>Providing accessible healthcare services to the residents of Barangay 161 since 2020.</p>
+                    <p>
+                        <strong><i class="fas fa-map-marker-alt me-2" aria-hidden="true"></i>Address:</strong> Barangay 161, Manila<br>
+                        <strong><i class="fas fa-phone me-2" aria-hidden="true"></i>Phone:</strong> (02) 8123-4567<br>
+                        <strong><i class="fas fa-envelope me-2" aria-hidden="true"></i>Email:</strong> <a href="mailto:bhcare@barangay161.ph">bhcare@barangay161.ph</a>
+                    </p>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon" aria-label="Facebook page">
+                            <i class="fab fa-facebook-f" aria-hidden="true"></i>
+                        </a>
+                        <a href="#" class="social-icon" aria-label="Twitter page">
+                            <i class="fab fa-twitter" aria-hidden="true"></i>
+                        </a>
+                        <a href="#" class="social-icon" aria-label="Instagram page">
+                            <i class="fab fa-instagram" aria-hidden="true"></i>
+                        </a>
+                        <a href="#" class="social-icon" aria-label="LinkedIn page">
+                            <i class="fab fa-linkedin-in" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 footer-section">
+                    <h5>Quick Links</h5>
+                    <ul class="footer-links">
+                        <li><a href="/" aria-label="Home"><i class="fas fa-chevron-right me-2" aria-hidden="true"></i>Home</a></li>
+                        <li><a href="/Account/SignUp" aria-label="Sign Up"><i class="fas fa-chevron-right me-2" aria-hidden="true"></i>Sign Up</a></li>
+                        <li><a href="/Account/Login" aria-label="Login"><i class="fas fa-chevron-right me-2" aria-hidden="true"></i>Login</a></li>
+                        <li><a href="/Contact" aria-label="Contact Us"><i class="fas fa-chevron-right me-2" aria-hidden="true"></i>Contact Us</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-md-4 footer-section">
+                    <h5>Legal</h5>
+                    <ul class="footer-links">
+                        <li><a href="/Privacy" aria-label="Privacy Policy"><i class="fas fa-chevron-right me-2" aria-hidden="true"></i>Privacy Policy</a></li>
+                        <li><a href="/Terms" aria-label="Terms of Use"><i class="fas fa-chevron-right me-2" aria-hidden="true"></i>Terms of Use</a></li>
+                        <li><a href="/DataPrivacy" aria-label="Data Privacy"><i class="fas fa-chevron-right me-2" aria-hidden="true"></i>Data Privacy</a></li>
+                    </ul>
+                    <div class="mt-4">
+                        <h5>Operating Hours</h5>
+                        <p class="mb-1"><strong>Monday-Friday:</strong> 8:00 AM - 5:00 PM</p>
+                        <p class="mb-1"><strong>Saturday:</strong> 8:00 AM - 12:00 PM</p>
+                        <p class="mb-0"><strong>Sunday:</strong> Closed</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                &copy; 2024 - Barangay Health Center. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    
+    @if (TempData["ClearBrowserStorage"] != null && TempData["ClearBrowserStorage"] is bool clearStorage && clearStorage)
+    {
+        <script>
+            // Clear browser storage on logout
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            // Clear any sensitive cookies (except those needed for the current page)
+            const cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i];
+                const eqPos = cookie.indexOf("=");
+                const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+                if (!name.startsWith("__Host-") && !name.startsWith("__Secure-") && name !== "ASP.NET_SessionId") {
+                    document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;";
+                }
+            }
+            
+            console.log("Browser storage and cookies cleared due to logout");
+        </script>
+    }
+
+    @await RenderSectionAsync("Scripts", required: false)
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile navigation slide-down animation
+            const navbarToggler = document.querySelector('.navbar-toggler');
+            const navbarCollapse = document.querySelector('.navbar-collapse');
+            
+            if (navbarToggler && navbarCollapse) {
+                navbarToggler.addEventListener('click', function() {
+                    if (navbarCollapse.classList.contains('show')) {
+                        navbarCollapse.style.maxHeight = '0';
+                        setTimeout(() => {
+                            navbarCollapse.classList.remove('show');
+                        }, 300);
+                    } else {
+                        navbarCollapse.classList.add('show');
+                        navbarCollapse.style.maxHeight = navbarCollapse.scrollHeight + 'px';
+                    }
+                });
+                
+                // Reset styles on window resize
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth > 768) {
+                        navbarCollapse.style.maxHeight = '';
+                    }
+                });
+            }
+
+            // Sidebar toggle
+            const sidebarCollapse = document.getElementById('sidebarCollapse');
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            
+            if (sidebarCollapse && sidebar && content) {
+                sidebarCollapse.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                    content.classList.toggle('expanded');
+                    
+                    // Store sidebar state in localStorage
+                    localStorage.setItem('sidebarActive', sidebar.classList.contains('active'));
+                });
+
+                // Check if sidebar state is stored
+                const sidebarState = localStorage.getItem('sidebarActive');
+                if (sidebarState === 'true') {
+                    sidebar.classList.add('active');
+                    content.classList.add('expanded');
+                }
+
+                // Adjust sidebar for mobile
+                function adjustSidebar() {
+                    if (window.innerWidth < 768) {
+                        sidebar.classList.add('active');
+                        content.classList.add('expanded');
+                    }
+                }
+
+                // Call on load and on resize
+                adjustSidebar();
+                window.addEventListener('resize', adjustSidebar);
+                
+                // Highlight current page in sidebar
+                const currentPath = window.location.pathname.toLowerCase();
+                const sidebarLinks = sidebar.querySelectorAll('a.nav-link');
+                
+                sidebarLinks.forEach(link => {
+                    const href = link.getAttribute('href').toLowerCase();
+                    if (currentPath.includes(href) && href !== '/') {
+                        link.classList.add('active');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,481 @@
+is_global = true
+build_property.TargetFramework = net8.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = Barangay
+build_property.RootNamespace = Barangay
+build_property.ProjectDir = D:\Imbakan\tester\BHCARE-main (1)\BHCARE-main\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 8.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = true
+build_property.MSBuildProjectDirectory = D:\Imbakan\tester\BHCARE-main (1)\BHCARE-main
+build_property._RazorSourceGeneratorDebug = 
+build_property.EffectiveAnalysisLevelStyle = 8.0
+build_property.EnableCodeStyleSeverity = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Account/AccessDenied.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWNjb3VudFxBY2Nlc3NEZW5pZWQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Account/CheckboxTest.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWNjb3VudFxDaGVja2JveFRlc3QuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Account/ForgetPassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWNjb3VudFxGb3JnZXRQYXNzd29yZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Account/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWNjb3VudFxMb2dpbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Account/Logout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWNjb3VudFxMb2dvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Account/PendingApproval.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWNjb3VudFxQZW5kaW5nQXBwcm92YWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Account/ResetPassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWNjb3VudFxSZXNldFBhc3N3b3JkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Account/ResetUserPassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWNjb3VudFxSZXNldFVzZXJQYXNzd29yZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Account/SignUp.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWNjb3VudFxTaWduVXAuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Account/VerifyEmail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWNjb3VudFxWZXJpZnlFbWFpbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Account/WaitingForApproval.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWNjb3VudFxXYWl0aW5nRm9yQXBwcm92YWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/AdminStaff/Dashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5TdGFmZlxEYXNoYm9hcmQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/AdminStaff/ManageAppointments.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5TdGFmZlxNYW5hZ2VBcHBvaW50bWVudHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/AdminStaff/PatientsList.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5TdGFmZlxQYXRpZW50c0xpc3QuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Admin/AddStaff.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQWRkU3RhZmYuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Admin/AddStaffMember.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQWRkU3RhZmZNZW1iZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Admin/AdminDashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQWRtaW5EYXNoYm9hcmQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Admin/Dashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cRGFzaGJvYXJkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Admin/DeleteStaffMember.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cRGVsZXRlU3RhZmZNZW1iZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Admin/EditStaffMember.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cRWRpdFN0YWZmTWVtYmVyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Admin/GrantEssentialPermissions.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cR3JhbnRFc3NlbnRpYWxQZXJtaXNzaW9ucy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Admin/ManagePermissions.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cTWFuYWdlUGVybWlzc2lvbnMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Admin/MigrateDocuments.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cTWlncmF0ZURvY3VtZW50cy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Admin/Reports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cUmVwb3J0cy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Admin/StaffList.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cU3RhZmZMaXN0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Admin/StaffManagement.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cU3RhZmZNYW5hZ2VtZW50LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Admin/StaffPermissions.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cU3RhZmZQZXJtaXNzaW9ucy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Admin/TestPermissions.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cVGVzdFBlcm1pc3Npb25zLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Admin/UserManagement.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cVXNlck1hbmFnZW1lbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Admin/UserVerification.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cVXNlclZlcmlmaWNhdGlvbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/BookAppointment.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQm9va0FwcG9pbnRtZW50LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/DataPrivacy.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGF0YVByaXZhY3kuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Doctor/Appointments.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRG9jdG9yXEFwcG9pbnRtZW50cy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Doctor/Appointment/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRG9jdG9yXEFwcG9pbnRtZW50XERldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Doctor/Appointment/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRG9jdG9yXEFwcG9pbnRtZW50XEVkaXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Doctor/Consultation.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRG9jdG9yXENvbnN1bHRhdGlvbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Doctor/Dashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRG9jdG9yXERhc2hib2FyZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Doctor/DoctorDashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRG9jdG9yXERvY3RvckRhc2hib2FyZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Doctor/PatientDetails.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRG9jdG9yXFBhdGllbnREZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Doctor/PatientList.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRG9jdG9yXFBhdGllbnRMaXN0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Doctor/PatientRecords.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRG9jdG9yXFBhdGllbnRSZWNvcmRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Doctor/Prescriptions.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRG9jdG9yXFByZXNjcmlwdGlvbnMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Doctor/Prescriptions/New.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRG9jdG9yXFByZXNjcmlwdGlvbnNcTmV3LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Doctor/PrintMedicalRecord.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRG9jdG9yXFByaW50TWVkaWNhbFJlY29yZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Doctor/Reports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRG9jdG9yXFJlcG9ydHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Doctor/VitalSigns.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRG9jdG9yXFZpdGFsU2lnbnMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Doctor/_DoctorLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRG9jdG9yXF9Eb2N0b3JMYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Doctor/_DoctorModals.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRG9jdG9yXF9Eb2N0b3JNb2RhbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Doctor/_EditPatientDetails.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRG9jdG9yXF9FZGl0UGF0aWVudERldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Doctor/_PatientDetails.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRG9jdG9yXF9QYXRpZW50RGV0YWlscy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRXJyb3IuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Nurse/Appointments.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTnVyc2VcQXBwb2ludG1lbnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Nurse/DiagnoseDB.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTnVyc2VcRGlhZ25vc2VEQi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Nurse/Diagnosis.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTnVyc2VcRGlhZ25vc2lzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Nurse/EditRecord.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTnVyc2VcRWRpdFJlY29yZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Nurse/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTnVyc2VcRXJyb3IuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Nurse/MedicalHistory.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTnVyc2VcTWVkaWNhbEhpc3RvcnkuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Nurse/NewAppointment.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTnVyc2VcTmV3QXBwb2ludG1lbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Nurse/Notifications.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTnVyc2VcTm90aWZpY2F0aW9ucy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Nurse/NurseDashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTnVyc2VcTnVyc2VEYXNoYm9hcmQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Nurse/PatientQueue.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTnVyc2VcUGF0aWVudFF1ZXVlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Nurse/Queue.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTnVyc2VcUXVldWUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Nurse/Settings.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTnVyc2VcU2V0dGluZ3MuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Nurse/VitalSigns.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTnVyc2VcVml0YWxTaWducy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Nurse/_NurseLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTnVyc2VcX051cnNlTGF5b3V0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Nurse/_NurseModals.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTnVyc2VcX051cnNlTW9kYWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Prescriptions/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJlc2NyaXB0aW9uc1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Privacy.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJpdmFjeS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Records/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUmVjb3Jkc1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Settings/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2V0dGluZ3NcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Shared/Components/SidebarMenu/Default.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXENvbXBvbmVudHNcU2lkZWJhck1lbnVcRGVmYXVsdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Shared/_AdminLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXF9BZG1pbkxheW91dC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Shared/_AdminStaffNav.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXF9BZG1pblN0YWZmTmF2LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Shared/_AppointmentModal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXF9BcHBvaW50bWVudE1vZGFsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Shared/_DoctorLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXF9Eb2N0b3JMYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Shared/_LandingLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXF9MYW5kaW5nTGF5b3V0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Shared/_LoginPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXF9Mb2dpblBhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Shared/_NurseLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXF9OdXJzZUxheW91dC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Shared/_SharedNavBar.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXF9TaGFyZWROYXZCYXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Shared/_UserLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXF9Vc2VyTGF5b3V0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Support/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU3VwcG9ydFxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Terms.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVGVybXMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/User/Appointment.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVXNlclxBcHBvaW50bWVudC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/User/Appointments.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVXNlclxBcHBvaW50bWVudHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/User/EditProfile.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVXNlclxFZGl0UHJvZmlsZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/User/HEEADSSSAssessment.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVXNlclxIRUVBRFNTU0Fzc2Vzc21lbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/User/Help.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVXNlclxIZWxwLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/User/NCDRiskAssessment.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVXNlclxOQ0RSaXNrQXNzZXNzbWVudC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/User/Prescriptions.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVXNlclxQcmVzY3JpcHRpb25zLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/User/Profile.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVXNlclxQcm9maWxlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/User/Records.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVXNlclxSZWNvcmRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/User/Settings.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVXNlclxTZXR0aW5ncy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/User/UserDashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVXNlclxVc2VyRGFzaGJvYXJkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/User/_UserModals.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVXNlclxfVXNlck1vZGFscy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/VitalSigns/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVml0YWxTaWduc1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/SignUpValidation.cshtml]
+build_metadata.AdditionalFiles.TargetPath = U2lnblVwVmFsaWRhdGlvbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Views/Account/CreateUser.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxDcmVhdGVVc2VyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Views/Account/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Views/Admin/AdminDashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRtaW5EYXNoYm9hcmQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Views/Admin/Reports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cUmVwb3J0cy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Views/Admin/UserManagement.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cVXNlck1hbmFnZW1lbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Views/Admin/_StaffDetails.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cX1N0YWZmRGV0YWlscy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Views/Appointments/Book.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXBwb2ludG1lbnRzXEJvb2suY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Views/Shared/Components/NavMenu/Default.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXENvbXBvbmVudHNcTmF2TWVudVxEZWZhdWx0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Views/Shared/Components/SidebarMenu/Default.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXENvbXBvbmVudHNcU2lkZWJhck1lbnVcRGVmYXVsdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Views/Shared/_AdminLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9BZG1pbkxheW91dC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Views/Shared/_LoginPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Mb2dpblBhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Views/User/BookAppointment.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlclxCb29rQXBwb2ludG1lbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/tester/BHCARE-main (1)/BHCARE-main/Pages/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXF9MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = b-nbywaiolvt

@@ -1,0 +1,108 @@
+@page
+@model Barangay.Pages.Admin.MigrateDocumentsModel
+@{
+    ViewData["Title"] = "Migrate Residency Documents";
+    Layout = "_AdminLayout";
+}
+
+<div class="container py-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Legacy Document Migration Utility</h4>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                <span>This utility helps migrate residency proof documents from the old system (ProfilePicture) to the new UserDocuments table.</span>
+            </div>
+            
+            @if (!string.IsNullOrEmpty(Model.Message))
+            {
+                <div class="alert @(Model.Success ? "alert-success" : "alert-danger")">
+                    <i class="fas @(Model.Success ? "fa-check-circle" : "fa-exclamation-circle") me-2"></i>
+                    <span>@Model.Message</span>
+                </div>
+            }
+            
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Migration Statistics</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Legacy Documents:</strong> <span class="badge bg-warning">@Model.LegacyCount</span> users</p>
+                            <p><strong>Already Migrated:</strong> <span class="badge bg-success">@Model.MigratedCount</span> documents</p>
+                            <p><strong>Users Without Documents:</strong> <span class="badge bg-secondary">@Model.NoDocumentCount</span> users</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post">
+                                <div class="d-grid gap-3">
+                                    <button type="submit" class="btn btn-primary" asp-page-handler="Analyze">
+                                        <i class="fas fa-search me-2"></i> Analyze Documents
+                                    </button>
+                                    <button type="submit" class="btn btn-success" asp-page-handler="MigrateAll"
+                                            onclick="return confirm('Are you sure you want to migrate all legacy documents? This operation cannot be undone.')">
+                                        <i class="fas fa-exchange-alt me-2"></i> Migrate All Documents
+                                    </button>
+                                    <button type="submit" class="btn btn-danger" asp-page-handler="ClearLegacy"
+                                            onclick="return confirm('Are you sure you want to clear all legacy ProfilePicture data? This operation cannot be undone.')">
+                                        <i class="fas fa-trash me-2"></i> Clear Legacy Data
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            @if (Model.LegacyUsers.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>User ID</th>
+                                <th>Username</th>
+                                <th>Legacy Document Path</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var user in Model.LegacyUsers)
+                            {
+                                <tr>
+                                    <td>@user.Id</td>
+                                    <td>@user.UserName</td>
+                                    <td>@user.ProfilePicture</td>
+                                    <td>
+                                        <form method="post" class="d-inline">
+                                            <input type="hidden" name="userId" value="@user.Id" />
+                                            <button type="submit" class="btn btn-sm btn-primary" asp-page-handler="MigrateOne">
+                                                <i class="fas fa-exchange-alt me-1"></i> Migrate
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else if (Model.Analyzed)
+            {
+                <div class="alert alert-success text-center">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <span>No legacy documents found that need migration.</span>
+                </div>
+            }
+        </div>
+    </div>
+</div> 

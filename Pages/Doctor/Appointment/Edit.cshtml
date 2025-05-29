@@ -1,0 +1,26 @@
+@page
+@using Barangay.Models
+@model Barangay.Pages.Doctor.Appointment.EditModel
+@{
+    ViewData["Title"] = "Edit Appointment";
+}
+
+<div class="container mt-4">
+    <h2>Edit Appointment</h2>
+    <form method="post">
+        <div class="mb-3">
+            <label asp-for="Appointment.AppointmentDate" class="form-label">Date</label>
+            <input asp-for="Appointment.AppointmentDate" class="form-control" type="date" required />
+        </div>
+        <div class="mb-3">
+            <label asp-for="Appointment.AppointmentTime" class="form-label">Time</label>
+            <input asp-for="Appointment.AppointmentTime" class="form-control" type="time" required />
+        </div>
+        <div class="mb-3">
+            <label asp-for="Appointment.Description" class="form-label">Description</label>
+            <textarea asp-for="Appointment.Description" class="form-control"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a asp-page="/Doctor/Appointments" class="btn btn-secondary">Cancel</a>
+    </form>
+</div> 

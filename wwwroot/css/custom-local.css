@@ -1,0 +1,1194 @@
+/* Additional styles for Barangay Health Center */
+
+/* Signup page styles */
+.signup-container {
+    max-width: 900px;
+    margin: 0 auto;
+    border-radius: 10px;
+}
+
+.section {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.section h4 {
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.required {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+/* Form control enhancements */
+.form-control {
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #cfe2ff;
+    transition: all 0.3s ease;
+    font-size: 16px;
+}
+
+.form-control:focus {
+    border-color: #007BFF;
+    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.input-group {
+    position: relative;
+}
+
+.input-group-text {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+.input-group .btn-outline-secondary {
+    border-color: #cfe2ff;
+    color: #007BFF;
+    background-color: transparent;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.input-group .btn-outline-secondary:hover {
+    background-color: #f8f9fa;
+    color: #0056b3;
+}
+
+.input-group .btn-outline-secondary:focus {
+    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+}
+
+.input-group .form-control {
+    border-left: 0;
+    border-right: 0;
+}
+
+/* Icon styling */
+.fas, .far, .fa, .fab {
+    color: #007BFF;
+    transition: color 0.3s ease;
+}
+
+/* Override for white icons in navbar */
+.navbar .nav-item .fas, 
+.navbar .nav-item .far, 
+.navbar .nav-item .fa, 
+.navbar .nav-item .fab {
+    color: white !important;
+}
+
+/* Override for white icons in service cards */
+.service-icon .fas,
+.service-icon .far,
+.service-icon .fa,
+.service-icon .fab {
+    color: white !important;
+}
+
+a:hover .fas, a:hover .far, a:hover .fa, a:hover .fab,
+button:hover .fas, button:hover .far, button:hover .fa, button:hover .fab {
+    color: #0056b3;
+}
+
+/* Exception for navbar icons on hover - keep them white */
+.navbar .nav-item a:hover .fas,
+.navbar .nav-item a:hover .far,
+.navbar .nav-item a:hover .fa,
+.navbar .nav-item a:hover .fab {
+    color: white !important;
+}
+
+.text-danger .fas, .text-danger .far, .text-danger .fa,
+.invalid .fas, .invalid .far, .invalid .fa {
+    color: #dc3545;
+}
+
+.text-success .fas, .text-success .far, .text-success .fa,
+.valid .fas, .valid .far, .valid .fa {
+    color: #28a745;
+}
+
+/* Login link styling */
+.login-link {
+    color: #007BFF;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.login-link:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* Password strength meter */
+.password-strength-meter {
+    margin-top: 1rem;
+}
+
+.password-strength-text {
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.progress {
+    background-color: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+    height: 8px;
+}
+
+.progress-bar {
+    transition: width 0.5s ease-out, background-color 0.5s ease;
+}
+
+/* Progress bar animations */
+.progress-bar.bg-danger {
+    animation: pulse-danger 2s infinite;
+}
+
+.progress-bar.bg-warning {
+    animation: pulse-warning 2s infinite;
+}
+
+.progress-bar.bg-info {
+    animation: pulse-info 2s infinite;
+}
+
+.progress-bar.bg-success {
+    animation: pulse-success 2s infinite;
+}
+
+@keyframes pulse-danger {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+@keyframes pulse-warning {
+    0% { opacity: 1; }
+    50% { opacity: 0.8; }
+    100% { opacity: 1; }
+}
+
+@keyframes pulse-info {
+    0% { opacity: 1; }
+    50% { opacity: 0.85; }
+    100% { opacity: 1; }
+}
+
+@keyframes pulse-success {
+    0% { opacity: 1; }
+    50% { opacity: 0.9; }
+    100% { opacity: 1; }
+}
+
+/* Password feedback */
+.password-feedback {
+    font-size: 14px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    animation: fadeIn 0.3s ease;
+}
+
+.password-feedback .alert {
+    margin: 0;
+    padding: 0.5rem;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.password-feedback ul {
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+}
+
+.password-feedback li {
+    margin-bottom: 0.3rem;
+    color: #495057;
+}
+
+/* Password suggestion */
+.password-suggestion-alert {
+    animation: slideDown 0.5s ease-out;
+    font-size: 14px;
+    padding: 0.5rem;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Password requirements */
+.password-requirements {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.password-requirements p {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.password-requirements ul {
+    list-style-type: none;
+    padding-left: 0.5rem;
+}
+
+.password-requirements li {
+    margin-bottom: 0.5rem;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.password-requirements li i {
+    margin-right: 0.5rem;
+    width: 16px;
+    text-align: center;
+}
+
+.password-requirements li.valid {
+    color: #28a745;
+}
+
+.password-requirements li.invalid {
+    color: #dc3545;
+}
+
+/* Password match indicator */
+.password-match-indicator .alert {
+    margin-bottom: 0;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 14px;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Alert styling */
+.alert {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.alert-success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+.alert-warning {
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+    color: #856404;
+}
+
+/* Step indicators */
+.step-indicators {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+}
+
+.step-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    flex: 1;
+}
+
+.step-indicator:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    width: 100%;
+    height: 2px;
+    background-color: #dee2e6;
+    z-index: 1;
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #dee2e6;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    z-index: 2;
+    position: relative;
+}
+
+.step-indicator.active .step-number {
+    background-color: #0066cc;
+    color: white;
+}
+
+.step-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.step-indicator.active .step-label {
+    color: #0066cc;
+    font-weight: bold;
+}
+
+/* File upload styles */
+.custom-file-upload {
+    position: relative;
+}
+
+.upload-status {
+    padding: 0.5rem;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+}
+
+/* Enhanced navbar styles */
+.navbar .nav-link {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.navbar .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: white;
+}
+
+.navbar .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.navbar .btn-outline-light:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Hero section enhancements */
+.hero-section {
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(0, 102, 204, 0.9) 0%, rgba(0, 51, 153, 0.9) 100%);
+    z-index: -1;
+}
+
+.hero-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.hero-text {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.hero-buttons .btn {
+    transition: all 0.3s ease;
+    margin-right: 1rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+}
+
+.hero-buttons .btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Login card enhancements */
+.login-card {
+    background-color: white;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.login-card:hover {
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+.login-card h3 {
+    color: #0066cc;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.login-card .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.login-card .input-group-text {
+    background-color: #0066cc;
+    color: white;
+    border: none;
+}
+
+.login-card .btn-primary {
+    background-color: #0066cc;
+    border-color: #0066cc;
+    padding: 0.75rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.login-card .btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Footer enhancements */
+.footer a {
+    transition: all 0.2s ease;
+}
+
+.footer a:hover {
+    color: #0dcaf0 !important;
+    text-decoration: underline;
+}
+
+/* Services section enhancements */
+.service-card {
+    background-color: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.service-icon {
+    font-size: 2.5rem;
+    color: #0066cc;
+    margin-bottom: 1rem;
+}
+
+.service-card h3 {
+    color: #0066cc;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.service-card p {
+    margin-bottom: 1.5rem;
+}
+
+/* User management enhancements */
+.status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: rgba(0, 102, 204, 0.05);
+}
+
+.table-hover > tbody > tr:hover {
+    background-color: rgba(0, 102, 204, 0.1);
+}
+
+.approve-btn {
+    transition: all 0.3s ease;
+}
+
+.approve-btn:hover {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .hero-content {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .hero-buttons {
+        justify-content: center;
+    }
+    
+    .step-label {
+        display: none;
+    }
+    
+    .step-indicators {
+        margin-bottom: 1rem;
+    }
+    
+    .hero-title {
+        font-size: 2rem;
+    }
+    
+    .hero-text {
+        font-size: 1rem;
+    }
+    
+    .login-card {
+        padding: 1.5rem;
+    }
+    
+    .table-responsive {
+        border: 0;
+    }
+    
+    .btn-group {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .btn-group .btn {
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Landing page navigation */
+.landing-nav {
+    background-image: linear-gradient(to right, #007bff, #0056b3);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 0.75rem 0;
+}
+
+.landing-nav .navbar-brand {
+    font-weight: 600;
+    font-size: 1.3rem;
+}
+
+.landing-nav .nav-link {
+    position: relative;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.landing-nav .nav-link:hover {
+    transform: translateY(-2px);
+}
+
+.landing-nav .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 3px;
+    background-color: white;
+    border-radius: 3px;
+}
+
+/* How It Works page styling */
+.how-it-works {
+    padding: 4rem 0;
+    background-color: #f8f9fa;
+}
+
+.how-it-works-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.how-it-works-header h1 {
+    font-weight: 700;
+    color: #343a40;
+    margin-bottom: 1rem;
+}
+
+.how-it-works-header p {
+    font-size: 1.1rem;
+    color: #6c757d;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.step-card {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    padding: 2rem;
+    height: 100%;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(0, 123, 255, 0.1);
+}
+
+.step-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    border-color: rgba(0, 123, 255, 0.3);
+}
+
+.step-number {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 70px;
+    height: 70px;
+    background-image: linear-gradient(to bottom right, #007bff, #0056b3);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+    z-index: 1;
+}
+
+.step-icon {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+    color: #007bff;
+}
+
+.step-card h3 {
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #343a40;
+}
+
+.step-card p {
+    color: #6c757d;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.step-card ul {
+    padding-left: 1.5rem;
+    margin-top: 1rem;
+    color: #6c757d;
+}
+
+.step-card ul li {
+    margin-bottom: 0.5rem;
+}
+
+/* Responsive adjustments for How It Works page */
+@media (max-width: 768px) {
+    .how-it-works {
+        padding: 3rem 0;
+    }
+    
+    .step-card {
+        margin-bottom: 1.5rem;
+    }
+    
+    .step-number {
+        width: 60px;
+        height: 60px;
+        font-size: 1.25rem;
+    }
+    
+    .step-icon {
+        font-size: 2.5rem;
+    }
+}
+
+/* Nurse Dashboard Styles */
+.nurse-dashboard {
+    height: 100vh;
+    overflow: hidden;
+}
+
+.nurse-dashboard .container-fluid {
+    height: calc(100vh - 20px);
+    display: flex;
+    flex-direction: column;
+}
+
+.nurse-dashboard .row.flex-grow-1 {
+    flex: 1;
+    min-height: 0;
+}
+
+.nurse-dashboard .card {
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.nurse-dashboard .card-body {
+    flex: 1;
+    overflow: hidden;
+}
+
+.nurse-dashboard .table-responsive {
+    height: 100%;
+    overflow-y: auto;
+}
+
+.nurse-dashboard .messages-container {
+    height: calc(100% - 40px);
+    overflow-y: auto;
+}
+
+.nurse-dashboard .table {
+    margin-bottom: 0;
+}
+
+.nurse-dashboard .table th {
+    position: sticky;
+    top: 0;
+    background-color: #fff;
+    z-index: 1;
+}
+
+.nurse-dashboard .card-header {
+    background-color: #f8f9fc;
+    border-bottom: 1px solid rgba(0,0,0,.125);
+}
+
+.nurse-dashboard .btn-group .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.nurse-dashboard .message {
+    border-radius: 0.25rem;
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,.05);
+}
+
+.nurse-dashboard .alert {
+    margin-bottom: 0.5rem;
+    padding: 0.5rem 1rem;
+}
+
+/* Dark mode support */
+body.dark-mode .nurse-dashboard .card-header {
+    background-color: #2d2d2d;
+}
+
+body.dark-mode .nurse-dashboard .table th {
+    background-color: #2d2d2d;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .nurse-dashboard {
+        height: auto;
+        overflow: visible;
+    }
+    
+    .nurse-dashboard .container-fluid {
+        height: auto;
+    }
+    
+    .nurse-dashboard .row.flex-grow-1 {
+        flex: none;
+    }
+    
+    .nurse-dashboard .card {
+        margin-bottom: 1rem;
+    }
+    
+    .nurse-dashboard .messages-container {
+        max-height: 300px;
+    }
+}
+
+/* Navbar improvements */
+.navbar-dark.bg-primary {
+    background-color: #1976D2 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-menu {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    padding: 10px 0;
+    min-width: 250px;
+    margin-top: 10px;
+    background-color: #ffffff;
+}
+
+.dropdown-item {
+    padding: 10px 20px;
+    font-weight: 500;
+    color: #333;
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.dropdown-item:hover, .dropdown-item:focus {
+    background-color: #e3f2fd;
+    color: #0d6efd;
+    border-left-color: #0d6efd;
+}
+
+.dropdown-item i {
+    width: 20px;
+    text-align: center;
+    margin-right: 8px;
+    color: #0d6efd;
+}
+
+/* Ensure dropdown is visible on hover */
+.nav-item.dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+/* Add a small arrow to the dropdown */
+.dropdown-menu::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 20px;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid #ffffff;
+}
+
+/* Dark mode dropdown styles */
+body.dark-mode .dropdown-menu {
+    background-color: #333;
+    border-color: #444;
+}
+
+body.dark-mode .dropdown-menu::before {
+    border-bottom-color: #333;
+}
+
+body.dark-mode .dropdown-item {
+    color: #e0e0e0;
+}
+
+body.dark-mode .dropdown-item:hover, 
+body.dark-mode .dropdown-item:focus {
+    background-color: #444;
+    color: #90caf9;
+    border-left-color: #90caf9;
+}
+
+body.dark-mode .dropdown-item i {
+    color: #90caf9;
+}
+
+/* Breadcrumb styling */
+.breadcrumb-container {
+    background-color: #e3f2fd;
+    border-bottom: 1px solid #bbdefb;
+}
+
+.breadcrumb {
+    margin-bottom: 0;
+    padding: 0.5rem 0;
+}
+
+/* Footer styling */
+footer.footer {
+    background-color: #263238 !important;
+}
+
+/* Dashboard stats cards */
+.stat-card {
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-card .display-4 {
+    font-weight: 700;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark mode toggle */
+.dark-mode-toggle {
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Dark mode styles */
+body.dark-mode {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+body.dark-mode .nurse-dashboard {
+    background-color: #1e1e1e;
+}
+
+body.dark-mode .card {
+    background-color: #2d2d2d;
+    border-color: #3d3d3d;
+}
+
+body.dark-mode .card-header {
+    background-color: #333333;
+    border-bottom-color: #3d3d3d;
+}
+
+body.dark-mode .treatment-plan-content {
+    background-color: #333333;
+}
+
+body.dark-mode .messages-container {
+    background-color: #333333;
+}
+
+body.dark-mode .message {
+    background-color: #424242;
+    border-left-color: #2196F3;
+}
+
+body.dark-mode .breadcrumb-container {
+    background-color: #333333;
+    border-bottom-color: #424242;
+}
+
+body.dark-mode .text-muted {
+    color: #aaaaaa !important;
+}
+
+body.dark-mode .form-control,
+body.dark-mode .form-select {
+    background-color: #424242;
+    border-color: #555555;
+    color: #e0e0e0;
+}
+
+body.dark-mode .form-control:focus,
+body.dark-mode .form-select:focus {
+    background-color: #424242;
+    color: #ffffff;
+    border-color: #2196F3;
+}
+
+body.dark-mode .btn-outline-dark {
+    color: #e0e0e0;
+    border-color: #e0e0e0;
+}
+
+body.dark-mode .btn-outline-dark:hover {
+    background-color: #e0e0e0;
+    color: #121212;
+}
+
+body.dark-mode .dark-mode-toggle {
+    background-color: #333333;
+    color: #e0e0e0;
+}
+
+body.dark-mode .dark-mode-toggle i {
+    color: #ffeb3b;
+}
+
+/* Additional contrast improvements */
+.text-primary {
+    font-weight: 500;
+}
+
+.nurse-dashboard h1 {
+    font-weight: 700;
+}
+
+.btn {
+    font-weight: 500;
+}
+
+.message strong {
+    font-weight: 600;
+}
+
+/* Fix for dropdown menu visibility */
+.navbar .dropdown-menu {
+    display: none;
+    z-index: 1030;
+    background-color: white;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.navbar .dropdown-menu.show {
+    display: block !important;
+}
+
+/* Remove hover display which might be causing issues */
+.nav-item.dropdown:hover .dropdown-menu {
+    display: none;
+}
+
+/* Make dropdown more prominent */
+.dropdown-menu {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+}
+
+/* Ensure dropdown is positioned correctly */
+.dropdown-menu-end {
+    right: 0;
+    left: auto;
+}
+
+.dropdown-menu-start {
+    right: auto;
+    left: 0;
+}
+
+/* Increase z-index to ensure it's on top */
+.navbar-nav .dropdown-menu {
+    position: absolute !important;
+    z-index: 1030 !important;
+}
+
+/* Make dropdown items more visible */
+.dropdown-item {
+    color: #212529 !important;
+    background-color: transparent !important;
+    font-size: 1rem;
+}
+
+.dropdown-item:hover {
+    color: #0d6efd !important;
+    background-color: #e9f0fe !important;
+}
+
+/* Make dropdown headers more visible */
+.dropdown-header {
+    color: #0d6efd !important;
+    background-color: #f8f9fa;
+}
+
+/* Enhanced navbar styles for nurse navigation */
+.navbar-nav .nav-item .nav-link {
+    padding: 0.6rem 0.8rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    margin: 0 2px;
+    font-weight: 500;
+}
+
+.navbar-nav .nav-item .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.navbar-nav .nav-item .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    font-weight: 600;
+}
+
+.navbar-nav .nav-item .nav-link i {
+    margin-right: 5px;
+    transition: transform 0.2s ease;
+}
+
+.navbar-nav .nav-item .nav-link:hover i {
+    transform: translateY(-2px);
+}
+
+/* Improved responsive navbar for nurse pages */
+@media (max-width: 1200px) {
+    .navbar-nav .nav-item .nav-link {
+        font-size: 0.9rem;
+        padding: 0.5rem 0.6rem;
+    }
+    
+    .navbar-nav .nav-item .nav-link i {
+        margin-right: 3px;
+    }
+}
+
+@media (max-width: 992px) {
+    .navbar-collapse {
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+    
+    .navbar-nav .nav-item {
+        width: 100%;
+    }
+    
+    .navbar-nav .nav-item .nav-link {
+        font-size: 1rem;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .navbar-nav .nav-item:last-child .nav-link {
+        border-bottom: none;
+    }
+} 

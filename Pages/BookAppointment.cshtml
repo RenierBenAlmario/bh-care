@@ -1,0 +1,1585 @@
+@page
+@model Barangay.Pages.BookAppointmentModel
+@{
+    ViewData["Title"] = "Book an Appointment";
+    Layout = "_UserLayout";
+}
+
+@if (!ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        <ul>
+            @foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <li>@error.ErrorMessage</li>
+            }
+        </ul>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-success">
+        @Model.StatusMessage
+    </div>
+}
+
+<div class="container mt-5 pt-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="/User/UserDashboard" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+        <h1 class="fw-bold mb-0">Book an Appointment</h1>
+        <div style="width: 135px;"></div>
+    </div>
+
+    <!-- Current Queue Alert -->
+    <div class="alert alert-info d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <strong>Current Queue:</strong> 5 patients waiting (Est. wait time: 15 mins)
+        </div>
+        <div>
+            <strong>Health Tip:</strong> Stay hydrated and bring your ID to appointments.
+        </div>
+    </div>
+
+    <form method="post" id="appointmentForm" asp-antiforgery="true">
+        <div id="step1" class="booking-step">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Patient Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="bookingForOther" name="bookingForOther">
+                                <label class="form-check-label" for="bookingForOther">
+                                    Booking for someone else?
+                                </label>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="fullName" class="form-label">Full Name</label>
+                                    <input type="text" class="form-control" id="fullName" name="fullName" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="age" class="form-label">Age</label>
+                                    <input type="number" class="form-control" id="age" name="age" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="phoneNumber" class="form-label">Phone Number</label>
+                                    <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" required>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3" id="relationshipField" style="display: none;">
+                                <label for="relationship" class="form-label">Relationship to Dependent</label>
+                                <select class="form-select" id="relationship" name="relationship">
+                                    <option selected>Select relationship</option>
+                                    <option value="parent">Parent</option>
+                                    <option value="spouse">Spouse</option>
+                                    <option value="child">Child</option>
+                                    <option value="sibling">Sibling</option>
+                                    <option value="guardian">Guardian</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Appointment Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Replace the date input field with a more robust implementation -->
+                            <div class="mb-3">
+                                <label for="appointmentDate" class="form-label">Date</label>
+                                <input type="date" class="form-control" id="appointmentDate" name="appointmentDate" required min="@DateTime.Now.ToString("yyyy-MM-dd")">
+                                <div id="dateValidationMessage" class="invalid-feedback"></div>
+                            </div>
+                            
+                            <!-- Update the consultation type dropdown to trigger time slot updates -->
+                            <div class="mb-3">
+                                <label for="consultationType" class="form-label">Consultation Type</label>
+                                <select class="form-select" id="consultationType" name="consultationType" required>
+                                    <option value="" selected disabled>Select consultation type</option>
+                                    <option value="medical">Medical Consultation (10-20 minutes)</option>
+                                    <option value="dental">Dental Consultation (20-30 minutes)</option>
+                                    <option value="immunization">Immunization/Bakuna (10-15 minutes)</option>
+                                    <option value="checkup">BP/Sugar/Weight Check-up (5-10 minutes)</option>
+                                    <option value="family">Family Planning (15-20 minutes)</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Update the time slot selection to use a standard select element instead of dropdown -->
+                            <div class="mb-3">
+                                <label for="timeSlot" class="form-label">Appointment Time</label>
+                                <select class="form-select" id="timeSlot" name="timeSlot" required>
+                                    <option value="" selected disabled>Select date and consultation type first</option>
+                                </select>
+                                <div id="timeSlotMessage" class="form-text text-muted">Available time slots will appear after selecting date and consultation type.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="reasonForVisit" class="form-label">Reason for Visit</label>
+                                <textarea class="form-control" id="reasonForVisit" name="reasonForVisit" rows="4" required></textarea>
+                            </div>
+                            
+                            <button type="button" id="toStep2Button" class="btn btn-primary" onclick="console.log('[BookAppointment] Next button clicked')">Next</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Booking Instructions</h5>
+                        </div>
+                        <div class="card-body">
+                            <ol class="ps-3">
+                                <li>Select your preferred date</li>
+                                <li>Choose your consultation type</li>
+                                <li>Select available time slot</li>
+                                <li>Fill in your details</li>
+                                <li>Complete health assessment (if applicable)</li>
+                                <li>Submit your booking</li>
+                            </ol>
+                            
+                            <div class="mt-4">
+                                <h6>Consultation Types & Duration:</h6>
+                                <ul class="list-group">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Medical Consultation
+                                        <span class="badge bg-primary rounded-pill">10-20 minutes</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Dental Consultation
+                                        <span class="badge bg-primary rounded-pill">20-30 minutes</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Immunization
+                                        <span class="badge bg-primary rounded-pill">10-15 minutes</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        BP/Sugar/Weight Check-up
+                                        <span class="badge bg-primary rounded-pill">5-10 minutes</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Family Planning
+                                        <span class="badge bg-primary rounded-pill">15-20 minutes</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="alert alert-info mt-3">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Note:</strong> Please arrive 15 minutes before your appointment time.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NCD Risk Assessment Form (Step 2a - Only visible for age 20+) -->
+        <div id="step2a" class="booking-step" style="display: none;">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Integrated NCD Risk Assessment Form</h5>
+                            <div class="text-white">
+                                <span id="healthFacilityId"></span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <!-- Health Facility and Family Number section (auto-generated) -->
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label">Health Facility:</label>
+                                    <input type="text" class="form-control" id="healthFacility" name="healthFacility" readonly>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Family No:</label>
+                                    <input type="text" class="form-control" id="familyNo" name="familyNo" readonly>
+                                </div>
+                            </div>
+                            
+                            <!-- Part I. Demographic-Socio-Economic Profile -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">Part I. Demographic-Socio-Economic Profile</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-12">
+                                            <label class="form-label">Address:</label>
+                                            <input type="text" class="form-control" id="address" name="address">
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label">Barangay:</label>
+                                            <input type="text" class="form-control" id="barangay" name="barangay">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Birthday (mm/dd/yyyy):</label>
+                                            <input type="date" class="form-control" id="birthday" name="birthday">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Telepono:</label>
+                                            <input type="tel" class="form-control" id="telepono" name="telepono">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label class="form-label">Edad:</label>
+                                            <input type="number" class="form-control" id="edad" name="edad">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Kasarian:</label>
+                                            <select class="form-select" id="kasarian" name="kasarian">
+                                                <option value="male">Male</option>
+                                                <option value="female">Female</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Relihiyon:</label>
+                                            <input type="text" class="form-control" id="relihiyon" name="relihiyon">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Part II. Past Medical History -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">Part II. Past Medical History</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <p class="fw-bold">1. Ikaw ba ay may sumusunod na karamdaman?</p>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-check mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="diabetes" name="medicalHistory" value="diabetes">
+                                                    <label class="form-check-label" for="diabetes">Diabetes</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="hypertension" name="medicalHistory" value="hypertension">
+                                                    <label class="form-check-label" for="hypertension">Hypertension</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="cancer" name="medicalHistory" value="cancer">
+                                                    <label class="form-check-label" for="cancer">Cancer</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-check mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="copd" name="medicalHistory" value="copd">
+                                                    <label class="form-check-label" for="copd">COPD</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="sakit_baga" name="medicalHistory" value="sakit_baga">
+                                                    <label class="form-check-label" for="sakit_baga">Sakit sa baga na hindi nakakahawa</label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="sakit_mata" name="medicalHistory" value="sakit_mata">
+                                                    <label class="form-check-label" for="sakit_mata">Sakit sa mata</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mt-3 mb-3">
+                                            <label for="cancerType" class="form-label">Isulat ang site/lugar ng Cancer:</label>
+                                            <input type="text" class="form-control" id="cancerType" name="cancerType">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <p class="fw-bold">2. Pamanahit ng dibdib</p>
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <p>2.1 Nakararamdam ka ba ng pananahkit o kabigatan sa dibdib? Kung Hindi, Go to Q2.8.</p>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="chestPain" id="chestPainYes" value="oo">
+                                                    <label class="form-check-label" for="chestPainYes">Oo</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="chestPain" id="chestPainNo" value="hindi">
+                                                    <label class="form-check-label" for="chestPainNo">Hindi</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div id="chestPainDetails" class="mt-3" style="display: none;">
+                                            <div class="row mb-2">
+                                                <div class="col-12">
+                                                    <p>2.2 Ang sakit ba ay nasa gitna ng dibdib, kaliwang bahagi ng dibdib, hanggang sa kaliwang braso?</p>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="chestPainLocation" id="chestPainLocationYes" value="oo">
+                                                        <label class="form-check-label" for="chestPainLocationYes">Oo</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="chestPainLocation" id="chestPainLocationNo" value="hindi">
+                                                        <label class="form-check-label" for="chestPainLocationNo">Hindi</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="row mb-2">
+                                                <div class="col-12">
+                                                    <p>2.3 Nararamdaman mo ba ito kung nagmamadali o naglalakad ng mabilis o paakyat?</p>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="chestPainWhenWalking" id="chestPainWalkingYes" value="oo">
+                                                        <label class="form-check-label" for="chestPainWalkingYes">Oo</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="chestPainWhenWalking" id="chestPainWalkingNo" value="hindi">
+                                                        <label class="form-check-label" for="chestPainWalkingNo">Hindi</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="row mb-2">
+                                                <div class="col-12">
+                                                    <p>2.4 Nararamdami ka ba sa paglalakad kapag sumasakit ang iyong dibdib?</p>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="stopWhenPain" id="stopWhenPainYes" value="oo">
+                                                        <label class="form-check-label" for="stopWhenPainYes">Oo</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="stopWhenPain" id="stopWhenPainNo" value="hindi">
+                                                        <label class="form-check-label" for="stopWhenPainNo">Hindi</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="row mb-2">
+                                                <div class="col-12">
+                                                    <p>2.5 Nawawala ba ang sakit kapag hindi ka kumilos o naglagay ng gamot sa ilalim ng dila?</p>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="painRelieved" id="painRelievedYes" value="oo">
+                                                        <label class="form-check-label" for="painRelievedYes">Oo</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="painRelieved" id="painRelievedNo" value="hindi">
+                                                        <label class="form-check-label" for="painRelievedNo">Hindi</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="row mb-2">
+                                                <div class="col-12">
+                                                    <p>2.6 Nawawala ba ng sakit sa loob ng 10 minuto?</p>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="painGoneIn10" id="painGoneIn10Yes" value="oo">
+                                                        <label class="form-check-label" for="painGoneIn10Yes">Oo</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="painGoneIn10" id="painGoneIn10No" value="hindi">
+                                                        <label class="form-check-label" for="painGoneIn10No">Hindi</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="row mb-2">
+                                                <div class="col-12">
+                                                    <p>2.7 Nakararamdam ka ba ng sakit sa dibdib na tumatagal higit sa 30 minuto?</p>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="painMoreThan30" id="painMoreThan30Yes" value="oo">
+                                                        <label class="form-check-label" for="painMoreThan30Yes">Oo</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="painMoreThan30" id="painMoreThan30No" value="hindi">
+                                                        <label class="form-check-label" for="painMoreThan30No">Hindi</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <p class="fw-bold">Kung Oo sagot sa Q2.4-2.7, maaaring may angina o impending heart attack - Dalhin kaagad sa doktor</p>
+                                        <div class="row mb-2">
+                                            <div class="col-12">
+                                                <p>2.8 Nakararamdam ka na ba ng hipo sa pagsusuklay, panginhina nang braso sto binti o pamamanhid sa kalahating bahagi ng katawan? Kung Oo, dalhin agad ang pasyente sa Doktor</p>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="numbness" id="numbnessYes" value="oo">
+                                                    <label class="form-check-label" for="numbnessYes">Oo</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="numbness" id="numbnessNo" value="hindi">
+                                                    <label class="form-check-label" for="numbnessNo">Hindi</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Part III. Assessment of Risk Factors -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">Part III. Assessment of Risk Factors</h6>
+                                </div>
+                                <div class="card-body">
+                                    <!-- A. Non-Modifiable Risk Factors -->
+                                    <div class="mb-4">
+                                        <h6 class="fw-bold">A. Non-Modifiable Risk Factors</h6>
+                                        <div class="row mb-3">
+                                            <div class="col-12">
+                                                <p>1. Sakit sa pamilya (first degree relatives) Lagyan ng Tsek (✓)</p>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-check mb-2">
+                                                            <input class="form-check-input" type="checkbox" id="family_mataas_presyon" name="familyHistory" value="mataas_presyon">
+                                                            <label class="form-check-label" for="family_mataas_presyon">Mataas na presyon</label>
+                                                        </div>
+                                                        <div class="form-check mb-2">
+                                                            <input class="form-check-input" type="checkbox" id="family_sakit_puso" name="familyHistory" value="sakit_puso">
+                                                            <label class="form-check-label" for="family_sakit_puso">Sakit sa puso</label>
+                                                        </div>
+                                                        <div class="form-check mb-2">
+                                                            <input class="form-check-input" type="checkbox" id="family_stroke" name="familyHistory" value="stroke">
+                                                            <label class="form-check-label" for="family_stroke">Stroke</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-check mb-2">
+                                                            <input class="form-check-input" type="checkbox" id="family_diabetes" name="familyHistory" value="diabetes">
+                                                            <label class="form-check-label" for="family_diabetes">Diabetes</label>
+                                                        </div>
+                                                        <div class="form-check mb-2">
+                                                            <input class="form-check-input" type="checkbox" id="family_cancer" name="familyHistory" value="cancer">
+                                                            <label class="form-check-label" for="family_cancer">Cancer</label>
+                                                        </div>
+                                                        <div class="form-check mb-2">
+                                                            <input class="form-check-input" type="checkbox" id="family_sakit_bato" name="familyHistory" value="sakit_bato">
+                                                            <label class="form-check-label" for="family_sakit_bato">Sakit sa bato</label>
+                                                        </div>
+                                                        <div class="form-check mb-2">
+                                                            <input class="form-check-input" type="checkbox" id="family_sakit_na_hindi_nakakahawa" name="familyHistory" value="sakit_na_hindi_nakakahawa">
+                                                            <label class="form-check-label" for="family_sakit_na_hindi_nakakahawa">Iba pang sakit, isulat:</label>
+                                                            <input type="text" class="form-control mt-2" id="family_other_illness" name="family_other_illness">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-text text-end">*First degree relatives (mga lulang at mga kapaitid)</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- B. Modifiable Risk Factors -->
+                                    <div class="mb-4">
+                                        <h6 class="fw-bold">B. Modifiable Risk Factors</h6>
+                                        
+                                        <!-- B.1 Nutrisiyon -->
+                                        <div class="mb-3">
+                                            <p class="fw-bold">B.1 Nutrisyon</p>
+                                            <div class="row mb-2">
+                                                <div class="col-12">
+                                                    <p>1. Madalas mo bang kainin ang mga sumusunod kada araw?</p>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="form-check mb-2">
+                                                                <input class="form-check-input" type="checkbox" id="food_gulay" name="foodFrequency" value="gulay">
+                                                                <label class="form-check-label" for="food_gulay">a. gulay</label>
+                                                            </div>
+                                                            <div class="form-check mb-2">
+                                                                <input class="form-check-input" type="checkbox" id="food_prutas" name="foodFrequency" value="prutas">
+                                                                <label class="form-check-label" for="food_prutas">b. prutas</label>
+                                                            </div>
+                                                            <div class="form-check mb-2">
+                                                                <input class="form-check-input" type="checkbox" id="food_isda" name="foodFrequency" value="isda">
+                                                                <label class="form-check-label" for="food_isda">c. isda</label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-check mb-2">
+                                                                <input class="form-check-input" type="checkbox" id="food_karne" name="foodFrequency" value="karne">
+                                                                <label class="form-check-label" for="food_karne">d. karne</label>
+                                                            </div>
+                                                            <div class="form-check mb-2">
+                                                                <input class="form-check-input" type="checkbox" id="food_processed" name="foodFrequency" value="processed">
+                                                                <label class="form-check-label" for="food_processed">e. processed food</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="row mb-3">
+                                                <div class="col-12">
+                                                    <div class="form-check mb-2">
+                                                        <input class="form-check-input" type="checkbox" id="highSalt" name="highSalt" value="1">
+                                                        <label class="form-check-label" for="highSalt">With high salt intake</label>
+                                                    </div>
+                                                    <p>Kung kumakain ng maalat na pagkain higit sa 2 beses sa isang linggo</p>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="row mb-2">
+                                                <div class="col-12">
+                                                    <p>2. Kumakain kaka ng higit sa 2 beses kada linggo ng:</p>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="form-check mb-2">
+                                                                <input class="form-check-input" type="checkbox" id="food_maalat" name="foodType" value="maalat">
+                                                                <label class="form-check-label" for="food_maalat">a. maalat na pagkain</label>
+                                                            </div>
+                                                            <div class="form-check mb-2">
+                                                                <input class="form-check-input" type="checkbox" id="food_matatamis" name="foodType" value="matatamis">
+                                                                <label class="form-check-label" for="food_matatamis">b. matatamis na pagkain</label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-check mb-2">
+                                                                <input class="form-check-input" type="checkbox" id="food_mamantikang" name="foodType" value="mamantikang">
+                                                                <label class="form-check-label" for="food_mamantikang">c. mamantikang pagkain</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- B.2 Alcohol -->
+                                        <div class="mb-3">
+                                            <p class="fw-bold">B.2 Alcohol</p>
+                                            <div class="row mb-2">
+                                                <div class="col-12">
+                                                    <p>1. Umiinom ka ba ng alak?</p>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="drinksAlcohol" id="drinksAlcoholYes" value="oo">
+                                                        <label class="form-check-label" for="drinksAlcoholYes">Oo</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="drinksAlcohol" id="drinksAlcoholNo" value="hindi">
+                                                        <label class="form-check-label" for="drinksAlcoholNo">Hindi</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div id="alcoholDetails" class="mt-3" style="display: none;">
+                                                <div class="row mb-2">
+                                                    <div class="col-12">
+                                                        <p>2. Anong klase?</p>
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <div class="form-check mb-2">
+                                                                    <input class="form-check-input" type="checkbox" id="alcohol_beer" name="alcoholType" value="beer">
+                                                                    <label class="form-check-label" for="alcohol_beer">Beer</label>
+                                                                </div>
+                                                                <div class="form-check mb-2">
+                                                                    <input class="form-check-input" type="checkbox" id="alcohol_1bottle" name="alcoholAmount" value="1bottle">
+                                                                    <label class="form-check-label" for="alcohol_1bottle">1 bote (320 ml)</label>
+                                                                </div>
+                                                                <div class="form-check mb-2">
+                                                                    <input class="form-check-input" type="checkbox" id="alcohol_2bottle" name="alcoholAmount" value="2bottle">
+                                                                    <label class="form-check-label" for="alcohol_2bottle">2 bote(640 ml)</label>
+                                                                </div>
+                                                                <div class="form-check mb-2">
+                                                                    <input class="form-check-input" type="checkbox" id="alcohol_3bottle" name="alcoholAmount" value="3bottle">
+                                                                    <label class="form-check-label" for="alcohol_3bottle">≥ 3 bote</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="form-check mb-2">
+                                                                    <input class="form-check-input" type="checkbox" id="alcohol_wine" name="alcoholType" value="wine">
+                                                                    <label class="form-check-label" for="alcohol_wine">Wine</label>
+                                                                </div>
+                                                                <div class="form-check mb-2">
+                                                                    <input class="form-check-input" type="checkbox" id="alcohol_3glasses" name="alcoholAmount" value="3glasses">
+                                                                    <label class="form-check-label" for="alcohol_3glasses">< 3 wine glasses (300 ml)</label>
+                                                                </div>
+                                                                <div class="form-check mb-2">
+                                                                    <input class="form-check-input" type="checkbox" id="alcohol_4glasses" name="alcoholAmount" value="4glasses">
+                                                                    <label class="form-check-label" for="alcohol_4glasses">> 4 wine glasses</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="row mt-3">
+                                                            <div class="col-md-6">
+                                                                <div class="form-check mb-2">
+                                                                    <input class="form-check-input" type="checkbox" id="alcohol_whisky" name="alcoholType" value="whisky">
+                                                                    <label class="form-check-label" for="alcohol_whisky">Whisky/Gin/Brandy</label>
+                                                                </div>
+                                                                <div class="form-check mb-2">
+                                                                    <input class="form-check-input" type="checkbox" id="alcohol_shot3" name="alcoholAmount" value="shot3">
+                                                                    <label class="form-check-label" for="alcohol_shot3">< 3 shots/tagay (75 ml)</label>
+                                                                </div>
+                                                                <div class="form-check mb-2">
+                                                                    <input class="form-check-input" type="checkbox" id="alcohol_shot4" name="alcoholAmount" value="shot4">
+                                                                    <label class="form-check-label" for="alcohol_shot4">> 4 shots / tagay</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="row mt-3">
+                                                            <div class="col-md-6">
+                                                                <div class="form-check mb-2">
+                                                                    <input class="form-check-input" type="checkbox" id="bingeDrinker" name="bingeDrinker" value="1">
+                                                                    <label class="form-check-label" for="bingeDrinker">Binge Drinker</label>
+                                                                </div>
+                                                                <p>(kung ang lalaki ay umiinom ng 5 o higit na 'standard' na alak) sa isang okasyon OR (kung ang babae ay umiinom ng 4 o higit na beses sa isang okasyon</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="row mb-2">
+                                                    <div class="col-12">
+                                                        <p>3. Gaano karami sa isang araw?</p>
+                                                        <div class="form-check mb-2">
+                                                            <input class="form-check-input" type="radio" name="alcoholFrequency" id="alcoholFreq1" value="1-3beses">
+                                                            <label class="form-check-label" for="alcoholFreq1">1-3 beses linggo</label>
+                                                        </div>
+                                                        <div class="form-check mb-2">
+                                                            <input class="form-check-input" type="radio" name="alcoholFrequency" id="alcoholFreq2" value="apat">
+                                                            <label class="form-check-label" for="alcoholFreq2">apat na beses sa isang linggo</label>
+                                                        </div>
+                                                        <div class="form-check mb-2">
+                                                            <input class="form-check-input" type="radio" name="alcoholFrequency" id="alcoholFreq3" value="limang">
+                                                            <label class="form-check-label" for="alcoholFreq3">limang beses o higit sa isang linggo</label>
+                                                        </div>
+                                                        <div class="form-check mb-2">
+                                                            <input class="form-check-input" type="radio" name="alcoholFrequency" id="alcoholFreq4" value="4-5">
+                                                            <label class="form-check-label" for="alcoholFreq4">4-5 o higit</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="row mb-2">
+                                                    <div class="col-12">
+                                                        <p>4. Gaano kadalas ka umiinom ng alak sa isang linggo?</p>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="row mb-2">
+                                                    <div class="col-12">
+                                                        <p>5. Sa isang okasyon, ilang bote ng alak ang naiinom mo?</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- B.3 Ehersisyo -->
+                                        <div class="mb-3">
+                                            <p class="fw-bold">B.3 Ehersisyo</p>
+                                            <div class="row mb-2">
+                                                <div class="col-12">
+                                                    <p>1. May regular ka bang ehersisyo? (Ilmang beses sa isang linggo)</p>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="regularExercise" id="regularExerciseYes" value="mayroon">
+                                                        <label class="form-check-label" for="regularExerciseYes">Mayroon</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="regularExercise" id="regularExerciseNo" value="wala">
+                                                        <label class="form-check-label" for="regularExerciseNo">Wala</label>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="col-12 mt-2">
+                                                    <div class="form-check mb-2">
+                                                        <input class="form-check-input" type="checkbox" id="noRegularExercise" name="noRegularExercise" value="1">
+                                                        <label class="form-check-label" for="noRegularExercise">No regular exercise</label>
+                                                    </div>
+                                                    <p>(kung 'wala' OR 'wala pang 30 min kada araw')</p>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="row mb-2">
+                                                <div class="col-12">
+                                                    <p>2. Gaano katagal sa isang araw?</p>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="exerciseDuration" id="exerciseDuration1" value="wala">
+                                                        <label class="form-check-label" for="exerciseDuration1">wala pang 30 minuto kada araw</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="exerciseDuration" id="exerciseDuration2" value="30min">
+                                                        <label class="form-check-label" for="exerciseDuration2">30 minuto o higit</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="d-flex justify-content-between">
+                                <button type="button" id="backToStep1Button" class="btn btn-secondary">Back</button>
+                                <button type="button" id="toStep3Button" class="btn btn-primary">Next</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- HEEADSSS Health Assessment Form (Step 2b - Only visible for age 10-19) -->
+        <div id="step2b" class="booking-step" style="display: none;">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">HEEADSSS Health Assessment Form (For 10-19 years old)</h5>
+                            <div class="text-white">
+                                <span id="healthFacilityIdHeeadsss"></span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <!-- Health Facility and Family Number section (auto-generated) -->
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label">Health Facility:</label>
+                                    <input type="text" class="form-control" id="healthFacilityHeeadsss" name="healthFacilityHeeadsss" readonly>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Family No:</label>
+                                    <input type="text" class="form-control" id="familyNoHeeadsss" name="familyNoHeeadsss" readonly>
+                                </div>
+                            </div>
+                            
+                            <!-- C. Psychosocial History and Assessment -->
+                            <p class="fw-bold">Ang matatanong mong katanungan ay makakatulong sa amin upang ikaw ay mabigyan ng tamang pangangalaga. Itanong lamang sa amin kung may mga katanungan.</p>
+                            
+                            <!-- HOME section -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">HOME</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-8">
+                                            <p>Meron bang problema sa inyong pamilya na kung saan ikaw ay maaaring maapektuhan?</p>
+                                            <textarea class="form-control" id="homeFamilyProblems" name="homeFamilyProblems" rows="2"></textarea>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Response</label>
+                                            <select class="form-select" id="homeFamilyProblemsResponse" name="homeFamilyProblemsResponse">
+                                                <option value="" selected>Select response</option>
+                                                <option value="yes">Yes</option>
+                                                <option value="no">No</option>
+                                                <option value="refused">Refused</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-8">
+                                            <p>Pinakikinggan ka ba ng iyong magulang o guardian sa tuwing ikaw ay may problema?</p>
+                                            <textarea class="form-control" id="homeParentalListening" name="homeParentalListening" rows="2"></textarea>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Response</label>
+                                            <select class="form-select" id="homeParentalListeningResponse" name="homeParentalListeningResponse">
+                                                <option value="" selected>Select response</option>
+                                                <option value="yes">Yes</option>
+                                                <option value="no">No</option>
+                                                <option value="refused">Refused</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-8">
+                                            <p>May pagkakataon bang nasisi iyong magulang?</p>
+                                            <textarea class="form-control" id="homeParentalBlame" name="homeParentalBlame" rows="2"></textarea>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Response</label>
+                                            <select class="form-select" id="homeParentalBlameResponse" name="homeParentalBlameResponse">
+                                                <option value="" selected>Select response</option>
+                                                <option value="yes">Yes</option>
+                                                <option value="no">No</option>
+                                                <option value="refused">Refused</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-8">
+                                            <p>Sa nakaraang taon, meron bang pagbabagong naganap sa loob ng iyong pamilya?</p>
+                                            <textarea class="form-control" id="homeFamilyChanges" name="homeFamilyChanges" rows="2"></textarea>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Response</label>
+                                            <select class="form-select" id="homeFamilyChangesResponse" name="homeFamilyChangesResponse">
+                                                <option value="" selected>Select response</option>
+                                                <option value="yes">Yes</option>
+                                                <option value="no">No</option>
+                                                <option value="refused">Refused</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- EDUCATION section -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">EDUCATION</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-8">
+                                            <p>Ikaw ba ay kasalukuyang nag-aaral?</p>
+                                            <textarea class="form-control" id="educationCurrentlyStudying" name="educationCurrentlyStudying" rows="2"></textarea>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Response</label>
+                                            <select class="form-select" id="educationCurrentlyStudyingResponse" name="educationCurrentlyStudyingResponse">
+                                                <option value="" selected>Select response</option>
+                                                <option value="yes">Yes</option>
+                                                <option value="no">No</option>
+                                                <option value="refused">Refused</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-8">
+                                            <p>Ikaw ba ay nagtatrabaho? Kung oo, ano ang iyong trabaho?</p>
+                                            <textarea class="form-control" id="educationWorking" name="educationWorking" rows="2"></textarea>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Response</label>
+                                            <select class="form-select" id="educationWorkingResponse" name="educationWorkingResponse">
+                                                <option value="" selected>Select response</option>
+                                                <option value="yes">Yes</option>
+                                                <option value="no">No</option>
+                                                <option value="refused">Refused</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-8">
+                                            <p>May problema ka ba sa iskwela o sa trabaho?</p>
+                                            <textarea class="form-control" id="educationSchoolWorkProblems" name="educationSchoolWorkProblems" rows="2"></textarea>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Response</label>
+                                            <select class="form-select" id="educationSchoolWorkProblemsResponse" name="educationSchoolWorkProblemsResponse">
+                                                <option value="" selected>Select response</option>
+                                                <option value="yes">Yes</option>
+                                                <option value="no">No</option>
+                                                <option value="refused">Refused</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-8">
+                                            <p>Nakaranas ka bang ma-api (bully) sa iskwela o sa iba pang pagkakataon?</p>
+                                            <textarea class="form-control" id="educationBullying" name="educationBullying" rows="2"></textarea>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Response</label>
+                                            <select class="form-select" id="educationBullyingResponse" name="educationBullyingResponse">
+                                                <option value="" selected>Select response</option>
+                                                <option value="yes">Yes</option>
+                                                <option value="no">No</option>
+                                                <option value="refused">Refused</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- EATING HABITS section -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">EATING HABITS</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-8">
+                                            <p>Kuntento ka bas a iyong itsura, anyo, o sa iyong kasalukuyang timbang?</p>
+                                            <textarea class="form-control" id="eatingBodyImageSatisfaction" name="eatingBodyImageSatisfaction" rows="2"></textarea>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Response</label>
+                                            <select class="form-select" id="eatingBodyImageSatisfactionResponse" name="eatingBodyImageSatisfactionResponse">
+                                                <option value="" selected>Select response</option>
+                                                <option value="yes">Yes</option>
+                                                <option value="no">No</option>
+                                                <option value="refused">Refused</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-8">
+                                            <p>Sinubukan mo na bang magbawas ng timbang sa pamamagitan ng pagsuka ng kinain (vomiting), uminom ng diet pills o pampadumi (laxatives), o kaya ang sadyang hindi pagkain (starvation)?</p>
+                                            <textarea class="form-control" id="eatingDisorderedEatingBehaviors" name="eatingDisorderedEatingBehaviors" rows="2"></textarea>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Response</label>
+                                            <select class="form-select" id="eatingDisorderedEatingBehaviorsResponse" name="eatingDisorderedEatingBehaviorsResponse">
+                                                <option value="" selected>Select response</option>
+                                                <option value="yes">Yes</option>
+                                                <option value="no">No</option>
+                                                <option value="refused">Refused</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- ACTIVITIES section -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">ACTIVITIES</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-8">
+                                            <p>Mayroon ka bang mga sinasalihang sports/ aktibidad sa iskwela, trabaho o bahay?</p>
+                                            <textarea class="form-control" id="activitiesParticipation" name="activitiesParticipation" rows="2"></textarea>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Response</label>
+                                            <select class="form-select" id="activitiesParticipationResponse" name="activitiesParticipationResponse">
+                                                <option value="" selected>Select response</option>
+                                                <option value="yes">Yes</option>
+                                                <option value="no">No</option>
+                                                <option value="refused">Refused</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-8">
+                                            <p>Regular ka bang nag-eehersisyo?</p>
+                                            <textarea class="form-control" id="activitiesRegularExercise" name="activitiesRegularExercise" rows="2"></textarea>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Response</label>
+                                            <select class="form-select" id="activitiesRegularExerciseResponse" name="activitiesRegularExerciseResponse">
+                                                <option value="" selected>Select response</option>
+                                                <option value="yes">Yes</option>
+                                                <option value="no">No</option>
+                                                <option value="refused">Refused</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-8">
+                                            <p>Madalas ka bang gumamit ng mga gadgets/internet/computer?</p>
+                                            <textarea class="form-control" id="activitiesScreenTime" name="activitiesScreenTime" rows="2"></textarea>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Response</label>
+                                            <select class="form-select" id="activitiesScreenTimeResponse" name="activitiesScreenTimeResponse">
+                                                <option value="" selected>Select response</option>
+                                                <option value="yes">Yes</option>
+                                                <option value="no">No</option>
+                                                <option value="refused">Refused</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- DRUGS section -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">DRUGS</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <p class="fw-bold">Naranasan mo na bang gumamit ng mga sumusunod:</p>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-8">
+                                            <p>Tobacco (Sigarilyo)?</p>
+                                            <textarea class="form-control" id="drugsTobaccoUse" name="drugsTobaccoUse" rows="2"></textarea>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Response</label>
+                                            <select class="form-select" id="drugsTobaccoUseResponse" name="drugsTobaccoUseResponse">
+                                                <option value="" selected>Select response</option>
+                                                <option value="yes">Yes</option>
+                                                <option value="no">No</option>
+                                                <option value="refused">Refused</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-8">
+                                            <p>Alcohol (Alak)?</p>
+                                            <textarea class="form-control" id="drugsAlcoholUse" name="drugsAlcoholUse" rows="2"></textarea>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Response</label>
+                                            <select class="form-select" id="drugsAlcoholUseResponse" name="drugsAlcoholUseResponse">
+                                                <option value="" selected>Select response</option>
+                                                <option value="yes">Yes</option>
+                                                <option value="no">No</option>
+                                                <option value="refused">Refused</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-8">
+                                            <p>Street drugs/prohibited drugs?</p>
+                                            <textarea class="form-control" id="drugsIllicitDrugUse" name="drugsIllicitDrugUse" rows="2"></textarea>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Response</label>
+                                            <select class="form-select" id="drugsIllicitDrugUseResponse" name="drugsIllicitDrugUseResponse">
+                                                <option value="" selected>Select response</option>
+                                                <option value="yes">Yes</option>
+                                                <option value="no">No</option>
+                                                <option value="refused">Refused</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- SEXUALITY section -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">SEXUALITY</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-8">
+                                            <p>Nababahala ka ba sa iyong kalusugan o mga pagbabago ng iyong pangangatawan?</p>
+                                            <textarea class="form-control" id="sexualityBodyConcerns" name="sexualityBodyConcerns" rows="2"></textarea>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Response</label>
+                                            <select class="form-select" id="sexualityBodyConcernsResponse" name="sexualityBodyConcernsResponse">
+                                                <option value="" selected>Select response</option>
+                                                <option value="yes">Yes</option>
+                                                <option value="no">No</option>
+                                                <option value="refused">Refused</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-8">
+                                            <p>Ikaw ba ay may karanasan na sa pakikipagtalik?</p>
+                                            <textarea class="form-control" id="sexualityIntimateRelationships" name="sexualityIntimateRelationships" rows="2"></textarea>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Response</label>
+                                            <select class="form-select" id="sexualityIntimateRelationshipsResponse" name="sexualityIntimateRelationshipsResponse">
+                                                <option value="" selected>Select response</option>
+                                                <option value="yes">Yes</option>
+                                                <option value="no">No</option>
+                                                <option value="refused">Refused</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- SAFETY/WEAPONS/VIOLENCE section -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">SAFETY/WEAPONS/VIOLENCE</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-8">
+                                            <p>Ikaw ba ay nakakaranas mahipuan/masuntok/masampal/matulak ng kahit sino?</p>
+                                            <textarea class="form-control" id="safetyPhysicalAbuse" name="safetyPhysicalAbuse" rows="2"></textarea>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Response</label>
+                                            <select class="form-select" id="safetyPhysicalAbuseResponse" name="safetyPhysicalAbuseResponse">
+                                                <option value="" selected>Select response</option>
+                                                <option value="yes">Yes</option>
+                                                <option value="no">No</option>
+                                                <option value="refused">Refused</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-8">
+                                            <p>Nakaranas ka na bang masaktan o takutin ng iyong karelasyon?</p>
+                                            <textarea class="form-control" id="safetyRelationshipViolence" name="safetyRelationshipViolence" rows="2"></textarea>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Response</label>
+                                            <select class="form-select" id="safetyRelationshipViolenceResponse" name="safetyRelationshipViolenceResponse">
+                                                <option value="" selected>Select response</option>
+                                                <option value="yes">Yes</option>
+                                                <option value="no">No</option>
+                                                <option value="refused">Refused</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- SUICIDE/DEPRESSION section -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">SUICIDE/DEPRESSION</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-8">
+                                            <p>Ikaw ba ay nakakaranas na ng pagkalisa o pagkamalungkutin?</p>
+                                            <textarea class="form-control" id="suicideDepressionFeelings" name="suicideDepressionFeelings" rows="2"></textarea>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Response</label>
+                                            <select class="form-select" id="suicideDepressionFeelingsResponse" name="suicideDepressionFeelingsResponse">
+                                                <option value="" selected>Select response</option>
+                                                <option value="yes">Yes</option>
+                                                <option value="no">No</option>
+                                                <option value="refused">Refused</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-8">
+                                            <p>Naisip mo na bang saktan ang iyong sarili o wakasan ang iyong buhay?</p>
+                                            <textarea class="form-control" id="suicideSelfHarmThoughts" name="suicideSelfHarmThoughts" rows="2"></textarea>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Response</label>
+                                            <select class="form-select" id="suicideSelfHarmThoughtsResponse" name="suicideSelfHarmThoughtsResponse">
+                                                <option value="" selected>Select response</option>
+                                                <option value="yes">Yes</option>
+                                                <option value="no">No</option>
+                                                <option value="refused">Refused</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- HOPE line section -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0">HOPE line</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-center">for suicide prevention and emotional crisis</p>
+                                    <p class="text-center fw-bold">804-4673 (HOPE) / 0917-558-4673 (HOPE)</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Notes section -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">Notes</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <textarea class="form-control" id="assessmentNotes" name="assessmentNotes" rows="4"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Assessed by:</label>
+                                    <input type="text" class="form-control" id="assessedBy" name="assessedBy">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="d-flex justify-content-between">
+                                <button type="button" id="backToStep1ButtonHeeadsss" class="btn btn-secondary">Back</button>
+                                <button type="button" id="toStep3ButtonHeeadsss" class="btn btn-primary">Next</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Final Booking Confirmation (Step 3) -->
+        <div id="step3" class="booking-step" style="display: none;">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Booking Confirmation</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Please review your booking details below.
+                            </div>
+                            
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <h6>Patient Information:</h6>
+                                    <p><strong>Full Name:</strong> <span id="summaryFullName"></span></p>
+                                    <p><strong>Age:</strong> <span id="summaryAge"></span></p>
+                                    <p><strong>Phone Number:</strong> <span id="summaryPhone"></span></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Appointment Details:</h6>
+                                    <p><strong>Date:</strong> <span id="summaryDate"></span></p>
+                                    <p><strong>Consultation Type:</strong> <span id="summaryConsultation"></span></p>
+                                    <p><strong>Time Slot:</strong> <span id="summaryTimeSlot"></span></p>
+                                    <p><strong>Reason for Visit:</strong> <span id="summaryReason"></span></p>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <h6>Generated Information:</h6>
+                                    <p><strong>Health Facility ID:</strong> <span id="summaryHealthFacility"></span></p>
+                                    <p><strong>Family Number:</strong> <span id="summaryFamilyNo"></span></p>
+                                </div>
+                            </div>
+                            
+                            <div class="form-check mb-4">
+                                <input class="form-check-input" type="checkbox" id="confirmAgreement" name="confirmAgreement" required>
+                                <label class="form-check-label" for="confirmAgreement">
+                                    I confirm that all the information provided is accurate to the best of my knowledge.
+                                </label>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between">
+                                <button type="button" id="backToStep2Button" class="btn btn-secondary">Back</button>
+                                <button type="submit" class="btn btn-success">Confirm Booking</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Footer -->
+<footer class="footer mt-5 py-4 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h5>Barangay Health Center</h5>
+                <p>Barangay 161, Manila<br>
+                Phone: (02) 8123-4567<br>
+                Email: bhcare@barangay161.ph</p>
+            </div>
+            <div class="col-md-3">
+                <h5>Quick Links</h5>
+                <ul class="list-unstyled">
+                    <li><a href="/" class="text-decoration-none">Home</a></li>
+                    <li><a href="/register" class="text-decoration-none">Sign Up</a></li>
+                    <li><a href="/login" class="text-decoration-none">Login</a></li>
+                    <li><a href="/howitworks" class="text-decoration-none">How It Works</a></li>
+                </ul>
+            </div>
+            <div class="col-md-5">
+                <h5>Emergency Contacts</h5>
+                <p>In case of medical emergency, please contact:</p>
+                <ul class="list-unstyled">
+                    <li>Emergency Hotline: 911</li>
+                    <li>Health Center: (02) 8765-4321</li>
+                    <li>Ambulance: (02) 8888-7777</li>
+                </ul>
+            </div>
+        </div>
+        <hr>
+        <div class="text-center">
+            <p class="mb-0">&copy; 2023 Barangay Health Center. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            console.log('[BookAppointment] Page loaded');
+            
+            // Define available time slots for each consultation type
+            const timeSlots = {
+                medical: {
+                    weekday: [
+                        { time: '08:00', display: '8:00 AM' },
+                        { time: '09:00', display: '9:00 AM' },
+                        { time: '10:00', display: '10:00 AM' },
+                        { time: '11:00', display: '11:00 AM' },
+                        { time: '13:00', display: '1:00 PM' },
+                        { time: '14:00', display: '2:00 PM' },
+                        { time: '15:00', display: '3:00 PM' },
+                        { time: '16:00', display: '4:00 PM' }
+                    ]
+                },
+                dental: {
+                    monday: [
+                        { time: '08:00', display: '8:00 AM' },
+                        { time: '09:00', display: '9:00 AM' },
+                        { time: '10:00', display: '10:00 AM' },
+                        { time: '11:00', display: '11:00 AM' }
+                    ],
+                    wednesday: [
+                        { time: '08:00', display: '8:00 AM' },
+                        { time: '09:00', display: '9:00 AM' },
+                        { time: '10:00', display: '10:00 AM' },
+                        { time: '11:00', display: '11:00 AM' }
+                    ],
+                    friday: [
+                        { time: '08:00', display: '8:00 AM' },
+                        { time: '09:00', display: '9:00 AM' },
+                        { time: '10:00', display: '10:00 AM' },
+                        { time: '11:00', display: '11:00 AM' }
+                    ]
+                },
+                immunization: {
+                    wednesday: [
+                        { time: '08:00', display: '8:00 AM' },
+                        { time: '09:00', display: '9:00 AM' },
+                        { time: '10:00', display: '10:00 AM' },
+                        { time: '11:00', display: '11:00 AM' }
+                    ]
+                },
+                checkup: {
+                    weekday: [
+                        { time: '08:00', display: '8:00 AM' },
+                        { time: '09:00', display: '9:00 AM' },
+                        { time: '10:00', display: '10:00 AM' },
+                        { time: '11:00', display: '11:00 AM' }
+                    ]
+                },
+                family: {
+                    weekday: [
+                        { time: '13:00', display: '1:00 PM' },
+                        { time: '14:00', display: '2:00 PM' },
+                        { time: '15:00', display: '3:00 PM' },
+                        { time: '16:00', display: '4:00 PM' }
+                    ]
+                }
+            };
+
+            // Function to update available time slots
+            function updateTimeSlots() {
+                console.log('[BookAppointment] Updating time slots');
+                
+                const dateInput = $('#appointmentDate');
+                const consultationType = $('#consultationType').val();
+                const timeSlotSelect = $('#timeSlot');
+                const timeSlotMessage = $('#timeSlotMessage');
+                
+                // Clear existing options
+                timeSlotSelect.empty().append('<option value="" selected disabled>Select a time slot</option>');
+                
+                if (!dateInput.val() || !consultationType) {
+                    console.log('[BookAppointment] Date or consultation type not selected');
+                    timeSlotMessage.text('Please select both date and consultation type.');
+                    return;
+                }
+                
+                const selectedDate = new Date(dateInput.val());
+                const dayOfWeek = selectedDate.getDay(); // 0 = Sunday, 1 = Monday, ...
+                
+                console.log('[BookAppointment] Selected date:', selectedDate);
+                console.log('[BookAppointment] Day of week:', dayOfWeek);
+                
+                // Validate if selected date is not in the past
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                if (selectedDate < today) {
+                    console.error('[BookAppointment] Selected date is in the past');
+                    dateInput.addClass('is-invalid');
+                    timeSlotMessage.text('Please select a future date.');
+                    return;
+                }
+                
+                // Get available slots based on consultation type and day
+                let availableSlots = [];
+                let message = '';
+                
+                switch(consultationType) {
+                    case 'medical':
+                    if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+                            availableSlots = timeSlots.medical.weekday;
+                            message = 'Medical consultations available Monday to Friday.';
+                        } else {
+                            message = 'Medical consultations are only available on weekdays.';
+                    }
+                        break;
+                        
+                    case 'dental':
+                    if (dayOfWeek === 1) {
+                            availableSlots = timeSlots.dental.monday;
+                            message = 'Dental consultations available on Mondays.';
+                    } else if (dayOfWeek === 3) {
+                            availableSlots = timeSlots.dental.wednesday;
+                            message = 'Dental consultations available on Wednesdays.';
+                    } else if (dayOfWeek === 5) {
+                            availableSlots = timeSlots.dental.friday;
+                            message = 'Dental consultations available on Fridays.';
+                        } else {
+                            message = 'Dental consultations are only available on Monday, Wednesday, and Friday.';
+                    }
+                        break;
+                        
+                    case 'immunization':
+                    if (dayOfWeek === 3) {
+                            availableSlots = timeSlots.immunization.wednesday;
+                            message = 'Immunization services available on Wednesdays.';
+                        } else {
+                            message = 'Immunization services are only available on Wednesdays.';
+                        }
+                        break;
+                        
+                    case 'checkup':
+                        if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+                            availableSlots = timeSlots.checkup.weekday;
+                            message = 'Check-up services available Monday to Friday mornings.';
+                        } else {
+                            message = 'Check-up services are only available on weekdays.';
+                        }
+                        break;
+                        
+                    case 'family':
+                        if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+                            availableSlots = timeSlots.family.weekday;
+                            message = 'Family planning services available Monday to Friday afternoons.';
+                        } else {
+                            message = 'Family planning services are only available on weekdays.';
+                        }
+                        break;
+                }
+                
+                console.log('[BookAppointment] Available slots:', availableSlots);
+                
+                // Add available time slots to select element
+                if (availableSlots.length > 0) {
+                    availableSlots.forEach(slot => {
+                        const option = new Option(slot.display, slot.time);
+                        timeSlotSelect.append(option);
+                    });
+                    console.log('[BookAppointment] Added time slots to select element');
+                }
+                
+                timeSlotMessage.text(message);
+                console.log('[BookAppointment] Updated time slot message:', message);
+            }
+            
+            // Event listeners for date and consultation type changes
+            $('#appointmentDate, #consultationType').on('change', function() {
+                console.log('[BookAppointment] Date or consultation type changed');
+                updateTimeSlots();
+            });
+            
+            // Initialize time slots on page load
+            updateTimeSlots();
+            
+            // Handle Next button click
+            $('#toStep2Button').on('click', function() {
+                console.log('[BookAppointment] Next button clicked');
+                
+                // Get form data
+                const formData = {
+                    fullName: $('#fullName').val(),
+                    age: $('#age').val(),
+                    phoneNumber: $('#phoneNumber').val(),
+                    appointmentDate: $('#appointmentDate').val(),
+                    consultationType: $('#consultationType').val(),
+                    timeSlot: $('#timeSlot').val(),
+                    reasonForVisit: $('#reasonForVisit').val(),
+                    bookingForOther: $('#bookingForOther').is(':checked')
+                };
+                
+                console.log('[BookAppointment] Form data:', formData);
+                
+                // Validate required fields
+                let isValid = true;
+                const requiredFields = $('#step1').find('[required]');
+                
+                console.log('[BookAppointment] Validating required fields...');
+                requiredFields.each(function() {
+                    if (!$(this).val()) {
+                        $(this).addClass('is-invalid');
+                        isValid = false;
+                        console.warn('[BookAppointment] Invalid field:', $(this).attr('name'));
+                    } else {
+                        $(this).removeClass('is-invalid');
+                        console.log('[BookAppointment] Valid field:', $(this).attr('name'), '=', $(this).val());
+                    }
+                });
+                
+                if (!isValid) {
+                    console.error('[BookAppointment] Validation failed - cannot proceed to step 2');
+                    alert('Please fill in all required fields before proceeding.');
+                    return;
+                }
+                
+                // Additional validation for time slot
+                if (!$('#timeSlot').val()) {
+                    console.error('[BookAppointment] No time slot selected');
+                    $('#timeSlot').addClass('is-invalid');
+                    alert('Please select an available time slot.');
+                    return;
+                }
+                
+                console.log('[BookAppointment] Validation passed - proceeding to step 2');
+                
+                // Save form data to session storage
+                try {
+                    sessionStorage.setItem('appointmentFormData', JSON.stringify(formData));
+                    console.log('[BookAppointment] Form data saved to session storage');
+                } catch (error) {
+                    console.error('[BookAppointment] Error saving form data:', error);
+                }
+                
+                // Determine which form to show based on age
+                const age = parseInt($('#age').val());
+                console.log('[BookAppointment] Patient age:', age);
+                
+                try {
+                    if (age >= 20) {
+                        // Show NCD Risk Assessment for age 20+
+                        console.log('[BookAppointment] Showing NCD Risk Assessment (age >= 20)');
+                        $('#step1').hide();
+                        $('#step2a').show();
+                        $('#step2b').hide();
+                    } else if (age >= 10 && age <= 19) {
+                        // Show HEEADSSS Assessment for age 10-19
+                        console.log('[BookAppointment] Showing HEEADSSS Assessment (age 10-19)');
+                        $('#step1').hide();
+                        $('#step2a').hide();
+                        $('#step2b').show();
+                    } else {
+                        // For children under 10, proceed to confirmation
+                        console.log('[BookAppointment] Proceeding to confirmation (age < 10)');
+                        $('#step1').hide();
+                        $('#step2a').hide();
+                        $('#step2b').hide();
+                        $('#step3').show();
+                    }
+                    
+                    // Update progress indicator
+                    $('.step-indicator li').eq(0).removeClass('active');
+                    $('.step-indicator li').eq(1).addClass('active');
+                    console.log('[BookAppointment] Updated progress indicator');
+                } catch (error) {
+                    console.error('[BookAppointment] Error during step transition:', error);
+                    alert('An error occurred. Please try again.');
+                }
+            });
+            
+            // Rest of your existing code...
+        });
+    </script>
+}

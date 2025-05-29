@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Barangay Health Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Barangay Health Center</h1>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="register.html" class="active">Register</a></li>
+                    <li><a href="pages/admin/login.html">Admin Login</a></li>
+                </ul>
+            </nav>
+        </header>
+        
+        <main>
+            <div class="form-container">
+                <h2 class="form-title">Register for Health Services</h2>
+                <form id="registrationForm">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password *</label>
+                        <input type="password" id="password" name="password" class="form-control" required>
+                        <div class="password-strength-container">
+                            <div class="d-flex justify-content-between">
+                                <span>Password Strength:</span>
+                                <span class="password-strength-text">Too weak</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Password Requirements -->
+                        <div class="password-requirements">
+                            <p><strong>Password Requirements:</strong></p>
+                            <ul>
+                                <li id="length"><i class="fas fa-times text-danger"></i> At least 8 characters</li>
+                                <li id="uppercase"><i class="fas fa-times text-danger"></i> At least 1 uppercase letter</li>
+                                <li id="lowercase"><i class="fas fa-times text-danger"></i> At least 1 lowercase letter</li>
+                                <li id="number"><i class="fas fa-times text-danger"></i> At least 1 number</li>
+                                <li id="special"><i class="fas fa-times text-danger"></i> At least 1 special character</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password *</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="fullName" name="fullName" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contactNumber">Contact Number</label>
+                        <input type="tel" id="contactNumber" name="contactNumber" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <textarea id="address" name="address" class="form-control" rows="3" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="residencyProof">Proof of Residency (ID or Utility Bill)</label>
+                        <input type="file" id="residencyProof" name="residencyProof" class="form-control" required>
+                        <small class="form-note">Accepted formats: PDF, JPG, PNG (Max: 5MB)</small>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input type="checkbox" id="termsAgreement" name="termsAgreement" required>
+                        <label for="termsAgreement">I agree to the terms and conditions</label>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input type="checkbox" id="privacyAgreement" name="privacyAgreement" required>
+                        <label for="privacyAgreement">I consent to the privacy policy</label>
+                    </div>
+                    
+                    <div class="form-note">
+                        <p>Your account will be pending until approved by an administrator.</p>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Register</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+        
+        <!-- Registration Success Modal -->
+        <div id="successModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <svg class="modal-icon success-checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#28a745">
+                        <path d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    <h3 class="modal-title">Registration Successful!</h3>
+                </div>
+                <div class="modal-body">
+                    <p>Thank you for registering with the Barangay Health Center.</p>
+                    <p>Your account is now pending approval by an administrator. You will receive an email notification once your account has been approved.</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="close-modal">Close</button>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>&copy; 2023 Barangay Health Center. All rights reserved.</p>
+        </footer>
+    </div>
+    
+    <script src="js/db.js"></script>
+    <script src="js/register.js"></script>
+    <script src="js/password-validator.js"></script>
+</body>
+</html> 

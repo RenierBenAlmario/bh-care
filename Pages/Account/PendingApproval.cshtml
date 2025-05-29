@@ -1,0 +1,44 @@
+@page
+@model Barangay.Pages.Account.PendingApprovalModel
+@{
+    ViewData["Title"] = "Registration Pending Approval";
+}
+
+<div class="container">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h4><i class="fas fa-clock"></i> Registration Pending Approval</h4>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-user-clock fa-5x text-info mb-3"></i>
+                        <h5>Thank you for registering with Barangay Health Center!</h5>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <p>Your account has been successfully created but requires administrator approval before you can log in.</p>
+                        <p>This usually takes 1-2 business days. You will be able to log in once your account is approved.</p>
+                    </div>
+                    
+                    <p>Please note:</p>
+                    <ul>
+                        <li>Your residency proof will be verified by our staff</li>
+                        <li>You will not be able to log in until your account is approved</li>
+                        <li>No further action is required from you at this time</li>
+                    </ul>
+                    
+                    <div class="text-center mt-4">
+                        <a href="mailto:admin@barangay.health" class="btn btn-outline-secondary me-2">
+                            <i class="fas fa-envelope"></i> Contact Admin
+                        </a>
+                        <a href="/Account/Login" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt"></i> Go to Login Page
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

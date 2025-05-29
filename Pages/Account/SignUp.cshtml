@@ -1,0 +1,569 @@
+@page "{handler?}"
+@model Barangay.Pages.Account.SignUpModel
+@{
+    ViewData["Title"] = "Sign Up";
+}
+
+<div class="container py-4">
+    <div class="signup-container">
+        <h2 class="text-center">
+            <i class="fas fa-user-plus"></i> Create Your Account
+        </h2>
+        
+        <form method="post" enctype="multipart/form-data" id="signupForm">
+            <div asp-validation-summary="All" class="text-danger validation-summary"></div>
+            
+            @if (!ModelState.IsValid)
+            {
+                <div id="customValidationSummary" class="alert alert-danger">
+                    <ul>
+                        @foreach (var state in ModelState)
+                        {
+                            @foreach (var error in state.Value.Errors)
+                            {
+                                <li>@error.ErrorMessage</li>
+                            }
+                        }
+                    </ul>
+                </div>
+            }
+            
+            <!-- Personal Information Section -->
+            <div class="section">
+                <h4 class="text-primary"><i class="fas fa-user"></i> Personal Information</h4>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Input.Username" class="form-label">Username <span class="required">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                                <input asp-for="Input.Username" class="form-control" placeholder="Username (min. 3 characters)" aria-label="Username input" required />
+                            </div>
+                            <div class="invalid-feedback" id="usernameError">Username is required</div>
+                            <span asp-validation-for="Input.Username" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Input.Email" class="form-label">Email Address <span class="required">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-envelope"></i>
+                                </span>
+                                <input asp-for="Input.Email" class="form-control" placeholder="Email address" type="email" aria-label="Email input" required />
+                            </div>
+                            <div class="invalid-feedback" id="emailError">Email address is required</div>
+                            <span asp-validation-for="Input.Email" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="Input.FirstName" class="form-label">First Name <span class="required">*</span></label>
+                            <input asp-for="Input.FirstName" class="form-control" placeholder="First name" aria-label="First name input" required />
+                            <div class="invalid-feedback" id="firstNameError">First name is required</div>
+                            <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="Input.MiddleName" class="form-label">Middle Name <span class="text-muted">(Optional)</span></label>
+                            <input asp-for="Input.MiddleName" class="form-control" placeholder="Middle name (optional)" aria-label="Middle name input (optional)" />
+                            <span asp-validation-for="Input.MiddleName" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="Input.LastName" class="form-label">Last Name <span class="required">*</span></label>
+                            <input asp-for="Input.LastName" class="form-control" placeholder="Last name" required aria-label="Last name input" />
+                            <div class="invalid-feedback" id="lastNameError">Last name is required</div>
+                            <span asp-validation-for="Input.LastName" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Input.Suffix" class="form-label">Suffix <span class="text-muted">(Optional)</span></label>
+                            <input asp-for="Input.Suffix" class="form-control" placeholder="Suffix (optional)" aria-label="Suffix input (optional)" />
+                            <span asp-validation-for="Input.Suffix" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Input.ContactNumber" class="form-label">Contact Number <span class="required">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-phone"></i>
+                                </span>
+                                <input asp-for="Input.ContactNumber" class="form-control" placeholder="e.g., 09171234567" required aria-label="Contact number input" />
+                            </div>
+                            <div class="invalid-feedback" id="contactNumberError">Contact number is required</div>
+                            <small class="form-text text-muted">Valid formats: 09XXXXXXXXX or +639XXXXXXXXX</small>
+                            <span asp-validation-for="Input.ContactNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Input.BirthDate" class="form-label">Birth Date <span class="required">*</span></label>
+                            <input asp-for="Input.BirthDate" class="form-control" type="date" required aria-label="Birth date input" id="birthDate" />
+                            <div class="invalid-feedback" id="birthDateError">Birth date is required</div>
+                            <small class="form-text text-muted">For users under 18, guardian information is required</small>
+                            <span asp-validation-for="Input.BirthDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Guardian Information Section -->
+                <div id="guardianInfoSection" class="form-group mb-3 border p-3 rounded" style="display: none;">
+                    <h5>Guardian Information</h5>
+                    <p class="text-info">Required for users under 18 years old</p>
+                    
+                    <div class="form-group mb-3">
+                        <label asp-for="Input.GuardianFirstName" class="form-label">Guardian's First Name <span class="required">*</span></label>
+                        <input asp-for="Input.GuardianFirstName" class="form-control" id="guardianFirstName" />
+                        <span asp-validation-for="Input.GuardianFirstName" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label asp-for="Input.GuardianLastName" class="form-label">Guardian's Last Name <span class="required">*</span></label>
+                        <input asp-for="Input.GuardianLastName" class="form-control" id="guardianLastName" />
+                        <span asp-validation-for="Input.GuardianLastName" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Input.GuardianResidencyProof" class="form-label">Guardian's Residency Proof <span class="required">*</span></label>
+                        <input asp-for="Input.GuardianResidencyProof" class="form-control" type="file" id="guardianResidencyProof" accept=".jpg,.jpeg,.png,.pdf" />
+                        <span asp-validation-for="Input.GuardianResidencyProof" class="text-danger"></span>
+                        <small class="form-text text-muted">Accepted formats: JPG, JPEG, PNG, PDF</small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Account Security Section -->
+            <div class="section">
+                <h4 class="text-primary"><i class="fas fa-shield-alt"></i> Account Security</h4>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Input.Password" class="form-label">Password <span class="required">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                                <input asp-for="Input.Password" class="form-control" type="password" id="password" aria-label="Password input" aria-describedby="passwordRequirements" required />
+                                <button class="btn btn-outline-secondary toggle-password" type="button" id="togglePassword" tabindex="0" aria-label="Toggle password visibility">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="invalid-feedback" id="passwordError">Password is required</div>
+                            
+                            <!-- Password Strength Meter -->
+                            <div class="password-strength-meter mt-2">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <small class="text-dark">Password Strength:</small>
+                                    <small class="password-strength-text">Too weak</small>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-danger" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="passwordStrength"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Password Feedback -->
+                            <div id="passwordFeedback" class="password-feedback mt-2 p-2 border rounded bg-light d-none">
+                                <!-- Feedback will be inserted here by JavaScript -->
+                            </div>
+                            
+                            <!-- Password Requirements -->
+                            <div class="password-requirements mt-2 p-2 border rounded bg-light" id="passwordRequirements">
+                                <p class="mb-1 text-dark"><strong>Password Requirements:</strong></p>
+                                <ul class="ps-3 mb-0 text-dark" id="requirementsList">
+                                    <li id="length"><i class="fas fa-times text-danger me-1"></i> At least 8 characters</li>
+                                    <li id="uppercase"><i class="fas fa-times text-danger me-1"></i> At least 1 uppercase letter</li>
+                                    <li id="lowercase"><i class="fas fa-times text-danger me-1"></i> At least 1 lowercase letter</li>
+                                    <li id="number"><i class="fas fa-times text-danger me-1"></i> At least 1 number</li>
+                                    <li id="special"><i class="fas fa-times text-danger me-1"></i> At least 1 special character</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Breached Password Warning (will be shown via JS) -->
+                            <div class="alert alert-warning mt-2 d-none" id="breachedPasswordWarning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <span>This password appears in known data breaches. Please choose a different password.</span>
+                            </div>
+                            
+                            <span asp-validation-for="Input.Password" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Input.ConfirmPassword" class="form-label">Confirm Password <span class="required">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                                <input asp-for="Input.ConfirmPassword" class="form-control" type="password" id="confirmPassword" aria-label="Confirm password input" required />
+                                <button class="btn btn-outline-secondary toggle-password" type="button" id="toggleConfirmPassword" tabindex="0" aria-label="Toggle confirm password visibility">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="invalid-feedback" id="confirmPasswordError">Confirm password is required</div>
+                            
+                            <!-- Password Match Indicator -->
+                            <div class="password-match-indicator mt-2">
+                                <div class="alert alert-success py-2 d-none" id="passwordMatch">
+                                    <i class="fas fa-check-circle me-2"></i> Passwords match
+                                </div>
+                                <div class="alert alert-danger py-2 d-none" id="passwordMismatch">
+                                    <i class="fas fa-times-circle me-2"></i> Passwords do not match
+                                </div>
+                            </div>
+                            
+                            <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Residency Verification Section -->
+            <div class="section">
+                <h4 class="text-primary"><i class="far fa-address-card"></i> Residency Verification</h4>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <span class="text-dark">Please upload your Barangay Clearance or valid ID to verify your residency in Barangay 158, 159, 160,161.</span>
+                </div>
+                
+                <div class="form-group">
+                    <label asp-for="Input.ResidencyProof" class="form-label">Residency Proof <span class="required">*</span></label>
+                    <input asp-for="Input.ResidencyProof" type="file" class="form-control" accept=".pdf,.png,.jpg,.jpeg" id="residencyProofFile" required aria-label="Residency proof file input" />
+                    <div class="invalid-feedback" id="fileError">Please upload your residency proof document</div>
+                    <div id="fileNameDisplay" class="file-info mt-2 d-none"></div>
+                    <div class="mt-2">
+                        <small class="form-text text-dark">
+                            <ul class="ps-3 mb-0">
+                                <li>Accepted file types: PDF, PNG, JPG, JPEG</li>
+                                <li>Maximum file size: 5MB</li>
+                                <li>Documents must clearly show your name and address</li>
+                            </ul>
+                        </small>
+                    </div>
+                    <span asp-validation-for="Input.ResidencyProof" class="text-danger"></span>
+                </div>
+                
+                <p class="mb-2 text-dark">Your document will be reviewed by an administrator for verification.</p>
+                
+                <div class="form-group">
+                    <div class="form-check">
+                        <input type="checkbox" name="Input.AgreeToTerms" id="privacyTerms" class="form-check-input" aria-label="Agree to terms checkbox" required value="true" />
+                        <label class="form-check-label text-dark" for="privacyTerms">
+                            I have read and agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Data Privacy Terms</a> (Republic Act 10173)
+                        </label>
+                        <div class="invalid-feedback" id="privacyTermsError">
+                            You must agree to the Data Privacy Terms to continue
+                        </div>
+                        <span asp-validation-for="Input.AgreeToTerms" class="text-danger"></span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="form-check">
+                        <input type="checkbox" name="Input.ConfirmResidency" id="residencyConfirm" class="form-check-input" aria-label="Confirm residency checkbox" required value="true" />
+                        <label class="form-check-label text-dark" for="residencyConfirm">
+                            I confirm that I am a resident of Barangay 161 and all information provided is correct
+                        </label>
+                        <div class="invalid-feedback" id="residencyConfirmError">
+                            You must confirm your residency to continue
+                        </div>
+                        <span asp-validation-for="Input.ConfirmResidency" class="text-danger"></span>
+                    </div>
+                </div>
+                
+                <!-- Hidden fields to ensure the values are submitted even when checkboxes are not checked -->
+                <input type="hidden" name="Input.AgreeToTerms" value="false" />
+                <input type="hidden" name="Input.ConfirmResidency" value="false" />
+                
+                <div id="checkboxErrorContainer" class="alert alert-danger mt-3 d-none">
+                    <strong>Error:</strong> <span id="checkboxErrorMessage">You must agree to the terms and conditions and confirm your residency</span>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary btn-block w-100" id="signupButton">
+                    <i class="fas fa-user-plus me-2"></i> Register Account
+                </button>
+                <div id="loadingIndicator" class="text-center mt-3 d-none">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Processing your registration, please wait...</p>
+                </div>
+                <noscript>
+                    <button type="submit" class="btn btn-primary btn-block mt-2 w-100" id="fallbackSubmit">
+                        Register Account (No JavaScript)
+                    </button>
+                </noscript>
+            </div>
+            
+            <div class="text-center mt-3">
+                <span class="text-dark">Already have an account?</span> <a asp-area="" asp-controller="Home" asp-action="Index" class="login-link">Log In</a>
+            </div>
+            
+
+        </form>
+    </div>
+</div>
+
+<!-- Terms and Conditions Modal -->
+<div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="termsModalLabel">Data Privacy Terms</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h6>Republic Act 10173 - Data Privacy Act of 2012</h6>
+                <p class="text-dark">The Barangay Health Center is committed to protecting your personal information in accordance with the Data Privacy Act of 2012 (Republic Act 10173).</p>
+                
+                <h6>Information We Collect</h6>
+                <p class="text-dark">We collect personal information such as your name, contact information, residency details, and health information for the purpose of providing you with health services.</p>
+                
+                <h6>How We Use Your Information</h6>
+                <p class="text-dark">Your information will be used for:</p>
+                <ul>
+                    <li class="text-dark">Processing your health service requests</li>
+                    <li class="text-dark">Creating and maintaining your patient record</li>
+                    <li class="text-dark">Communicating with you about appointments and health services</li>
+                    <li class="text-dark">Verifying your identity and residency</li>
+                </ul>
+                
+                <h6>Protection of Your Information</h6>
+                <p class="text-dark">We implement appropriate security measures to protect your personal information against unauthorized access or disclosure.</p>
+                
+                <h6>Your Rights</h6>
+                <p class="text-dark">You have the right to:</p>
+                <ul>
+                    <li class="text-dark">Be informed about how your data is processed</li>
+                    <li class="text-dark">Access your personal information</li>
+                    <li class="text-dark">Correct inaccuracies in your data</li>
+                    <li class="text-dark">Object to processing in certain circumstances</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="acceptTerms" data-bs-dismiss="modal">Accept Terms</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Post-Registration Success Modal -->
+<div class="modal fade" id="registrationSuccessModal" tabindex="-1" aria-labelledby="registrationSuccessModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content registration-success-modal">
+            <div class="modal-header border-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-4">
+                <div class="success-icon-container mb-4">
+                    <i class="fas fa-check-circle text-success success-icon"></i>
+                </div>
+                <h4 class="fw-bold text-dark mb-3">Registration Successful!</h4>
+                <p class="text-muted mb-4">Your account is pending admin approval. You will receive an email notification once your account has been verified.</p>
+                <p class="small text-muted">Please make sure to check your email inbox and spam folder.</p>
+            </div>
+            <div class="modal-footer border-0 justify-content-center pb-4">
+                <button type="button" class="btn btn-primary px-4 py-2" data-bs-dismiss="modal" id="successCloseBtn">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Guardian Consent Modal -->
+<div class="modal fade" id="guardianConsentModal" tabindex="-1" aria-labelledby="guardianConsentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="guardianConsentModalLabel">
+                    <i class="fas fa-user-shield me-2"></i>Guardian Consent Required
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted mb-4">Since you are under 18 years old, we need your guardian's consent to proceed with the registration.</p>
+                
+                <div class="form-group mb-3">
+                    <label for="guardianFirstName" class="form-label">Guardian's First Name <span class="required">*</span></label>
+                    <input type="text" class="form-control" id="guardianFirstName" name="Input.GuardianFirstName" required>
+                    <div class="invalid-feedback">Guardian's first name is required</div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="guardianLastName" class="form-label">Guardian's Last Name <span class="required">*</span></label>
+                    <input type="text" class="form-control" id="guardianLastName" name="Input.GuardianLastName" required>
+                    <div class="invalid-feedback">Guardian's last name is required</div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="guardianResidencyProof" class="form-label">Residency Proof <span class="required">*</span></label>
+                    <input type="file" class="form-control" id="guardianResidencyProof" name="Input.GuardianResidencyProof" 
+                           accept=".jpg,.jpeg,.png,.pdf" required>
+                    <div class="invalid-feedback">Please upload a valid residency proof document</div>
+                    <small class="form-text text-muted">Accepted formats: JPG, JPEG, PNG, PDF</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="submitGuardianConsent">
+                    <i class="fas fa-check me-2"></i>Submit Guardian Information
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <!-- zxcvbn password strength library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.4.2/zxcvbn.js" integrity="sha512-TZlMGFY9xKj38t/5m2FzJ+RM/aD5alMHDe26p0mYUMoCF5G7ibfHUQILq0qQPV3wlsnCwL+TPRNK4vIWGLOkUQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="~/js/signup.js" asp-append-version="true"></script>
+    <script src="~/js/password-validation.js" asp-append-version="true"></script>
+    <script src="~/js/form-validation.js" asp-append-version="true"></script>
+    <script>
+        // Fix for middle name field validation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Remove the required attribute from middle name field
+            const middleNameInput = document.querySelector('input[name="Input.MiddleName"]');
+            if (middleNameInput) {
+                // Make sure it's not required
+                middleNameInput.removeAttribute('required');
+                middleNameInput.setAttribute('aria-required', 'false');
+            }
+            
+            // Hide any validation error message for middle name
+            const errorMessages = document.querySelectorAll('.text-danger');
+            errorMessages.forEach(message => {
+                if (message.textContent && message.textContent.includes('Middle Name field is required')) {
+                    message.style.display = 'none';
+                }
+            });
+            
+            // Fix validation on form submission
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function() {
+                    // For any validation summary errors about middle name, hide them
+                    setTimeout(function() {
+                        const errors = document.querySelectorAll('ul.validation-summary-errors li');
+                        errors.forEach(error => {
+                            if (error.textContent && error.textContent.includes('Middle Name field is required')) {
+                                error.style.display = 'none';
+                            }
+                        });
+                    }, 0);
+                });
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const birthDateInput = document.getElementById('birthDate');
+            const guardianConsentModal = new bootstrap.Modal(document.getElementById('guardianConsentModal'));
+            let guardianInfoSubmitted = false;
+
+            function calculateAge(birthDate) {
+                console.log('Calculating age for birthdate:', birthDate);
+                const today = new Date(); // Use current date instead of hardcoded date
+                const birth = new Date(birthDate);
+                let age = today.getFullYear() - birth.getFullYear();
+                const monthDiff = today.getMonth() - birth.getMonth();
+                
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+                    age--;
+                }
+                console.log('Calculated age:', age);
+                return age;
+            }
+
+            if (birthDateInput) {
+                console.log('Birth date input found');
+                birthDateInput.addEventListener('change', function() {
+                    console.log('Birth date changed to:', this.value);
+                    const age = calculateAge(this.value);
+                    if (age < 18) {
+                        console.log('User is under 18, showing guardian modal');
+                        guardianConsentModal.show();
+                    }
+                });
+            } else {
+                console.error('Birth date input not found');
+            }
+
+            document.getElementById('submitGuardianConsent')?.addEventListener('click', function() {
+                console.log('Submit guardian consent clicked');
+                const firstName = document.getElementById('guardianFirstName').value;
+                const lastName = document.getElementById('guardianLastName').value;
+                const residencyProof = document.getElementById('guardianResidencyProof').files[0];
+
+                if (!firstName || !lastName || !residencyProof) {
+                    console.error('Missing required guardian information');
+                    alert('Please fill in all required guardian information');
+                    return;
+                }
+
+                console.log('Guardian information:', { firstName, lastName, residencyProofName: residencyProof.name });
+
+                // Create hidden inputs to store guardian information
+                const form = document.getElementById('signupForm');
+                
+                let firstNameInput = document.querySelector('input[name="Input.GuardianFirstName"]');
+                if (!firstNameInput) {
+                    firstNameInput = document.createElement('input');
+                    firstNameInput.type = 'hidden';
+                    firstNameInput.name = 'Input.GuardianFirstName';
+                    form.appendChild(firstNameInput);
+                }
+                firstNameInput.value = firstName;
+
+                let lastNameInput = document.querySelector('input[name="Input.GuardianLastName"]');
+                if (!lastNameInput) {
+                    lastNameInput = document.createElement('input');
+                    lastNameInput.type = 'hidden';
+                    lastNameInput.name = 'Input.GuardianLastName';
+                    form.appendChild(lastNameInput);
+                }
+                lastNameInput.value = lastName;
+
+                guardianInfoSubmitted = true;
+                guardianConsentModal.hide();
+                console.log('Guardian information submitted successfully');
+            });
+
+            // Validate guardian information before form submission
+            document.getElementById('signupForm')?.addEventListener('submit', function(e) {
+                console.log('Form submission attempted');
+                const age = calculateAge(birthDateInput.value);
+                if (age < 18 && !guardianInfoSubmitted) {
+                    console.error('Guardian consent required but not submitted');
+                    e.preventDefault();
+                    alert('Guardian consent is required for users under 18 years old');
+                    guardianConsentModal.show();
+                } else {
+                    console.log('Form submission allowed');
+                }
+            });
+        });
+    </script>
+}

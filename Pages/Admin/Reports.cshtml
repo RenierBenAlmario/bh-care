@@ -1,0 +1,384 @@
+@page
+@model Barangay.Pages.Admin.ReportsModel
+@{
+    ViewData["Title"] = "Admin Reports";
+    Layout = "_AdminLayout";
+}
+
+<link rel="stylesheet" href="~/css/custom-notification-enhancements.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<!-- Hidden data element to store notification data for JavaScript -->
+<script id="notification-data" type="application/json">
+    @Html.Raw(Json.Serialize(new
+    {
+        count = ViewData["NotificationCount"] ?? 0,
+        notifications = ViewData["Notifications"] ?? new List<object>()
+    }))
+</script>
+
+<div class="content-top">
+    <div class="content-header">
+        <h1 class="content-title">Reports</h1>
+        <div class="breadcrumbs">
+            <a href="/Admin/AdminDashboard" class="breadcrumb-item">Dashboard</a>
+            <span class="breadcrumb-item active">Reports</span>
+        </div>
+    </div>
+    <div class="content-actions">
+        <button class="action-btn refresh-btn" id="refresh-data" onclick="location.reload();" data-tooltip="Refresh Reports">
+            <i class="fas fa-sync-alt"></i>
+        </button>
+        <button class="action-btn" id="download-pdf" onclick="generateReportPDF();" data-tooltip="Download PDF Report">
+            <i class="fas fa-file-pdf"></i>
+        </button>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success fade-in" role="alert">
+        <i class="fas fa-check-circle"></i>
+        <span>@TempData["SuccessMessage"]</span>
+        <button type="button" class="alert-close" aria-label="Close">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger fade-in" role="alert">
+        <i class="fas fa-exclamation-circle"></i>
+        <span>@TempData["ErrorMessage"]</span>
+        <button type="button" class="alert-close" aria-label="Close">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+}
+
+<!-- Current date for reference -->
+<div class="current-date">
+    <span>Current Date: @Model.ReportData.CurrentPhilippineTime.ToString("dddd, MMMM dd, yyyy, h:mm tt")</span>
+</div>
+
+<!-- Report Filter Controls -->
+<div class="report-filter-controls mb-4">
+    <div class="filter-group">
+        <label for="reportType" class="filter-label">Report Type</label>
+        <select id="reportType" class="filter-select">
+            <option value="all">All Reports</option>
+            <option value="patients">Patient Reports</option>
+            <option value="consultations">Consultation Reports</option>
+            <option value="health">Health Index</option>
+        </select>
+    </div>
+    <div class="filter-group">
+        <label for="timeRange" class="filter-label">Time Range</label>
+        <select id="timeRange" class="filter-select">
+            <option value="7days">Last 7 Days</option>
+            <option value="30days" selected>Last 30 Days</option>
+            <option value="90days">Last 90 Days</option>
+            <option value="1year">Last Year</option>
+            <option value="custom">Custom Range</option>
+        </select>
+    </div>
+    <div class="filter-group" id="customDateRange" style="display: none;">
+        <div class="date-range-picker">
+            <div class="date-field">
+                <label for="startDate" class="filter-label">Start Date</label>
+                <input type="date" id="startDate" class="filter-input" value="@DateTime.Now.AddDays(-30).ToString("yyyy-MM-dd")">
+            </div>
+            <div class="date-field">
+                <label for="endDate" class="filter-label">End Date</label>
+                <input type="date" id="endDate" class="filter-input" value="@DateTime.Now.ToString("yyyy-MM-dd")">
+            </div>
+        </div>
+    </div>
+    <button id="applyFilters" class="primary-action">
+        <i class="fas fa-filter"></i>
+        <span>Apply Filters</span>
+    </button>
+</div>
+
+<!-- Reports Section -->
+<div class="charts-grid" id="reports-container">
+    <!-- Patient Registrations Chart -->
+    <div class="chart-card" id="patientRegistrationsCard">
+        <div class="chart-header">
+            <h3><i class="fas fa-user-plus"></i> Patient Registrations</h3>
+        </div>
+        <div class="chart-container">
+            <canvas id="patientRegistrationsChart"></canvas>
+        </div>
+        <div class="chart-footer">
+            <span class="chart-info">Total registrations: <strong>@Model.ReportData.TotalRegistrations</strong></span>
+        </div>
+    </div>
+    
+    <!-- Consultations by Type Chart -->
+    <div class="chart-card" id="consultationsByTypeCard">
+        <div class="chart-header">
+            <h3><i class="fas fa-stethoscope"></i> Consultations by Type</h3>
+        </div>
+        <div class="chart-container">
+            <canvas id="consultationsByTypeChart"></canvas>
+        </div>
+        <div class="chart-footer">
+            <span class="chart-info">Total consultations: <strong>@Model.ReportData.TotalConsultations</strong></span>
+        </div>
+    </div>
+    
+    <!-- Barangay Health Index Chart -->
+    <div class="chart-card" id="healthIndexCard">
+        <div class="chart-header">
+            <h3><i class="fas fa-heartbeat"></i> Barangay Health Index</h3>
+        </div>
+        <div class="chart-container">
+            <canvas id="healthIndexChart"></canvas>
+        </div>
+        <div class="chart-footer">
+            <span class="chart-info">Average index: <strong>@Model.ReportData.AverageHealthIndex%</strong></span>
+            <span class="chart-info">Trend: <strong>@Model.ReportData.HealthIndexTrend</strong></span>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let charts = {};
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+        });
+
+        function initializeCharts() {
+            const reportData = @Html.Raw(Json.Serialize(Model.ReportData));
+            
+            // Patient Registrations Chart
+            charts.patientRegistrations = new Chart(document.getElementById('patientRegistrationsChart'), {
+                type: 'line',
+                data: {
+                    labels: reportData.patientRegistrations.map(r => r.label),
+                    datasets: [{
+                        label: 'Registrations',
+                        data: reportData.patientRegistrations.map(r => r.count),
+                        borderColor: '#4e73df',
+                        tension: 0.1,
+                        fill: true,
+                        backgroundColor: 'rgba(78, 115, 223, 0.05)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Consultations by Type Chart
+            charts.consultationsByType = new Chart(document.getElementById('consultationsByTypeChart'), {
+                type: 'bar',
+                data: {
+                    labels: reportData.consultationsByType.map(c => c.type),
+                    datasets: [{
+                        label: 'Consultations',
+                        data: reportData.consultationsByType.map(c => c.count),
+                        backgroundColor: '#1cc88a'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Health Index Chart
+            charts.healthIndex = new Chart(document.getElementById('healthIndexChart'), {
+                type: 'line',
+                data: {
+                    labels: reportData.healthIndexData.map(h => h.label),
+                    datasets: [{
+                        label: 'Health Index',
+                        data: reportData.healthIndexData.map(h => h.value),
+                        borderColor: '#36b9cc',
+                        tension: 0.1,
+                        fill: true,
+                        backgroundColor: 'rgba(54, 185, 204, 0.05)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            min: 60,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        async function generateReportPDF() {
+            const { jsPDF } = window.jspdf;
+            try {
+                const pdf = new jsPDF('landscape');
+                const container = document.getElementById('reports-container');
+                
+                // Add title and date
+                pdf.setFontSize(18);
+                pdf.text('Barangay Health Center Reports', 20, 20);
+                
+                pdf.setFontSize(12);
+                pdf.text(`Generated on: ${new Date().toLocaleString()}`, 20, 30);
+                
+                // Convert charts to images
+                let yOffset = 40;
+                const charts = container.querySelectorAll('.chart-card');
+                
+                for (const chart of charts) {
+                    const title = chart.querySelector('h3').textContent;
+                    const canvas = chart.querySelector('canvas');
+                    const footer = chart.querySelector('.chart-footer').textContent;
+                    
+                    // Add chart title
+                    pdf.setFontSize(14);
+                    pdf.text(title, 20, yOffset);
+                    yOffset += 10;
+                    
+                    // Add chart image
+                    const imgData = canvas.toDataURL('image/png');
+                    pdf.addImage(imgData, 'PNG', 20, yOffset, 250, 100);
+                    yOffset += 110;
+                    
+                    // Add chart footer
+                    pdf.setFontSize(10);
+                    pdf.text(footer, 20, yOffset);
+                    yOffset += 20;
+                    
+                    // Add new page if needed
+                    if (yOffset > 180 && chart !== charts[charts.length - 1]) {
+                        pdf.addPage();
+                        yOffset = 20;
+                    }
+                }
+                
+                // Save the PDF
+                pdf.save('barangay-health-reports.pdf');
+                
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                alert('Failed to generate PDF. Please try again.');
+            }
+        }
+    </script>
+}
+
+@section Styles {
+    <style>
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--spacing-4);
+            margin-top: var(--spacing-4);
+        }
+        
+        .chart-card {
+            background: var(--bg-surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            padding: var(--spacing-4);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: var(--spacing-4) 0;
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-4);
+        }
+        
+        .chart-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: var(--spacing-4);
+            padding-top: var(--spacing-4);
+            border-top: 1px solid var(--border-light);
+        }
+        
+        .chart-info {
+            font-size: var(--text-sm);
+            color: var(--text-secondary);
+        }
+        
+        .chart-info strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: var(--spacing-2);
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+            margin-left: var(--spacing-2);
+        }
+        
+        .action-btn:hover {
+            color: var(--primary);
+            background: var(--primary-light);
+        }
+        
+        .current-date {
+            margin-bottom: var(--spacing-4);
+            font-size: var(--text-sm);
+            color: var(--text-secondary);
+            text-align: right;
+        }
+        
+        /* Dark mode adjustments */
+        .dark-mode .chart-card {
+            background: var(--bg-surface-dark);
+        }
+        
+        .dark-mode .action-btn:hover {
+            background: var(--primary-dark);
+        }
+        
+        /* Responsive adjustments */
+        @@media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-container {
+                height: 250px;
+            }
+            
+            .chart-footer {
+                flex-direction: column;
+                gap: var(--spacing-2);
+            }
+        }
+    </style>
+} 

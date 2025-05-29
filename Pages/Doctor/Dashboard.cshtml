@@ -1,0 +1,156 @@
+@page
+@using Barangay.Models
+@model Barangay.Pages.Doctor.DashboardModel
+@{
+    ViewData["Title"] = "Doctor Dashboard";
+    Layout = "_DoctorLayout";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Doctor Dashboard</h1>
+    <p class="mb-4">@DateTime.Now.ToString("dddd, MMMM dd, yyyy")</p>
+
+    <div class="row">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Total Patients</h5>
+                    <h2 class="display-4">@Model.TotalPatients</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Consulted</h5>
+                    <h2 class="display-4">@Model.ConsultedPatients</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Pending</h5>
+                    <h2 class="display-4">@Model.PendingAppointments</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Urgent Cases</h5>
+                    <h2 class="display-4">@Model.UrgentCases</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Current Queue Section -->
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="fas fa-table me-1"></i>
+                        Current Queue
+                    </div>
+                    <button class="btn btn-sm btn-primary" id="refreshQueue">Refresh Queue</button>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Token</th>
+                                <th>Patient Name</th>
+                                <th>Status</th>
+                                <th>Wait Time</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.TodaysAppointments != null && Model.TodaysAppointments.Any())
+                            {
+                                @foreach (var appointment in Model.TodaysAppointments)
+                                {
+                                    <tr>
+                                        <td>@appointment.Id</td>
+                                        <td>@appointment.PatientName</td>
+                                        <td>@appointment.Status</td>
+                                        <td>@((DateTime.Now - appointment.CreatedAt).TotalMinutes.ToString("0")) min</td>
+                                        <td>
+                                            <a href="/Doctor/Appointment/Details?id=@appointment.Id" class="btn btn-sm btn-info">View</a>
+                                            @if (appointment.Status == AppointmentStatus.Pending)
+                                            {
+                                                <a href="/Doctor/Appointment/Start?id=@appointment.Id" class="btn btn-sm btn-success">Start</a>
+                                            }
+                                            else if (appointment.Status == AppointmentStatus.InProgress)
+                                            {
+                                                <a href="/Doctor/Appointment/Complete?id=@appointment.Id" class="btn btn-sm btn-primary">Complete</a>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center">No appointments in queue</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Notifications Section -->
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-bell me-1"></i>
+                    Recent Notifications
+                </div>
+                <div class="card-body">
+                    @if (Model.RecentNotifications != null && Model.RecentNotifications.Any())
+                    {
+                        <div class="list-group">
+                            @foreach (var notification in Model.RecentNotifications)
+                            {
+                                <div class="list-group-item list-group-item-action @(!notification.IsRead ? "bg-light" : "")">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">@notification.Title</h6>
+                                        <small>@notification.CreatedAt.ToLocalTime().ToString("MMM dd, hh:mm tt")</small>
+                                    </div>
+                                    <p class="mb-1">@notification.Message</p>
+                                    @if (!notification.IsRead)
+                                    {
+                                        <span class="badge bg-primary">New</span>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-center mb-0">No recent notifications</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $("#refreshQueue").click(function() {
+                location.reload();
+            });
+
+            // Auto refresh every 30 seconds
+            setInterval(function() {
+                location.reload();
+            }, 30000);
+        });
+    </script>
+}

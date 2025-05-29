@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Barangay Health Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Barangay Health Center</h1>
+            <nav>
+                <ul>
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="userManagement.html" class="active">User Management</a></li>
+                    <li><a href="../../index.html">Logout</a></li>
+                </ul>
+            </nav>
+        </header>
+        
+        <main>
+            <h2 class="form-title">User Management</h2>
+            
+            <div class="admin-container">
+                <div class="table-controls">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Search users...">
+                        <button class="btn-primary btn-sm" id="searchButton">Search</button>
+                    </div>
+                    <div class="filter-box">
+                        <select id="statusFilter">
+                            <option value="all">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="verified">Verified</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Contact Number</th>
+                                <th>Residency Proof</th>
+                                <th>Status</th>
+                                <th>Registration Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody">
+                            <!-- Users will be loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <ul class="pagination" id="pagination">
+                    <!-- Pagination will be generated dynamically -->
+                </ul>
+            </div>
+        </main>
+        
+        <!-- File View Modal -->
+        <div id="fileViewModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Residency Proof Document</h3>
+                </div>
+                <div class="modal-body">
+                    <div id="filePreview" style="text-align: center;">
+                        <!-- File preview will be shown here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="close-modal">Close</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Email Preview Modal -->
+        <div id="emailPreviewModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Email Preview</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="email-preview">
+                        <div class="email-header">
+                            <p><strong>To:</strong> <span id="emailTo"></span></p>
+                            <p><strong>Subject:</strong> <span id="emailSubject"></span></p>
+                        </div>
+                        <div class="email-body" id="emailBody">
+                            <!-- Email content will be shown here -->
+                        </div>
+                        <div class="email-footer">
+                            <p>Barangay Health Center</p>
+                            <p>This is an automated message. Please do not reply to this email.</p>
+                        </div>
+                    </div>
+                    <p id="emailSendingStatus"></p>
+                </div>
+                <div class="modal-footer">
+                    <button id="sendEmailBtn" class="btn-primary">Send Email</button>
+                    <button class="close-modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>&copy; 2023 Barangay Health Center. All rights reserved.</p>
+        </footer>
+    </div>
+    
+    <script src="../../js/db.js"></script>
+    <script src="../../js/userManagement.js"></script>
+</body>
+</html> 

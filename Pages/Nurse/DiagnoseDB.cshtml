@@ -1,0 +1,67 @@
+@page
+@using Barangay.Models
+@model Barangay.Pages.Nurse.DiagnoseDBModel
+@{
+    ViewData["Title"] = "Patient Records";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Patient Records</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Patient Name</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Doctor</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var appointment in Model.Appointments.OrderByDescending(a => a.AppointmentDate).ThenBy(a => a.AppointmentTime))
+                                {
+                                    <tr>
+                                        <td>@appointment.PatientName</td>
+                                        <td>@appointment.AppointmentDate.ToDateString()</td>
+                                        <td>@appointment.GetFormattedTime()</td>
+                                        <td>@(appointment.Doctor?.FullName ?? "Not assigned")</td>
+                                        <td>
+                                            <span class="badge @GetStatusBadgeClass(appointment.Status)">
+                                                @appointment.Status
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a asp-page="./PatientDetails" asp-route-id="@appointment.Id" class="btn btn-sm btn-primary">View Details</a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    private string GetStatusBadgeClass(AppointmentStatus status)
+    {
+        return status switch
+        {
+            AppointmentStatus.Pending => "bg-warning",
+            AppointmentStatus.Confirmed => "bg-success",
+            AppointmentStatus.Cancelled => "bg-danger",
+            AppointmentStatus.Completed => "bg-info",
+            _ => "bg-secondary"
+        };
+    }
+} 

@@ -1,0 +1,27 @@
+@page
+@model Barangay.Pages.Nurse.ErrorModel
+@{
+    ViewData["Title"] = "Error";
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4><i class="bi bi-exclamation-triangle-fill me-2"></i>Error</h4>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">An error occurred while processing your request.</h5>
+                    <p class="card-text">@Model.ErrorMessage</p>
+                    <a href="javascript:history.back()" class="btn btn-primary">
+                        <i class="bi bi-arrow-left me-2"></i>Go Back
+                    </a>
+                    <a href="/Nurse/VitalSigns" class="btn btn-outline-secondary">
+                        <i class="bi bi-house me-2"></i>Return to Vital Signs
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

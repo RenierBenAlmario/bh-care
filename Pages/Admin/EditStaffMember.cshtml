@@ -1,0 +1,136 @@
+@page "{id?}"
+@model Barangay.Pages.Admin.EditStaffMemberModel
+@{
+    ViewData["Title"] = "Edit Staff Member";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">
+                <i class="fas fa-user-edit me-2"></i> Edit Staff Member
+            </h4>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="Id" />
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Input.Name" class="form-label"></label>
+                            <input asp-for="Input.Name" class="form-control" />
+                            <span asp-validation-for="Input.Name" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Input.Email" class="form-label"></label>
+                            <input asp-for="Input.Email" class="form-control" />
+                            <span asp-validation-for="Input.Email" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="Input.Department" class="form-label"></label>
+                            <select asp-for="Input.Department" class="form-select" asp-items="Model.Departments"></select>
+                            <span asp-validation-for="Input.Department" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="Input.Position" class="form-label"></label>
+                            <select asp-for="Input.Position" class="form-select" asp-items="Model.Positions"></select>
+                            <span asp-validation-for="Input.Position" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="Input.Role" class="form-label"></label>
+                            <select asp-for="Input.Role" class="form-select" asp-items="Model.Roles"></select>
+                            <span asp-validation-for="Input.Role" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Input.Specialization" class="form-label"></label>
+                            <input asp-for="Input.Specialization" class="form-control" />
+                            <span asp-validation-for="Input.Specialization" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Input.LicenseNumber" class="form-label"></label>
+                            <input asp-for="Input.LicenseNumber" class="form-control" />
+                            <span asp-validation-for="Input.LicenseNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="Input.ContactNumber" class="form-label"></label>
+                            <input asp-for="Input.ContactNumber" class="form-control" />
+                            <span asp-validation-for="Input.ContactNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="Input.WorkingDays" class="form-label"></label>
+                            <input asp-for="Input.WorkingDays" class="form-control" />
+                            <span asp-validation-for="Input.WorkingDays" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="Input.WorkingHours" class="form-label"></label>
+                            <input asp-for="Input.WorkingHours" class="form-control" />
+                            <span asp-validation-for="Input.WorkingHours" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="Input.MaxDailyPatients" class="form-label"></label>
+                            <input asp-for="Input.MaxDailyPatients" class="form-control" type="number" min="1" max="100" />
+                            <span asp-validation-for="Input.MaxDailyPatients" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group mt-4">
+                            <div class="form-check form-switch">
+                                <input asp-for="Input.IsActive" class="form-check-input" />
+                                <label asp-for="Input.IsActive" class="form-check-label"></label>
+                            </div>
+                            <span asp-validation-for="Input.IsActive" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a asp-page="/Admin/StaffList" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i> Back to List
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+} 

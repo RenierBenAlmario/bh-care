@@ -1,0 +1,359 @@
+@page
+@model Barangay.Pages.User.NCDRiskAssessmentModel
+@{
+    ViewData["Title"] = "NCD Risk Assessment";
+}
+
+<div class="container mt-5">
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <div class="row">
+            <div class="col-md-6">
+                <strong>Current Queue:</strong> 5 patients waiting (Est. wait time: 15 mins)
+            </div>
+            <div class="col-md-6 text-end">
+                <strong>Health Tip:</strong> Stay hydrated and bring your ID to appointments.
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+        <button type="button" class="btn btn-outline-primary" id="backButton">
+                    <i class="fas fa-arrow-left me-2"></i>Back to HEEADSSS Assessment
+        </button>
+                <h2 class="mb-0">NCD Risk Assessment Form</h2>
+        <div style="width: 135px;"></div>
+            </div>
+        </div>
+    </div>
+
+    @if (!ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            <ul>
+                @foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <li>@error.ErrorMessage</li>
+                }
+            </ul>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+    {
+        <div class="alert alert-info">@Model.StatusMessage</div>
+    }
+
+    <form method="post" id="ncdForm">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Assessment.AppointmentId" />
+        <input type="hidden" asp-for="Assessment.UserId" />
+
+        <!-- Step 1: Basic Information -->
+        <div id="step1" class="assessment-step">
+            <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Basic Information</h5>
+        </div>
+        <div class="card-body">
+                    <!-- Health Facility and Family Number section -->
+                    <div class="row mb-4">
+                    <div class="col-md-6">
+                            <label class="form-label">Health Facility:</label>
+                            <input type="text" class="form-control" id="healthFacility" name="Assessment.HealthFacility" 
+                                   value="@Model.Assessment?.HealthFacility" readonly>
+                            <div class="form-text text-muted">Health facility assigned based on your barangay address.</div>
+                    </div>
+                    <div class="col-md-6">
+                            <label class="form-label">Family No:</label>
+                            <input type="text" class="form-control" id="familyNo" name="Assessment.FamilyNo" 
+                                   value="@Model.Assessment?.FamilyNo" 
+                                   @(Model.FamilyNoPreexisting ? "" : "readonly")>
+                            <div class="form-text text-muted">
+                                @if (Model.FamilyNoPreexisting)
+                                {
+                                    <span>Your existing family number from previous assessments.</span>
+                                }
+                                else
+                                {
+                                    <span>Generated from your last name (@(Model.Assessment?.FamilyNo?.Length > 0 ? Model.Assessment.FamilyNo.Substring(0, 1) : "")) with sequence number.</span>
+                                }
+                    </div>
+                </div>
+                    </div>
+
+                    <!-- Personal Information -->
+                    <div class="row">
+                            <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label required">Address</label>
+                                <input type="text" class="form-control" name="Assessment.Address" value="@Model.Assessment?.Address" required />
+                            </div>
+                            </div>
+                            <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label required">Barangay</label>
+                                <input type="text" class="form-control" name="Assessment.Barangay" value="@Model.Assessment?.Barangay" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                            <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label required">Birthday</label>
+                                <input type="date" class="form-control" name="Assessment.Birthday" value="@(Model.Assessment?.Birthday.ToString("yyyy-MM-dd"))" required />
+                            </div>
+                            </div>
+                            <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label required">Telepono</label>
+                                <input type="text" class="form-control" name="Assessment.Telepono" value="@Model.Assessment?.Telepono" required />
+                            </div>
+                            </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label required">Kasarian</label>
+                                <select class="form-select" name="Assessment.Kasarian" required>
+                                    <option value="">Select</option>
+                                    <option value="Lalaki" selected="@(Model.Assessment?.Kasarian == "Lalaki")">Lalaki</option>
+                                    <option value="Babae" selected="@(Model.Assessment?.Kasarian == "Babae")">Babae</option>
+                                </select>
+                            </div>
+                        </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+        <!-- Step 2: Medical History -->
+        <div id="step2" class="assessment-step" style="display: none;">
+                <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Medical History</h5>
+                    </div>
+                    <div class="card-body">
+                    <p class="fw-bold">1. Ikaw ba ay may sumusunod na karamdaman?</p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="Assessment.HasDiabetes" value="true" @(Model.Assessment?.HasDiabetes == true ? "checked" : "")>
+                                <label class="form-check-label">Diabetes</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="Assessment.HasHypertension" value="true" @(Model.Assessment?.HasHypertension == true ? "checked" : "")>
+                                <label class="form-check-label">Hypertension</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="Assessment.HasCancer" value="true" @(Model.Assessment?.HasCancer == true ? "checked" : "")>
+                                <label class="form-check-label">Cancer</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="Assessment.HasCOPD" value="true" @(Model.Assessment?.HasCOPD == true ? "checked" : "")>
+                                <label class="form-check-label">COPD</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="Assessment.HasLungDisease" value="true" @(Model.Assessment?.HasLungDisease == true ? "checked" : "")>
+                                <label class="form-check-label">Sakit sa baga na hindi nakakahawa</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="Assessment.HasEyeDisease" value="true" @(Model.Assessment?.HasEyeDisease == true ? "checked" : "")>
+                                <label class="form-check-label">Sakit sa mata</label>
+                            </div>
+                        </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+        <!-- Step 3: Risk Factors -->
+        <div id="step3" class="assessment-step" style="display: none;">
+                <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Risk Factors</h5>
+                    </div>
+                    <div class="card-body">
+                    <!-- B.1 Nutrition -->
+                        <div class="mb-4">
+                        <h6 class="fw-bold">B.1 Nutrition</h6>
+                        <div class="form-check mb-3">
+                            <input type="hidden" name="Assessment.HighSaltIntake" value="false" />
+                            <input class="form-check-input" type="checkbox" name="Assessment.HighSaltIntake" value="true" checked="@Model.Assessment?.HighSaltIntake" />
+                            <label class="form-check-label">With high salt intake</label>
+                            <div class="form-text">Kung kumakain ng maalat na pagkain higit sa 2 beses sa isang linggo</div>
+                                </div>
+                            </div>
+
+                            <!-- B.2 Alcohol -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold">B.2 Alcohol</h6>
+                            <div class="mb-3">
+                            <label class="form-label">Alcohol Frequency</label>
+                                    <select class="form-select" name="Assessment.AlcoholFrequency">
+                                <option value="">Select frequency</option>
+                                @{
+                                    var alcoholOptions = new[] {
+                                        new { Value = "None", Text = "Hindi umiinom" },
+                                        new { Value = "Occasional", Text = "Paminsan-minsan" },
+                                        new { Value = "Regular", Text = "Regular" }
+                                    };
+                                }
+                                @foreach (var option in alcoholOptions)
+                                {
+                                    <option value="@option.Value" selected="@(Model.Assessment?.AlcoholFrequency == option.Value)">@option.Text</option>
+                                }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- B.3 Exercise -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold">B.3 Exercise</h6>
+                        <div class="mb-3">
+                            <label class="form-label">Exercise Duration</label>
+                            <select class="form-select" name="Assessment.ExerciseDuration">
+                                <option value="">Select duration</option>
+                                @{
+                                    var exerciseOptions = new[] {
+                                        new { Value = "None", Text = "Walang exercise" },
+                                        new { Value = "Less30", Text = "Wala pang 30 minuto kada araw" },
+                                        new { Value = "More30", Text = "30 minuto o higit pa kada araw" }
+                                    };
+                                }
+                                @foreach (var option in exerciseOptions)
+                                {
+                                    <option value="@option.Value" selected="@(Model.Assessment?.ExerciseDuration == option.Value)">@option.Text</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="d-flex justify-content-between mt-4">
+            <button type="button" class="btn btn-secondary" id="prevButton" style="display: none;">Back</button>
+            <button type="button" class="btn btn-primary" id="nextButton">Next</button>
+            <button type="submit" class="btn btn-success" id="submitButton" style="display: none;">Submit Assessment</button>
+    </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            console.log('[NCDRiskAssessment] Page loaded');
+            
+            // Track current step
+            let currentStep = 1;
+            const totalSteps = 3;
+            
+            // Function to validate current step
+            function validateStep(step) {
+                console.log('[NCDRiskAssessment] Validating step:', step);
+                let isValid = true;
+                
+                switch(step) {
+                    case 1:
+                        // Validate basic information
+                        const requiredFields = ['healthFacility', 'familyNo', 'Assessment.Address', 'Assessment.Barangay', 'Assessment.Birthday', 'Assessment.Telepono', 'Assessment.Kasarian'];
+                        requiredFields.forEach(field => {
+                            const value = $(`[name="${field}"]`).val();
+                            if (!value) {
+                                isValid = false;
+                                $(`[name="${field}"]`).addClass('is-invalid');
+                                console.error(`[NCDRiskAssessment] Missing required field: ${field}`);
+                            } else {
+                                $(`[name="${field}"]`).removeClass('is-invalid');
+                            }
+                        });
+                        break;
+                        
+                    case 2:
+                        // Validate medical history
+                        isValid = true; // Add specific validation if needed
+                        break;
+                        
+                    case 3:
+                        // Validate risk factors
+                        isValid = true; // Add specific validation if needed
+                        break;
+                }
+                
+                return isValid;
+            }
+            
+            // Function to show/hide steps
+            function showStep(step) {
+                console.log('[NCDRiskAssessment] Showing step:', step);
+                $('.assessment-step').hide();
+                $(`#step${step}`).show();
+                
+                // Update buttons
+                if (step === 1) {
+                    $('#prevButton').hide();
+                } else {
+                    $('#prevButton').show();
+                }
+                
+                if (step === totalSteps) {
+                    $('#nextButton').hide();
+                    $('#submitButton').show();
+                } else {
+                    $('#nextButton').show();
+                    $('#submitButton').hide();
+                }
+            }
+            
+            // Handle Next button click
+            $('#nextButton').on('click', function() {
+                console.log('[NCDRiskAssessment] Next button clicked');
+                
+                if (validateStep(currentStep)) {
+                    if (currentStep < totalSteps) {
+                        currentStep++;
+                        showStep(currentStep);
+                    }
+                } else {
+                    alert('Please fill in all required fields before proceeding.');
+                }
+            });
+            
+            // Handle Back button click
+            $('#prevButton').on('click', function() {
+                console.log('[NCDRiskAssessment] Back button clicked');
+                
+                if (currentStep > 1) {
+                    currentStep--;
+                    showStep(currentStep);
+                }
+            });
+            
+            // Handle form submission
+            $('#ncdForm').on('submit', function(e) {
+                e.preventDefault();
+                console.log('[NCDRiskAssessment] Form submission started');
+                
+                if (validateStep(currentStep)) {
+                    console.log('[NCDRiskAssessment] Final validation passed, submitting form...');
+                    
+                    // Show loading state
+                    $('#submitButton').prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...');
+                    
+                    // Submit the form
+                    this.submit();
+                } else {
+                    alert('Please fill in all required fields before submitting.');
+                }
+            });
+            
+            // Initialize first step
+            showStep(1);
+        });
+    </script>
+} 

@@ -1,0 +1,96 @@
+@page
+@model Barangay.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<div class="container py-4">
+    <div class="login-form-container">
+        <h2 class="text-center welcome-header">
+            <i class="fas fa-sign-in-alt"></i> Welcome Back <i class="fas fa-arrow-right arrow-icon"></i>
+        </h2>
+        
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                @TempData["SuccessMessage"]
+            </div>
+        }
+        
+        <form method="post" id="loginForm" class="login-form">
+            <div asp-validation-summary="ModelOnly" class="text-danger validation-summary"></div>
+            
+            <div class="form-group">
+                <label asp-for="EmailOrUsername" class="form-label">Email or Username <span class="required">*</span></label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-user"></i>
+                    </span>
+                    <input asp-for="EmailOrUsername" class="form-control" placeholder="Enter your email or username" aria-label="Email or Username input" required aria-required="true" />
+                </div>
+                <div class="invalid-feedback" id="emailUsernameError">Email or username is required</div>
+                <span asp-validation-for="EmailOrUsername" class="text-danger error-message"></span>
+            </div>
+            
+            <div class="form-group">
+                <label asp-for="Password" class="form-label">Password <span class="required">*</span></label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-lock"></i>
+                    </span>
+                    <input asp-for="Password" class="form-control" type="password" id="password" aria-label="Password input" required aria-required="true" />
+                    <button class="btn btn-outline-secondary toggle-password" type="button" id="togglePassword" tabindex="0" aria-label="Toggle password visibility">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <div class="invalid-feedback" id="passwordError">Password is required</div>
+                <span asp-validation-for="Password" class="text-danger error-message"></span>
+            </div>
+            
+            <div class="form-group">
+                <div class="form-check">
+                    <input asp-for="RememberMe" class="form-check-input" id="rememberMe" aria-label="Remember me checkbox" />
+                    <label asp-for="RememberMe" class="form-check-label text-dark">
+                        Remember me
+                    </label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary w-100 login-button" id="loginButton">
+                    <span class="login-button-content">
+                        <i class="fas fa-sign-in-alt me-2"></i> Log in
+                    </span>
+                    <span class="login-button-spinner d-none">
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Logging in...
+                    </span>
+                </button>
+            </div>
+            
+            <div class="divider">
+                <span>OR</span>
+            </div>
+            
+            <div class="text-center mt-3">
+                <div class="mb-2">
+                    <a asp-page="./ForgotPassword" class="forgot-password">
+                        <i class="fas fa-key me-1"></i> Forgot your password?
+                    </a>
+                </div>
+                <div>
+                    <span class="text-dark">Don't have an account?</span> 
+                    <a asp-page="./SignUp" class="register-link">
+                        <strong>Register now</strong>
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/login.js" asp-append-version="true"></script>
+}

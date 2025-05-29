@@ -1,0 +1,79 @@
+@page
+@model Barangay.Pages.Account.CheckboxTestModel
+@{
+    ViewData["Title"] = "Checkbox Test";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h2>Checkbox Validation Test</h2>
+            
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success">
+                    @TempData["SuccessMessage"]
+                </div>
+            }
+            
+            <form method="post" id="testForm">
+                <div class="form-group">
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" id="checkbox1" name="checkbox1" class="custom-control-input" />
+                        <label for="checkbox1" class="custom-control-label">
+                            I agree to the terms and conditions
+                        </label>
+                    </div>
+                    <div id="checkbox1Error" class="text-danger d-none">Please check this box to continue</div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" id="checkbox2" name="checkbox2" class="custom-control-input" />
+                        <label for="checkbox2" class="custom-control-label">
+                            I confirm my information is correct
+                        </label>
+                    </div>
+                    <div id="checkbox2Error" class="text-danger d-none">You must confirm your information</div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" id="testSubmitBtn">Submit Test</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#testForm').submit(function(event) {
+                var isValid = true;
+                
+                // Clear previous errors
+                $('#checkbox1Error, #checkbox2Error').addClass('d-none');
+                
+                // Validate checkboxes
+                if (!$('#checkbox1').is(':checked')) {
+                    $('#checkbox1Error').removeClass('d-none');
+                    isValid = false;
+                }
+                
+                if (!$('#checkbox2').is(':checked')) {
+                    $('#checkbox2Error').removeClass('d-none');
+                    isValid = false;
+                }
+                
+                // Prevent form submission if validation fails
+                if (!isValid) {
+                    event.preventDefault();
+                    return false;
+                }
+                
+                // Show loading state
+                $('#testSubmitBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Loading...');
+                
+                return true;
+            });
+        });
+    </script>
+}

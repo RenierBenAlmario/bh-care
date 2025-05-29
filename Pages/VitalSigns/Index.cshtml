@@ -1,0 +1,212 @@
+@page
+@model Barangay.Pages.VitalSigns.IndexModel
+@{
+    ViewData["Title"] = "Vital Signs";
+}
+
+<div class="container">
+    <h2>Vital Signs</h2>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Record Vital Signs</h5>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="NewVitalSign.PatientId" class="control-label">Patient</label>
+                            <select asp-for="NewVitalSign.PatientId" class="form-select" asp-items="@Model.PatientSelectList">
+                                <option value="">-- Select Patient --</option>
+                            </select>
+                            <span asp-validation-for="NewVitalSign.PatientId" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="NewVitalSign.BloodPressure" class="control-label">Blood Pressure (mmHg)</label>
+                            <input asp-for="NewVitalSign.BloodPressure" class="form-control" placeholder="e.g. 120/80" />
+                            <span asp-validation-for="NewVitalSign.BloodPressure" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label asp-for="NewVitalSign.HeartRate" class="control-label">Heart Rate (bpm)</label>
+                            <input asp-for="NewVitalSign.HeartRate" class="form-control" type="number" min="0" />
+                            <span asp-validation-for="NewVitalSign.HeartRate" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label asp-for="NewVitalSign.Temperature" class="control-label">Temperature (°C)</label>
+                            <input asp-for="NewVitalSign.Temperature" class="form-control" type="number" step="0.1" min="0" />
+                            <span asp-validation-for="NewVitalSign.Temperature" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label asp-for="NewVitalSign.RespiratoryRate" class="control-label">Respiratory Rate (breaths/min)</label>
+                            <input asp-for="NewVitalSign.RespiratoryRate" class="form-control" type="number" min="0" />
+                            <span asp-validation-for="NewVitalSign.RespiratoryRate" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label asp-for="NewVitalSign.SpO2" class="control-label">Oxygen Saturation (%)</label>
+                            <input asp-for="NewVitalSign.SpO2" class="form-control" type="number" min="0" max="100" />
+                            <span asp-validation-for="NewVitalSign.SpO2" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="NewVitalSign.Notes" class="control-label">Notes</label>
+                    <textarea asp-for="NewVitalSign.Notes" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="NewVitalSign.Notes" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Save Vital Signs</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5>Vital Sign Records</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Patient Name</th>
+                            <th>Date & Time</th>
+                            <th>Blood Pressure</th>
+                            <th>Heart Rate</th>
+                            <th>Temperature</th>
+                            <th>SpO2</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.VitalSignRecords.Any())
+                        {
+                            @foreach (var record in Model.VitalSignRecords)
+                            {
+                                <tr>
+                                    <td>@record.PatientName</td>
+                                    <td>@record.RecordedAt.ToString("MMM dd, yyyy h:mm tt")</td>
+                                    <td>@record.BloodPressure</td>
+                                    <td>@(record.HeartRate.HasValue ? $"{record.HeartRate} bpm" : "-")</td>
+                                    <td>@(record.Temperature.HasValue ? $"{record.Temperature:F1} °C" : "-")</td>
+                                    <td>@(record.SpO2.HasValue ? $"{record.SpO2}%" : "-")</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-sm btn-info view-details" 
+                                                    data-id="@record.Id"
+                                                    data-patient="@record.PatientName"
+                                                    data-bp="@record.BloodPressure"
+                                                    data-hr="@record.HeartRate"
+                                                    data-temp="@record.Temperature"
+                                                    data-rr="@record.RespiratoryRate"
+                                                    data-o2="@record.SpO2"
+                                                    data-notes="@record.Notes"
+                                                    data-date="@record.RecordedAt.ToString("MMM dd, yyyy h:mm tt")">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <form method="post" asp-page-handler="Delete" asp-route-id="@record.Id" onsubmit="return confirm('Are you sure you want to delete this record?');">
+                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center">No vital sign records found</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Details Modal -->
+<div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailsModalLabel">Vital Signs Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Patient:</strong> <span id="modal-patient"></span></p>
+                        <p><strong>Date & Time:</strong> <span id="modal-date"></span></p>
+                        <p><strong>Blood Pressure:</strong> <span id="modal-bp"></span> mmHg</p>
+                        <p><strong>Heart Rate:</strong> <span id="modal-hr"></span> bpm</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Temperature:</strong> <span id="modal-temp"></span> °C</p>
+                        <p><strong>Respiratory Rate:</strong> <span id="modal-rr"></span> breaths/min</p>
+                        <p><strong>SpO2:</strong> <span id="modal-o2"></span>%</p>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <p><strong>Notes:</strong></p>
+                        <p id="modal-notes" class="border p-2 rounded bg-light"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('.view-details').click(function() {
+                var button = $(this);
+                $('#modal-patient').text(button.data('patient'));
+                $('#modal-date').text(button.data('date'));
+                $('#modal-bp').text(button.data('bp') || '-');
+                $('#modal-hr').text(button.data('hr') ? button.data('hr') + ' bpm' : '-');
+                $('#modal-temp').text(button.data('temp') ? button.data('temp') + ' °C' : '-');
+                $('#modal-rr').text(button.data('rr') ? button.data('rr') + ' breaths/min' : '-');
+                $('#modal-o2').text(button.data('o2') ? button.data('o2') : '-');
+                $('#modal-notes').text(button.data('notes') || 'No notes available');
+                $('#detailsModal').modal('show');
+            });
+        });
+    </script>
+}

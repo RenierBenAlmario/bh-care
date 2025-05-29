@@ -1,0 +1,181 @@
+@model Barangay.Pages.Nurse.NurseDashboardModel
+
+<!-- Alerts Modal -->
+<div class="modal fade" id="alertsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Critical Alerts</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="list-group">
+                    @foreach (var alert in Model.Alerts)
+                    {
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">@alert.PatientName</h6>
+                                    <p class="mb-1">@alert.Description</p>
+                                </div>
+                                <button class="btn btn-sm btn-primary" onclick="acknowledgeAlert(@alert.Id)">
+                                    Acknowledge
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Queue Modal -->
+<div class="modal fade" id="queueModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Current Queue</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="list-group">
+                    @{
+                        var waitingAppointments = Model.Queue.Where(a => a.Status == "Waiting").ToList();
+                    }
+                    @foreach (var appointment in waitingAppointments)
+                    {
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">@appointment.PatientName</h6>
+                                    <p class="mb-1">@appointment.Description</p>
+                                </div>
+                                <span class="badge bg-primary">@appointment.Status</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Patient Records Modal -->
+<div class="modal fade" id="patientRecordsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Patient Records</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" id="searchPatient" placeholder="Search by name or record number">
+                    <button class="btn btn-outline-secondary" type="button" onclick="searchPatients()">Search</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Record No.</th>
+                                <th>Name</th>
+                                <th>Age</th>
+                                <th>Gender</th>
+                                <th>Last Visit</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var record in Model.PatientRecords)
+                            {
+                                <tr>
+                                    <td>@record.RecordNo</td>
+                                    <td>@record.Name</td>
+                                    <td>@record.Age</td>
+                                    <td>@record.Gender</td>
+                                    <td>@record.LastVisit</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary" onclick="viewPatientHistory('@record.RecordNo')">
+                                            View History
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Note Modal -->
+<div class="modal fade" id="noteModal" tabindex="-1" aria-labelledby="noteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="noteModalLabel">Add Nurse Note</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="noteForm" method="post" asp-page-handler="AddNote">
+                    <div class="mb-3">
+                        <label for="noteRecordNo" class="form-label">Medical Record No.</label>
+                        <input type="text" class="form-control" id="noteRecordNo" name="recordNo" placeholder="e.g., A111D82S" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="noteText" class="form-label">Note</label>
+                        <textarea class="form-control" id="noteText" name="note" rows="3" placeholder="Enter note here..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Note</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Help Modal -->
+<div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="helpModalLabel">Help & Documentation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Welcome to the Nurse Dashboard! Here's a quick guide:</p>
+                <ul>
+                    <li>Manage treatments using the patient cards.</li>
+                    <li>Assign tasks and add notes via the buttons.</li>
+                    <li>View the queue and patient records with the search modal.</li>
+                    <li>Communicate via the sidebar's Messages section.</li>
+                    <li>Review metrics with the chart (switch between daily/weekly).</li>
+                    <li><strong>Security Tip:</strong> Don't share your login; data is encrypted and backed up.</li>
+                </ul>
+                <p>Contact support at <a href="mailto:support@barangayhealth.com">support@barangayhealth.com</a>.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Session Timeout Modal -->
+<div class="modal fade" id="sessionTimeoutModal" tabindex="-1" aria-labelledby="sessionTimeoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="sessionTimeoutModalLabel">Session Timeout Warning</h5>
+            </div>
+            <div class="modal-body">
+                <p>Your session will expire in <span id="timeoutCountdown">30</span> seconds due to inactivity. Stay logged in?</p>
+                <button class="btn btn-primary" id="stayLoggedIn">Stay Logged In</button>
+                <button class="btn btn-secondary" id="logoutNow">Logout</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Offline Indicator -->
+<div id="offlineIndicator" class="alert alert-warning" style="display: none; position: fixed; top: 70px; right: 10px; z-index: 1000;">
+    Offline Mode: Viewing cached data. Sync when online.
+</div>

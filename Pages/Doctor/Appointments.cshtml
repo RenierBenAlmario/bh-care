@@ -1,0 +1,186 @@
+@page
+@using Barangay.Models
+@model Barangay.Pages.Doctor.AppointmentsModel
+@{
+    ViewData["Title"] = "Appointments";
+}
+
+<div class="container mt-4">
+    <h2>My Appointments</h2>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Today's Appointments</h5>
+                    <h3 class="card-text">@Model.TodayAppointments.Count()</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Upcoming Appointments</h5>
+                    <h3 class="card-text">@Model.UpcomingAppointments.Count()</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Appointments</h5>
+                    <h3 class="card-text">@Model.AllAppointments.Count()</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <ul class="nav nav-tabs mb-3" id="appointmentTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="today-tab" data-bs-toggle="tab" data-bs-target="#today" type="button" role="tab" aria-controls="today" aria-selected="true">Today</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="upcoming-tab" data-bs-toggle="tab" data-bs-target="#upcoming" type="button" role="tab" aria-controls="upcoming" aria-selected="false">Upcoming</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab" aria-controls="all" aria-selected="false">All</button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="appointmentTabsContent">
+        <div class="tab-pane fade show active" id="today" role="tabpanel" aria-labelledby="today-tab">
+            @if (!Model.TodayAppointments.Any())
+            {
+                <div class="alert alert-info">No appointments scheduled for today.</div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Patient</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var appointment in Model.TodayAppointments.OrderBy(a => a.AppointmentTime))
+                            {
+                                <tr>
+                                    <td>@appointment.GetFormattedTime()</td>
+                                    <td>@appointment.PatientName</td>
+                                    <td>
+                                        <span class="badge @GetStatusBadgeClass(appointment.Status)">
+                                            @appointment.Status
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a asp-page="./Consultation" asp-route-id="@appointment.Id" class="btn btn-sm btn-primary">View</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        <div class="tab-pane fade" id="upcoming" role="tabpanel" aria-labelledby="upcoming-tab">
+            @if (!Model.UpcomingAppointments.Any())
+            {
+                <div class="alert alert-info">No upcoming appointments.</div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Patient</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var appointment in Model.UpcomingAppointments.OrderBy(a => a.AppointmentDate).ThenBy(a => a.AppointmentTime))
+                            {
+                                <tr>
+                                    <td>@appointment.AppointmentDate.ToDateString()</td>
+                                    <td>@appointment.GetFormattedTime()</td>
+                                    <td>@appointment.PatientName</td>
+                                    <td>
+                                        <span class="badge @GetStatusBadgeClass(appointment.Status)">
+                                            @appointment.Status
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a asp-page="./Consultation" asp-route-id="@appointment.Id" class="btn btn-sm btn-primary">View</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        <div class="tab-pane fade" id="all" role="tabpanel" aria-labelledby="all-tab">
+            @if (!Model.AllAppointments.Any())
+            {
+                <div class="alert alert-info">No appointments found.</div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Patient</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var appointment in Model.AllAppointments.OrderByDescending(a => a.AppointmentDate).ThenBy(a => a.AppointmentTime))
+                            {
+                                <tr>
+                                    <td>@appointment.AppointmentDate.ToDateString()</td>
+                                    <td>@appointment.GetFormattedTime()</td>
+                                    <td>@appointment.PatientName</td>
+                                    <td>
+                                        <span class="badge @GetStatusBadgeClass(appointment.Status)">
+                                            @appointment.Status
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a asp-page="./Consultation" asp-route-id="@appointment.Id" class="btn btn-sm btn-primary">View</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@functions {
+    private string GetStatusBadgeClass(AppointmentStatus status)
+    {
+        return status switch
+        {
+            AppointmentStatus.Pending => "bg-warning",
+            AppointmentStatus.Confirmed => "bg-success",
+            AppointmentStatus.Cancelled => "bg-danger",
+            AppointmentStatus.Completed => "bg-info",
+            _ => "bg-secondary"
+        };
+    }
+}
