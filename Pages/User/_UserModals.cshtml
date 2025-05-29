@@ -1,0 +1,186 @@
+<!-- Appointment Booking Modal -->
+<div class="modal fade" id="appointmentModal" tabindex="-1" aria-labelledby="appointmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="appointmentModalLabel">Book an Appointment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="appointmentForm" method="post">
+                    <div class="mb-3">
+                        <label for="appointmentDate" class="form-label">Preferred Date</label>
+                        <input type="date" class="form-control" id="appointmentDate" name="date" required 
+                               min="@DateTime.Now.ToString("yyyy-MM-dd")">
+                    </div>
+                    <div class="mb-3">
+                        <label for="appointmentTime" class="form-label">Preferred Time</label>
+                        <select class="form-control" id="appointmentTime" name="time" required>
+                            <option value="">Select a time slot</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="doctorSelect" class="form-label">Select Doctor</label>
+                        <select class="form-control" id="doctorSelect" name="doctorId" required>
+                            <option value="">Choose a doctor</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="appointmentReason" class="form-label">Reason for Visit</label>
+                        <textarea class="form-control" id="appointmentReason" name="reason" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Book Appointment</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Medical History Modal -->
+<div class="modal fade" id="historyModal" tabindex="-1" aria-labelledby="historyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="historyModalLabel">Medical History</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Doctor</th>
+                                <th>Diagnosis</th>
+                                <th>Prescription</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="medicalHistoryTable">
+                            <!-- Populated via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-2 d-flex justify-content-between">
+                    <button class="btn btn-outline-secondary" id="prevHistoryPage" disabled>Previous</button>
+                    <span id="historyPageInfo">Page 1</span>
+                    <button class="btn btn-outline-secondary" id="nextHistoryPage">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Feedback Modal -->
+<div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="feedbackModalLabel">Give Feedback</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="feedbackForm">
+                    <div class="mb-3">
+                        <label for="feedbackType" class="form-label">Type of Feedback</label>
+                        <select class="form-control" id="feedbackType" required>
+                            <option value="">Select type</option>
+                            <option value="general">General Feedback</option>
+                            <option value="service">Service Quality</option>
+                            <option value="staff">Staff Behavior</option>
+                            <option value="facility">Facility</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="feedbackRating" class="form-label">Rating</label>
+                        <div class="rating">
+                            <input type="radio" name="rating" value="5" id="rating5" required><label for="rating5">☆</label>
+                            <input type="radio" name="rating" value="4" id="rating4"><label for="rating4">☆</label>
+                            <input type="radio" name="rating" value="3" id="rating3"><label for="rating3">☆</label>
+                            <input type="radio" name="rating" value="2" id="rating2"><label for="rating2">☆</label>
+                            <input type="radio" name="rating" value="1" id="rating1"><label for="rating1">☆</label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="feedbackComment" class="form-label">Comments</label>
+                        <textarea class="form-control" id="feedbackComment" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Help Modal -->
+<div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="helpModalLabel">Help & Support</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h6>Quick Guide</h6>
+                <ul>
+                    <li>To book an appointment, click the "Book Appointment" button</li>
+                    <li>View your medical history in the History section</li>
+                    <li>Check upcoming appointments on your dashboard</li>
+                    <li>Provide feedback about our services</li>
+                </ul>
+                
+                <h6>Emergency Contact</h6>
+                <p>For emergencies, please call:</p>
+                <ul>
+                    <li>Emergency Hotline: 911</li>
+                    <li>Clinic Direct Line: (123) 456-7890</li>
+                </ul>
+
+                <h6>Support</h6>
+                <p>For technical support or questions:</p>
+                <ul>
+                    <li>Email: support@barangayhealth.com</li>
+                    <li>Phone: (123) 456-7891</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Appointment Details Modal -->
+<div class="modal fade" id="appointmentDetailsModal" tabindex="-1" aria-labelledby="appointmentDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="appointmentDetailsModalLabel">Appointment Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="appointmentDetails">
+                    <!-- Populated via JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Session Timeout Modal -->
+<div class="modal fade" id="sessionTimeoutModal" tabindex="-1" aria-labelledby="sessionTimeoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="sessionTimeoutModalLabel">Session Timeout Warning</h5>
+            </div>
+            <div class="modal-body">
+                <p>Your session will expire in <span id="timeoutCountdown">30</span> seconds due to inactivity.</p>
+                <button class="btn btn-primary" id="stayLoggedIn">Stay Logged In</button>
+                <button class="btn btn-secondary" id="logoutNow">Logout</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Offline Indicator -->
+<div id="offlineIndicator" class="alert alert-warning" style="display: none; position: fixed; top: 70px; right: 10px; z-index: 1000;">
+    You are currently offline. Some features may be limited.
+</div> 

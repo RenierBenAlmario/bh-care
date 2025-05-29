@@ -1,0 +1,280 @@
+@page
+@model Barangay.Pages.Nurse.PatientQueueModel
+@{
+    ViewData["Title"] = "Patient Queue";
+    Layout = "_NurseLayout";
+}
+
+<h1>Patient Queue</h1>
+<p>Manage the patient queue efficiently.</p>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="card mb-4">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Today's Queue</h5>
+        <div>
+            <button class="btn btn-primary btn-sm" id="refreshQueue">Refresh Queue</button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Queue #</th>
+                        <th>Patient Name</th>
+                        <th>Appointment Time</th>
+                        <th>Doctor</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int queueNumber = 1;
+                    }
+                    @foreach (var appointment in Model.QueuedAppointments)
+                    {
+                        <tr>
+                            <td>@queueNumber</td>
+                            <td>@appointment.PatientName</td>
+                            <td>@(appointment.AppointmentTime?.ToString(@"hh\:mm") ?? "Not scheduled")</td>
+                            <td>@appointment.DoctorName</td>
+                            <td>
+                                <span class="badge bg-warning">@appointment.Status</span>
+                            </td>
+                            <td>
+                                <a asp-page="/Nurse/VitalSigns" asp-route-patientId="@appointment.PatientId" class="btn btn-primary btn-sm">Edit Vital Signs</a>
+                                <a asp-page="/Nurse/MedicalHistory" asp-route-id="@appointment.Id" class="btn btn-info btn-sm">Medical History</a>
+                                <button class="btn btn-danger btn-sm" onclick="deleteAppointment(@appointment.Id)">Delete</button>
+                            </td>
+                        </tr>
+                        queueNumber++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Patient Details Modal -->
+<div class="modal fade" id="patientDetailsModal" tabindex="-1" aria-labelledby="patientDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="patientDetailsModalLabel">Patient Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="patientDetailsContent">
+                <!-- Content will be loaded dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/site.js"></script>
+    <script>
+        function viewDetails(id) {
+            // Get the appointments data from the model
+            const appointments = @Html.Raw(Json.Serialize(Model.QueuedAppointments));
+            
+            // Find the selected appointment by ID
+            const selectedAppointment = appointments.find(a => a.appointment_id === id);
+            
+            if (selectedAppointment) {
+                // Format the date and time for display
+                const appointmentDate = selectedAppointment.appointment_date ? 
+                    new Date(selectedAppointment.appointment_date).toLocaleDateString() : 'Not scheduled';
+                
+                const appointmentTime = selectedAppointment.appointment_time || 'Not scheduled';
+                
+                let detailsHtml = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Patient:</strong> ${selectedAppointment.patient_name || 'Unknown'}</p>
+                            <p><strong>Age:</strong> ${selectedAppointment.patientAge || 'Not specified'}</p>
+                            <p><strong>Doctor:</strong> ${selectedAppointment.doctor_name || 'Not assigned'}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Appointment Date:</strong> ${appointmentDate}</p>
+                            <p><strong>Appointment Time:</strong> ${appointmentTime}</p>
+                            <p><strong>Status:</strong> ${selectedAppointment.appointment_status || 'Unknown'}</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-12">
+                            <h6>Prescription</h6>
+                            <p>${selectedAppointment.prescription_text || 'No prescription recorded'}</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <h6>Instructions</h6>
+                            <p>${selectedAppointment.instructions_text || 'No instructions recorded'}</p>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('patientDetailsContent').innerHTML = detailsHtml;
+            } else {
+                document.getElementById('patientDetailsContent').innerHTML = '<p>Patient details not found</p>';
+            }
+            
+            const modal = new bootstrap.Modal(document.getElementById('patientDetailsModal'));
+            modal.show();
+        }
+
+        function editVitalSigns(appointmentId) {
+            // Get the appointments data from the model
+            const appointments = @Html.Raw(Json.Serialize(Model.QueuedAppointments));
+            
+            // Find the selected appointment by ID
+            const selectedAppointment = appointments.find(a => a.appointment_id === appointmentId);
+            
+            if (selectedAppointment) {
+                // Populate the form fields with the selected appointment's vital signs
+                document.getElementById('appointmentId').value = appointmentId;
+                document.getElementById('patientId').value = selectedAppointment.patient_id;
+                document.getElementById('bloodPressure').value = selectedAppointment.blood_pressure || '';
+                document.getElementById('heartRate').value = selectedAppointment.heart_rate || '';
+                document.getElementById('temperature').value = selectedAppointment.body_temperature || '';
+                document.getElementById('notes').value = selectedAppointment.patient_notes || '';
+                
+                // Update the full vital signs link
+                document.getElementById('fullVitalSignsLink').href = `/Nurse/VitalSigns?patientId=${selectedAppointment.patient_id}`;
+                
+                // Show the modal
+                const modal = new bootstrap.Modal(document.getElementById('editVitalSignsModal'));
+                modal.show();
+            } else {
+                showToast('Vital signs not found for the selected appointment.', 'warning');
+            }
+        }
+        
+        function saveVitalSigns() {
+            const form = document.getElementById('editVitalSignsForm');
+            const formData = new FormData(form);
+            const appointmentId = formData.get('appointmentId');
+            
+            fetch('/api/nurse/vital-signs', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Close the modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('editVitalSignsModal'));
+                    modal.hide();
+                    
+                    // Show success message
+                    showToast('Vital signs updated successfully', 'success');
+                    
+                    // Refresh the page to show updated data
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showToast('Error updating vital signs: ' + (data.message || 'Unknown error'), 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error updating vital signs:', error);
+                showToast('An error occurred while updating vital signs', 'error');
+            });
+        }
+        
+        // Add event listener for refresh button
+        document.getElementById('refreshQueue').addEventListener('click', function() {
+            window.location.reload();
+        });
+        
+        // Log appointments data to console for debugging
+        console.log('Appointments data:', @Html.Raw(Json.Serialize(Model.QueuedAppointments)));
+    </script>
+}
+
+<!-- Add this section right after the table for debugging purposes -->
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger mt-3">
+        <strong>Error:</strong> @Model.ErrorMessage
+    </div>
+}
+
+<!-- Debug information - remove in production -->
+<div class="card mt-4 d-none">
+    <div class="card-header bg-secondary text-white">
+        Debug Information
+    </div>
+    <div class="card-body">
+        <h6>Appointment Count:</h6>
+        <p>@(Model.QueuedAppointments?.Count ?? 0)</p>
+        
+        <h6>Today's Date:</h6>
+        <p>@DateTime.Today.ToString("yyyy-MM-dd")</p>
+    </div>
+</div>
+
+<!-- Modal for Editing Vital Signs -->
+<div class="modal fade" id="editVitalSignsModal" tabindex="-1" aria-labelledby="editVitalSignsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editVitalSignsModalLabel">Edit Vital Signs</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Form for editing vital signs -->
+                <form id="editVitalSignsForm">
+                    <input type="hidden" id="appointmentId" name="appointmentId">
+                    <input type="hidden" id="patientId" name="patientId">
+                    
+                    <div class="mb-3">
+                        <label for="bloodPressure" class="form-label">Blood Pressure</label>
+                        <input type="text" class="form-control" id="bloodPressure" name="bloodPressure" placeholder="e.g. 120/80">
+                    </div>
+                    <div class="mb-3">
+                        <label for="heartRate" class="form-label">Heart Rate (bpm)</label>
+                        <input type="number" class="form-control" id="heartRate" name="heartRate">
+                    </div>
+                    <div class="mb-3">
+                        <label for="temperature" class="form-label">Temperature (°C)</label>
+                        <input type="number" step="0.1" class="form-control" id="temperature" name="temperature">
+                    </div>
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <div>
+                            <button type="button" class="btn btn-primary me-2" onclick="saveVitalSigns()">Save Changes</button>
+                            <a id="fullVitalSignsLink" href="#" class="btn btn-outline-primary">Record Full Vital Signs</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ... existing code ... -->

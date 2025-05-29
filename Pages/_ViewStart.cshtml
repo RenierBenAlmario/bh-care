@@ -1,0 +1,23 @@
+﻿@{
+    var pagePath = Context.Request.Path.Value?.ToLower() ?? string.Empty;
+    
+    if (pagePath.StartsWith("/admin"))
+    {
+        Layout = "~/Pages/Shared/_AdminLayout.cshtml";
+    }
+    else if (pagePath.StartsWith("/doctor"))
+    {
+        Layout = "~/Pages/Shared/_DoctorLayout.cshtml";
+    }
+    else if (pagePath.StartsWith("/account/login") || 
+             pagePath.StartsWith("/account/signup") || 
+             pagePath.StartsWith("/help") || 
+             pagePath == "/")
+    {
+        Layout = "~/Pages/Shared/_LandingLayout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Pages/Shared/_Layout.cshtml";
+    }
+}

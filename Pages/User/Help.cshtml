@@ -1,0 +1,200 @@
+@page
+@model Barangay.Pages.User.HelpModel
+@{
+    ViewData["Title"] = "Help & Support";
+    Layout = "_UserLayout";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-question-circle me-3 fs-4"></i>
+                    <div>
+                        <strong>Help & Support</strong>
+                        <p class="mb-0">Get help with using the Barangay Health Center system and common health questions.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Quick Help</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a href="#bookingHelp" class="list-group-item list-group-item-action">
+                            <i class="fas fa-calendar-plus me-2 text-primary"></i> How to book an appointment
+                        </a>
+                        <a href="#medicationHelp" class="list-group-item list-group-item-action">
+                            <i class="fas fa-pills me-2 text-primary"></i> Managing medications
+                        </a>
+                        <a href="#recordsHelp" class="list-group-item list-group-item-action">
+                            <i class="fas fa-file-medical me-2 text-primary"></i> Accessing medical records
+                        </a>
+                        <a href="#accountHelp" class="list-group-item list-group-item-action">
+                            <i class="fas fa-user-cog me-2 text-primary"></i> Managing your account
+                        </a>
+                        <a href="#emergencyHelp" class="list-group-item list-group-item-action">
+                            <i class="fas fa-ambulance me-2 text-danger"></i> Emergency services
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Frequently Asked Questions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="accordion" id="faqAccordion">
+                        <!-- Booking Appointments -->
+                        <div class="accordion-item" id="bookingHelp">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                                    How do I book an appointment?
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <p>To book an appointment with our healthcare providers:</p>
+                                    <ol>
+                                        <li>Click on the "Appointments" tab in the sidebar</li>
+                                        <li>Click the "Book New Appointment" button</li>
+                                        <li>Select the consultation type you need</li>
+                                        <li>Fill in the required information</li>
+                                        <li>Choose your preferred date and time</li>
+                                        <li>Submit your request</li>
+                                    </ol>
+                                    <p>You'll receive a confirmation email once your appointment is approved.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Medication Management -->
+                        <div class="accordion-item" id="medicationHelp">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                                    How do I view my prescriptions?
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <p>To view and manage your prescriptions:</p>
+                                    <ol>
+                                        <li>Click on the "Prescriptions" tab in the sidebar</li>
+                                        <li>You'll see all your active prescriptions</li>
+                                        <li>Click "View" to see full details of any prescription</li>
+                                        <li>Use the "Print" button to get a physical copy</li>
+                                    </ol>
+                                    <p>Your prescription history is also available for reference.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Medical Records -->
+                        <div class="accordion-item" id="recordsHelp">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
+                                    How can I access my medical records?
+                                </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <p>To access your medical records:</p>
+                                    <ol>
+                                        <li>Click on the "Records" tab in the sidebar</li>
+                                        <li>You'll see your vital signs history, medical history, and lab results</li>
+                                        <li>Click "View" on any record to see more details</li>
+                                        <li>Use "Download" where available to save copies</li>
+                                    </ol>
+                                    <p>For full medical history requests, please contact our records department.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Contact Support</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-phone-alt me-2 text-primary"></i> Phone Support</h6>
+                            <p>For immediate assistance, call our helpline:</p>
+                            <p class="lead">(02) 8123-4567</p>
+                            <p class="text-muted">Available Monday to Friday, 8:00 AM - 5:00 PM</p>
+
+                            <h6 class="mt-4"><i class="fas fa-envelope me-2 text-primary"></i> Email Support</h6>
+                            <p>Send your inquiries to:</p>
+                            <p class="lead">support@barangayhealthcenter.gov.ph</p>
+                            <p class="text-muted">We typically respond within 24-48 hours</p>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-paper-plane me-2 text-primary"></i> Send a Message</h6>
+                            <form>
+                                <div class="mb-3">
+                                    <label for="supportSubject" class="form-label">Subject</label>
+                                    <input type="text" class="form-control" id="supportSubject" placeholder="What is your question about?">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="supportMessage" class="form-label">Message</label>
+                                    <textarea class="form-control" id="supportMessage" rows="4" placeholder="Describe your issue or question"></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane me-2"></i> Send Message
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle smooth scrolling for anchor links
+            document.querySelectorAll('.list-group-item').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Get the target element
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    if (targetElement) {
+                        // Smooth scroll to the element
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                        
+                        // Open the accordion if it's collapsed
+                        const accordionButton = targetElement.querySelector('.accordion-button');
+                        if (accordionButton && accordionButton.classList.contains('collapsed')) {
+                            accordionButton.click();
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+} 

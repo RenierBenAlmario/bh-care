@@ -1,0 +1,9 @@
+<form id="appointmentForm">
+    <input type="hidden" id="doctorId" value="@Model.DoctorId" />
+    <input type="date" id="appointmentDate" value="@Model.AppointmentDate" />
+    <input type="time" id="appointmentTime" value="@Model.AppointmentTime" />
+    <input type="text" id="patientName" value="@Model.PatientName" />
+    <input type="number" id="patientAge" value="@Model.PatientAge" />
+    <textarea id="reasonForVisit">@Model.ReasonForVisit</textarea>
+    <button type="submit" class="btn btn-primary">Book Appointment</button>
+</form>

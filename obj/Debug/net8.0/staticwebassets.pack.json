@@ -1,0 +1,533 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\Barangay.bundle.scp.css",
+      "PackagePath": "staticwebassets\\Barangay.bundle.scp.css"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\css\\admin-dashboard-bhcare.css",
+      "PackagePath": "staticwebassets\\css\\admin-dashboard-bhcare.css"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\css\\admin-dashboard.css",
+      "PackagePath": "staticwebassets\\css\\admin-dashboard.css"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\css\\admin-local.css",
+      "PackagePath": "staticwebassets\\css\\admin-local.css"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\css\\admin.css",
+      "PackagePath": "staticwebassets\\css\\admin.css"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\css\\bhcare-staff-permissions.css",
+      "PackagePath": "staticwebassets\\css\\bhcare-staff-permissions.css"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\css\\custom-file-preview.css",
+      "PackagePath": "staticwebassets\\css\\custom-file-preview.css"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\css\\custom-local.css",
+      "PackagePath": "staticwebassets\\css\\custom-local.css"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\css\\custom-notification-enhancements.css",
+      "PackagePath": "staticwebassets\\css\\custom-notification-enhancements.css"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\css\\custom-nurse-menu.css",
+      "PackagePath": "staticwebassets\\css\\custom-nurse-menu.css"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\css\\custom-sidebar.css",
+      "PackagePath": "staticwebassets\\css\\custom-sidebar.css"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\css\\custom-site.css",
+      "PackagePath": "staticwebassets\\css\\custom-site.css"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\css\\custom.css",
+      "PackagePath": "staticwebassets\\css\\custom.css"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\css\\file-preview.css",
+      "PackagePath": "staticwebassets\\css\\file-preview.css"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\css\\notification-enhancements.css",
+      "PackagePath": "staticwebassets\\css\\notification-enhancements.css"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\css\\nurse-menu.css",
+      "PackagePath": "staticwebassets\\css\\nurse-menu.css"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\css\\sidebar.css",
+      "PackagePath": "staticwebassets\\css\\sidebar.css"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\css\\site.css",
+      "PackagePath": "staticwebassets\\css\\site.css"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\css\\staff-permissions.css",
+      "PackagePath": "staticwebassets\\css\\staff-permissions.css"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\css\\user-management.css",
+      "PackagePath": "staticwebassets\\css\\user-management.css"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\css\\waiting-approval.css",
+      "PackagePath": "staticwebassets\\css\\waiting-approval.css"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\favicon.ico",
+      "PackagePath": "staticwebassets\\favicon.ico"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\images\\default-profile.png",
+      "PackagePath": "staticwebassets\\images\\default-profile.png"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\images\\preview-placeholder.jpg",
+      "PackagePath": "staticwebassets\\images\\preview-placeholder.jpg"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\images\\profiles\\0128d945-0c14-45fa-a29e-3cc0e83cc9bd_fdcb9fc9-9d5d-4e05-b8df-89808c327d4d.jpg",
+      "PackagePath": "staticwebassets\\images\\profiles\\0128d945-0c14-45fa-a29e-3cc0e83cc9bd_fdcb9fc9-9d5d-4e05-b8df-89808c327d4d.jpg"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\images\\profiles\\2128baee-1d2d-4d60-9aec-40a6540f54db_hq720.jpg",
+      "PackagePath": "staticwebassets\\images\\profiles\\2128baee-1d2d-4d60-9aec-40a6540f54db_hq720.jpg"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\images\\profiles\\535abe96-65df-4f23-bd4f-98ccbcde7c86_Bombini_Gusini.PNG",
+      "PackagePath": "staticwebassets\\images\\profiles\\535abe96-65df-4f23-bd4f-98ccbcde7c86_Bombini_Gusini.PNG"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\images\\profiles\\75794f17-314a-43ab-8053-08e5bdf6261d_hq720.jpg",
+      "PackagePath": "staticwebassets\\images\\profiles\\75794f17-314a-43ab-8053-08e5bdf6261d_hq720.jpg"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\images\\profiles\\a2fbe32c-c3d8-48ff-9dfd-f631261b875d_433559523_403727575626579_3123738174643792844_n (1).jpg",
+      "PackagePath": "staticwebassets\\images\\profiles\\a2fbe32c-c3d8-48ff-9dfd-f631261b875d_433559523_403727575626579_3123738174643792844_n (1).jpg"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\images\\profiles\\f0d4d9a7-6cf7-4861-8b31-bcf050e84483_3cb93c41-ef34-4a0b-a9a1-36f8dc839419.jpeg",
+      "PackagePath": "staticwebassets\\images\\profiles\\f0d4d9a7-6cf7-4861-8b31-bcf050e84483_3cb93c41-ef34-4a0b-a9a1-36f8dc839419.jpeg"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\images\\sample-document-preview.pdf",
+      "PackagePath": "staticwebassets\\images\\sample-document-preview.pdf"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\js\\admin-dashboard.js",
+      "PackagePath": "staticwebassets\\js\\admin-dashboard.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\js\\admin-notifications.js",
+      "PackagePath": "staticwebassets\\js\\admin-notifications.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\js\\admin-user-management.js",
+      "PackagePath": "staticwebassets\\js\\admin-user-management.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\js\\admin.js",
+      "PackagePath": "staticwebassets\\js\\admin.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\js\\appointment.js",
+      "PackagePath": "staticwebassets\\js\\appointment.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\js\\appointments.js",
+      "PackagePath": "staticwebassets\\js\\appointments.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\js\\booking-calendar.js",
+      "PackagePath": "staticwebassets\\js\\booking-calendar.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\js\\consultation.js",
+      "PackagePath": "staticwebassets\\js\\consultation.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\js\\doctor-dashboard.js",
+      "PackagePath": "staticwebassets\\js\\doctor-dashboard.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\js\\doctorDashboard.js",
+      "PackagePath": "staticwebassets\\js\\doctorDashboard.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\js\\file-preview.js",
+      "PackagePath": "staticwebassets\\js\\file-preview.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\js\\form-validation.js",
+      "PackagePath": "staticwebassets\\js\\form-validation.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\js\\login.js",
+      "PackagePath": "staticwebassets\\js\\login.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\js\\nurse-menu.js",
+      "PackagePath": "staticwebassets\\js\\nurse-menu.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\js\\nurseDashboard.js",
+      "PackagePath": "staticwebassets\\js\\nurseDashboard.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\js\\password-validation.js",
+      "PackagePath": "staticwebassets\\js\\password-validation.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\js\\patientInfo.js",
+      "PackagePath": "staticwebassets\\js\\patientInfo.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\js\\patientRecords.js",
+      "PackagePath": "staticwebassets\\js\\patientRecords.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\js\\permissions-manager.js",
+      "PackagePath": "staticwebassets\\js\\permissions-manager.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\js\\reports.js",
+      "PackagePath": "staticwebassets\\js\\reports.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\js\\signup-validation.js",
+      "PackagePath": "staticwebassets\\js\\signup-validation.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\js\\signup.js",
+      "PackagePath": "staticwebassets\\js\\signup.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\js\\site.js",
+      "PackagePath": "staticwebassets\\js\\site.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\js\\troubleshoot-ui.js",
+      "PackagePath": "staticwebassets\\js\\troubleshoot-ui.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\js\\user-management.js",
+      "PackagePath": "staticwebassets\\js\\user-management.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\js\\userDashboard.js",
+      "PackagePath": "staticwebassets\\js\\userDashboard.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\bootstrap\\LICENSE",
+      "PackagePath": "staticwebassets\\lib\\bootstrap"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-grid.css.map"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.min.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-grid.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.css.map"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.min.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-grid.rtl.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.css.map"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.min.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.css.map"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.min.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-reboot.rtl.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.css.map"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.min.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.css.map"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.min.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap-utilities.rtl.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap.css.map"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.min.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.css.map"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.min.css.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.js",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.js.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.js.map"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.min.js",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.min.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.min.js.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.bundle.min.js.map"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.esm.js",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.esm.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.esm.js.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.esm.js.map"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.esm.min.js",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.esm.min.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.esm.min.js.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.esm.min.js.map"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.js",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.js.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.js.map"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.min.js",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.min.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\bootstrap\\dist\\js\\bootstrap.min.js.map",
+      "PackagePath": "staticwebassets\\lib\\bootstrap\\dist\\js\\bootstrap.min.js.map"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\jquery-validation-unobtrusive\\LICENSE.txt",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation-unobtrusive\\LICENSE.txt"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.js",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.min.js",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.min.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\jquery-validation\\LICENSE.md",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation\\LICENSE.md"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\jquery-validation\\dist\\additional-methods.js",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation\\dist\\additional-methods.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\jquery-validation\\dist\\additional-methods.min.js",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation\\dist\\additional-methods.min.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\jquery-validation\\dist\\jquery.validate.js",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation\\dist\\jquery.validate.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\jquery-validation\\dist\\jquery.validate.min.js",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation\\dist\\jquery.validate.min.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\jquery\\LICENSE.txt",
+      "PackagePath": "staticwebassets\\lib\\jquery\\LICENSE.txt"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\jquery\\dist\\jquery.js",
+      "PackagePath": "staticwebassets\\lib\\jquery\\dist\\jquery.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\jquery\\dist\\jquery.min.js",
+      "PackagePath": "staticwebassets\\lib\\jquery\\dist\\jquery.min.js"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\lib\\jquery\\dist\\jquery.min.map",
+      "PackagePath": "staticwebassets\\lib\\jquery\\dist\\jquery.min.map"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\test-file-preview.html",
+      "PackagePath": "staticwebassets\\test-file-preview.html"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\uploads\\appointments\\dcc73611-6d18-40f4-bc5d-1fee29ba3707_martini-glass-on-transparent-background-format-png.png",
+      "PackagePath": "staticwebassets\\uploads\\appointments\\dcc73611-6d18-40f4-bc5d-1fee29ba3707_martini-glass-on-transparent-background-format-png.png"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\uploads\\appointments\\ea29de41-5630-4453-a32b-788e48ba8f3b_martini-glass-on-transparent-background-format-png.png",
+      "PackagePath": "staticwebassets\\uploads\\appointments\\ea29de41-5630-4453-a32b-788e48ba8f3b_martini-glass-on-transparent-background-format-png.png"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\uploads\\residency_proofs\\0ba46344-134d-499d-9314-fa5f16b84271_20250520232408.png",
+      "PackagePath": "staticwebassets\\uploads\\residency_proofs\\0ba46344-134d-499d-9314-fa5f16b84271_20250520232408.png"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\uploads\\residency_proofs\\0da320ec-987d-4c1f-a8e4-8b94e791ded4_20250510233846.png",
+      "PackagePath": "staticwebassets\\uploads\\residency_proofs\\0da320ec-987d-4c1f-a8e4-8b94e791ded4_20250510233846.png"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\uploads\\residency_proofs\\1a8d9147-6f4e-429d-a160-e91ba1dfa0c4_20250516092521.png",
+      "PackagePath": "staticwebassets\\uploads\\residency_proofs\\1a8d9147-6f4e-429d-a160-e91ba1dfa0c4_20250516092521.png"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\uploads\\residency_proofs\\34b0a838-3883-4702-8a5f-28b399e150a5_20250510232920.png",
+      "PackagePath": "staticwebassets\\uploads\\residency_proofs\\34b0a838-3883-4702-8a5f-28b399e150a5_20250510232920.png"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\uploads\\residency_proofs\\351b817c-6870-45f3-8eb4-f367c0ca01ff_20250529174636.png",
+      "PackagePath": "staticwebassets\\uploads\\residency_proofs\\351b817c-6870-45f3-8eb4-f367c0ca01ff_20250529174636.png"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\uploads\\residency_proofs\\3ed3123e-e854-45d2-9b11-558935b0cac6_20250515002723.png",
+      "PackagePath": "staticwebassets\\uploads\\residency_proofs\\3ed3123e-e854-45d2-9b11-558935b0cac6_20250515002723.png"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\uploads\\residency_proofs\\4c01dff0-80f4-4f2f-acde-9f10e49d8fee_20250528203726.pdf",
+      "PackagePath": "staticwebassets\\uploads\\residency_proofs\\4c01dff0-80f4-4f2f-acde-9f10e49d8fee_20250528203726.pdf"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\uploads\\residency_proofs\\4fdf1e9a-d66a-48b4-9d58-18f7528b38da_20250524193125.png",
+      "PackagePath": "staticwebassets\\uploads\\residency_proofs\\4fdf1e9a-d66a-48b4-9d58-18f7528b38da_20250524193125.png"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\uploads\\residency_proofs\\59224bad-57fa-4ba5-bbc7-5cf95827b2f3_20250515001112.jpg",
+      "PackagePath": "staticwebassets\\uploads\\residency_proofs\\59224bad-57fa-4ba5-bbc7-5cf95827b2f3_20250515001112.jpg"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\uploads\\residency_proofs\\6985c3be-f1b1-461d-a555-06e71a413513_20250514195735.png",
+      "PackagePath": "staticwebassets\\uploads\\residency_proofs\\6985c3be-f1b1-461d-a555-06e71a413513_20250514195735.png"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\uploads\\residency_proofs\\705d78ff-f76c-4657-aed9-1e4514e3c7a8_20250516094109.png",
+      "PackagePath": "staticwebassets\\uploads\\residency_proofs\\705d78ff-f76c-4657-aed9-1e4514e3c7a8_20250516094109.png"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\uploads\\residency_proofs\\9b853b99-2f09-48f6-bbfb-825f3caef1cb_20250529152416.pdf",
+      "PackagePath": "staticwebassets\\uploads\\residency_proofs\\9b853b99-2f09-48f6-bbfb-825f3caef1cb_20250529152416.pdf"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\uploads\\residency_proofs\\a98eeca4-df0e-4dd7-9ae7-1d62d087d790_20250513193611.png",
+      "PackagePath": "staticwebassets\\uploads\\residency_proofs\\a98eeca4-df0e-4dd7-9ae7-1d62d087d790_20250513193611.png"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\uploads\\residency_proofs\\afa308f0-c46a-452a-a768-c3b1c66ee90f_20250528200433.png",
+      "PackagePath": "staticwebassets\\uploads\\residency_proofs\\afa308f0-c46a-452a-a768-c3b1c66ee90f_20250528200433.png"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\uploads\\residency_proofs\\b93e072e-a207-4dd7-8921-f1e1a51e1dea_20250516105750.png",
+      "PackagePath": "staticwebassets\\uploads\\residency_proofs\\b93e072e-a207-4dd7-8921-f1e1a51e1dea_20250516105750.png"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\uploads\\residency_proofs\\bf30c2c7-f3d5-475f-a4e8-b351055da09c_20250514204938.png",
+      "PackagePath": "staticwebassets\\uploads\\residency_proofs\\bf30c2c7-f3d5-475f-a4e8-b351055da09c_20250514204938.png"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\uploads\\residency_proofs\\bf395ecb-6a70-496f-8231-cfd15fc82b7e_20250529173750.pdf",
+      "PackagePath": "staticwebassets\\uploads\\residency_proofs\\bf395ecb-6a70-496f-8231-cfd15fc82b7e_20250529173750.pdf"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\uploads\\residency_proofs\\cc48d7fb-437e-4f44-90c2-920dcd0f96e2_20250510235539.png",
+      "PackagePath": "staticwebassets\\uploads\\residency_proofs\\cc48d7fb-437e-4f44-90c2-920dcd0f96e2_20250510235539.png"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\uploads\\residency_proofs\\d9dace1b-e4ea-4851-afee-b3bbcdc18559_20250520103539.pdf",
+      "PackagePath": "staticwebassets\\uploads\\residency_proofs\\d9dace1b-e4ea-4851-afee-b3bbcdc18559_20250520103539.pdf"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\uploads\\residency_proofs\\dd515c2a-a609-4f1b-b722-61c414081e8a_20250518151311.jpg",
+      "PackagePath": "staticwebassets\\uploads\\residency_proofs\\dd515c2a-a609-4f1b-b722-61c414081e8a_20250518151311.jpg"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\uploads\\residency_proofs\\dfc48cd5-6f14-4efd-b91f-387b3bbc2ed8_20250516093029.png",
+      "PackagePath": "staticwebassets\\uploads\\residency_proofs\\dfc48cd5-6f14-4efd-b91f-387b3bbc2ed8_20250516093029.png"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\uploads\\residency_proofs\\e046be3e-fba0-4909-aabc-32157de22826_20250527231505.jpg",
+      "PackagePath": "staticwebassets\\uploads\\residency_proofs\\e046be3e-fba0-4909-aabc-32157de22826_20250527231505.jpg"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\uploads\\residency_proofs\\f049ee7e-70b3-4e65-9c48-40f495828bf2_20250510233408.png",
+      "PackagePath": "staticwebassets\\uploads\\residency_proofs\\f049ee7e-70b3-4e65-9c48-40f495828bf2_20250510233408.png"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\uploads\\residency_proofs\\fbacf209-24e6-4588-9ace-f9e455a385f2_20250526225111.png",
+      "PackagePath": "staticwebassets\\uploads\\residency_proofs\\fbacf209-24e6-4588-9ace-f9e455a385f2_20250526225111.png"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\uploads\\residency_proofs\\sample_residency_proof.pdf",
+      "PackagePath": "staticwebassets\\uploads\\residency_proofs\\sample_residency_proof.pdf"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\uploads\\residency_proofs\\sample_residency_proof.png",
+      "PackagePath": "staticwebassets\\uploads\\residency_proofs\\sample_residency_proof.png"
+    },
+    {
+      "Id": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\wwwroot\\uploads\\residency_proofs\\sample_residency_proof.txt",
+      "PackagePath": "staticwebassets\\uploads\\residency_proofs\\sample_residency_proof.txt"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.Barangay.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.Barangay.props",
+      "PackagePath": "build\\Barangay.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.Barangay.props",
+      "PackagePath": "buildMultiTargeting\\Barangay.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.Barangay.props",
+      "PackagePath": "buildTransitive\\Barangay.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

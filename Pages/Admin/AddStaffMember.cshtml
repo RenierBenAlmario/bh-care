@@ -1,0 +1,662 @@
+@page
+@model Barangay.Pages.Admin.AddStaffMemberModel
+@{
+    ViewData["Title"] = "Add Staff Member";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">
+            <i class="fas fa-user-plus text-primary me-2"></i>
+            Add Staff Member
+        </h1>
+        <div>
+            <a asp-page="./AdminDashboard" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Staff List
+            </a>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i> @Model.ErrorMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <form method="post" id="staffForm" class="needs-validation" novalidate>
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-lg-6">
+                <!-- Personal Information Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-user me-2"></i>Personal Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <label asp-for="StaffMember.Name" class="form-label">Full Name <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input asp-for="StaffMember.Name" class="form-control" placeholder="Enter full name" required />
+                            </div>
+                            <span asp-validation-for="StaffMember.Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="StaffMember.Email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                <input asp-for="StaffMember.Email" class="form-control" type="email" placeholder="Enter email address" required />
+                            </div>
+                            <span asp-validation-for="StaffMember.Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="StaffMember.ContactNumber" class="form-label">Contact Number <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                <input asp-for="StaffMember.ContactNumber" class="form-control" placeholder="Enter contact number" required />
+                            </div>
+                            <span asp-validation-for="StaffMember.ContactNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Role Details Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-id-badge me-2"></i>Role Details
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <label asp-for="StaffMember.Role" class="form-label">Role <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user-tag"></i></span>
+                                <select asp-for="StaffMember.Role" class="form-select" required>
+                                    <option value="">-- Select Role --</option>
+                                    <option value="Doctor">Doctor</option>
+                                    <option value="Nurse">Nurse</option>
+                                    <option value="Admin Staff">Admin Staff</option>
+                                </select>
+                            </div>
+                            <span asp-validation-for="StaffMember.Role" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="StaffMember.Department" class="form-label">Department <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-hospital"></i></span>
+                                <select asp-for="StaffMember.Department" class="form-select" required>
+                                    <option value="">-- Select Department --</option>
+                                    <option value="General Medicine">General Medicine</option>
+                                    <option value="Pediatrics">Pediatrics</option>
+                                    <option value="Obstetrics">Obstetrics</option>
+                                    <option value="Surgery">Surgery</option>
+                                    <option value="Dental">Dental</option>
+                                    <option value="Emergency">Emergency</option>
+                                    <option value="Administration">Administration</option>
+                                </select>
+                            </div>
+                            <span asp-validation-for="StaffMember.Department" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="StaffMember.Position" class="form-label">Position <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-briefcase"></i></span>
+                                <select asp-for="StaffMember.Position" class="form-select" id="positionSelect" required>
+                                    <option value="">-- Select Position --</option>
+                                    <option value="Admin Staff">Admin Staff</option>
+                                    <option value="Head Doctor">Head Doctor</option>
+                                    <option value="Doctor">Doctor</option>
+                                    <option value="Head Nurse">Head Nurse</option>
+                                    <option value="Nurse">Nurse</option>
+                                    <option value="Receptionist">Receptionist</option>
+                                    <option value="IT">IT</option>
+                                </select>
+                            </div>
+                            <span asp-validation-for="StaffMember.Position" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="StaffMember.Specialization" class="form-label">Specialization</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-stethoscope"></i></span>
+                                <select asp-for="StaffMember.Specialization" class="form-select">
+                                    <option value="">-- Select Specialization (Optional) --</option>
+                                    <option value="General Practitioner">General Practitioner</option>
+                                    <option value="Pediatrician">Pediatrician</option>
+                                    <option value="Obstetrician">Obstetrician</option>
+                                    <option value="Surgeon">Surgeon</option>
+                                    <option value="Dentist">Dentist</option>
+                                    <option value="Emergency Medicine">Emergency Medicine</option>
+                                    <option value="None">None</option>
+                                </select>
+                            </div>
+                            <span asp-validation-for="StaffMember.Specialization" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="StaffMember.LicenseNumber" class="form-label">License Number</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                                <input asp-for="StaffMember.LicenseNumber" class="form-control" placeholder="Enter license number (if applicable)" />
+                            </div>
+                            <span asp-validation-for="StaffMember.LicenseNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-lg-6">
+                <!-- Work Schedule Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-calendar-alt me-2"></i>Work Schedule
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group mb-4">
+                            <label class="form-label d-block">Working Days <span class="text-danger">*</span></label>
+                            <div class="btn-group d-flex flex-wrap" role="group" aria-label="Working days">
+                                @foreach (var day in Model.DaysOfWeek)
+                                {
+                                    <input type="checkbox" class="btn-check working-days-checkbox" id="day_@day" value="@day" autocomplete="off">
+                                    <label class="btn btn-outline-primary m-1" for="day_@day">@day</label>
+                                }
+                            </div>
+                            <input type="hidden" asp-for="StaffMember.WorkingDays" id="workingDaysInput" />
+                            <div class="invalid-feedback">Please select at least one working day.</div>
+                            <span asp-validation-for="StaffMember.WorkingDays" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label">Working Hours <span class="text-danger">*</span></label>
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-clock"></i></span>
+                                        <select id="startTime" class="form-select" required>
+                                            @foreach (var time in Model.TimeSlots)
+                                            {
+                                                if (time == "8:00 AM")
+                                                {
+                                                    <option value="@time" selected>@time</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@time">@time</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 text-center d-flex align-items-center justify-content-center">
+                                    <span class="text-muted">to</span>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-clock"></i></span>
+                                        <select id="endTime" class="form-select" required>
+                                            @foreach (var time in Model.TimeSlots)
+                                            {
+                                                if (time == "4:00 PM")
+                                                {
+                                                    <option value="@time" selected>@time</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@time">@time</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" asp-for="StaffMember.WorkingHours" id="workingHoursInput" value="8:00 AM-4:00 PM" />
+                            <span asp-validation-for="StaffMember.WorkingHours" class="text-danger"></span>
+                            <small class="form-text text-muted mt-2">Standard working hours are 8:00 AM to 4:00 PM</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Details Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-user-lock me-2"></i>Account Details
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <label asp-for="Password" class="form-label">Password <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input asp-for="Password" type="password" class="form-control" id="password" required />
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <small class="form-text text-muted">Password must be at least 8 characters long with letters and numbers.</small>
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <div class="form-check form-switch">
+                                <input asp-for="StaffMember.IsActive" class="form-check-input" checked />
+                                <label asp-for="StaffMember.IsActive" class="form-check-label">Active Account</label>
+                            </div>
+                            <small class="form-text text-muted">Inactive accounts cannot log in to the system.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Permissions Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-key me-2"></i>Permissions
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Select permissions for this staff member. These permissions determine what features they can access.
+                        </div>
+
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectAllPermissions()">
+                                <i class="fas fa-check-square me-1"></i> Select All
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="deselectAllPermissions()">
+                                <i class="fas fa-square me-1"></i> Deselect All
+                            </button>
+                        </div>
+
+                        @foreach (var category in Model.PermissionsByCategory)
+                        {
+                            <div class="permission-category mb-3">
+                                <h6 class="mb-2">@category.Key</h6>
+                                <div class="row">
+                                    @foreach (var permission in category.Value)
+                                    {
+                                        <div class="col-md-6 mb-2">
+                                            <div class="form-check">
+                                                <input type="checkbox" 
+                                                       class="form-check-input permission-checkbox" 
+                                                       name="SelectedPermissions" 
+                                                       value="@permission.Id" 
+                                                       id="permission_@permission.Id" />
+                                                <label class="form-check-label" for="permission_@permission.Id">
+                                                    @permission.Name
+                                                </label>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="card-footer bg-light d-flex justify-content-between align-items-center">
+                    <button type="button" class="btn btn-secondary" onclick="history.back()">
+                        <i class="fas fa-times me-1"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i> Create Staff Member
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Guardian Consent Modal -->
+<div class="modal fade" id="guardianConsentModal" tabindex="-1" aria-labelledby="guardianConsentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="guardianConsentModalLabel">
+                    <i class="fas fa-user-shield me-2"></i>Guardian Consent Required
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted mb-4">Since you are under 18 years old, we need your guardian's consent to proceed with the registration.</p>
+                
+                <div class="form-group mb-3">
+                    <label for="guardianFirstName" class="form-label">Guardian's First Name <span class="required">*</span></label>
+                    <input type="text" class="form-control" id="guardianFirstName" name="Input.GuardianFirstName" required>
+                    <div class="invalid-feedback">Guardian's first name is required</div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="guardianLastName" class="form-label">Guardian's Last Name <span class="required">*</span></label>
+                    <input type="text" class="form-control" id="guardianLastName" name="Input.GuardianLastName" required>
+                    <div class="invalid-feedback">Guardian's last name is required</div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="guardianResidencyProof" class="form-label">Residency Proof <span class="required">*</span></label>
+                    <input type="file" class="form-control" id="guardianResidencyProof" name="Input.GuardianResidencyProof" 
+                           accept=".jpg,.jpeg,.png,.pdf" required>
+                    <div class="invalid-feedback">Please upload a valid residency proof document</div>
+                    <small class="form-text text-muted">Accepted formats: JPG, JPEG, PNG, PDF</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="submitGuardianConsent">
+                    <i class="fas fa-check me-2"></i>Submit Guardian Information
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .permission-category .category-toggle {
+        font-weight: 500;
+    }
+
+    .permission-category .category-toggle:hover {
+        color: var(--bs-primary) !important;
+    }
+
+    .permission-category .category-toggle[aria-expanded="true"] i {
+        transform: rotate(180deg);
+    }
+
+    .permission-category .category-toggle i {
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .permission-checkbox:checked + label {
+        color: var(--bs-primary);
+    }
+
+    .permission-checkbox:checked + label small {
+        color: var(--bs-primary) !important;
+        opacity: 0.8;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('staffForm');
+            const roleSelect = document.getElementById('StaffMember_Role');
+            const permissionsSection = document.getElementById('permissionsSection');
+            const workingDaysInput = document.getElementById('workingDaysInput');
+            const workingHoursInput = document.getElementById('workingHoursInput');
+            const startTimeSelect = document.getElementById('startTime');
+            const endTimeSelect = document.getElementById('endTime');
+            const workingDaysCheckboxes = document.querySelectorAll('.working-days-checkbox');
+
+            // Update working days input when checkboxes change
+            workingDaysCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const selectedDays = Array.from(workingDaysCheckboxes)
+                        .filter(cb => cb.checked)
+                        .map(cb => cb.value)
+                        .join(',');
+                    workingDaysInput.value = selectedDays;
+                });
+            });
+
+            // Update working hours input when time selections change
+            function updateWorkingHours() {
+                if (startTimeSelect.value && endTimeSelect.value) {
+                    workingHoursInput.value = `${startTimeSelect.value}-${endTimeSelect.value}`;
+                }
+            }
+
+            startTimeSelect.addEventListener('change', updateWorkingHours);
+            endTimeSelect.addEventListener('change', updateWorkingHours);
+
+            // Show permissions section when role is selected
+            roleSelect.addEventListener('change', function() {
+                if (this.value) {
+                    permissionsSection.style.display = 'block';
+                } else {
+                    permissionsSection.style.display = 'none';
+                }
+            });
+
+            // Update permission counts
+            function updatePermissionCounts() {
+                document.querySelectorAll('.permission-category').forEach(category => {
+                    const total = category.querySelectorAll('.permission-checkbox').length;
+                    const checked = category.querySelectorAll('.permission-checkbox:checked').length;
+                    const countBadge = category.querySelector('.permission-count');
+                    if (countBadge) {
+                        countBadge.textContent = `${checked}/${total}`;
+                    }
+                });
+            }
+
+            // Add event listeners for permission checkboxes
+            document.querySelectorAll('.permission-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', updatePermissionCounts);
+            });
+
+            // Select all permissions in a category
+            document.querySelectorAll('.select-category').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const category = this.dataset.category;
+                    document.querySelectorAll(`.permission-checkbox[data-category="${category}"]`)
+                        .forEach(cb => cb.checked = true);
+                    updatePermissionCounts();
+                });
+            });
+
+            // Deselect all permissions in a category
+            document.querySelectorAll('.deselect-category').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const category = this.dataset.category;
+                    document.querySelectorAll(`.permission-checkbox[data-category="${category}"]`)
+                        .forEach(cb => cb.checked = false);
+                    updatePermissionCounts();
+                });
+            });
+
+            // Select all permissions
+            document.getElementById('selectAllPermissions').addEventListener('click', function() {
+                document.querySelectorAll('.permission-checkbox').forEach(cb => cb.checked = true);
+                updatePermissionCounts();
+            });
+
+            // Deselect all permissions
+            document.getElementById('deselectAllPermissions').addEventListener('click', function() {
+                document.querySelectorAll('.permission-checkbox').forEach(cb => cb.checked = false);
+                updatePermissionCounts();
+            });
+
+            // Grant essential permissions
+            document.getElementById('grantEssentialPermissions').addEventListener('click', async function() {
+                const role = roleSelect.value;
+                if (!role) {
+                    alert('Please select a role first.');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('?handler=GrantEssentialPermissions', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                        },
+                        body: JSON.stringify({ role })
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        // Uncheck all permissions first
+                        document.querySelectorAll('.permission-checkbox').forEach(cb => cb.checked = false);
+                        
+                        // Check essential permissions
+                        data.permissions.forEach(permissionId => {
+                            const checkbox = document.getElementById(`permission_${permissionId}`);
+                            if (checkbox) {
+                                checkbox.checked = true;
+                            }
+                        });
+                    } else {
+                        alert(data.message || 'Error granting essential permissions.');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error granting essential permissions.');
+                }
+            });
+
+            // Form validation
+            form.addEventListener('submit', function(event) {
+                let isValid = true;
+
+                // Validate working days
+                const selectedDays = Array.from(workingDaysCheckboxes).filter(cb => cb.checked);
+                if (selectedDays.length === 0) {
+                    isValid = false;
+                    event.preventDefault();
+                    alert('Please select at least one working day.');
+                    return;
+                }
+
+                // Validate working hours
+                if (!startTimeSelect.value || !endTimeSelect.value) {
+                    isValid = false;
+                    event.preventDefault();
+                    alert('Please select both start and end working hours.');
+                    return;
+                }
+
+                // Update hidden inputs one final time before submission
+                workingDaysInput.value = selectedDays.map(cb => cb.value).join(',');
+                workingHoursInput.value = `${startTimeSelect.value}-${endTimeSelect.value}`;
+
+                // Validate role and permissions
+                if (roleSelect.value) {
+                    const permissionCheckboxes = document.querySelectorAll('.permission-checkbox');
+                    const selectedPermissions = Array.from(permissionCheckboxes).filter(cb => cb.checked);
+                    if (selectedPermissions.length === 0) {
+                        isValid = false;
+                        event.preventDefault();
+                        alert('Please select at least one permission for the staff member.');
+                        return;
+                    }
+                }
+
+                if (!isValid) {
+                    event.preventDefault();
+                }
+            });
+
+            // Password visibility toggle
+            const togglePassword = document.getElementById('togglePassword');
+            const password = document.getElementById('password');
+            
+            togglePassword.addEventListener('click', function () {
+                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                password.setAttribute('type', type);
+                this.querySelector('i').classList.toggle('fa-eye');
+                this.querySelector('i').classList.toggle('fa-eye-slash');
+            });
+        });
+    </script>
+
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <!-- zxcvbn password strength library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.4.2/zxcvbn.js" integrity="sha512-TZlMGFY9xKj38t/5m2FzJ+RM/aD5alMHDe26p0mYUMoCF5G7ibfHUQILq0qQPV3wlsnCwL+TPRNK4vIWGLOkUQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="~/js/signup.js" asp-append-version="true"></script>
+    <script src="~/js/password-validation.js" asp-append-version="true"></script>
+    <script src="~/js/form-validation.js" asp-append-version="true"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const birthDateInput = document.getElementById('birthDate');
+            const guardianConsentModal = new bootstrap.Modal(document.getElementById('guardianConsentModal'));
+            let guardianInfoSubmitted = false;
+
+            function calculateAge(birthDate) {
+                const today = new Date(); // Use current date instead of hardcoded date
+                const birth = new Date(birthDate);
+                let age = today.getFullYear() - birth.getFullYear();
+                const monthDiff = today.getMonth() - birth.getMonth();
+                
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+                    age--;
+                }
+                return age;
+            }
+
+            birthDateInput.addEventListener('change', function() {
+                const age = calculateAge(this.value);
+                if (age < 18) {
+                    guardianConsentModal.show();
+                }
+            });
+
+            document.getElementById('submitGuardianConsent').addEventListener('click', function() {
+                const firstName = document.getElementById('guardianFirstName').value;
+                const lastName = document.getElementById('guardianLastName').value;
+                const residencyProof = document.getElementById('guardianResidencyProof').files[0];
+
+                if (!firstName || !lastName || !residencyProof) {
+                    alert('Please fill in all required guardian information');
+                    return;
+                }
+
+                // Create hidden inputs to store guardian information
+                const form = document.getElementById('signupForm');
+                
+                let firstNameInput = document.querySelector('input[name="Input.GuardianFirstName"]');
+                if (!firstNameInput) {
+                    firstNameInput = document.createElement('input');
+                    firstNameInput.type = 'hidden';
+                    firstNameInput.name = 'Input.GuardianFirstName';
+                    form.appendChild(firstNameInput);
+                }
+                firstNameInput.value = firstName;
+
+                let lastNameInput = document.querySelector('input[name="Input.GuardianLastName"]');
+                if (!lastNameInput) {
+                    lastNameInput = document.createElement('input');
+                    lastNameInput.type = 'hidden';
+                    lastNameInput.name = 'Input.GuardianLastName';
+                    form.appendChild(lastNameInput);
+                }
+                lastNameInput.value = lastName;
+
+                guardianInfoSubmitted = true;
+                guardianConsentModal.hide();
+            });
+
+            // Validate guardian information before form submission
+            form.addEventListener('submit', function(e) {
+                const age = calculateAge(birthDateInput.value);
+                if (age < 18 && !guardianInfoSubmitted) {
+                    e.preventDefault();
+                    alert('Guardian consent is required for users under 18 years old');
+                    guardianConsentModal.show();
+                }
+            });
+        });
+    </script>
+}

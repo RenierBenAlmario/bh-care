@@ -1,0 +1,391 @@
+@page
+@model Barangay.Pages.Admin.UserManagementModel
+@{
+    ViewData["Title"] = "User Management";
+    Layout = "_AdminLayout";
+}
+
+@using System.IO
+
+<link rel="stylesheet" href="~/css/user-management.css" />
+<link rel="stylesheet" href="~/css/custom-file-preview.css" />
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/file-preview.js" defer></script>
+<script src="~/js/user-management.js" defer></script>
+
+<style>
+    /* Custom styling for the user management table */
+    .user-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .user-table th, .user-table td {
+        padding: 10px;
+        border: 1px solid #dee2e6;
+    }
+    
+    .user-table thead th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        text-align: left;
+    }
+    
+    .user-row {
+        transition: background-color 0.2s;
+    }
+    
+    .user-row:hover {
+        background-color: rgba(0, 123, 255, 0.05);
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+    
+    .status-badge.pending {
+        background-color: #FD7E14;
+        color: white;
+    }
+    
+    .status-badge.verified {
+        background-color: #28A745;
+        color: white;
+    }
+    
+    .status-badge.rejected {
+        background-color: #DC3545;
+        color: white;
+    }
+    
+    .btn-action {
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 0.875rem;
+        border: none;
+        cursor: pointer;
+        margin-right: 5px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+    
+    .btn-action i {
+        margin-right: 5px;
+    }
+    
+    .btn-action.approve {
+        background-color: #28A745;
+        color: white;
+    }
+    
+    .btn-action.reject {
+        background-color: #DC3545;
+        color: white;
+    }
+    
+    .btn-action.view {
+        background-color: #007BFF;
+        color: white;
+    }
+    
+    .btn-action.disabled {
+        background-color: #6C757D;
+        color: white;
+        cursor: not-allowed;
+        opacity: 0.65;
+    }
+    
+    .btn-action:hover:not(.disabled) {
+        opacity: 0.9;
+    }
+    
+    .action-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+</style>
+
+@Html.AntiForgeryToken()
+
+<div class="container-fluid px-4">
+    <!-- Header section with Back button -->
+    <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
+        <h1 class="m-0">User Management</h1>
+        <a href="/Admin/AdminDashboard" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fas fa-users me-1"></i>
+                    User List
+                </div>
+                <div class="d-flex gap-2">
+                    <input type="text" id="userSearchInput" class="form-control" placeholder="Search by name or email...">
+                    <select class="form-select" id="statusFilter">
+                        <option value="all">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="verified">Verified</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Contact</th>
+                            <th>Registration Date</th>
+                            <th>Status</th>
+                            <th>Birth Date</th>
+                            <th>Guardian Consent</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model.Users)
+                        {
+                            <tr>
+                                <td>@user.Id</td>
+                                <td>@user.FullName</td>
+                                <td>@user.Email</td>
+                                <td>@user.PhoneNumber</td>
+                                <td>@user.CreatedAt.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    <span class="status-badge @user.Status.ToLower()">@user.Status</span>
+                                </td>
+                                <td>@(user.BirthDate.ToShortDateString())</td>
+                                <td>
+                                    @{
+                                        var userAge = (new DateTime(2025, 5, 29) - user.BirthDate).TotalDays / 365.25;
+                                    }
+                                    @if (userAge < 18)
+                                    {
+                                        var guardian = Model.GuardianInformation.FirstOrDefault(g => g.UserId == user.Id);
+                                        if (guardian != null)
+                                        {
+                                            <span class="badge badge-success">Yes</span>
+                                            <button type="button" class="btn btn-sm btn-info ml-2" 
+                                                    data-toggle="modal" 
+                                                    data-target="#guardianModal" 
+                                                    data-userid="@user.Id"
+                                                    data-firstname="@guardian.GuardianFirstName"
+                                                    data-lastname="@guardian.GuardianLastName">
+                                                View Details
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-danger">No</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-secondary">N/A</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        @if (user.Status.ToLower() == "pending")
+                                        {
+                                            <button type="button" class="btn-action approve" data-id="@user.Id">
+                                                <i class="fas fa-check"></i> Approve
+                                            </button>
+                                            <button type="button" class="btn-action reject" data-id="@user.Id">
+                                                <i class="fas fa-times"></i> Reject
+                                            </button>
+                                        }
+                                        @if (user.UserDocuments.Any())
+                                        {
+                                            var doc = user.UserDocuments.First();
+                                            <button type="button" class="btn-action view" onclick="showDocumentPreview('@doc.FilePath', '@doc.FileName', '@doc.ContentType')">
+                                                <i class="fas fa-eye"></i> View Proof
+                                            </button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Document Preview Modal -->
+<div class="modal fade" id="documentPreviewModal" tabindex="-1" aria-labelledby="documentPreviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="documentPreviewModalLabel">Document Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="documentPreviewContent" class="text-center">
+                    <!-- Preview content will be inserted here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="successModalLabel">Success</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="successMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Guardian Information Modal -->
+<div class="modal fade" id="guardianModal" tabindex="-1" role="dialog" aria-labelledby="guardianModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="guardianModalLabel">Guardian Information</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Guardian's Name:</label>
+                    <p id="guardianName" class="form-control-static"></p>
+                </div>
+                <div class="form-group">
+                    <label>Residency Proof:</label>
+                    <div id="proofContainer">
+                        <img id="residencyProofImage" class="img-fluid" alt="Residency Proof" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/user-management.js"></script>
+    <style>
+        /* Add some styling for the back button */
+        .btn-secondary {
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            transform: translateX(-3px);
+        }
+        
+        /* Ensure consistent spacing */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        /* Improve status badge visibility */
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-weight: 500;
+            display: inline-block;
+            min-width: 80px;
+            text-align: center;
+        }
+    </style>
+    <script>
+        // Document preview function
+        function showDocumentPreview(filePath, fileName, contentType) {
+            const previewContent = document.getElementById('documentPreviewContent');
+            previewContent.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';
+            
+            const modal = new bootstrap.Modal(document.getElementById('documentPreviewModal'));
+            modal.show();
+            
+            if (contentType.startsWith('image/')) {
+                const img = new Image();
+                img.onload = function() {
+                    previewContent.innerHTML = '';
+                    img.className = 'img-fluid';
+                    previewContent.appendChild(img);
+                };
+                img.onerror = function() {
+                    previewContent.innerHTML = '<div class="alert alert-danger">Error loading image</div>';
+                };
+                img.src = filePath;
+            } else if (contentType === 'application/pdf') {
+                previewContent.innerHTML = `<iframe src="${filePath}" width="100%" height="500" frameborder="0"></iframe>`;
+            } else {
+                previewContent.innerHTML = `
+                    <div class="alert alert-info">
+                        <i class="fas fa-file me-2"></i>
+                        ${fileName}<br>
+                        <small>This file type cannot be previewed</small>
+                    </div>
+                `;
+            }
+        }
+        
+        // Add confirmation for back button if there are pending changes
+        document.querySelector('a[href="/Admin/Dashboard"]').addEventListener('click', function(e) {
+            const pendingChanges = false; // Set this based on your application's state
+            if (pendingChanges) {
+                e.preventDefault();
+                if (confirm('There are unsaved changes. Are you sure you want to leave this page?')) {
+                    window.location.href = this.href;
+                }
+            }
+        });
+
+        $(document).ready(function() {
+            $('#guardianModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                var userId = button.data('userid');
+                var firstName = button.data('firstname');
+                var lastName = button.data('lastname');
+                
+                var modal = $(this);
+                modal.find('#guardianName').text(firstName + ' ' + lastName);
+                
+                // Load residency proof image
+                $.get('/Admin/GetResidencyProof/' + userId, function(data) {
+                    if (data) {
+                        $('#residencyProofImage').attr('src', 'data:image/jpeg;base64,' + data);
+                    }
+                });
+            });
+        });
+    </script>
+} 

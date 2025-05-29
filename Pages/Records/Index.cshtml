@@ -1,0 +1,338 @@
+@page
+@model Barangay.Pages.Records.IndexModel
+@{
+    ViewData["Title"] = "Medical Records";
+    
+    if (Model.IsNurse || Model.IsDoctor)
+    {
+        Layout = "_Layout";
+    }
+    else
+    {
+        Layout = "_UserLayout";
+    }
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Medical Records</h2>
+        <div>
+            @if (Model.IsNurse || Model.IsDoctor)
+            {
+                <div class="d-flex align-items-center">
+                    <select id="patientFilter" class="form-select me-2">
+                        <option value="">All Patients</option>
+                        @foreach (var patient in Model.Patients)
+                        {
+                            <option value="@patient.UserId">@patient.FullName</option>
+                        }
+                    </select>
+                    <button class="btn btn-outline-primary me-2" id="filterBtn">
+                        <i class="fas fa-filter me-2"></i>Filter
+                    </button>
+                    <button class="btn btn-primary" id="downloadBtn">
+                        <i class="fas fa-download me-2"></i>Download Records
+                    </button>
+                </div>
+            }
+            else
+            {
+                <button class="btn btn-primary" id="downloadBtn">
+                    <i class="fas fa-download me-2"></i>Download My Records
+                </button>
+            }
+        </div>
+    </div>
+
+    @if (Model.IsPatient)
+    {
+        <!-- Patient View -->
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Health Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="fw-bold">Blood Type:</label>
+                            <span class="ms-2">@Model.BloodType</span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="fw-bold">Height:</label>
+                            <span class="ms-2">@Model.Height cm</span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="fw-bold">Weight:</label>
+                            <span class="ms-2">@Model.Weight kg</span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="fw-bold">BMI:</label>
+                            <span class="ms-2">@Model.BMI</span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="fw-bold">Last Checkup:</label>
+                            <span class="ms-2">@Model.LastCheckup.ToString("MMMM dd, yyyy")</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8 mb-4">
+                <div class="alert alert-info" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-file-medical me-3 fs-4"></i>
+                        <div>
+                            <strong>Medical Records</strong>
+                            <p class="mb-0">View your complete medical history and health records.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Nurse/Doctor View - Summary Card -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="alert alert-info" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-file-medical me-3 fs-4"></i>
+                        <div>
+                            <strong>Patient Medical Records</strong>
+                            <p class="mb-0">View and manage patient medical records, vital signs, and lab results.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Vital Signs History -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Vital Signs History</h5>
+                    @if (Model.IsNurse)
+                    {
+                        <a href="/Nurse/VitalSigns" class="btn btn-sm btn-primary">
+                            <i class="fas fa-plus me-1"></i> Record New Vitals
+                        </a>
+                    }
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    @if (Model.IsNurse || Model.IsDoctor)
+                                    {
+                                        <th>Patient</th>
+                                    }
+                                    <th>Temperature</th>
+                                    <th>Blood Pressure</th>
+                                    <th>Heart Rate</th>
+                                    <th>Weight</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var vital in Model.VitalSigns)
+                                {
+                                    <tr class="patient-row" data-patient-id="@vital.PatientId">
+                                        <td>@vital.Date.ToString("MMM dd, yyyy")</td>
+                                        @if (Model.IsNurse || Model.IsDoctor)
+                                        {
+                                            <td>@vital.PatientName</td>
+                                        }
+                                        <td>@vital.Temperature°C</td>
+                                        <td>@vital.BloodPressure</td>
+                                        <td>@vital.HeartRate bpm</td>
+                                        <td>@(vital.Weight.HasValue ? $"{vital.Weight} kg" : "N/A")</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i> View
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                                @if (!Model.VitalSigns.Any())
+                                {
+                                    <tr>
+                                        <td colspan="@(Model.IsNurse || Model.IsDoctor ? 7 : 6)" class="text-center">No vital signs records found.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Medical History -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Medical History</h5>
+                    @if (Model.IsDoctor)
+                    {
+                        <a href="/Doctor/Consultation" class="btn btn-sm btn-primary">
+                            <i class="fas fa-plus me-1"></i> Add Medical Record
+                        </a>
+                    }
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    @if (Model.IsNurse || Model.IsDoctor)
+                                    {
+                                        <th>Patient</th>
+                                    }
+                                    <th>Doctor</th>
+                                    <th>Diagnosis</th>
+                                    <th>Treatment</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var record in Model.MedicalHistory)
+                                {
+                                    <tr class="patient-row" data-patient-id="@record.PatientId">
+                                        <td>@record.Date.ToString("MMM dd, yyyy")</td>
+                                        @if (Model.IsNurse || Model.IsDoctor)
+                                        {
+                                            <td>@record.PatientName</td>
+                                        }
+                                        <td>@record.Doctor</td>
+                                        <td>@record.Diagnosis</td>
+                                        <td>@record.Treatment</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i> View
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                                @if (!Model.MedicalHistory.Any())
+                                {
+                                    <tr>
+                                        <td colspan="@(Model.IsNurse || Model.IsDoctor ? 6 : 5)" class="text-center">No medical history records found.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Laboratory Results -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Laboratory Results</h5>
+                    @if (Model.IsNurse || Model.IsDoctor)
+                    {
+                        <a href="#" class="btn btn-sm btn-primary">
+                            <i class="fas fa-plus me-1"></i> Add Lab Result
+                        </a>
+                    }
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    @if (Model.IsNurse || Model.IsDoctor)
+                                    {
+                                        <th>Patient</th>
+                                    }
+                                    <th>Test</th>
+                                    <th>Result</th>
+                                    <th>Reference Range</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var lab in Model.LabResults)
+                                {
+                                    <tr class="patient-row" data-patient-id="@lab.PatientId">
+                                        <td>@lab.Date.ToString("MMM dd, yyyy")</td>
+                                        @if (Model.IsNurse || Model.IsDoctor)
+                                        {
+                                            <td>@lab.PatientName</td>
+                                        }
+                                        <td>@lab.TestName</td>
+                                        <td>@lab.Result</td>
+                                        <td>@lab.ReferenceRange</td>
+                                        <td><span class="badge bg-success">@lab.Status</span></td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i> View
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-secondary">
+                                                    <i class="fas fa-download"></i> Download
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                                @if (!Model.LabResults.Any())
+                                {
+                                    <tr>
+                                        <td colspan="@(Model.IsNurse || Model.IsDoctor ? 7 : 6)" class="text-center">No laboratory results found.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Patient filtering for Nurse/Doctor view
+            const patientFilter = document.getElementById('patientFilter');
+            const filterBtn = document.getElementById('filterBtn');
+            
+            if (filterBtn) {
+                filterBtn.addEventListener('click', function() {
+                    const selectedPatientId = patientFilter.value;
+                    const patientRows = document.querySelectorAll('.patient-row');
+                    
+                    patientRows.forEach(row => {
+                        if (!selectedPatientId || row.dataset.patientId === selectedPatientId) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+            }
+            
+            // Download button (mock functionality)
+            const downloadBtn = document.getElementById('downloadBtn');
+            if (downloadBtn) {
+                downloadBtn.addEventListener('click', function() {
+                    alert('Records download initiated. Your file will be ready shortly.');
+                });
+            }
+        });
+    </script>
+} 

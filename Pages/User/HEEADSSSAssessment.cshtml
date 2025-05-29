@@ -1,0 +1,310 @@
+@page
+@model Barangay.Pages.User.HEEADSSSAssessmentModel
+@{
+    ViewData["Title"] = "HEEADSSS Health Assessment";
+}
+
+@section Styles {
+    <style>
+        .form-control:disabled, .form-control[readonly] {
+            background-color: #f8f9fa;
+            opacity: 1;
+        }
+        
+        .form-label.required::after {
+            content: " *";
+            color: red;
+        }
+        
+        .form-step {
+            display: none;
+        }
+        
+        .form-step.active {
+            display: block;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            position: relative;
+            padding: 0;
+            list-style: none;
+        }
+        
+        .step-indicator::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e0e0e0;
+            z-index: 1;
+        }
+        
+        .step-indicator li {
+            position: relative;
+            z-index: 2;
+            background: white;
+            padding: 0 10px;
+        }
+        
+        .step-indicator li.active {
+            color: #007bff;
+            font-weight: bold;
+        }
+        
+        .step-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .guardian-consent {
+            display: none;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .status-bar {
+            background-color: #E0F7FA;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .health-tip {
+            border: 1px solid #007BFF;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .conditional-field {
+            display: none;
+        }
+    </style>
+}
+
+<div class="container mt-5">
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <div class="row">
+            <div class="col-md-6">
+                <strong>Current Queue:</strong> 5 patients waiting (Est. wait time: 15 mins)
+            </div>
+            <div class="col-md-6 text-end">
+                <strong>Health Tip:</strong> Stay hydrated and bring your ID to appointments.
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <a href="/User/UserDashboard" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+                <h2 class="mb-0">HEEADSSS Assessment Form</h2>
+                <div style="width: 135px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <form method="post" id="heeadsssForm">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Assessment.AppointmentId" />
+        <input type="hidden" asp-for="Assessment.UserId" />
+
+        <!-- Patient Information -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Patient Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">Patient Name</label>
+                            <input type="text" class="form-control" value="@ViewData["PatientName"]" readonly />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">Age</label>
+                            <input type="text" class="form-control" value="@ViewData["PatientAge"]" readonly />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">Phone</label>
+                            <input type="text" class="form-control" value="@ViewData["PatientPhone"]" readonly />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Basic Information -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Basic Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="Assessment.HealthFacility" class="form-label required">Health Facility</label>
+                            <input asp-for="Assessment.HealthFacility" class="form-control" readonly />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="Assessment.FamilyNo" class="form-label">Family No</label>
+                            <input asp-for="Assessment.FamilyNo" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-3">
+                            <label asp-for="Assessment.Address" class="form-label required">Address</label>
+                            <input asp-for="Assessment.Address" class="form-control" required />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label asp-for="Assessment.Birthday" class="form-label required">Birthday</label>
+                            <input asp-for="Assessment.Birthday" class="form-control" type="date" required />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label asp-for="Assessment.Gender" class="form-label required">Gender</label>
+                            <select asp-for="Assessment.Gender" class="form-select" required>
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label asp-for="Assessment.Religion" class="form-label">Religion</label>
+                            <input asp-for="Assessment.Religion" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="d-flex justify-content-between mt-4">
+            <a href="/User/UserDashboard" class="btn btn-secondary">Back to Dashboard</a>
+            <button type="submit" class="btn btn-primary" id="submitButton">Save & Continue to NCD Assessment</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            console.log('[HEEADSSS] Page loaded');
+            const form = $('#heeadsssForm');
+            
+            // Debug: Log initial appointmentId
+            const initialAppointmentId = $('input[name="Assessment.AppointmentId"]').val();
+            console.log('[HEEADSSS] Initial appointmentId:', initialAppointmentId);
+            
+            // Handle form submission
+            form.on('submit', function(e) {
+                e.preventDefault();
+                console.log('[HEEADSSS] Form submission started');
+                
+                // Show loading state
+                $('#submitButton').prop('disabled', true).html('Saving...');
+                console.log('[HEEADSSS] Submit button disabled');
+                
+                // Get form data
+                const formData = new FormData(this);
+                
+                // Debug: Log form data
+                console.log('[HEEADSSS] Form data:');
+                for (let pair of formData.entries()) {
+                    console.log(pair[0] + ': ' + pair[1]);
+                }
+                
+                // Get appointmentId from hidden field
+                const appointmentId = $('input[name="Assessment.AppointmentId"]').val();
+                console.log('[HEEADSSS] AppointmentId for submission:', appointmentId);
+                
+                // Submit form data via AJAX
+                console.log('[HEEADSSS] Sending AJAX request...');
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        console.log('[HEEADSSS] AJAX response:', response);
+                        if (response.success) {
+                            console.log('[HEEADSSS] Submission successful');
+                            alert('HEEADSSS Assessment saved successfully!');
+                            
+                            // Debug: Log redirect URL
+                            const redirectUrl = `/User/NCDRiskAssessment?appointmentId=${appointmentId}`;
+                            console.log('[HEEADSSS] Redirecting to:', redirectUrl);
+                            
+                            // Redirect to NCDRiskAssessment with appointmentId
+                            window.location.href = redirectUrl;
+                        } else {
+                            console.error('[HEEADSSS] Submission failed:', response.error || response.errors);
+                            $('#submitButton').prop('disabled', false).html('Save & Continue to NCD Assessment');
+                            if (response.errors) {
+                                alert('Please fix the following errors:\n' + response.errors.join('\n'));
+                            } else {
+                                alert(response.error || 'Error saving assessment. Please try again.');
+                            }
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('[HEEADSSS] AJAX error:', {
+                            status: status,
+                            error: error,
+                            response: xhr.responseText
+                        });
+                        $('#submitButton').prop('disabled', false).html('Save & Continue to NCD Assessment');
+                        alert('Error saving assessment. Please try again.');
+                    }
+                });
+            });
+
+            // Calculate age based on birthday
+            $('input[name="Assessment.Birthday"]').on('change', function() {
+                console.log('[HEEADSSS] Birthday changed:', $(this).val());
+                const birthDate = new Date($(this).val());
+                const today = new Date();
+                
+                let age = today.getFullYear() - birthDate.getFullYear();
+                const monthDiff = today.getMonth() - birthDate.getMonth();
+                
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                    age--;
+                }
+                
+                console.log('[HEEADSSS] Calculated age:', age);
+                $('input[name="Assessment.Age"]').val(age);
+            });
+        });
+    </script>
+} 

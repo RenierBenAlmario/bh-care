@@ -1,0 +1,82 @@
+@using Barangay.Models
+@model StaffDetailsViewModel
+
+<div class="staff-details">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label class="text-muted">Full Name</label>
+                <p class="h5">@Model.FullName</p>
+            </div>
+            <div class="mb-3">
+                <label class="text-muted">Email</label>
+                <p>@Model.Email</p>
+            </div>
+            <div class="mb-3">
+                <label class="text-muted">Phone Number</label>
+                <p>@(Model.PhoneNumber ?? "Not provided")</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label class="text-muted">Role</label>
+                <p>@Model.Role</p>
+            </div>
+            <div class="mb-3">
+                <label class="text-muted">Department</label>
+                <p>@Model.Department</p>
+            </div>
+            <div class="mb-3">
+                <label class="text-muted">Status</label>
+                <p>
+                    <span class="badge bg-@(Model.Status == "Active" ? "success" : "danger")">
+                        @Model.Status
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label class="text-muted">Join Date</label>
+                <p>@Model.RegistrationDate.ToString("MMMM dd, yyyy")</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label class="text-muted">Last Active</label>
+                <p>@(Model.LastActive?.ToString("MMMM dd, yyyy HH:mm") ?? "Never")</p>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Documents?.Any() == true)
+    {
+        <div class="mt-4">
+            <h6 class="mb-3">Documents</h6>
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Upload Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var doc in Model.Documents)
+                        {
+                            <tr>
+                                <td>@doc.Name</td>
+                                <td>@doc.Type</td>
+                                <td>@doc.UploadDate.ToString("MMM dd, yyyy")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div> 

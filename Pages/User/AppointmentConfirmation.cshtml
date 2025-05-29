@@ -1,0 +1,83 @@
+@page
+@model Barangay.Pages.User.AppointmentConfirmationModel
+@{
+    ViewData["Title"] = "Appointment Confirmation";
+    Layout = "_UserLayout";
+}
+
+<div class="container mt-5 pt-3">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0"><i class="fas fa-check-circle me-2"></i>Appointment Confirmed!</h4>
+        </div>
+        <div class="card-body">
+            <div class="text-center mb-4">
+                <i class="fas fa-calendar-check text-success" style="font-size: 5rem;"></i>
+                <h2 class="mt-3">Thank You for Booking Your Appointment</h2>
+                <p class="lead">Your appointment has been successfully scheduled.</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Appointment Details:</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span><strong>Reference ID:</strong></span>
+                            <span>@Model.Appointment?.Id</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span><strong>Date:</strong></span>
+                            <span>@Model.Appointment?.AppointmentDate.ToString("MMMM d, yyyy")</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span><strong>Time:</strong></span>
+                            <span>@Model.Appointment?.GetFormattedTime()</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span><strong>Type:</strong></span>
+                            <span>@Model.Appointment?.Type</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span><strong>Status:</strong></span>
+                            <span class="badge bg-warning">Pending</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h5>Important Notes:</h5>
+                    <div class="alert alert-info">
+                        <ul class="mb-0">
+                            <li>Please arrive 15 minutes before your scheduled time.</li>
+                            <li>Bring a valid ID and your PhilHealth card (if applicable).</li>
+                            <li>You will receive an SMS confirmation 24 hours before your appointment.</li>
+                            <li>If you need to cancel or reschedule, please do so at least 24 hours in advance.</li>
+                        </ul>
+                    </div>
+                    
+                    <h5>Health Risk Assessment:</h5>
+                    @if (Model.NCDRiskAssessment != null)
+                    {
+                        <p>Thank you for completing the NCD Risk Assessment. Your information has been recorded and will be reviewed by our healthcare professionals.</p>
+                    }
+                    else if (Model.HEEADSSSAssessment != null)
+                    {
+                        <p>Thank you for completing the HEEADSSS Health Assessment. Your information has been recorded and will be reviewed by our healthcare professionals.</p>
+                    }
+                    else
+                    {
+                        <p>Thank you for booking your appointment. Our healthcare professionals will provide the appropriate health assessment during your visit.</p>
+                    }
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-between mt-4">
+                <a href="/User/UserDashboard" class="btn btn-primary">
+                    <i class="fas fa-home me-2"></i>Go to Dashboard
+                </a>
+                <a href="#" class="btn btn-outline-secondary" onclick="window.print()">
+                    <i class="fas fa-print me-2"></i>Print Confirmation
+                </a>
+            </div>
+        </div>
+    </div>
+</div> 

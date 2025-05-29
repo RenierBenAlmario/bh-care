@@ -1,0 +1,488 @@
+@page "{id?}"
+@model Barangay.Pages.Doctor.PatientDetailsModel
+@{
+    ViewData["Title"] = "Patient Details";
+    Layout = "_DoctorLayout";
+}
+
+@section Styles {
+    <style>
+        .avatar-circle {
+            width: 80px;
+            height: 80px;
+            background-color: #1976d2;
+            text-align: center;
+            border-radius: 50%;
+            -webkit-border-radius: 50%;
+            -moz-border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .avatar-initials {
+            color: white;
+            font-size: 2rem;
+            line-height: 1;
+            font-weight: bold;
+        }
+        .tab-content {
+            padding-top: 1rem;
+        }
+        .card-header-tabs {
+            margin-right: 0;
+            margin-bottom: -1px;
+            margin-left: 0;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #495057;
+        }
+    </style>
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Patient Details</h2>
+        <a asp-page="/Doctor/PatientRecords" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Patient Records
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (Model.Patient == null)
+    {
+        <div class="alert alert-warning">
+            <p>Patient not found or you don't have permission to view this patient's information.</p>
+            <a asp-page="/Doctor/PatientRecords" class="btn btn-primary">Return to Patient Records</a>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <!-- Patient Information Card -->
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Patient Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3 text-center">
+                            <div class="avatar-circle mx-auto mb-3">
+                                <span class="avatar-initials">@(string.IsNullOrEmpty(Model.Patient.FullName) ? "?" : Model.Patient.FullName.Substring(0, 1).ToUpper())</span>
+                            </div>
+                            <h4>@Model.Patient.FullName</h4>
+                            <p class="text-muted">
+                                @Model.Patient.Gender, @Model.Patient.Age years old
+                            </p>
+                            <span class="badge bg-@(Model.Patient.Status == "Active" ? "success" : "secondary")">@Model.Patient.Status</span>
+                        </div>
+                        
+                        <hr />
+                        
+                        <dl class="row">
+                            <dt class="col-sm-5">Contact Number:</dt>
+                            <dd class="col-sm-7">@Model.Patient.ContactNumber</dd>
+                            
+                            <dt class="col-sm-5">Email:</dt>
+                            <dd class="col-sm-7">@Model.Patient.Email</dd>
+                            
+                            <dt class="col-sm-5">Address:</dt>
+                            <dd class="col-sm-7">@Model.Patient.Address</dd>
+                            
+                            <dt class="col-sm-5">Blood Type:</dt>
+                            <dd class="col-sm-7">@(string.IsNullOrEmpty(Model.Patient.BloodType) ? "Not specified" : Model.Patient.BloodType)</dd>
+                            
+                            <dt class="col-sm-5">Emergency Contact:</dt>
+                            <dd class="col-sm-7">@Model.Patient.EmergencyContact (@Model.Patient.EmergencyContactNumber)</dd>
+                        </dl>
+                    </div>
+                </div>
+                
+                <!-- Allergies & Medical History Card -->
+                <div class="card mb-4">
+                    <div class="card-header bg-warning">
+                        <h5 class="mb-0">Medical Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6>Allergies</h6>
+                        <p>@(string.IsNullOrEmpty(Model.Patient.Allergies) ? "No known allergies" : Model.Patient.Allergies)</p>
+                        
+                        <hr />
+                        
+                        <h6>Medical History</h6>
+                        <p>@(string.IsNullOrEmpty(Model.Patient.MedicalHistory) ? "No medical history recorded" : Model.Patient.MedicalHistory)</p>
+                        
+                        <hr />
+                        
+                        <h6>Current Medications</h6>
+                        <p>@(string.IsNullOrEmpty(Model.Patient.CurrentMedications) ? "No current medications" : Model.Patient.CurrentMedications)</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tabs for Medical Records, Appointments, etc. -->
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <ul class="nav nav-tabs card-header-tabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" data-bs-toggle="tab" href="#medical-records">Medical Records</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-bs-toggle="tab" href="#appointments">Appointments</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-bs-toggle="tab" href="#prescriptions">Prescriptions</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-bs-toggle="tab" href="#vital-signs">Vital Signs</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content">
+                            <!-- Medical Records Tab -->
+                            <div class="tab-pane fade show active" id="medical-records">
+                                <h5 class="mb-3">Medical Records</h5>
+                                @if (Model.MedicalRecords?.Any() == true)
+                                {
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Date</th>
+                                                    <th>Type</th>
+                                                    <th>Diagnosis</th>
+                                                    <th>Doctor</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var record in Model.MedicalRecords.OrderByDescending(r => r.Date))
+                                                {
+                                                    <tr>
+                                                        <td>@record.Date.ToString("MMM dd, yyyy")</td>
+                                                        <td>@record.Type</td>
+                                                        <td>@record.Diagnosis</td>
+                                                        <td>Dr. @record.DoctorName</td>
+                                                        <td>
+                                                            <button type="button" class="btn btn-sm btn-info view-record" 
+                                                                    data-id="@record.Id"
+                                                                    data-date="@record.Date.ToString("MMM dd, yyyy")"
+                                                                    data-type="@record.Type"
+                                                                    data-complaint="@record.ChiefComplaint"
+                                                                    data-diagnosis="@record.Diagnosis"
+                                                                    data-treatment="@record.Treatment"
+                                                                    data-notes="@record.Notes"
+                                                                    data-status="@record.Status"
+                                                                    data-doctor="Dr. @record.DoctorName">
+                                                                <i class="bi bi-eye"></i> View
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-info">
+                                        No medical records available for this patient.
+                                    </div>
+                                }
+                            </div>
+                            
+                            <!-- Appointments Tab -->
+                            <div class="tab-pane fade" id="appointments">
+                                <h5 class="mb-3">Appointment History</h5>
+                                @if (Model.Patient.Appointments?.Any() == true)
+                                {
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Date</th>
+                                                    <th>Time</th>
+                                                    <th>Description</th>
+                                                    <th>Status</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var appointment in Model.Patient.Appointments.OrderByDescending(a => a.AppointmentDate))
+                                                {
+                                                    <tr>
+                                                        <td>@appointment.AppointmentDate.ToString("MMM dd, yyyy")</td>
+                                                        <td>@appointment.AppointmentTime.ToString(@"hh\:mm")</td>
+                                                        <td>@appointment.Description</td>
+                                                        <td>
+                                                            <span class="badge bg-@(appointment.Status.ToString() == "Completed" ? "success" : appointment.Status.ToString() == "Cancelled" ? "danger" : "primary")">
+                                                                @appointment.Status
+                                                            </span>
+                                                        </td>
+                                                        <td>
+                                                            <a href="/Doctor/Consultation?id=@appointment.Id" class="btn btn-sm btn-info">
+                                                                <i class="bi bi-eye"></i> View
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-info">
+                                        No appointment history available for this patient.
+                                    </div>
+                                }
+                            </div>
+                            
+                            <!-- Prescriptions Tab -->
+                            <div class="tab-pane fade" id="prescriptions">
+                                <h5 class="mb-3">Prescriptions</h5>
+                                @if (Model.Medications?.Any() == true)
+                                {
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Date</th>
+                                                    <th>Medication</th>
+                                                    <th>Dosage</th>
+                                                    <th>Instructions</th>
+                                                    <th>Prescribed By</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var med in Model.Medications.OrderByDescending(m => m.CreatedAt))
+                                                {
+                                                    <tr>
+                                                        <td>@med.CreatedAt?.ToString("MMM dd, yyyy")</td>
+                                                        <td>@med.MedicationName</td>
+                                                        <td>@med.Dosage</td>
+                                                        <td>@med.Instructions</td>
+                                                        <td>Dr. @med.DoctorName</td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-info">
+                                        No prescriptions available for this patient.
+                                    </div>
+                                }
+                            </div>
+                            
+                            <!-- Vital Signs Tab -->
+                            <div class="tab-pane fade" id="vital-signs">
+                                <h5 class="mb-3">Vital Signs</h5>
+                                @if (Model.Patient.VitalSigns?.Any() == true)
+                                {
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Date</th>
+                                                    <th>BP</th>
+                                                    <th>HR</th>
+                                                    <th>Temp</th>
+                                                    <th>Weight</th>
+                                                    <th>Height</th>
+                                                    <th>BMI</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var vs in Model.Patient.VitalSigns.OrderByDescending(v => v.RecordedAt))
+                                                {
+                                                    <tr>
+                                                        <td>@vs.RecordedAt.ToString("MMM dd, yyyy")</td>
+                                                        <td>@vs.BloodPressure</td>
+                                                        <td>@(vs.HeartRate.HasValue ? $"{vs.HeartRate} bpm" : "N/A")</td>
+                                                        <td>@(vs.Temperature.HasValue ? $"{vs.Temperature:F1} °C" : "N/A")</td>
+                                                        <td>@(vs.Weight.HasValue ? $"{vs.Weight:F1} kg" : "N/A")</td>
+                                                        <td>@(vs.Height.HasValue ? $"{vs.Height:F1} cm" : "N/A")</td>
+                                                        <td>@(Model.Patient.BMI.HasValue ? $"{Model.Patient.BMI:F1}" : "N/A")</td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-info">
+                                        No vital signs recorded for this patient.
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Medical Record Details Modal -->
+<div class="modal fade" id="medicalRecordModal" tabindex="-1" aria-labelledby="medicalRecordModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="medicalRecordModalLabel">Medical Record Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="card mb-3">
+                    <div class="card-header bg-light">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-0"><span class="detail-label"><i class="bi bi-calendar-event"></i> Date:</span> <span id="record-date" class="fw-bold"></span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-0"><span class="detail-label"><i class="bi bi-tag"></i> Type:</span> <span id="record-type" class="fw-bold"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <p class="mb-0"><span class="detail-label"><i class="bi bi-person-badge"></i> Doctor:</span> <span id="record-doctor" class="fw-bold"></span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-0"><span class="detail-label"><i class="bi bi-activity"></i> Status:</span> <span class="badge" id="record-status-badge">Unknown</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mb-3">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0"><i class="bi bi-chat-right-text"></i> Chief Complaint</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="p-3 bg-light rounded border-start border-primary border-3" id="record-complaint">No chief complaint recorded</div>
+                    </div>
+                </div>
+                
+                <div class="card mb-3">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0"><i class="bi bi-clipboard-pulse"></i> Diagnosis</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="p-3 bg-light rounded border-start border-primary border-3" id="record-diagnosis">No diagnosis recorded</div>
+                    </div>
+                </div>
+                
+                <div class="card mb-3">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0"><i class="bi bi-capsule"></i> Treatment Plan</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="p-3 bg-light rounded border-start border-primary border-3" id="record-treatment">No treatment recorded</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0"><i class="bi bi-journal-text"></i> Notes</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="p-3 bg-light rounded border-start border-primary border-3" id="record-notes">No notes recorded</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Close
+                </button>
+                <a href="#" class="btn btn-primary" id="print-record-link" target="_blank">
+                    <i class="bi bi-printer"></i> Print Record
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Handle tab activation
+            $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+                localStorage.setItem('activePatientTab', $(e.target).attr('href'));
+            });
+            
+            // Restore active tab
+            var activeTab = localStorage.getItem('activePatientTab');
+            if (activeTab) {
+                $('a[href="' + activeTab + '"]').tab('show');
+            }
+            
+            // Initialize the medical record modal
+            const medicalRecordModal = new bootstrap.Modal(document.getElementById('medicalRecordModal'));
+            
+            // Handle view record button clicks
+            $('.view-record').on('click', function() {
+                const recordId = $(this).data('id');
+                const date = $(this).data('date');
+                const type = $(this).data('type');
+                const complaint = $(this).data('complaint') || "No chief complaint recorded";
+                const diagnosis = $(this).data('diagnosis') || "No diagnosis recorded";
+                const treatment = $(this).data('treatment') || "No treatment recorded";
+                const notes = $(this).data('notes') || "No notes recorded";
+                const status = $(this).data('status') || "Unknown";
+                const doctor = $(this).data('doctor');
+                
+                // Update modal content
+                $('#record-date').text(date);
+                $('#record-type').text(type);
+                $('#record-doctor').text(doctor);
+                $('#record-complaint').text(complaint);
+                $('#record-diagnosis').text(diagnosis);
+                $('#record-treatment').text(treatment);
+                $('#record-notes').text(notes);
+                
+                // Update status badge color
+                const statusBadge = $('#record-status-badge');
+                statusBadge.text(status);
+                statusBadge.removeClass('bg-success bg-warning bg-danger bg-secondary');
+                
+                if (status === 'Completed') {
+                    statusBadge.addClass('bg-success');
+                } else if (status === 'In Progress') {
+                    statusBadge.addClass('bg-warning');
+                } else if (status === 'Cancelled') {
+                    statusBadge.addClass('bg-danger');
+                } else {
+                    statusBadge.addClass('bg-secondary');
+                }
+                
+                // Update print link
+                $('#print-record-link').attr('href', `/Doctor/PrintMedicalRecord/${recordId}`);
+                
+                // Show the modal
+                medicalRecordModal.show();
+            });
+        });
+    </script>
+} 

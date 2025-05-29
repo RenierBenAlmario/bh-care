@@ -1,0 +1,153 @@
+@using Barangay.Models
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Admin Portal</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/admin-local.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin-dashboard-bhcare.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    @Html.AntiForgeryToken()
+
+    <div class="container-fluid admin-content p-0">        
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="footer bg-light border-top">
+        <div class="container py-3">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    <p>&copy; @DateTime.Now.Year - Barangay Health System | Barangay 161, Manila</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <p>
+                        <span class="me-3">(02) 8123-4567</span>
+                        <a href="mailto:bhcare@barangay161.ph" class="text-decoration-none">bhcare@barangay161.ph</a>
+                    </p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 text-center">
+                    <a href="/Privacy" class="text-decoration-none me-3">Privacy Policy</a> |
+                    <a href="/Terms" class="text-decoration-none mx-3">Terms of Use</a> |
+                    <a href="/Contact" class="text-decoration-none ms-3">Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Session Timeout Modal -->
+    <div class="modal fade" id="sessionTimeoutModal" tabindex="-1" aria-labelledby="sessionTimeoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title" id="sessionTimeoutModalLabel">
+                        <i class="fas fa-clock me-2"></i>Session Timeout Warning
+                    </h5>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-exclamation-triangle text-warning me-3 fa-2x"></i>
+                        <p class="mb-0">Your session will expire in <span id="timeoutCountdown" class="fw-bold">60</span> seconds due to inactivity.</p>
+                    </div>
+                    <p>Would you like to stay logged in or log out now?</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="stayLoggedIn">
+                        <i class="fas fa-check me-1"></i> Stay Logged In
+                    </button>
+                    <button class="btn btn-secondary" id="logoutNow">
+                        <i class="fas fa-sign-out-alt me-1"></i> Logout Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden logout form for session timeout -->
+    <form id="logoutForm" method="post" asp-page="/Account/Logout" style="display: none;"></form>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/admin.js" asp-append-version="true"></script>
+    <script src="~/js/admin-notifications.js" asp-append-version="true"></script>
+    <script src="~/js/admin-dashboard.js" asp-append-version="true"></script>
+
+    <script>
+        // Session timeout handling
+        let sessionTimeoutWarning = 15 * 60 * 1000; // 15 minutes in milliseconds
+        let sessionTimeout = 20 * 60 * 1000; // 20 minutes in milliseconds
+        let timeoutTimer;
+        let countdownTimer;
+        let warningDisplayed = false;
+        let lastActivity = new Date().getTime();
+        
+        function resetSessionTimer() {
+            if (!warningDisplayed) {
+                clearTimeout(timeoutTimer);
+                lastActivity = new Date().getTime();
+                timeoutTimer = setTimeout(showTimeoutWarning, sessionTimeoutWarning);
+            }
+        }
+        
+        function showTimeoutWarning() {
+            warningDisplayed = true;
+            let timeLeft = 60; // 60 seconds countdown
+            
+            // Show the modal
+            const sessionTimeoutModal = new bootstrap.Modal(document.getElementById('sessionTimeoutModal'));
+            sessionTimeoutModal.show();
+            
+            // Update countdown
+            document.getElementById('timeoutCountdown').textContent = timeLeft;
+            
+            // Start countdown
+            countdownTimer = setInterval(function() {
+                timeLeft--;
+                document.getElementById('timeoutCountdown').textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(countdownTimer);
+                    document.getElementById('logoutForm').submit();
+                }
+            }, 1000);
+        }
+        
+        // Reset timer on user activity
+        ['mousemove', 'mousedown', 'keypress', 'touchmove', 'click', 'scroll'].forEach(function(event) {
+            document.addEventListener(event, resetSessionTimer, false);
+        });
+        
+        // Setup stay logged in button
+        document.getElementById('stayLoggedIn').addEventListener('click', function() {
+            clearInterval(countdownTimer);
+            warningDisplayed = false;
+            bootstrap.Modal.getInstance(document.getElementById('sessionTimeoutModal')).hide();
+            resetSessionTimer();
+            
+            // Send a ping to the server to keep the session alive
+            fetch('/api/Session/KeepAlive', { method: 'POST' })
+                .catch(error => console.error('Error keeping session alive:', error));
+        });
+        
+        // Setup logout now button
+        document.getElementById('logoutNow').addEventListener('click', function() {
+            document.getElementById('logoutForm').submit();
+        });
+        
+        // Initialize the session timer
+        resetSessionTimer();
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html> 

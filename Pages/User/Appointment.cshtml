@@ -1,0 +1,489 @@
+@page
+@using Barangay.Models
+@model Barangay.Pages.User.AppointmentModel
+@{
+    ViewData["Title"] = "Book an Appointment";
+}
+
+<style>
+    /* Custom styles for the appointment page */
+    .status-bar {
+        background-color: #E0F7FA;
+        padding: 10px 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+    
+    .form-section {
+        background-color: white;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .form-header {
+        background-color: #007BFF;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px 5px 0 0;
+        margin: -20px -20px 20px -20px;
+    }
+    
+    .required:after {
+        content: " *";
+        color: red;
+    }
+    
+    .assessment-step {
+        display: none;
+    }
+    
+    .assessment-step.active {
+        display: block;
+    }
+    
+    /* Progress indicator */
+    .step-indicator {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+    
+    .step {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: #e9ecef;
+        color: #495057;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 10px;
+        font-weight: bold;
+        position: relative;
+    }
+    
+    .step.active {
+        background-color: #007BFF;
+        color: white;
+    }
+    
+    .step.completed {
+        background-color: #28a745;
+        color: white;
+    }
+    
+    .step-connector {
+        flex-grow: 1;
+        height: 2px;
+        background-color: #e9ecef;
+        margin-top: 15px;
+    }
+    
+    .step-connector.active {
+        background-color: #007BFF;
+    }
+    
+    .step-label {
+        position: absolute;
+        top: 35px;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+    
+    /* Guardian consent modal */
+    .modal-backdrop {
+        background-color: rgba(0,0,0,0.5);
+    }
+</style>
+
+<div class="container mt-4">
+    <!-- Back button -->
+    <div class="row mb-4">
+        <div class="col-12">
+        <a href="/User/UserDashboard" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+        </div>
+    </div>
+
+    <h1 class="text-center mb-4">Book an Appointment</h1>
+    
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <div class="row">
+            <div class="col-md-6">
+                <strong>Current Queue:</strong> 5 patients waiting (Est. wait time: 15 mins)
+            </div>
+            <div class="col-md-6 text-end">
+                <strong>Health Tip:</strong> Stay hydrated and bring your ID to appointments.
+                    </div>
+                            </div>
+                        </div>
+    
+    <!-- Step Indicator -->
+    <div class="step-indicator mb-4">
+        <div class="step active" id="step1-indicator">
+            1
+            <span class="step-label">Demographics</span>
+                            </div>
+        <div class="step-connector" id="connector1-2"></div>
+        <div class="step" id="step2-indicator">
+            2
+            <span class="step-label">Medical History</span>
+                                </div>
+                            </div>
+    
+    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+    {
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            @Model.StatusMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
+    <div class="form-section">
+        <div class="form-header">
+            <h3 class="mb-0">Integrated NCD Risk Assessment Form</h3>
+                            </div>
+        
+        <form method="post" id="appointmentForm">
+            <!-- Hidden fields -->
+            <input type="hidden" asp-for="Input.AppointmentType" value="General Checkup" />
+            
+            <!-- Step 1: Demographic-Socio-Economic Profile -->
+            <div id="step1" class="assessment-step active">
+                <h4 class="mb-4">Part I. Demographic-Socio-Economic Profile</h4>
+                
+                <!-- Health Facility and Family No -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Health Facility:</label>
+                            <input type="text" class="form-control" value="@(Model.HealthFacility ?? "Barangay Health Center")" asp-for="HealthFacility" readonly />
+                            <small class="form-text text-muted">Health facility assigned based on your address.</small>
+                                </div>
+                            </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Family No:</label>
+                            <input type="text" class="form-control" value="@(Model.FamilyNo ?? "Not Assigned")" asp-for="FamilyNo" 
+                                   readonly="@(!Model.FamilyNoPreexisting)" />
+                            <small class="form-text text-muted">
+                                @if (Model.FamilyNoPreexisting)
+                                {
+                                    <span>Your existing family number from previous assessments.</span>
+                                }
+                                else
+                                {
+                                    <span>Generated from your last name (@(string.IsNullOrEmpty(Model.FamilyNo) ? "?" : Model.FamilyNo.Substring(0, 1))) with sequence number.</span>
+                                }
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Personal Information -->
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label required">Address:</label>
+                        <input type="text" class="form-control" asp-for="Input.Address" required />
+                        <span asp-validation-for="Input.Address" class="text-danger"></span>
+                    </div>
+                        </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label required">Barangay:</label>
+                        <input type="text" class="form-control" asp-for="Input.Barangay" required />
+                        <span asp-validation-for="Input.Barangay" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label required">Birthday (mm/dd/yyyy):</label>
+                        <input type="date" class="form-control" asp-for="Input.Birthday" id="birthdayInput" required />
+                        <span asp-validation-for="Input.Birthday" class="text-danger"></span>
+                    </div>
+                        </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label required">Telepono:</label>
+                        <input type="tel" class="form-control" asp-for="Input.Telepono" required />
+                        <span asp-validation-for="Input.Telepono" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Edad:</label>
+                        <input type="number" class="form-control" asp-for="Input.Edad" id="edadInput" readonly />
+                        <span asp-validation-for="Input.Edad" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label required">Kasarian:</label>
+                        <select class="form-select" asp-for="Input.Kasarian" required>
+                            <option value="">Select</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            </select>
+                        <span asp-validation-for="Input.Kasarian" class="text-danger"></span>
+                        </div>
+                        </div>
+
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label">Relihiyon:</label>
+                        <input type="text" class="form-control" asp-for="Input.Relihiyon" />
+                        <span asp-validation-for="Input.Relihiyon" class="text-danger"></span>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-end mt-4">
+                    <button type="button" id="nextBtn" class="btn btn-primary">Next</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Past Medical History -->
+            <div id="step2" class="assessment-step">
+                <h4 class="mb-4">Part II. Past Medical History</h4>
+                
+                <div class="mb-4">
+                    <p class="fw-bold">1. Ikaw ba ay may sumusunod na karamdaman?</p>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" asp-for="Input.HasDiabetes" />
+                                <label class="form-check-label" for="Input_HasDiabetes">Diabetes</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" asp-for="Input.HasHypertension" />
+                                <label class="form-check-label" for="Input_HasHypertension">Hypertension</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" asp-for="Input.HasCancer" id="hasCancer" />
+                                <label class="form-check-label" for="Input_HasCancer">Cancer</label>
+                    </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" asp-for="Input.HasCOPD" />
+                                <label class="form-check-label" for="Input_HasCOPD">COPD</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" asp-for="Input.HasLungDisease" />
+                                <label class="form-check-label" for="Input_HasLungDisease">Sakit sa baga na hindi nakakahawa</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" asp-for="Input.HasEyeDisease" />
+                                <label class="form-check-label" for="Input_HasEyeDisease">Sakit sa mata</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Cancer Type (conditionally shown) -->
+                    <div class="mt-3 cancer-details" style="display: none;">
+                        <label class="form-label">Cancer Type:</label>
+                        <input type="text" class="form-control" asp-for="Input.CancerType" />
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between mt-4">
+                    <button type="button" id="prevBtn" class="btn btn-secondary">Previous</button>
+                    <button type="submit" class="btn btn-success">Submit Assessment</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Guardian Consent Modal -->
+<div class="modal fade" id="guardianConsentModal" tabindex="-1" aria-labelledby="guardianConsentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title" id="guardianConsentModalLabel">Guardian Consent Required</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>The patient is under 18 years old. Please provide guardian information:</p>
+                <div class="mb-3">
+                    <label class="form-label required">Guardian's First Name:</label>
+                    <input type="text" class="form-control" id="guardianFirstName" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label required">Guardian's Last Name:</label>
+                    <input type="text" class="form-control" id="guardianLastName" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label required">Residency Proof:</label>
+                    <select class="form-select" id="residencyProof">
+                        <option value="">Select proof</option>
+                        <option value="National ID">National ID</option>
+                        <option value="Barangay Certificate">Barangay Certificate</option>
+                        <option value="Utility Bill">Utility Bill</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveGuardianInfo">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Step navigation
+            let currentStep = 1;
+            const totalSteps = 2;
+            
+            // Update step indicators
+            function updateStepIndicators(step) {
+                // Reset all indicators
+                $('.step').removeClass('active completed');
+                $('.step-connector').removeClass('active');
+                
+                // Set current step as active
+                $(`#step${step}-indicator`).addClass('active');
+                
+                // Set previous steps as completed
+                for (let i = 1; i < step; i++) {
+                    $(`#step${i}-indicator`).addClass('completed');
+                    $(`#connector${i}-${i+1}`).addClass('active');
+                }
+            }
+            
+            // Show step
+            function showStep(step) {
+                $('.assessment-step').removeClass('active');
+                $(`#step${step}`).addClass('active');
+                updateStepIndicators(step);
+            }
+            
+            // Validate step
+            function validateStep(step) {
+                let isValid = true;
+                
+                if (step === 1) {
+                    // Validate required fields in step 1
+                    const requiredFields = [
+                        'Input_Address',
+                        'Input_Barangay',
+                        'Input_Birthday',
+                        'Input_Telepono',
+                        'Input_Kasarian'
+                    ];
+                    
+                    requiredFields.forEach(field => {
+                        const element = document.getElementById(field);
+                        if (!element.value) {
+                            isValid = false;
+                            element.classList.add('is-invalid');
+                        } else {
+                            element.classList.remove('is-invalid');
+                        }
+                    });
+                }
+                
+                return isValid;
+            }
+            
+            // Next button click
+            $('#nextBtn').click(function() {
+                if (validateStep(currentStep)) {
+                    if (currentStep < totalSteps) {
+                        currentStep++;
+                        showStep(currentStep);
+                    }
+                } else {
+                    // Show validation message
+                    alert('Please fill in all required fields before proceeding.');
+                }
+            });
+            
+            // Previous button click
+            $('#prevBtn').click(function() {
+                if (currentStep > 1) {
+                    currentStep--;
+                    showStep(currentStep);
+                }
+            });
+            
+            // Calculate age when birthday changes
+            $('#birthdayInput').change(function() {
+                const birthDate = new Date($(this).val());
+                if (!isNaN(birthDate.getTime())) {
+                    // Reference date: May 29, 2025, 1:36 PM PST
+                    const referenceDate = new Date(2025, 4, 29, 13, 36, 0);
+                    
+                    let age = referenceDate.getFullYear() - birthDate.getFullYear();
+                    
+                    // Adjust age if birthday hasn't occurred yet in the reference year
+                    if (
+                        referenceDate.getMonth() < birthDate.getMonth() || 
+                        (referenceDate.getMonth() === birthDate.getMonth() && 
+                         referenceDate.getDate() < birthDate.getDate())
+                    ) {
+                        age--;
+                    }
+                    
+                    $('#edadInput').val(age);
+                    
+                    // Show guardian consent modal if age < 18
+                    if (age < 18) {
+                        $('#guardianConsentModal').modal('show');
+                    }
+                }
+            });
+            
+            // Toggle cancer type field visibility
+            $('#hasCancer').change(function() {
+                if ($(this).is(':checked')) {
+                    $('.cancer-details').show();
+                } else {
+                    $('.cancer-details').hide();
+                    $('#Input_CancerType').val('');
+                }
+            });
+            
+            // Form submission
+            $('#appointmentForm').submit(function(event) {
+                if (!validateStep(currentStep)) {
+                    event.preventDefault();
+                    alert('Please fill in all required fields before submitting.');
+                }
+            });
+            
+            // Guardian consent modal save button
+            $('#saveGuardianInfo').click(function() {
+                const firstName = $('#guardianFirstName').val();
+                const lastName = $('#guardianLastName').val();
+                const residencyProof = $('#residencyProof').val();
+                
+                if (!firstName || !lastName || !residencyProof) {
+                    alert('Please fill in all guardian information fields.');
+                    return;
+                }
+                
+                // Here you would typically save this information to a hidden field or directly to the server
+                // For now, we'll just close the modal
+                $('#guardianConsentModal').modal('hide');
+            });
+            
+            // Initialize
+            updateStepIndicators(currentStep);
+            
+            // Trigger birthday change if it has a value on page load
+            if ($('#birthdayInput').val()) {
+                $('#birthdayInput').trigger('change');
+            }
+            
+            // Initialize cancer type visibility
+            if ($('#hasCancer').is(':checked')) {
+                $('.cancer-details').show();
+            }
+        });
+    </script>
+}

@@ -1,0 +1,1 @@
+Line numbers in ManagePermissions.cshtml file 

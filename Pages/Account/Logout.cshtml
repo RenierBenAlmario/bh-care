@@ -1,0 +1,38 @@
+@page
+@model Barangay.Pages.Account.LogoutModel
+@{
+    ViewData["Title"] = "Logout";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body text-center p-5">
+                    <h2 class="mb-4">Log Out</h2>
+                    <p>Logging you out...</p>
+                    <form id="logoutPageForm" method="post">
+                        <!-- Adding anti-forgery token explicitly -->
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-primary">
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            Logging out...
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Submit the form automatically on page load
+        $(document).ready(function() {
+            // Submit the form automatically
+            setTimeout(function() {
+                document.getElementById('logoutPageForm').submit();
+            }, 500);
+        });
+    </script>
+} 

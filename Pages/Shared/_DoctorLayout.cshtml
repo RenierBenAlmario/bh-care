@@ -1,0 +1,459 @@
+@{
+    Layout = "_Layout";
+}
+
+<!-- Font Awesome CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" asp-append-version="true">
+
+<!-- Custom styles for the doctor layout -->
+<style>
+    body {
+        overflow-x: hidden;
+    }
+
+    .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 100;
+        padding: 48px 0 0;
+        box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+        background-color: #1976D2;
+        transition: all 0.3s ease;
+        width: 250px;
+        overflow-x: hidden;
+    }
+
+    .sidebar.collapsed {
+        width: 60px;
+    }
+
+    .sidebar-sticky {
+        position: relative;
+        top: 0;
+        height: calc(100vh - 48px);
+        padding-top: .5rem;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    .sidebar .nav-link {
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.85);
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+
+    .sidebar.collapsed .nav-link {
+        padding: 1rem 0;
+        justify-content: center;
+    }
+
+    .sidebar .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        text-decoration: none;
+    }
+
+    .sidebar .nav-link.active {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: #fff;
+    }
+
+    .sidebar .nav-link i {
+        margin-right: 0.5rem;
+        width: 20px;
+        text-align: center;
+        font-size: 1.1rem;
+    }
+
+    .sidebar.collapsed .nav-link i {
+        margin-right: 0;
+    }
+
+    .sidebar.collapsed .nav-link span {
+        display: none;
+    }
+
+    .sidebar-profile {
+        padding: 1.5rem;
+        text-align: center;
+        color: #ffffff;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 1rem;
+        transition: all 0.3s;
+    }
+
+    .sidebar.collapsed .sidebar-profile {
+        padding: 0.5rem;
+    }
+
+    .sidebar-profile img {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        margin-bottom: 0.5rem;
+        background-color: rgba(255, 255, 255, 0.1);
+        padding: 0.5rem;
+        transition: all 0.3s;
+    }
+
+    .sidebar.collapsed .sidebar-profile img {
+        width: 40px;
+        height: 40px;
+    }
+
+    .sidebar.collapsed .sidebar-profile h6,
+    .sidebar.collapsed .sidebar-profile small {
+        display: none;
+    }
+
+    #sidebarToggle {
+        position: absolute;
+        left: 250px;
+        top: 10px;
+        z-index: 99;
+        background-color: #1976D2;
+        border: none;
+        color: #ffffff;
+        padding: 8px;
+        border-radius: 0 4px 4px 0;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar.collapsed + #sidebarToggle {
+        left: 60px;
+    }
+
+    #sidebarToggle:hover {
+        background-color: #1565C0;
+    }
+
+    #sidebarToggle i {
+        transition: transform 0.3s ease;
+        font-size: 14px;
+    }
+
+    .sidebar.collapsed + #sidebarToggle i {
+        transform: rotate(180deg);
+    }
+
+    .main-content {
+        margin-left: 250px;
+        transition: all 0.3s;
+        padding: 1rem;
+        min-height: 100vh;
+        background-color: #f8f9fa;
+    }
+
+    .sidebar.collapsed ~ .main-content {
+        margin-left: 60px;
+    }
+
+    @@media screen and (max-width: 768px) {
+        .sidebar {
+            margin-left: -250px;
+        }
+
+        .sidebar.collapsed {
+            margin-left: -60px;
+        }
+
+        .sidebar.show {
+            margin-left: 0;
+        }
+
+        .main-content {
+            margin-left: 0;
+            padding: 0.5rem;
+        }
+
+        #sidebarToggle {
+            left: 0;
+        }
+
+        #sidebarToggle.show {
+            left: 250px;
+        }
+
+        .sidebar.collapsed.show {
+            margin-left: 0;
+        }
+
+        .sidebar.collapsed.show + #sidebarToggle {
+            left: 60px;
+        }
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 99;
+    }
+
+    @@media screen and (max-width: 768px) {
+        .sidebar-overlay.show {
+            display: block;
+        }
+    }
+
+    /* Dark mode styles */
+    body.dark-mode {
+        background-color: #1a1a1a;
+        color: #ffffff;
+    }
+
+    .dark-mode .sidebar {
+        background-color: #2d2d2d;
+    }
+
+    .dark-mode #sidebarToggle {
+        background-color: #2d2d2d;
+    }
+
+    .dark-mode #sidebarToggle:hover {
+        background-color: #404040;
+    }
+
+    .dark-mode .main-content {
+        background-color: #1a1a1a;
+    }
+
+    .dark-mode .card {
+        background-color: #2d2d2d;
+        border-color: #404040;
+    }
+
+    .dark-mode .table {
+        color: #ffffff;
+    }
+
+    .dark-mode .table thead th {
+        background-color: #404040;
+        border-color: #505050;
+    }
+
+    .dark-mode .table td,
+    .dark-mode .table th {
+        border-color: #404040;
+    }
+
+    .dark-mode .form-control {
+        background-color: #2d2d2d;
+        border-color: #404040;
+        color: #ffffff;
+    }
+
+    .dark-mode .form-control:focus {
+        background-color: #363636;
+        border-color: #505050;
+        color: #ffffff;
+    }
+
+    .dark-mode .modal-content {
+        background-color: #2d2d2d;
+        border-color: #404040;
+    }
+
+    .dark-mode .modal-header,
+    .dark-mode .modal-footer {
+        border-color: #404040;
+    }
+
+    .dark-mode .close {
+        color: #ffffff;
+    }
+
+    .dark-mode .nav-link {
+        color: rgba(255, 255, 255, 0.85);
+    }
+
+    .dark-mode .nav-link:hover {
+        color: #ffffff;
+    }
+
+    .dark-mode .nav-link.active {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+</style>
+
+<div class="wrapper d-flex">
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <!-- Sidebar Toggle Button -->
+        <button id="sidebarToggle" class="btn" aria-label="Toggle Sidebar">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        
+        <div class="sidebar-sticky">
+            <div class="sidebar-profile">
+                <i class="fas fa-user-md fa-3x mb-2"></i>
+                <h6 class="mb-0">@User.Identity?.Name</h6>
+                <small class="text-white-50">Doctor</small>
+            </div>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["Page"]?.ToString()?.Contains("/Doctor/DoctorDashboard") == true ? "active" : "")"
+                       href="/Doctor/DoctorDashboard">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["Page"]?.ToString()?.Contains("/Doctor/PatientList") == true ? "active" : "")"
+                       href="/Doctor/PatientList">
+                        <i class="fas fa-users"></i>
+                        <span>Patient List</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["Page"]?.ToString()?.Contains("/Doctor/Appointments") == true ? "active" : "")"
+                       href="/Doctor/Appointments">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Appointments</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["Page"]?.ToString()?.Contains("/Doctor/Prescriptions") == true ? "active" : "")"
+                       href="/Doctor/Prescriptions">
+                        <i class="fas fa-prescription"></i>
+                        <span>Prescriptions</span>
+                    </a>
+                </li>
+                <li class="nav-item mt-3">
+                    <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/Index", new { area = "" })" method="post">
+                        <button type="submit" class="nav-link w-100 btn btn-link text-left">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </button>
+                    </form>
+                </li>
+                <li class="nav-item">
+                    <button id="darkModeToggle" class="nav-link w-100 btn btn-link text-left">
+                        <i class="fas fa-moon"></i>
+                        <span>Dark Mode</span>
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main content wrapper -->
+    <div class="main-content" id="mainContent">
+        @RenderBody()
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const isMobile = window.innerWidth <= 768;
+            let isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            let isDarkMode = localStorage.getItem('darkMode') === 'true';
+
+            // Initialize dark mode
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                darkModeToggle.querySelector('i').classList.remove('fa-moon');
+                darkModeToggle.querySelector('i').classList.add('fa-sun');
+            }
+
+            function updateSidebarState() {
+                if (isCollapsed) {
+                    sidebar.classList.add('collapsed');
+                } else {
+                    sidebar.classList.remove('collapsed');
+                }
+                localStorage.setItem('sidebarCollapsed', isCollapsed);
+            }
+
+            // Initialize sidebar state
+            updateSidebarState();
+
+            function toggleSidebar() {
+                if (isMobile) {
+                    sidebar.classList.toggle('show');
+                    sidebarToggle.classList.toggle('show');
+                    sidebarOverlay.classList.toggle('show');
+                } else {
+                    isCollapsed = !isCollapsed;
+                    updateSidebarState();
+                }
+            }
+
+            function closeSidebar() {
+                sidebar.classList.remove('show');
+                sidebarToggle.classList.remove('show');
+                sidebarOverlay.classList.remove('show');
+            }
+
+            function toggleDarkMode() {
+                isDarkMode = !isDarkMode;
+                document.body.classList.toggle('dark-mode');
+                localStorage.setItem('darkMode', isDarkMode);
+                
+                const icon = darkModeToggle.querySelector('i');
+                if (isDarkMode) {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                } else {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                }
+            }
+
+            sidebarToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleSidebar();
+            });
+
+            darkModeToggle.addEventListener('click', toggleDarkMode);
+
+            // Close sidebar when clicking outside on mobile
+            if (isMobile) {
+                sidebarOverlay.addEventListener('click', closeSidebar);
+                document.addEventListener('click', function(event) {
+                    if (!sidebar.contains(event.target) && 
+                        !sidebarToggle.contains(event.target) && 
+                        sidebar.classList.contains('show')) {
+                        closeSidebar();
+                    }
+                });
+            }
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                const newIsMobile = window.innerWidth <= 768;
+                if (newIsMobile !== isMobile) {
+                    location.reload();
+                }
+            });
+        });
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+}

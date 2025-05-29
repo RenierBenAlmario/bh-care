@@ -1,0 +1,130 @@
+@page
+@model Barangay.Pages.Nurse.QueueModel
+@{
+    ViewData["Title"] = "Patient Queue Management";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Patient Queue</h5>
+                    <div>
+                        <button id="refreshQueueBtn" class="btn btn-sm btn-outline-primary me-2">
+                            <i class="fas fa-sync-alt me-1"></i> Refresh
+                        </button>
+                        <a href="/Nurse/PatientQueue" class="btn btn-sm btn-primary">
+                            <i class="fas fa-list-ol me-1"></i> Full Queue Management
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body text-center">
+                                    <h3 class="mb-0">@Model.WaitingCount</h3>
+                                    <p class="mb-0">Waiting</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-warning text-white">
+                                <div class="card-body text-center">
+                                    <h3 class="mb-0">@Model.InProgressCount</h3>
+                                    <p class="mb-0">In Progress</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-success text-white">
+                                <div class="card-body text-center">
+                                    <h3 class="mb-0">@Model.CompletedCount</h3>
+                                    <p class="mb-0">Completed Today</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-info text-white">
+                                <div class="card-body text-center">
+                                    <h3 class="mb-0">@Model.TotalCount</h3>
+                                    <p class="mb-0">Total Patients</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Queue #</th>
+                                    <th>Patient Name</th>
+                                    <th>Appointment Time</th>
+                                    <th>Doctor</th>
+                                    <th>Status</th>
+                                    <th>Waiting Time</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.QueueItems.Any())
+                                {
+                                    @foreach (var item in Model.QueueItems)
+                                    {
+                                        <tr>
+                                            <td>@item.QueueNumber</td>
+                                            <td>@item.PatientName</td>
+                                            <td>@(item.AppointmentTime?.ToString(@"hh\:mm tt") ?? "Walk-in")</td>
+                                            <td>@item.DoctorName</td>
+                                            <td>
+                                                <span class="badge @(item.Status == "Pending" ? "bg-warning" : 
+                                                                    item.Status == "InProgress" ? "bg-primary" : 
+                                                                    item.Status == "Completed" ? "bg-success" : 
+                                                                    item.Status == "Confirmed" ? "bg-info" : 
+                                                                    item.Status == "Cancelled" ? "bg-danger" : "bg-secondary")">
+                                                    @item.Status
+                                                </span>
+                                            </td>
+                                            <td>@item.WaitingTime</td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="/Nurse/VitalSigns?patientId=@item.PatientId" class="btn btn-sm btn-info">
+                                                        <i class="fas fa-heartbeat"></i> Vitals
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="7" class="text-center">No patients in queue.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Refresh queue button
+            document.getElementById('refreshQueueBtn').addEventListener('click', function() {
+                location.reload();
+            });
+            
+            // Auto refresh every 60 seconds
+            setInterval(function() {
+                location.reload();
+            }, 60000);
+        });
+    </script>
+} 

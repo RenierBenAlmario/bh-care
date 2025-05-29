@@ -1,0 +1,85 @@
+@page
+@model Barangay.Pages.Nurse.NotificationsModel
+@{
+    ViewData["Title"] = "Notifications";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Notifications</h5>
+                    <div>
+                        <button class="btn btn-sm btn-primary" id="markAllReadBtn">
+                            <i class="fas fa-check-double me-1"></i> Mark All as Read
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (Model.Notifications.Any())
+                    {
+                        <div class="list-group">
+                            @foreach (var notification in Model.Notifications)
+                            {
+                                <div class="list-group-item list-group-item-action @(notification.IsRead ? "" : "bg-light")">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">@notification.Title</h6>
+                                        <small>@notification.CreatedAt.ToString("MMM dd, yyyy h:mm tt")</small>
+                                    </div>
+                                    <p class="mb-1">@notification.Message</p>
+                                    <div class="d-flex justify-content-between align-items-center mt-2">
+                                        <small class="text-@notification.SeverityClass">@notification.SeverityText</small>
+                                        <div>
+                                            <button class="btn btn-sm btn-outline-primary me-2" onclick="markAsRead(@notification.Id)">
+                                                <i class="fas fa-check"></i> Mark as Read
+                                            </button>
+                                            @if (!string.IsNullOrEmpty(notification.ActionUrl))
+                                            {
+                                                <a href="@notification.ActionUrl" class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-arrow-right"></i> View
+                                                </a>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-bell-slash fa-4x text-muted mb-3"></i>
+                            <h5>No notifications</h5>
+                            <p class="text-muted">You don't have any notifications at the moment.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mark all as read button
+            document.getElementById('markAllReadBtn').addEventListener('click', function() {
+                if (confirm('Mark all notifications as read?')) {
+                    // In a real implementation, you would make an AJAX call to mark all as read
+                    // For now, we'll just reload the page
+                    alert('All notifications marked as read');
+                    location.reload();
+                }
+            });
+        });
+        
+        // Mark as read function
+        function markAsRead(notificationId) {
+            // In a real implementation, you would make an AJAX call to mark as read
+            // For now, we'll just reload the page
+            alert(`Notification #${notificationId} marked as read`);
+            location.reload();
+        }
+    </script>
+} 

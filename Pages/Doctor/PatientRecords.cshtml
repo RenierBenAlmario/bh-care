@@ -1,0 +1,629 @@
+@page
+@model Barangay.Pages.Doctor.PatientRecordsModel
+@{
+    ViewData["Title"] = "Patient Records";
+    Layout = "_DoctorLayout";
+}
+
+<div class="container-fluid">
+    <h2 class="mt-4 mb-4">Patient Records</h2>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">All Patients</h6>
+            <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#addPatientModal">
+                <i class="bi bi-plus-circle me-1"></i> Add New Patient
+            </button>
+        </div>
+        <div class="card-body">
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger">@Model.ErrorMessage</div>
+            }
+            
+            <!-- Search and Filter Section -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search by name, email, or contact number..." 
+                               asp-for="SearchTerm" onkeyup="if(event.keyCode == 13) { document.getElementById('searchBtn').click(); }">
+                        <button class="btn btn-outline-primary" type="button" id="searchBtn" 
+                                onclick="location.href='?searchTerm=' + encodeURIComponent(document.getElementById('searchInput').value) + '&filterBy=@Model.FilterBy&filterValue=@Model.FilterValue&page=1'">
+                            Search
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <select class="form-select" id="filterBy" asp-for="FilterBy" 
+                                    onchange="updateFilterOptions()">
+                                <option value="">Filter by...</option>
+                                <option value="gender">Gender</option>
+                                <option value="status">Status</option>
+                                <option value="age">Age Range</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select" id="filterValue" asp-for="FilterValue" 
+                                    onchange="location.href='?searchTerm=@Model.SearchTerm&filterBy=' + document.getElementById('filterBy').value + '&filterValue=' + this.value + '&page=1'">
+                                <option value="">Select value...</option>
+                                <!-- Dynamically populated based on filter selection -->
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-outline-secondary w-100" type="button" 
+                                    onclick="location.href='/Doctor/PatientRecords'">
+                                Clear Filters
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="patientsTable" width="100%" cellspacing="0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Name</th>
+                            <th>Gender</th>
+                            <th>Age</th>
+                            <th>Status</th>
+                            <th>Last Visit</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.PaginatedPatients.Any())
+                        {
+                            foreach (var patient in Model.PaginatedPatients)
+                            {
+                                var lastAppointment = patient.Appointments?.OrderByDescending(a => a.AppointmentDate).FirstOrDefault();
+                                <tr data-patient-id="@patient.UserId">
+                                    <td>@patient.Name</td>
+                                    <td class="editable" data-field="gender">
+                                        <span class="display-value">@(patient.Gender ?? "Not specified")</span>
+                                        <div class="edit-control d-none">
+                                            <select class="form-select form-select-sm">
+                                                @if (patient.Gender == "Male")
+                                                {
+                                                    <option value="Male" selected>Male</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="Male">Male</option>
+                                                }
+                                                
+                                                @if (patient.Gender == "Female")
+                                                {
+                                                    <option value="Female" selected>Female</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="Female">Female</option>
+                                                }
+                                                
+                                                @if (patient.Gender == "Other")
+                                                {
+                                                    <option value="Other" selected>Other</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="Other">Other</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (patient.Age >= 0 && patient.Age < 120)
+                                        {
+                                            @($"{patient.Age} years")
+                                        }
+                                        else
+                                        {
+                                            @("N/A")
+                                        }
+                                    </td>
+                                    <td class="editable" data-field="status">
+                                        <span class="display-value">@(patient.Status ?? "Not specified")</span>
+                                        <div class="edit-control d-none">
+                                            <select class="form-select form-select-sm">
+                                                @if (patient.Status == "Active")
+                                                {
+                                                    <option value="Active" selected>Active</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="Active">Active</option>
+                                                }
+                                                
+                                                @if (patient.Status == "Inactive")
+                                                {
+                                                    <option value="Inactive" selected>Inactive</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="Inactive">Inactive</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </td>
+                                    <td>@(lastAppointment?.AppointmentDate.ToString("MMM dd, yyyy") ?? "No visits")</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="/Doctor/PatientDetails/@patient.UserId" class="btn btn-sm btn-info">
+                                                <i class="bi bi-eye"></i> View Details
+                                            </a>
+                                            <button class="btn btn-sm btn-primary edit-toggle">
+                                                <i class="bi bi-pencil"></i> Edit
+                                            </button>
+                                            <button class="btn btn-sm btn-success save-changes d-none">
+                                                <i class="bi bi-check"></i> Save
+                                            </button>
+                                            <button class="btn btn-sm btn-danger cancel-edit d-none">
+                                                <i class="bi bi-x"></i> Cancel
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center">No patients found.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination Controls -->
+            @if (Model.TotalPages > 1)
+            {
+                <nav aria-label="Page navigation" class="mt-3">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                            <a class="page-link" href="?searchTerm=@Model.SearchTerm&filterBy=@Model.FilterBy&filterValue=@Model.FilterValue&page=@(Model.CurrentPage - 1)">Previous</a>
+                        </li>
+                        
+                        @for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min(Model.TotalPages, Model.CurrentPage + 2); i++)
+                        {
+                            <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                <a class="page-link" href="?searchTerm=@Model.SearchTerm&filterBy=@Model.FilterBy&filterValue=@Model.FilterValue&page=@i">@i</a>
+                            </li>
+                        }
+                        
+                        <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                            <a class="page-link" href="?searchTerm=@Model.SearchTerm&filterBy=@Model.FilterBy&filterValue=@Model.FilterValue&page=@(Model.CurrentPage + 1)">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            }
+            
+            <div class="mt-2 text-muted small text-center">
+                Showing @((Model.CurrentPage - 1) * Model.PageSize + 1) to @Math.Min(Model.CurrentPage * Model.PageSize, Model.TotalPatients) of @Model.TotalPatients records
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Patient Modal -->
+<div class="modal fade" id="addPatientModal" tabindex="-1" aria-labelledby="addPatientModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addPatientModalLabel">Add New Patient</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="addPatientForm" method="post">
+                <div class="modal-body">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="NewPatient.FullName" class="form-label">Full Name</label>
+                            <input asp-for="NewPatient.FullName" class="form-control" placeholder="e.g., John Doe" required />
+                            <span asp-validation-for="NewPatient.FullName" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="NewPatient.Gender" class="form-label">Gender</label>
+                            <select asp-for="NewPatient.Gender" class="form-select" required>
+                                <option value="">-- Select Gender --</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <span asp-validation-for="NewPatient.Gender" class="text-danger"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="NewPatient.BirthDate" class="form-label">Birth Date</label>
+                            <input asp-for="NewPatient.BirthDate" class="form-control" type="date" required />
+                            <span asp-validation-for="NewPatient.BirthDate" class="text-danger"></span>
+                            <small class="text-muted">Must be a valid date (MM/DD/YYYY) and not in the future.</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="NewPatient.Status" class="form-label">Status</label>
+                            <select asp-for="NewPatient.Status" class="form-select" required>
+                                <option value="">-- Select Status --</option>
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                            <span asp-validation-for="NewPatient.Status" class="text-danger"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="NewPatient.ContactNumber" class="form-label">Contact Number</label>
+                            <input asp-for="NewPatient.ContactNumber" class="form-control" placeholder="e.g., 555-123-4567" required />
+                            <span asp-validation-for="NewPatient.ContactNumber" class="text-danger"></span>
+                            <small class="text-muted">Only digits, dashes, spaces, and parentheses allowed</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="NewPatient.Email" class="form-label">Email</label>
+                            <input asp-for="NewPatient.Email" class="form-control" type="email" placeholder="e.g., john.doe@example.com" required />
+                            <span asp-validation-for="NewPatient.Email" class="text-danger"></span>
+                            <small class="text-muted">Must be a valid email format (e.g., name@example.com)</small>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label asp-for="NewPatient.Address" class="form-label">Address</label>
+                            <input asp-for="NewPatient.Address" class="form-control" placeholder="e.g., 123 Main St, Anytown" required />
+                            <span asp-validation-for="NewPatient.Address" class="text-danger"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="NewPatient.EmergencyContact" class="form-label">Emergency Contact Name</label>
+                            <input asp-for="NewPatient.EmergencyContact" class="form-control" placeholder="e.g., Jane Doe" required />
+                            <span asp-validation-for="NewPatient.EmergencyContact" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="NewPatient.EmergencyContactNumber" class="form-label">Emergency Contact Number</label>
+                            <input asp-for="NewPatient.EmergencyContactNumber" class="form-control" placeholder="e.g., 555-987-6543" required />
+                            <span asp-validation-for="NewPatient.EmergencyContactNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="NewPatient.Allergies" class="form-label">Allergies</label>
+                            <input asp-for="NewPatient.Allergies" class="form-control" placeholder="If none, enter 'None'" />
+                            <span asp-validation-for="NewPatient.Allergies" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="NewPatient.BloodType" class="form-label">Blood Type</label>
+                            <select asp-for="NewPatient.BloodType" class="form-select">
+                                <option value="">-- Select Blood Type --</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                                <option value="Unknown">Unknown</option>
+                            </select>
+                            <span asp-validation-for="NewPatient.BloodType" class="text-danger"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label asp-for="NewPatient.MedicalHistory" class="form-label">Medical History</label>
+                            <textarea asp-for="NewPatient.MedicalHistory" class="form-control" rows="3" placeholder="Enter any relevant medical history"></textarea>
+                            <span asp-validation-for="NewPatient.MedicalHistory" class="text-danger"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> A temporary password will be generated for the patient to log in. They can change it after first login.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Patient</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function() {
+            // Initialize filter options based on selected filter
+            updateFilterOptions();
+            
+            // Apply selected filter value from URL if any
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('filterValue')) {
+                $('#filterValue').val(urlParams.get('filterValue'));
+            }
+            
+            // Enhanced form validation
+            $('#addPatientForm').on('submit', function(e) {
+                const form = $(this);
+                let hasErrors = false;
+                
+                // Clear previous validation messages
+                $('.is-invalid').removeClass('is-invalid');
+                $('.validation-message').remove();
+                
+                // Validate full name
+                if ($('#NewPatient_FullName').val().trim() === '') {
+                    $('#NewPatient_FullName').addClass('is-invalid');
+                    $('#NewPatient_FullName').after('<div class="validation-message text-danger">Full name is required</div>');
+                    hasErrors = true;
+                }
+                
+                // Validate gender
+                if ($('#NewPatient_Gender').val() === '') {
+                    $('#NewPatient_Gender').addClass('is-invalid');
+                    $('#NewPatient_Gender').after('<div class="validation-message text-danger">Please select a gender</div>');
+                    hasErrors = true;
+                }
+                
+                // Validate birth date
+                const birthDate = new Date($('#NewPatient_BirthDate').val());
+                const today = new Date();
+                if (!$('#NewPatient_BirthDate').val()) {
+                    $('#NewPatient_BirthDate').addClass('is-invalid');
+                    $('#NewPatient_BirthDate').after('<div class="validation-message text-danger">Birth date is required</div>');
+                    hasErrors = true;
+                } else if (birthDate > today) {
+                    $('#NewPatient_BirthDate').addClass('is-invalid');
+                    $('#NewPatient_BirthDate').after('<div class="validation-message text-danger">Birth date cannot be in the future</div>');
+                    hasErrors = true;
+                } else if (birthDate < new Date(today.getFullYear() - 120, today.getMonth(), today.getDate())) {
+                    $('#NewPatient_BirthDate').addClass('is-invalid');
+                    $('#NewPatient_BirthDate').after('<div class="validation-message text-danger">Birth date is too far in the past</div>');
+                    hasErrors = true;
+                }
+                
+                // Validate status
+                if ($('#NewPatient_Status').val() === '') {
+                    $('#NewPatient_Status').addClass('is-invalid');
+                    $('#NewPatient_Status').after('<div class="validation-message text-danger">Please select a status</div>');
+                    hasErrors = true;
+                }
+                
+                // Validate email
+                const emailInput = document.getElementById('NewPatient_Email');
+                if (!emailInput.value.trim()) {
+                    $('#NewPatient_Email').addClass('is-invalid');
+                    $('#NewPatient_Email').after('<div class="validation-message text-danger">Email is required</div>');
+                    hasErrors = true;
+                } else if (!emailInput.checkValidity()) {
+                    $('#NewPatient_Email').addClass('is-invalid');
+                    $('#NewPatient_Email').after('<div class="validation-message text-danger">Please enter a valid email address</div>');
+                    hasErrors = true;
+                }
+                
+                // Validate contact number
+                const phone = $('#NewPatient_ContactNumber').val();
+                if (!phone.trim()) {
+                    $('#NewPatient_ContactNumber').addClass('is-invalid');
+                    $('#NewPatient_ContactNumber').after('<div class="validation-message text-danger">Contact number is required</div>');
+                    hasErrors = true;
+                } else {
+                    let isValid = true;
+                    for (let i = 0; i < phone.length; i++) {
+                        const char = phone.charAt(i);
+                        if (!(
+                            (char >= '0' && char <= '9') || 
+                            char === ' ' || 
+                            char === '-' || 
+                            char === '(' || 
+                            char === ')'
+                        )) {
+                            isValid = false;
+                            break;
+                        }
+                    }
+                    
+                    if (!isValid) {
+                        $('#NewPatient_ContactNumber').addClass('is-invalid');
+                        $('#NewPatient_ContactNumber').after('<div class="validation-message text-danger">Please enter a valid contact number (digits, dashes, spaces, and parentheses only)</div>');
+                        hasErrors = true;
+                    }
+                }
+                
+                // Validate address
+                if ($('#NewPatient_Address').val().trim() === '') {
+                    $('#NewPatient_Address').addClass('is-invalid');
+                    $('#NewPatient_Address').after('<div class="validation-message text-danger">Address is required</div>');
+                    hasErrors = true;
+                }
+                
+                // Validate emergency contact
+                if ($('#NewPatient_EmergencyContact').val().trim() === '') {
+                    $('#NewPatient_EmergencyContact').addClass('is-invalid');
+                    $('#NewPatient_EmergencyContact').after('<div class="validation-message text-danger">Emergency contact name is required</div>');
+                    hasErrors = true;
+                }
+                
+                // Validate emergency contact number
+                const emergencyPhone = $('#NewPatient_EmergencyContactNumber').val();
+                if (!emergencyPhone.trim()) {
+                    $('#NewPatient_EmergencyContactNumber').addClass('is-invalid');
+                    $('#NewPatient_EmergencyContactNumber').after('<div class="validation-message text-danger">Emergency contact number is required</div>');
+                    hasErrors = true;
+                } else {
+                    let isValid = true;
+                    for (let i = 0; i < emergencyPhone.length; i++) {
+                        const char = emergencyPhone.charAt(i);
+                        if (!(
+                            (char >= '0' && char <= '9') || 
+                            char === ' ' || 
+                            char === '-' || 
+                            char === '(' || 
+                            char === ')'
+                        )) {
+                            isValid = false;
+                            break;
+                        }
+                    }
+                    
+                    if (!isValid) {
+                        $('#NewPatient_EmergencyContactNumber').addClass('is-invalid');
+                        $('#NewPatient_EmergencyContactNumber').after('<div class="validation-message text-danger">Please enter a valid contact number (digits, dashes, spaces, and parentheses only)</div>');
+                        hasErrors = true;
+                    }
+                }
+                
+                if (hasErrors) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Scroll to the first error
+                    if ($('.is-invalid').length) {
+                        $('html, body').animate({
+                            scrollTop: $('.is-invalid:first').offset().top - 100
+                        }, 200);
+                    }
+                }
+                
+                form.addClass('was-validated');
+            });
+            
+            // Reset form validation when modal is closed
+            $('#addPatientModal').on('hidden.bs.modal', function() {
+                const form = $('#addPatientForm');
+                form.removeClass('was-validated');
+                $('.is-invalid').removeClass('is-invalid');
+                $('.validation-message').remove();
+            });
+            
+            // Handle inline editing
+            $('.edit-toggle').on('click', function() {
+                const row = $(this).closest('tr');
+                row.find('.display-value').addClass('d-none');
+                row.find('.edit-control').removeClass('d-none');
+                $(this).addClass('d-none');
+                row.find('.save-changes, .cancel-edit').removeClass('d-none');
+            });
+            
+            // Handle cancel editing
+            $('.cancel-edit').on('click', function() {
+                const row = $(this).closest('tr');
+                row.find('.display-value').removeClass('d-none');
+                row.find('.edit-control').addClass('d-none');
+                $(this).addClass('d-none');
+                row.find('.save-changes').addClass('d-none');
+                row.find('.edit-toggle').removeClass('d-none');
+            });
+            
+            // Handle saving changes
+            $('.save-changes').on('click', function() {
+                const row = $(this).closest('tr');
+                const patientId = row.data('patient-id');
+                const updates = {};
+                
+                row.find('.editable').each(function() {
+                    const field = $(this).data('field');
+                    const value = $(this).find('select, input').val();
+                    updates[field] = value;
+                    // Update display value
+                    $(this).find('.display-value').text(value);
+                });
+                
+                // Send update via AJAX
+                $.ajax({
+                    url: '/Doctor/PatientRecords?handler=InlineEdit',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        patientId: patientId,
+                        updates: updates
+                    }),
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("RequestVerificationToken",
+                            $('input:hidden[name="__RequestVerificationToken"]').val());
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Return to display mode
+                            row.find('.display-value').removeClass('d-none');
+                            row.find('.edit-control').addClass('d-none');
+                            row.find('.save-changes, .cancel-edit').addClass('d-none');
+                            row.find('.edit-toggle').removeClass('d-none');
+                            
+                            // Show success message
+                            const alertHtml = `
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    Patient information updated successfully.
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            `;
+                            $('.card-body').prepend(alertHtml);
+                        } else {
+                            // Show error message
+                            alert("Error updating patient: " + response.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        alert("Error updating patient: " + error);
+                    }
+                });
+            });
+        });
+        
+        // Update filter options based on selected filter
+        function updateFilterOptions() {
+            const filterBy = document.getElementById('filterBy').value;
+            const filterValueSelect = document.getElementById('filterValue');
+            
+            // Clear existing options except the first one
+            while (filterValueSelect.options.length > 1) {
+                filterValueSelect.remove(1);
+            }
+            
+            // Add options based on selected filter
+            if (filterBy === 'gender') {
+                addOption(filterValueSelect, 'Male', 'Male');
+                addOption(filterValueSelect, 'Female', 'Female');
+                addOption(filterValueSelect, 'Other', 'Other');
+            } else if (filterBy === 'status') {
+                addOption(filterValueSelect, 'Active', 'Active');
+                addOption(filterValueSelect, 'Inactive', 'Inactive');
+            } else if (filterBy === 'age') {
+                addOption(filterValueSelect, '0-18', '0-18');
+                addOption(filterValueSelect, '19-30', '19-30');
+                addOption(filterValueSelect, '31-50', '31-50');
+                addOption(filterValueSelect, '51-70', '51-70');
+                addOption(filterValueSelect, '71+', '71+');
+            }
+        }
+        
+        function addOption(selectElement, value, text) {
+            const option = document.createElement('option');
+            option.value = value;
+            option.text = text;
+            selectElement.add(option);
+        }
+    </script>
+}

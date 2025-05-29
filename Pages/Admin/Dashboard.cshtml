@@ -1,0 +1,171 @@
+@page
+@model Barangay.Pages.Admin.DashboardModel
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Dashboard</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a asp-page="/Dashboard">Dashboard</a></li>
+                <li class="breadcrumb-item active">Staff Overview</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Staff Statistics Row -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">TOTAL STAFF MEMBERS</h6>
+                            <h3 class="mb-0">@Model.TotalStaffMembers</h3>
+                            <p class="text-success mb-0">
+                                <i class="fas fa-arrow-up me-1"></i>
+                                <span id="monthlyGrowth">Loading...</span>
+                            </p>
+                        </div>
+                        <div class="icon-box bg-primary-light rounded p-3">
+                            <i class="fas fa-users text-primary fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Staff Analytics Section -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Staff Analytics</h5>
+                        <div class="d-flex align-items-center">
+                            <label class="me-2">Time Range:</label>
+                            <select class="form-select form-select-sm" id="timeRange" style="width: 120px;">
+                                <option value="6">Last 6 Months</option>
+                                <option value="12">Last Year</option>
+                                <option value="24">Last 2 Years</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Staff Distribution by Role</h6>
+                            <div class="chart-container" style="height: 300px;">
+                                <canvas id="roleDistributionChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Monthly Activity Trends</h6>
+                            <div class="chart-container" style="height: 300px;">
+                                <canvas id="activityTrendsChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        $(document).ready(function() {
+            const roleLabels = @Json.Serialize(Model.StaffRoleDistribution.Keys);
+            const roleData = @Json.Serialize(Model.StaffRoleDistribution.Values);
+            const monthlyData = @Json.Serialize(Model.MonthlyActivityData);
+            
+            // Calculate monthly growth
+            const monthlyDataArray = Object.entries(monthlyData).sort((a, b) => new Date(a[0]) - new Date(b[0]));
+            if (monthlyDataArray.length >= 2) {
+                const currentMonth = monthlyDataArray[monthlyDataArray.length - 1][1];
+                const previousMonth = monthlyDataArray[monthlyDataArray.length - 2][1];
+                const growth = previousMonth === 0 ? 100 : ((currentMonth - previousMonth) / previousMonth * 100);
+                $('#monthlyGrowth').text(`${growth.toFixed(1)}% from last month`);
+            }
+
+            // Role Distribution Chart
+            const roleDistributionCtx = document.getElementById('roleDistributionChart').getContext('2d');
+            new Chart(roleDistributionCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: roleLabels,
+                    datasets: [{
+                        data: roleData,
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.8)',
+                            'rgba(75, 192, 192, 0.8)',
+                            'rgba(255, 99, 132, 0.8)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Activity Trends Chart
+            const activityTrendsCtx = document.getElementById('activityTrendsChart').getContext('2d');
+            const months = Object.keys(monthlyData).map(date => {
+                const d = new Date(date);
+                return d.toLocaleString('default', { month: 'short' }) + ' ' + d.getFullYear();
+            });
+            const counts = Object.values(monthlyData);
+
+            new Chart(activityTrendsCtx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'New Staff Members',
+                        data: counts,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1,
+                        fill: true,
+                        backgroundColor: 'rgba(75, 192, 192, 0.1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Handle time range changes
+            $('#timeRange').change(function() {
+                // In a real implementation, this would trigger an AJAX call to fetch new data
+                alert('Time range changed. In a real implementation, this would update the charts.');
+            });
+        });
+    </script>
+} 

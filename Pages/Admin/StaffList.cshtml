@@ -1,0 +1,141 @@
+@page
+@model Barangay.Pages.Admin.StaffListModel
+@{
+    ViewData["Title"] = "Staff List";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">
+            <i class="fas fa-users text-primary me-2"></i>
+            Staff List
+        </h1>
+        <div>
+            <a asp-page="./AddStaffMember" class="btn btn-primary">
+                <i class="fas fa-user-plus"></i> Add Staff Member
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (!Model.StaffMembers.Any())
+    {
+        <div class="alert alert-info" role="alert">
+            <i class="fas fa-info-circle me-2"></i> No staff members found.
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+            @foreach (var staff in Model.StaffMembers)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">@staff.Name</h5>
+                            <span class="badge @(staff.IsActive ? "bg-success" : "bg-danger")">
+                                @(staff.IsActive ? "Active" : "Inactive")
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <small class="text-muted d-block">Email</small>
+                                <div><i class="fas fa-envelope me-2"></i>@staff.Email</div>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted d-block">Role & Position</small>
+                                <div><i class="fas fa-user-tag me-2"></i>@staff.Role - @staff.Position</div>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted d-block">Department</small>
+                                <div><i class="fas fa-hospital me-2"></i>@staff.Department</div>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted d-block">Join Date</small>
+                                <div><i class="fas fa-calendar me-2"></i>@staff.JoinDate.ToString("MMM dd, yyyy")</div>
+                            </div>
+
+                            <div class="mt-4">
+                                <h6 class="mb-3">Permissions</h6>
+                                <div class="accordion accordion-flush permissions-accordion" id="permissions_@staff.Id">
+                                    @foreach (var category in staff.Permissions)
+                                    {
+                                        var categoryId = $"category_{staff.Id}_{category.Key.Replace(" ", "")}";
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header">
+                                                <button class="accordion-button collapsed" type="button" 
+                                                        data-bs-toggle="collapse" 
+                                                        data-bs-target="#@categoryId">
+                                                    <span class="me-2">@category.Key</span>
+                                                    <span class="badge bg-secondary">@category.Value.Count</span>
+                                                </button>
+                                            </h2>
+                                            <div id="@categoryId" class="accordion-collapse collapse">
+                                                <div class="accordion-body">
+                                                    <ul class="list-unstyled mb-0">
+                                                        @foreach (var permission in category.Value)
+                                                        {
+                                                            <li class="mb-2">
+                                                                <i class="fas fa-check text-success me-2"></i>
+                                                                @permission
+                                                            </li>
+                                                        }
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-light">
+                            <div class="btn-group w-100">
+                                <a asp-page="./EditStaffMember" asp-route-id="@staff.Id" 
+                                   class="btn btn-outline-primary">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <a asp-page="./ManagePermissions" asp-route-selectedUserId="@staff.Id" 
+                                   class="btn btn-outline-primary">
+                                    <i class="fas fa-key"></i> Permissions
+                                </a>
+                                <a asp-page="./DeleteStaffMember" asp-route-id="@staff.Id" 
+                                   class="btn btn-outline-danger">
+                                    <i class="fas fa-trash"></i> Delete
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .permissions-accordion .accordion-button {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .permissions-accordion .accordion-button:not(.collapsed) {
+        background-color: #f8f9fa;
+        color: var(--bs-primary);
+    }
+
+    .permissions-accordion .accordion-body {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .permissions-accordion .badge {
+        font-size: 0.75rem;
+    }
+</style> 

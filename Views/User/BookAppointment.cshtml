@@ -1,0 +1,183 @@
+@model Barangay.Models.Appointments.AppointmentCreateModel
+
+@{
+    ViewData["Title"] = "Book Appointment";
+    var userDetails = ViewBag.UserDetails;
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Book an Appointment</h2>
+
+    <form asp-action="BookAppointment" method="post" id="appointmentForm" class="needs-validation" novalidate>
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Patient Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" asp-for="IsForDependent" id="isForDependent">
+                    <label class="form-check-label" for="isForDependent">
+                        Booking for someone else?
+                    </label>
+                </div>
+
+                <div id="dependentFields" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="DependentName" class="form-label">Dependent's Full Name</label>
+                            <input asp-for="DependentName" class="form-control" />
+                            <span asp-validation-for="DependentName" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label asp-for="DependentAge" class="form-label">Dependent's Age</label>
+                            <input asp-for="DependentAge" class="form-control" type="number" min="0" max="120" />
+                            <span asp-validation-for="DependentAge" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label asp-for="RelationshipToDependent" class="form-label">Relationship</label>
+                            <input asp-for="RelationshipToDependent" class="form-control" />
+                            <span asp-validation-for="RelationshipToDependent" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="patientFields">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-control" value="@userDetails.FullName" readonly />
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Age</label>
+                            <input type="text" class="form-control" value="@userDetails.Age" readonly />
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Phone Number</label>
+                            <input type="text" class="form-control" value="@userDetails.PhoneNumber" readonly />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Appointment Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="AppointmentDate" class="form-label">Date</label>
+                        <input asp-for="AppointmentDate" class="form-control" type="date" min="@DateTime.Now.ToString("yyyy-MM-dd")" required />
+                        <span asp-validation-for="AppointmentDate" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="StaffId" class="form-label">Doctor</label>
+                        <select asp-for="StaffId" class="form-select" required>
+                            <option value="">Select a doctor</option>
+                            @foreach (var doctor in ViewBag.Doctors)
+                            {
+                                <option value="@doctor.Id">Dr. @doctor.FirstName @doctor.LastName</option>
+                            }
+                        </select>
+                        <span asp-validation-for="StaffId" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="AppointmentTime" class="form-label">Time</label>
+                        <select asp-for="AppointmentTime" class="form-select" required disabled>
+                            <option value="">Select date and doctor first</option>
+                        </select>
+                        <span asp-validation-for="AppointmentTime" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Description" class="form-label">Reason for Visit</label>
+                        <textarea asp-for="Description" class="form-control" rows="3" required></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Booking Instructions</h5>
+            </div>
+            <div class="card-body">
+                <ol class="mb-0">
+                    <li>Select your preferred date</li>
+                    <li>Choose your doctor</li>
+                    <li>Select available time slot</li>
+                    <li>Fill in your details</li>
+                    <li>Complete health assessment (if applicable)</li>
+                    <li>Submit your booking</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary btn-lg">Book Appointment</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Toggle dependent fields
+            $('#isForDependent').change(function() {
+                if ($(this).is(':checked')) {
+                    $('#dependentFields').show();
+                    $('#patientFields').hide();
+                } else {
+                    $('#dependentFields').hide();
+                    $('#patientFields').show();
+                }
+            });
+
+            // Handle date and doctor selection for time slots
+            function updateTimeSlots() {
+                var date = $('#AppointmentDate').val();
+                var doctorId = $('#StaffId').val();
+                var timeSelect = $('#AppointmentTime');
+
+                if (date && doctorId) {
+                    timeSelect.prop('disabled', true);
+                    timeSelect.html('<option value="">Loading time slots...</option>');
+
+                    $.get('/User/GetAvailableTimeSlots', { doctorId: doctorId, date: date })
+                        .done(function(slots) {
+                            timeSelect.empty();
+                            timeSelect.append('<option value="">Select a time slot</option>');
+                            slots.forEach(function(slot) {
+                                timeSelect.append(`<option value="${slot}">${slot}</option>`);
+                            });
+                            timeSelect.prop('disabled', false);
+                        })
+                        .fail(function() {
+                            timeSelect.html('<option value="">Error loading time slots</option>');
+                            timeSelect.prop('disabled', true);
+                        });
+                } else {
+                    timeSelect.html('<option value="">Select date and doctor first</option>');
+                    timeSelect.prop('disabled', true);
+                }
+            }
+
+            $('#AppointmentDate, #StaffId').change(updateTimeSlots);
+
+            // Form validation
+            $('#appointmentForm').submit(function(e) {
+                if (!this.checkValidity()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                $(this).addClass('was-validated');
+            });
+        });
+    </script>
+} 

@@ -1,0 +1,200 @@
+@model Barangay.Models.AdminReportsViewModel
+@{
+    ViewData["Title"] = "Admin Reports";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2>Administrative Reports</h2>
+                    <p class="text-muted">
+                        Current Date and Time (PHT): @Model.CurrentDateTime.ToString("dddd, MMMM d, yyyy, h:mm tt")
+                    </p>
+                </div>
+                <button id="downloadPdf" class="btn btn-primary">
+                    <i class="fas fa-file-pdf"></i> Download PDF Report
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Monthly Patient Registrations</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="registrationsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Consultations by Type</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="consultationsChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Barangay Health Index</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="healthIndexChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Summary Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Metric</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Total Registrations</td>
+                                    <td>@Model.ReportData.TotalRegistrations</td>
+                                </tr>
+                                <tr>
+                                    <td>Total Consultations</td>
+                                    <td>@Model.ReportData.TotalConsultations</td>
+                                </tr>
+                                <tr>
+                                    <td>Average Health Index</td>
+                                    <td>@Model.ReportData.AverageHealthIndex.ToString("F1")%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Registration Chart
+            const registrationsCtx = document.getElementById('registrationsChart').getContext('2d');
+            const registrationsChart = new Chart(registrationsCtx, {
+                type: 'line',
+                data: {
+                    labels: @Json.Serialize(Model.ReportData.MonthlyRegistrations.Keys),
+                    datasets: [{
+                        label: 'Monthly Registrations',
+                        data: @Json.Serialize(Model.ReportData.MonthlyRegistrations.Values),
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }]
+                }
+            });
+
+            // Consultations Chart
+            const consultationsCtx = document.getElementById('consultationsChart').getContext('2d');
+            const consultationsChart = new Chart(consultationsCtx, {
+                type: 'pie',
+                data: {
+                    labels: @Json.Serialize(Model.ReportData.ConsultationsByType.Keys),
+                    datasets: [{
+                        data: @Json.Serialize(Model.ReportData.ConsultationsByType.Values),
+                        backgroundColor: [
+                            'rgb(255, 99, 132)',
+                            'rgb(54, 162, 235)',
+                            'rgb(255, 206, 86)',
+                            'rgb(75, 192, 192)',
+                            'rgb(153, 102, 255)'
+                        ]
+                    }]
+                }
+            });
+
+            // Health Index Chart
+            const healthIndexCtx = document.getElementById('healthIndexChart').getContext('2d');
+            const healthIndexChart = new Chart(healthIndexCtx, {
+                type: 'bar',
+                data: {
+                    labels: @Json.Serialize(Model.ReportData.HealthIndexByCategory.Keys),
+                    datasets: [{
+                        label: 'Health Index Score',
+                        data: @Json.Serialize(Model.ReportData.HealthIndexByCategory.Values),
+                        backgroundColor: 'rgb(54, 162, 235)'
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+
+            // PDF Generation
+            $('#downloadPdf').click(async function() {
+                const charts = [
+                    document.getElementById('registrationsChart'),
+                    document.getElementById('consultationsChart'),
+                    document.getElementById('healthIndexChart')
+                ];
+
+                const chartImages = [];
+                for (const chart of charts) {
+                    const canvas = await html2canvas(chart);
+                    chartImages.push(canvas.toDataURL('image/png'));
+                }
+
+                try {
+                    const response = await fetch('/Admin/GeneratePdf', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(chartImages)
+                    });
+
+                    if (response.ok) {
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'BarangayHealthReport.pdf';
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        a.remove();
+                    } else {
+                        alert('Failed to generate PDF. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Error generating PDF:', error);
+                    alert('An error occurred while generating the PDF.');
+                }
+            });
+        });
+    </script>
+} 

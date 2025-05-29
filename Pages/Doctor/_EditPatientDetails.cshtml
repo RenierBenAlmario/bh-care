@@ -1,0 +1,105 @@
+@model Barangay.Models.Patient
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<form id="editPatientForm" data-patient-id="@Model.UserId">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-control" name="Name" value="@Model.Name" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Gender</label>
+                <select class="form-select" name="Gender" asp-for="Gender">
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Birth Date</label>
+                <input type="date" class="form-control" name="BirthDate" value="@Model.BirthDate.ToString("yyyy-MM-dd")" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Contact Number</label>
+                <input type="tel" class="form-control" name="ContactNumber" value="@Model.ContactNumber">
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label class="form-label">Address</label>
+                <textarea class="form-control" name="Address" rows="2">@Model.Address</textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Emergency Contact</label>
+                <input type="text" class="form-control" name="EmergencyContact" value="@Model.EmergencyContact">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Emergency Contact Number</label>
+                <input type="tel" class="form-control" name="EmergencyContactNumber" value="@Model.EmergencyContactNumber">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Status</label>
+                <select class="form-select" name="Status" asp-for="Status">
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="mb-3">
+                <label class="form-label">Allergies</label>
+                <textarea class="form-control" name="Allergies" rows="2">@Model.Allergies</textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Current Medications</label>
+                <textarea class="form-control" name="CurrentMedications" rows="2">@Model.CurrentMedications</textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Medical History</label>
+                <textarea class="form-control" name="MedicalHistory" rows="3">@Model.MedicalHistory</textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-end mt-3">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+    </div>
+</form>
+
+<script>
+    $(document).ready(function() {
+        $('#editPatientForm').on('submit', function(e) {
+            e.preventDefault();
+            var formData = $(this).serializeArray();
+            var patientId = $(this).data('patient-id');
+            
+            $.ajax({
+                url: '/Doctor/PatientRecords?handler=EditPatient',
+                type: 'POST',
+                headers: {
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                data: {
+                    id: patientId,
+                    ...Object.fromEntries(formData)
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#editPatientModal').modal('hide');
+                        location.reload();
+                    } else {
+                        alert(response.message || 'Error updating patient details');
+                    }
+                },
+                error: function() {
+                    alert('Error updating patient details');
+                }
+            });
+        });
+    });
+</script>

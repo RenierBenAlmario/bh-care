@@ -1,0 +1,217 @@
+@page
+@model Barangay.Pages.Doctor.PatientListModel
+@{
+    ViewData["Title"] = "Patient List";
+    Layout = "/Pages/Shared/_DoctorLayout.cshtml";
+}
+
+<style>
+    .filter-card {
+        border: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        margin-bottom: 1.5rem;
+    }
+
+    .patient-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+        border: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        margin-bottom: 1rem;
+    }
+
+    .patient-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+
+    .search-box {
+        position: relative;
+    }
+
+    .search-box i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+    }
+
+    .search-box input {
+        padding-left: 2.5rem;
+    }
+
+    @@media (max-width: 768px) {
+        .filter-buttons {
+            flex-direction: column;
+        }
+
+        .filter-buttons .btn {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+    }
+</style>
+
+<!-- Header -->
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+    <h1 class="h2">Patient List</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <button type="button" class="btn btn-outline-secondary" onclick="location.reload()">
+            <i class="fas fa-sync-alt me-1"></i> Refresh
+        </button>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card filter-card">
+    <div class="card-body">
+        <form method="get" id="filterForm">
+            <div class="row g-3">
+                <!-- Search -->
+                <div class="col-md-4">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" class="form-control" id="searchQuery" name="searchQuery" 
+                               value="@Model.SearchQuery" placeholder="Search by name, email, or ID...">
+                    </div>
+                </div>
+
+                <!-- Barangay Filter -->
+                <div class="col-md-3">
+                    <select class="form-select" id="barangay" name="barangay" asp-for="@Model.SelectedBarangay"
+                            asp-items="@Model.BarangayList">
+                        <option value="">All Barangays</option>
+                    </select>
+                </div>
+
+                <!-- Status Filter -->
+                <div class="col-md-3">
+                    <select class="form-select" id="status" name="status" asp-for="@Model.SelectedStatus">
+                        <option value="">All Status</option>
+                        <option value="Active">Active</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+
+                <!-- Filter Buttons -->
+                <div class="col-md-2 d-flex gap-2 filter-buttons">
+                    <button type="submit" class="btn btn-primary flex-fill">
+                        <i class="fas fa-filter me-1"></i> Filter
+                    </button>
+                    <a href="/Doctor/PatientList" class="btn btn-outline-secondary flex-fill">
+                        <i class="fas fa-times me-1"></i> Clear
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Patient List -->
+<div class="row">
+    @if (!Model.Patients.Any())
+    {
+        <div class="col-12">
+            <div class="text-center text-muted py-5">
+                <i class="fas fa-users fa-3x mb-3"></i>
+                <h5>No patients found</h5>
+                <p>Try adjusting your filters or search criteria</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        @foreach (var patient in Model.Patients)
+        {
+            <div class="col-12">
+                <div class="card patient-card">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-1 text-center">
+                                <i class="fas fa-user-circle fa-2x text-primary"></i>
+                            </div>
+                            <div class="col-md-3">
+                                <h5 class="card-title mb-1">@patient.FullName</h5>
+                                <p class="text-muted mb-0">
+                                    <small>
+                                        <i class="fas fa-id-card me-1"></i> @patient.PatientId
+                                    </small>
+                                </p>
+                            </div>
+                            <div class="col-md-2">
+                                <p class="mb-0">
+                                    <i class="fas fa-map-marker-alt me-1"></i>
+                                    @patient.Barangay
+                                </p>
+                            </div>
+                            <div class="col-md-2">
+                                <p class="mb-0">
+                                    <i class="fas fa-phone me-1"></i>
+                                    @patient.PhoneNumber
+                                </p>
+                            </div>
+                            <div class="col-md-2">
+                                <span class="badge bg-@(patient.Status == "Active" ? "success" : 
+                                                     patient.Status == "Pending" ? "warning" : "secondary")">
+                                    @patient.Status
+                                </span>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <a href="/Doctor/PatientDetails/@patient.PatientId" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-eye me-1"></i> View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Pagination -->
+        @if (Model.TotalPages > 1)
+        {
+            <div class="col-12">
+                <nav aria-label="Patient list navigation">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                            <a class="page-link" href="@Model.GetPageUrl(Model.CurrentPage - 1)">Previous</a>
+                        </li>
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                <a class="page-link" href="@Model.GetPageUrl(i)">@i</a>
+                            </li>
+                        }
+                        <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                            <a class="page-link" href="@Model.GetPageUrl(Model.CurrentPage + 1)">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        }
+    }
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-submit form when select filters change
+            document.querySelectorAll('select').forEach(select => {
+                select.addEventListener('change', () => {
+                    document.getElementById('filterForm').submit();
+                });
+            });
+
+            // Debounce search input
+            let searchTimeout;
+            const searchInput = document.getElementById('searchQuery');
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    document.getElementById('filterForm').submit();
+                }, 500);
+            });
+        });
+    </script>
+} 

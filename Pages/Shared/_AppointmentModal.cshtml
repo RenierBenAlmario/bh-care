@@ -1,0 +1,298 @@
+@model Barangay.Models.Appointment
+
+<div class="modal fade" id="appointmentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Book Appointment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="appointmentForm" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-control" id="date" name="date" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Time</label>
+                        <select class="form-select" id="time" name="time" required>
+                            <option value="">Select time</option>
+                            <option value="09:00">09:00 AM</option>
+                            <option value="09:30">09:30 AM</option>
+                            <option value="10:00">10:00 AM</option>
+                            <option value="10:30">10:30 AM</option>
+                            <option value="11:00">11:00 AM</option>
+                            <option value="11:30">11:30 AM</option>
+                            <option value="13:00">01:00 PM</option>
+                            <option value="13:30">01:30 PM</option>
+                            <option value="14:00">02:00 PM</option>
+                            <option value="14:30">02:30 PM</option>
+                            <option value="15:00">03:00 PM</option>
+                            <option value="15:30">03:30 PM</option>
+                            <option value="16:00">04:00 PM</option>
+                            <option value="16:30">04:30 PM</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Doctor</label>
+                        <select class="form-select" id="doctorId" name="doctorId" required>
+                            <option value="">Select doctor</option>
+                        </select>
+                        <small class="text-muted" id="doctorInfo"></small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Age</label>
+                        <input type="number" class="form-control" id="age" name="age" required min="0" max="150">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Reason for Visit</label>
+                        <textarea class="form-control" id="reason" name="reason" rows="3" required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Attachments (Optional)</label>
+                        <input type="file" class="form-control" id="attachment" name="attachment" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                        <small class="text-muted">Upload medical records, test results, or any relevant documents (Max 5MB)</small>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Book Appointment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Family Member Modal -->
+<div class="modal fade" id="familyMemberModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Family Member</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="familyMemberForm">
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input type="text" class="form-control" id="familyMemberName" name="name" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Age</label>
+                        <input type="number" class="form-control" id="familyMemberAge" name="age" required min="0" max="150">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Relationship</label>
+                        <select class="form-select" id="relationship" name="relationship" required>
+                            <option value="">Select relationship</option>
+                            <option value="Spouse">Spouse</option>
+                            <option value="Child">Child</option>
+                            <option value="Parent">Parent</option>
+                            <option value="Sibling">Sibling</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Medical History (Optional)</label>
+                        <textarea class="form-control" id="medicalHistory" name="medicalHistory" rows="3"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Allergies (Optional)</label>
+                        <textarea class="form-control" id="allergies" name="allergies" rows="2"></textarea>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Add Family Member</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Load available doctors when date changes
+            $('#date').change(function() {
+                const date = $(this).val();
+                if (date) {
+                    loadDoctors(date);
+                }
+            });
+
+            function loadDoctors(date) {
+                $('#doctorId').empty().append('<option value="">Loading doctors...</option>').prop('disabled', true);
+                $('#doctorInfo').text('');
+                
+                fetch(`/api/doctors/available?date=${date}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const select = $('#doctorId');
+                        select.empty().append('<option value="">Select doctor</option>');
+                        
+                        if (data.success && data.doctors && data.doctors.length > 0) {
+                            data.doctors.forEach(doctor => {
+                                select.append(`<option value="${doctor.id}" 
+                                    data-specialization="${doctor.specialization || ''}" 
+                                    data-slots="${doctor.availableSlots}"
+                                    data-hours="${doctor.workingHours}">${doctor.name} - ${doctor.specialization || 'General Practice'}</option>`);
+                            });
+                            select.prop('disabled', false);
+                        } else {
+                            select.append('<option value="">No doctors available</option>');
+                            $('#doctorInfo').text(data.message || 'No doctors are available for the selected date. Please try another date.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        $('#doctorId').empty()
+                            .append('<option value="">Failed to load doctors</option>')
+                            .prop('disabled', true);
+                        $('#doctorInfo').text('Doctor service not available. Please try again later.');
+                    });
+            }
+
+            // Update doctor info when doctor is selected
+            $('#doctorId').change(function() {
+                const selected = $(this).find('option:selected');
+                const specialization = selected.data('specialization');
+                const slots = selected.data('slots');
+                const hours = selected.data('hours');
+                
+                if (selected.val()) {
+                    $('#doctorInfo').html(`
+                        <strong>Specialization:</strong> ${specialization || 'General Practice'}<br>
+                        <strong>Working Hours:</strong> ${hours || '9:00 AM - 5:00 PM'}<br>
+                        <strong>Available Slots:</strong> ${slots}
+                    `);
+                } else {
+                    $('#doctorInfo').text('');
+                }
+
+                // Load time slots
+                const doctorId = $(this).val();
+                const date = $('#date').val();
+                
+                if (doctorId && date) {
+                    loadTimeSlots(doctorId, date);
+                }
+            });
+
+            function loadTimeSlots(doctorId, date) {
+                $('#time').empty().append('<option value="">Loading time slots...</option>').prop('disabled', true);
+                
+                fetch(`/api/doctors/${doctorId}/timeslots?date=${date}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const select = $('#time');
+                        select.empty().append('<option value="">Select time</option>');
+                        
+                        if (data.timeSlots && data.timeSlots.length > 0) {
+                            data.timeSlots.forEach(time => {
+                                select.append(`<option value="${time}">${time}</option>`);
+                            });
+                            select.prop('disabled', false);
+                        } else {
+                            select.append('<option value="">No time slots available</option>');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        $('#time').empty()
+                            .append('<option value="">Failed to load time slots</option>')
+                            .prop('disabled', true);
+                    });
+            }
+
+            // Handle form submission
+            $('#appointmentForm').submit(function(e) {
+                e.preventDefault();
+                
+                const submitButton = $(this).find('button[type="submit"]');
+                submitButton.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Booking...');
+
+                const time = $('#time').val();
+                if (!time) {
+                    alert('Please select a time');
+                    submitButton.prop('disabled', false).text('Book Appointment');
+                    return;
+                }
+
+                // Format time to ensure HH:mm format
+                const timeValue = time.trim().padStart(5, '0');
+                console.log('Selected time:', time);
+                console.log('Formatted time:', timeValue);
+
+                const appointmentData = {
+                    doctorId: $('#doctorId').val(),
+                    patientName: $('#name').val(),
+                    patientAge: parseInt($('#age').val()),
+                    date: $('#date').val(),
+                    time: timeValue,
+                    description: $('#reason').val()
+                };
+
+                console.log('Sending appointment data:', appointmentData);
+                
+                fetch('/api/appointment/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    body: JSON.stringify(appointmentData)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            console.error('Server error:', data);
+                            throw new Error(data.error || 'Failed to book appointment');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    $('#appointmentModal').modal('hide');
+                    location.reload();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert(error.message || 'Failed to book appointment. Please try again.');
+                })
+                .finally(() => {
+                    submitButton.prop('disabled', false).text('Book Appointment');
+                });
+            });
+
+            // Validate file size before upload
+            $('#attachment').change(function() {
+                const file = this.files[0];
+                if (file && file.size > 5 * 1024 * 1024) {
+                    alert('File size must be less than 5MB');
+                    this.value = '';
+                }
+            });
+        });
+    </script>
+} 

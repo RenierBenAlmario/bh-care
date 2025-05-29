@@ -1,0 +1,277 @@
+@page
+@model Barangay.Pages.User.UserDashboardModel
+@using Barangay.Models
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "_UserLayout";
+}
+
+<style>
+    /* Fix border overlap */
+    .container-fluid {
+        margin-left: 250px; /* Adjust based on your sidebar width */
+        width: calc(100% - 250px);
+        padding-right: 30px;
+    }
+
+    .health-metric {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .health-metric i {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+
+    .health-metric h6 {
+        margin-bottom: 5px;
+        color: #6c757d;
+    }
+
+    .health-metric p {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 0;
+    }
+
+    .appointment-card {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+    }
+
+    .appointment-card h6 {
+        margin-bottom: 5px;
+    }
+
+    .badge {
+        padding: 5px 10px;
+    }
+
+    .bg-completed { background-color: #28a745; }
+    .bg-pending { background-color: #ffc107; }
+    .bg-cancelled { background-color: #dc3545; }
+    .bg-inprogress { background-color: #17a2b8; }
+    .bg-urgent { background-color: #dc3545; }
+    .bg-noshow { background-color: #343a40; }
+    .bg-confirmed { background-color: #28a745; }
+</style>
+
+<div class="container-fluid px-4">
+    <!-- Current Queue Info -->
+    <div class="alert alert-info mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <strong>Current Queue:</strong> @Model.CurrentQueueCount patients waiting (Est. wait time: @Model.EstimatedWaitTime mins)
+            </div>
+            <div>
+                <strong>Health Tip:</strong> Stay hydrated and bring your ID to appointments
+            </div>
+        </div>
+    </div>
+
+    <!-- Health Report Section -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Health Report - Last Checkup (@(Model.LatestHealthReport?.CheckupDate.ToString("MMMM dd, yyyy") ?? "No checkup data"))</h5>
+            <div>
+                @if (Model.LatestHealthReport != null)
+                {
+                    <a href="javascript:void(0)" onclick="downloadReport(@Model.LatestHealthReport.Id)" class="btn btn-primary btn-sm">
+                        <i class="fas fa-download"></i> Download Health Report
+                    </a>
+                }
+                <a href="/User/Reports" class="btn btn-secondary btn-sm ms-2">
+                    <i class="fas fa-list"></i> View All Reports
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            @if (Model.LatestHealthReport != null)
+            {
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="health-metric">
+                            <i class="fas fa-heartbeat text-primary"></i>
+                            <h6>Blood Pressure</h6>
+                            <p>@Model.LatestHealthReport.BloodPressure mmHg</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="health-metric">
+                            <i class="fas fa-heart text-danger"></i>
+                            <h6>Heart Rate</h6>
+                            <p>@Model.LatestHealthReport.HeartRate BPM</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="health-metric">
+                            <i class="fas fa-tint text-info"></i>
+                            <h6>Blood Sugar</h6>
+                            <p>@Model.LatestHealthReport.BloodSugar mg/dL</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="health-metric">
+                            <i class="fas fa-weight text-success"></i>
+                            <h6>Weight</h6>
+                            <p>@Model.LatestHealthReport.Weight lbs</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="health-metric">
+                            <i class="fas fa-thermometer-half text-warning"></i>
+                            <h6>Temperature</h6>
+                            <p>@Model.LatestHealthReport.Temperature°C</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="health-metric">
+                            <i class="fas fa-running text-primary"></i>
+                            <h6>Physical Activity</h6>
+                            <p>@Model.LatestHealthReport.PhysicalActivity</p>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning">
+                    No health report data available. Schedule a checkup to get your health metrics.
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Appointments Section -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Appointments</h5>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="autoRefreshToggle" checked>
+                <label class="form-check-label" for="autoRefreshToggle">Auto-Refresh</label>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Today's Appointments -->
+                <div class="col-md-4">
+                    <h6>Today's Appointments</h6>
+                    <div id="todayAppointments">
+                        @if (!Model.TodayAppointments.Any())
+                        {
+                            <p class="text-muted">No appointments scheduled for today.</p>
+                        }
+                        else
+                        {
+                            foreach (var apt in Model.TodayAppointments)
+                            {
+                                <div class="appointment-card">
+                                    <h6>@(Model.IsDoctor ? apt.PatientName : $"Dr. {apt.Doctor?.FullName}")</h6>
+                                    <p class="mb-0">@(apt.GetFormattedTime())</p>
+                                    <span class="badge bg-@apt.Status.ToString().ToLower()">@apt.Status</span>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+
+                <!-- Upcoming Appointments -->
+                <div class="col-md-4">
+                    <h6>Upcoming Appointments</h6>
+                    <div id="upcomingAppointments">
+                        @if (!Model.UpcomingAppointments.Any())
+                        {
+                            <p class="text-muted">No upcoming appointments.</p>
+                        }
+                        else
+                        {
+                            foreach (var apt in Model.UpcomingAppointments)
+                            {
+                                <div class="appointment-card">
+                                    <h6>@(Model.IsDoctor ? apt.PatientName : $"Dr. {apt.Doctor?.FullName}")</h6>
+                                    <p class="mb-0">@(apt.GetFormattedDate()) at @(apt.GetFormattedTime())</p>
+                                    <span class="badge bg-@apt.Status.ToString().ToLower()">@apt.Status</span>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+
+                <!-- Recent Appointments -->
+                <div class="col-md-4">
+                    <h6>Recent Appointments</h6>
+                    <div id="recentAppointments">
+                        @foreach (var apt in Model.PastAppointments.Take(5))
+                        {
+                            <div class="appointment-card">
+                                <h6>@(Model.IsDoctor ? apt.PatientName : $"Dr. {apt.Doctor?.FullName}")</h6>
+                                <p class="mb-0">@(apt.GetFormattedDate())</p>
+                                <span class="badge bg-@apt.Status.ToString().ToLower()">@apt.Status</span>
+                            </div>
+                        }
+                        <a href="/User/Appointments" class="btn btn-link btn-sm">Show more</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let autoRefreshInterval;
+
+        function toggleAutoRefresh(enabled) {
+            if (enabled) {
+                autoRefreshInterval = setInterval(refreshAppointments, 30000); // Refresh every 30 seconds
+            } else {
+                clearInterval(autoRefreshInterval);
+            }
+        }
+
+        function refreshAppointments() {
+            fetch('?handler=RefreshAppointments')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('todayAppointments').innerHTML = renderAppointments(data.today, true);
+                        document.getElementById('upcomingAppointments').innerHTML = renderAppointments(data.upcoming, false);
+                        document.getElementById('recentAppointments').innerHTML = renderAppointments(data.recent, false);
+                    }
+                });
+        }
+
+        function downloadReport(reportId) {
+            window.location.href = `?handler=DownloadReport&reportId=${reportId}`;
+        }
+
+        function renderAppointments(appointments, isToday) {
+            if (!appointments || appointments.length === 0) {
+                return '<p class="text-muted">No appointments ' + (isToday ? 'scheduled for today.' : 'found.') + '</p>';
+            }
+
+            return appointments.map(apt => `
+                <div class="appointment-card">
+                    <h6>${apt.doctor ? 'Dr. ' + apt.doctor.fullName : apt.patientName}</h6>
+                    <p class="mb-0">${isToday ? 
+                        apt.formattedTime || 'Time not specified' :
+                        (apt.formattedDate || 'Date not specified') + (apt.formattedTime ? ' at ' + apt.formattedTime : '')}
+                    </p>
+                    <span class="badge bg-${apt.status.toLowerCase()}">${apt.status}</span>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('autoRefreshToggle').addEventListener('change', function(e) {
+            toggleAutoRefresh(e.target.checked);
+        });
+
+        // Start auto-refresh by default
+        toggleAutoRefresh(true);
+    </script>
+}

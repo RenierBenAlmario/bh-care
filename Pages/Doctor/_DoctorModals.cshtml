@@ -1,0 +1,174 @@
+@model Barangay.Pages.Doctor.DoctorDashboardModel
+
+<!-- Alerts Modal -->
+<div class="modal fade" id="alertsModal" tabindex="-1" aria-labelledby="alertsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="alertsModalLabel">Critical Alerts</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul id="alertsList" class="list-group">
+                    @foreach (var patient in Model.Alerts)
+                    {
+                        <li class="list-group-item">
+                            Urgent: Patient @patient.Name (@patient.RecordNo) needs immediate attention 
+                            <button class="btn btn-sm btn-success float-end" onclick="acknowledgeAlert('@patient.RecordNo')">Acknowledge</button>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Queue Modal -->
+<div class="modal fade" id="queueModal" tabindex="-1" aria-labelledby="queueModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="queueModalLabel">Patient Queue</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul id="queueList" class="list-group">
+                    @foreach (var patient in Model.Queue)
+                    {
+                        <li class="list-group-item">@patient.Name (@patient.RecordNo) - @patient.Description</li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Patient Records Modal -->
+<div class="modal fade" id="patientRecordsModal" tabindex="-1" aria-labelledby="patientRecordsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="patientRecordsModalLabel">Patient Records</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="text" class="form-control mb-3" id="modalPatientSearch" placeholder="Search by name or ID..." aria-label="Search patient records">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Record No.</th>
+                            <th>Age</th>
+                            <th>Gender</th>
+                            <th>Diagnosis</th>
+                            <th>Last Visit</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modalPatientRecordsTable">
+                        @{
+                            var records = Model.PatientRecords.ToList();
+                        }
+                        @foreach (var patient in records)
+                        {
+                            <tr>
+                                <td>@patient.Name</td>
+                                <td>@patient.RecordNo</td>
+                                <td>@patient.Age</td>
+                                <td>@patient.Gender</td>
+                                <td>@patient.Description</td>
+                                <td>@patient.LastVisit</td>
+                                <td>
+                                    <button class="btn btn-sm btn-info" onclick="viewHistory('@patient.RecordNo')">View History</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <div class="mt-2 d-flex justify-content-between">
+                    <button class="btn btn-outline-secondary" id="prevModalRecordPage" disabled>Previous</button>
+                    <span id="modalRecordPageInfo">Page 1</span>
+                    <button class="btn btn-outline-secondary" id="nextModalRecordPage">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Prescription Modal -->
+<div class="modal fade" id="prescriptionModal" tabindex="-1" aria-labelledby="prescriptionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="prescriptionModalLabel">Write Prescription</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="prescriptionForm" method="post" asp-page-handler="AddPrescription">
+                    <div class="mb-3">
+                        <label for="patientRecordNo" class="form-label">Patient Record No.</label>
+                        <input type="text" class="form-control" id="patientRecordNo" name="recordNo" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="diagnosis" class="form-label">Diagnosis</label>
+                        <textarea class="form-control" id="diagnosis" name="diagnosis" rows="2" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="prescription" class="form-label">Prescription</label>
+                        <textarea class="form-control" id="prescription" name="prescription" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="instructions" class="form-label">Instructions</label>
+                        <textarea class="form-control" id="instructions" name="instructions" rows="2" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Prescription</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Help Modal -->
+<div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="helpModalLabel">Help & Documentation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Welcome to the Doctor Dashboard! Here's a quick guide:</p>
+                <ul>
+                    <li>View and manage your patient queue</li>
+                    <li>Write prescriptions and medical notes</li>
+                    <li>Access complete patient histories</li>
+                    <li>Monitor urgent cases and alerts</li>
+                    <li>Track consultation metrics</li>
+                    <li><strong>Security Tip:</strong> Always log out when leaving your workstation</li>
+                </ul>
+                <p>Contact support at <a href="mailto:support@barangayhealth.com">support@barangayhealth.com</a>.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Session Timeout Modal -->
+<div class="modal fade" id="sessionTimeoutModal" tabindex="-1" aria-labelledby="sessionTimeoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="sessionTimeoutModalLabel">Session Timeout Warning</h5>
+            </div>
+            <div class="modal-body">
+                <p>Your session will expire in <span id="timeoutCountdown">30</span> seconds due to inactivity. Stay logged in?</p>
+                <button class="btn btn-primary" id="stayLoggedIn">Stay Logged In</button>
+                <button class="btn btn-secondary" id="logoutNow">Logout</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Offline Indicator -->
+<div id="offlineIndicator" class="alert alert-warning" style="display: none; position: fixed; top: 70px; right: 10px; z-index: 1000;">
+    Offline Mode: Viewing cached data. Sync when online.
+</div> 

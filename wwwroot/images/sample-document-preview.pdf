@@ -1,0 +1,15 @@
+/*
+This is a placeholder for a real PDF file.
+In a real implementation, you would need to manually add a PDF file named "sample-document-preview.pdf" to this location.
+
+For testing purposes, a simple PDF document with text that says "Residency Proof Document Sample" would be
+sufficient for the document preview feature. This PDF will be displayed in the document preview modal when
+users view PDF-based residency proof documents.
+
+Steps to create this file:
+1. Create a simple one-page PDF document (using Word, Google Docs, or any PDF creator)
+2. Add heading text like "Barangay Residency Certificate - Sample" 
+3. Include some sample content that might appear in a residency document
+4. Save it as "sample-document-preview.pdf" in the wwwroot/images directory
+5. Alternatively, use any existing PDF document and rename it
+*/ 

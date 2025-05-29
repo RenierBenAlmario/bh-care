@@ -1,0 +1,139 @@
+@page
+@using Barangay.Models
+@model Barangay.Pages.Doctor.Appointment.DetailsModel
+@{
+    ViewData["Title"] = "Appointment Details";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Appointment Details</h4>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Patient Name</dt>
+                        <dd class="col-sm-8">@Model.Appointment.PatientName</dd>
+
+                        <dt class="col-sm-4">Appointment Date</dt>
+                        <dd class="col-sm-8">@Model.Appointment.AppointmentDate.ToString("MMM d, yyyy")</dd>
+
+                        <dt class="col-sm-4">Appointment Time</dt>
+                        <dd class="col-sm-8">@Model.Appointment.GetFormattedTime()</dd>
+
+                        <dt class="col-sm-4">Status</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge @GetStatusBadgeClass(Model.Appointment.Status)">
+                                @Model.Appointment.Status
+                            </span>
+                        </dd>
+
+                        @if (Model.Appointment.DependentFullName != null)
+                        {
+                            <dt class="col-sm-4">Dependent Name</dt>
+                            <dd class="col-sm-8">@Model.Appointment.DependentFullName</dd>
+
+                            <dt class="col-sm-4">Dependent Age</dt>
+                            <dd class="col-sm-8">@Model.Appointment.DependentAge</dd>
+
+                            <dt class="col-sm-4">Relationship</dt>
+                            <dd class="col-sm-8">@Model.Appointment.RelationshipToDependent</dd>
+                        }
+
+                        <dt class="col-sm-4">Description</dt>
+                        <dd class="col-sm-8">@Model.Appointment.Description</dd>
+                    </dl>
+
+                    @if (Model.Appointment.Status == AppointmentStatus.Pending)
+                    {
+                        <form method="post" asp-page-handler="UpdateStatus" class="mt-4">
+                            <input type="hidden" name="id" value="@Model.Appointment.Id" />
+                            <div class="mb-3">
+                                <label class="form-label">Update Status</label>
+                                <select name="status" class="form-select">
+                                    <option value="@AppointmentStatus.Confirmed">Confirm</option>
+                                    <option value="@AppointmentStatus.Cancelled">Cancel</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Update Status</button>
+                        </form>
+                    }
+
+                    @if (Model.Appointment.Status == AppointmentStatus.Confirmed)
+                    {
+                        <form method="post" asp-page-handler="CompleteConsultation" class="mt-4">
+                            <input type="hidden" name="id" value="@Model.Appointment.Id" />
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Diagnosis</label>
+                                <textarea name="diagnosis" class="form-control" rows="3" required></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Prescription</label>
+                                <textarea name="prescription" class="form-control" rows="3" required></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Instructions</label>
+                                <textarea name="instructions" class="form-control" rows="3" required></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-success">Complete Consultation</button>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Medical History</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.MedicalRecords.Any())
+                    {
+                        <div class="timeline">
+                            @foreach (var record in Model.MedicalRecords.OrderByDescending(r => r.Date))
+                            {
+                                <div class="timeline-item">
+                                    <div class="timeline-date">@record.Date.ToString("MMM dd, yyyy")</div>
+                                    <div class="timeline-content">
+                                        <h6>Diagnosis</h6>
+                                        <p>@record.Diagnosis</p>
+                                        @if (!string.IsNullOrEmpty(record.Prescription))
+                                        {
+                                            <h6>Prescription</h6>
+                                            <p>@record.Prescription</p>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No medical history available.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    private string GetStatusBadgeClass(AppointmentStatus status)
+    {
+        return status switch
+        {
+            AppointmentStatus.Pending => "bg-warning",
+            AppointmentStatus.Confirmed => "bg-success",
+            AppointmentStatus.Cancelled => "bg-danger",
+            AppointmentStatus.Completed => "bg-info",
+            _ => "bg-secondary"
+        };
+    }
+} 

@@ -1,0 +1,486 @@
+/* Sidebar styling for Nurse and Doctor roles */
+:root {
+    --sidebar-width: 210px;
+    --sidebar-collapsed-width: 70px;
+    --sidebar-bg: #1E3A8A;
+    --sidebar-text: #ffffff;
+    --sidebar-hover: #3B82F6;
+    --sidebar-active: #60A5FA;
+    --sidebar-icon-color: #ffffff;
+    --sidebar-icon-size: 1.2rem;
+    --transition-speed: 0.3s;
+    --top-navbar-height: 56px;
+}
+
+/* Wrapper for sidebar layout */
+.wrapper {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
+    min-height: calc(100vh - var(--top-navbar-height) - 100px); /* Adjust for navbar and footer */
+    position: relative;
+}
+
+/* Sidebar styling */
+#sidebar {
+    min-width: var(--sidebar-width);
+    max-width: var(--sidebar-width);
+    background: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    transition: all var(--transition-speed) ease;
+    z-index: 999;
+    height: 100%;
+    position: sticky;
+    top: 0;
+    left: 0;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    font-family: 'Roboto', sans-serif;
+}
+
+#sidebar.active {
+    min-width: var(--sidebar-collapsed-width);
+    max-width: var(--sidebar-collapsed-width);
+    text-align: center;
+}
+
+/* Sidebar header */
+#sidebar .sidebar-header {
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#sidebar .sidebar-header h3 {
+    color: white;
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+}
+
+#sidebar.active .sidebar-header h3 {
+    display: none;
+}
+
+#sidebar.active .sidebar-header button {
+    margin: 0 auto;
+}
+
+/* Sidebar links */
+#sidebar ul.components {
+    padding: 0;
+}
+
+#sidebar ul li {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+#sidebar ul li a {
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    transition: all var(--transition-speed) ease;
+    position: relative;
+    font-weight: 500;
+}
+
+#sidebar ul li a:hover {
+    color: #ffffff;
+    background: var(--sidebar-hover);
+}
+
+#sidebar ul li a.active {
+    color: #ffffff;
+    background: var(--sidebar-active);
+    border-left: 4px solid white;
+    padding-left: 16px;
+}
+
+/* Icons in sidebar */
+#sidebar ul li a i {
+    margin-right: 12px;
+    font-size: var(--sidebar-icon-size);
+    width: 25px;
+    text-align: center;
+    color: var(--sidebar-icon-color);
+}
+
+#sidebar.active ul li a i {
+    margin-right: 0;
+    margin: 0 auto;
+}
+
+/* Hide text when sidebar is collapsed */
+#sidebar.active ul li a span {
+    display: none;
+}
+
+#sidebar.active ul li a {
+    padding: 15px 10px;
+    text-align: center;
+    justify-content: center;
+}
+
+/* Tooltip for collapsed sidebar */
+#sidebar.active ul li a:hover::after {
+    content: attr(data-title);
+    position: absolute;
+    left: 100%;
+    top: 0;
+    background: var(--sidebar-bg);
+    padding: 15px;
+    white-space: nowrap;
+    z-index: 999;
+    border-radius: 0 4px 4px 0;
+}
+
+/* Content area */
+#content {
+    width: 100%;
+    transition: all var(--transition-speed) ease;
+    background: #f5f7fa;
+    min-height: calc(100vh - var(--top-navbar-height) - 100px); /* Adjust for navbar and footer */
+    padding: 0;
+    margin: 0;
+}
+
+#content main {
+    padding: 20px;
+}
+
+/* Toggle button */
+#sidebarCollapse {
+    background: transparent;
+    color: var(--sidebar-text);
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: all var(--transition-speed) ease;
+}
+
+#sidebarCollapse:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    #sidebar {
+        min-width: var(--sidebar-collapsed-width);
+        max-width: var(--sidebar-collapsed-width);
+        text-align: center;
+        margin-left: calc(-1 * var(--sidebar-collapsed-width));
+        position: fixed;
+        height: 100vh;
+        z-index: 1050;
+    }
+    
+    #sidebar.active {
+        margin-left: 0;
+    }
+
+    #content {
+        width: 100%;
+    }
+    
+    #content main {
+        padding: 15px;
+    }
+    
+    #content.expanded {
+        margin-left: var(--sidebar-collapsed-width);
+    }
+
+    #sidebar .sidebar-header h3 {
+        display: none;
+    }
+
+    #sidebar ul li a span {
+        display: none;
+    }
+    
+    #sidebar ul li a {
+        padding: 15px 10px;
+        text-align: center;
+        justify-content: center;
+    }
+
+    #sidebar ul li a i {
+        margin: 0 auto;
+        font-size: 1.3rem;
+    }
+    
+    /* Hamburger menu for mobile */
+    #sidebarCollapse {
+        display: block;
+        margin: 0 auto;
+        padding: 10px;
+    }
+}
+
+/* Ensure mobile sidebar appears on top of content */
+@media (max-width: 768px) {
+    .wrapper {
+        overflow-x: hidden;
+    }
+    
+    #sidebar {
+        position: fixed;
+        top: var(--top-navbar-height); /* Adjust for navbar height */
+        left: 0;
+        height: calc(100vh - var(--top-navbar-height));
+    }
+    
+    #sidebar.active {
+        box-shadow: 3px 0 10px rgba(0, 0, 0, 0.2);
+    }
+}
+
+/* Sidebar toggle button style */
+.sidebar-header button {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.sidebar-header button:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Nurse section title */
+.nurse-menu-title {
+    padding: 10px 15px;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.5);
+    background: rgba(0, 0, 0, 0.1);
+}
+
+/* Sidebar user section styling */
+.sidebar-user-section {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+#sidebar.active .sidebar-user-section {
+    padding: 10px 5px;
+}
+
+.sidebar-user-section .user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+#sidebar.active .sidebar-user-section .user-info {
+    margin-bottom: 5px;
+}
+
+.sidebar-user-section .user-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: var(--sidebar-active);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 1.5rem;
+    color: white;
+}
+
+#sidebar.active .sidebar-user-section .user-avatar {
+    width: 40px;
+    height: 40px;
+}
+
+.sidebar-user-section .user-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: white;
+    text-align: center;
+    margin: 0;
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#sidebar.active .sidebar-user-section .user-name {
+    display: none;
+}
+
+.sidebar-user-section .logout-btn {
+    width: 100%;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+    margin-top: 5px;
+}
+
+#sidebar.active .sidebar-user-section .logout-btn {
+    padding: 8px;
+    width: 40px;
+    height: 40px;
+}
+
+#sidebar.active .sidebar-user-section .logout-btn span {
+    display: none;
+}
+
+.sidebar-user-section .logout-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.sidebar-user-section .logout-btn i {
+    margin-right: 5px;
+}
+
+#sidebar.active .sidebar-user-section .logout-btn i {
+    margin-right: 0;
+}
+
+/* Stats card styling */
+.stat-card {
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    overflow: hidden;
+}
+
+.stat-card .card-body {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    color: white;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+    height: 100%;
+}
+
+.stat-card h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+    line-height: 1;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.bg-primary-card {
+    background: linear-gradient(135deg, #4F46E5 0%, #2563EB 100%);
+}
+
+.bg-success-card {
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+}
+
+.bg-warning-card {
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+}
+
+.bg-info-card {
+    background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+}
+
+/* Dashboard heading styles */
+.dashboard-heading {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #1E3A8A;
+}
+
+.dashboard-subheading {
+    font-size: 1rem;
+    color: #6B7280;
+    margin-bottom: 1.5rem;
+}
+
+.dashboard-cards {
+    margin-bottom: 2rem;
+}
+
+.bg-light {
+    background-color: #F9FAFB !important;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Breadcrumb styles */
+.breadcrumb-container {
+    background-color: #F9FAFB;
+    padding: 10px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.breadcrumb {
+    margin-bottom: 0;
+    padding: 0;
+    background-color: transparent;
+}
+
+.breadcrumb-item a {
+    color: #3B82F6;
+    text-decoration: none;
+}
+
+.breadcrumb-item.active {
+    color: #6B7280;
+}
+
+/* Desktop layout adjustments */
+@media (min-width: 769px) {
+    #sidebar {
+        position: sticky;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        min-height: 100vh;
+    }
+    
+    #content {
+        width: calc(100% - var(--sidebar-width));
+        margin-left: var(--sidebar-width);
+        transition: all var(--transition-speed) ease;
+    }
+    
+    #sidebar.active + #content {
+        width: calc(100% - var(--sidebar-collapsed-width));
+        margin-left: var(--sidebar-collapsed-width);
+    }
+} 

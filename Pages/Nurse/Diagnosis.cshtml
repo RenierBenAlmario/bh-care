@@ -1,0 +1,192 @@
+@page
+@model Barangay.Pages.Nurse.DiagnosisModel
+@{
+    ViewData["Title"] = "Patient Diagnosis";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Patient Diagnosis Management</h5>
+                    <div>
+                        <a href="/Nurse/DiagnoseDB" class="btn btn-sm btn-primary">
+                            <i class="fas fa-database me-1"></i> View All Records
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="patientSearch" class="form-label">Search Patient</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="patientSearch" placeholder="Enter patient name or ID">
+                                    <button class="btn btn-primary" id="searchBtn">
+                                        <i class="fas fa-search"></i> Search
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="filterOptions" class="form-label">Filter By</label>
+                                <select class="form-select" id="filterOptions">
+                                    <option value="all">All Diagnoses</option>
+                                    <option value="recent">Recent (Last 30 Days)</option>
+                                    <option value="critical">Critical Cases</option>
+                                    <option value="pending">Pending Review</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Patient Name</th>
+                                    <th>Date</th>
+                                    <th>Doctor</th>
+                                    <th>Diagnosis</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.DiagnosisRecords.Any())
+                                {
+                                    @foreach (var record in Model.DiagnosisRecords)
+                                    {
+                                        <tr>
+                                            <td>@record.PatientName</td>
+                                            <td>@record.Date.ToString("MMM dd, yyyy")</td>
+                                            <td>@record.DoctorName</td>
+                                            <td>@record.DiagnosisText</td>
+                                            <td>
+                                                <span class="badge @(record.Status == "Critical" ? "bg-danger" : 
+                                                                    record.Status == "Pending" ? "bg-warning" : 
+                                                                    "bg-success")">
+                                                    @record.Status
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="/Nurse/EditRecord?id=@record.Id" class="btn btn-sm btn-primary">
+                                                        <i class="fas fa-edit"></i> Edit
+                                                    </a>
+                                                    <button class="btn btn-sm btn-info" onclick="viewDetails(@record.Id)">
+                                                        <i class="fas fa-eye"></i> View
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="6" class="text-center">No diagnosis records found.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Diagnosis Details Modal -->
+<div class="modal fade" id="diagnosisDetailsModal" tabindex="-1" aria-labelledby="diagnosisDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="diagnosisDetailsModalLabel">Diagnosis Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Patient:</strong> <span id="modalPatientName"></span></p>
+                        <p><strong>Date:</strong> <span id="modalDate"></span></p>
+                        <p><strong>Doctor:</strong> <span id="modalDoctor"></span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Status:</strong> <span id="modalStatus"></span></p>
+                        <p><strong>Record ID:</strong> <span id="modalRecordId"></span></p>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-12">
+                        <h6>Diagnosis</h6>
+                        <p id="modalDiagnosis"></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <h6>Treatment Plan</h6>
+                        <p id="modalTreatment"></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <h6>Notes</h6>
+                        <p id="modalNotes"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="#" id="modalEditLink" class="btn btn-primary">Edit Record</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Search functionality
+            document.getElementById('searchBtn').addEventListener('click', function() {
+                const searchTerm = document.getElementById('patientSearch').value;
+                if (searchTerm) {
+                    window.location.href = `/Nurse/Diagnosis?search=${encodeURIComponent(searchTerm)}`;
+                }
+            });
+            
+            // Filter functionality
+            document.getElementById('filterOptions').addEventListener('change', function() {
+                const filter = this.value;
+                window.location.href = `/Nurse/Diagnosis?filter=${encodeURIComponent(filter)}`;
+            });
+        });
+        
+        // View details function
+        function viewDetails(recordId) {
+            // In a real implementation, you would fetch the record details from the server
+            // For now, we'll use sample data
+            const records = @Html.Raw(Json.Serialize(Model.DiagnosisRecords));
+            const record = records.find(r => r.id === recordId);
+            
+            if (record) {
+                document.getElementById('modalPatientName').textContent = record.patientName;
+                document.getElementById('modalDate').textContent = new Date(record.date).toLocaleDateString();
+                document.getElementById('modalDoctor').textContent = record.doctorName;
+                document.getElementById('modalStatus').textContent = record.status;
+                document.getElementById('modalRecordId').textContent = record.id;
+                document.getElementById('modalDiagnosis').textContent = record.diagnosisText;
+                document.getElementById('modalTreatment').textContent = record.treatment || 'No treatment plan specified';
+                document.getElementById('modalNotes').textContent = record.notes || 'No notes available';
+                document.getElementById('modalEditLink').href = `/Nurse/EditRecord?id=${record.id}`;
+                
+                // Show the modal
+                const modal = new bootstrap.Modal(document.getElementById('diagnosisDetailsModal'));
+                modal.show();
+            }
+        }
+    </script>
+} 

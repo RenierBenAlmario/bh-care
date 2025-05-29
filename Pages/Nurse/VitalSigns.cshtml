@@ -1,0 +1,363 @@
+@page
+@model Barangay.Pages.Nurse.VitalSignsModel
+@{
+    ViewData["Title"] = "Patient Vital Signs";
+    Layout = "_NurseLayout";
+}
+
+<h2>Patient Vital Signs</h2>
+<p>Record and monitor patient vital signs.</p>
+
+<div class="d-flex justify-content-end mb-3">
+    <a href="/Nurse/PatientQueue" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Queue
+    </a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Info"] != null)
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        @TempData["Info"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        <ul>
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <li>@error.ErrorMessage</li>
+        }
+        </ul>
+    </div>
+}
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h2>Record Vital Signs</h2>
+    </div>
+    <div class="card-body">
+        <form method="post" asp-page-handler="AddVitalSign">
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <label for="Patient">Patient</label>
+                    <select asp-for="NewVitalSign.PatientId" asp-items="Model.PatientSelectList" class="form-select">
+                        <option value="">-- Select Patient --</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label>Blood Pressure (mmHg)</label>
+                    <input asp-for="NewVitalSign.BloodPressure" class="form-control" placeholder="e.g. 120/80" />
+                </div>
+                <div class="col-md-6">
+                    <label>Heart Rate (bpm)</label>
+                    <input asp-for="NewVitalSign.HeartRate" class="form-control" type="number" />
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label>Temperature (°C)</label>
+                    <input asp-for="NewVitalSign.Temperature" class="form-control" type="number" step="0.1" />
+                </div>
+                <div class="col-md-6">
+                    <label>Respiratory Rate (breaths/min)</label>
+                    <input asp-for="NewVitalSign.RespiratoryRate" class="form-control" type="number" />
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label>Oxygen Saturation (%)</label>
+                    <input asp-for="NewVitalSign.SpO2" class="form-control" type="number" />
+                </div>
+                <div class="col-md-6">
+                    <label>Weight (kg)</label>
+                    <input asp-for="NewVitalSign.Weight" class="form-control" type="number" step="0.1" />
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label>Height (cm)</label>
+                    <input asp-for="NewVitalSign.Height" class="form-control" type="number" step="0.1" />
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label>Notes</label>
+                <textarea asp-for="NewVitalSign.Notes" class="form-control" rows="3"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save Vital Signs</button>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3>Vital Sign Records</h3>
+        <button class="btn btn-outline-secondary" onclick="refreshTable()">
+            <i class="bi bi-arrow-clockwise"></i> Refresh
+        </button>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Patient Name</th>
+                        <th>Date & Time</th>
+                        <th>Blood Pressure</th>
+                        <th>Heart Rate</th>
+                        <th>Temperature</th>
+                        <th>Weight</th>
+                        <th>Height</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.VitalSignRecords.Any())
+                    {
+                        @foreach (var record in Model.VitalSignRecords)
+                        {
+                            <tr>
+                                <td>@record.PatientName</td>
+                                <td>@record.RecordedAt.ToString("MMM dd, yyyy h:mm tt")</td>
+                                <td>@record.BloodPressure</td>
+                                <td>@(record.HeartRate.HasValue ? $"{record.HeartRate} bpm" : "N/A")</td>
+                                <td>@(record.Temperature.HasValue ? $"{record.Temperature:F1} °C" : "N/A")</td>
+                                <td>@(record.Weight.HasValue ? $"{record.Weight:F1} kg" : "N/A")</td>
+                                <td>@(record.Height.HasValue ? $"{record.Height:F1} cm" : "N/A")</td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-info" onclick='showVitalSignDetails(@Json.Serialize(new
+                                    {
+                                        patientName = record.PatientName,
+                                        recordedAt = record.RecordedAt.ToString("MMM dd, yyyy hh:mm tt"),
+                                        bloodPressure = record.BloodPressure,
+                                        heartRate = record.HeartRate,
+                                        temperature = record.Temperature,
+                                        weight = record.Weight,
+                                        height = record.Height,
+                                        notes = record.Notes
+                                    }))'>
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center">No vital sign records found</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for viewing details -->
+<div class="modal fade" id="vitalSignDetailsModal" tabindex="-1" aria-labelledby="vitalSignDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="vitalSignDetailsModalLabel">Vital Sign Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-4 fw-bold">Patient Name:</div>
+                    <div class="col-8" id="modalPatientName"></div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-4 fw-bold">Date & Time:</div>
+                    <div class="col-8" id="modalDateTime"></div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-4 fw-bold">Blood Pressure:</div>
+                    <div class="col-8" id="modalBloodPressure"></div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-4 fw-bold">Heart Rate:</div>
+                    <div class="col-8" id="modalHeartRate"></div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-4 fw-bold">Temperature:</div>
+                    <div class="col-8" id="modalTemperature"></div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-4 fw-bold">Weight:</div>
+                    <div class="col-8" id="modalWeight"></div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-4 fw-bold">Height:</div>
+                    <div class="col-8" id="modalHeight"></div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-4 fw-bold">Notes:</div>
+                    <div class="col-8" id="modalNotes"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Patient Search Modal -->
+<div class="modal fade" id="patientSearchModal" tabindex="-1" aria-labelledby="patientSearchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="patientSearchModalLabel">Search Patient</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group mb-3">
+                    <input type="text" id="patientSearchInput" class="form-control" placeholder="Search by name...">
+                    <button class="btn btn-outline-primary" type="button" id="patientSearchButton">
+                        <i class="bi bi-search"></i> Search
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="patientSearchResults">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Appointment Info</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Results will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    
+    <script>
+        $(document).ready(function() {
+            // Initialize select2 on patient dropdown
+            $('.patient-select').select2({
+                placeholder: "Search for a patient...",
+                allowClear: true,
+                width: '100%'
+            });
+            
+            // Set the selected patient if provided
+            @if (!string.IsNullOrEmpty(Model.SelectedPatientId))
+            {
+                <text>
+                $('.patient-select').val('@Model.SelectedPatientId').trigger('change');
+                </text>
+            }
+        });
+        
+        function refreshTable() {
+            location.reload();
+        }
+
+        function showVitalSignDetails(vitalSign) {
+            document.getElementById('modalPatientName').textContent = vitalSign.patientName;
+            document.getElementById('modalDateTime').textContent = vitalSign.recordedAt;
+            document.getElementById('modalBloodPressure').textContent = vitalSign.bloodPressure;
+            document.getElementById('modalHeartRate').textContent = vitalSign.heartRate + ' bpm';
+            document.getElementById('modalTemperature').textContent = vitalSign.temperature + ' °C';
+            document.getElementById('modalWeight').textContent = vitalSign.weight + ' kg';
+            document.getElementById('modalHeight').textContent = vitalSign.height + ' cm';
+            document.getElementById('modalNotes').textContent = vitalSign.notes || 'No notes';
+            
+            var modal = new bootstrap.Modal(document.getElementById('vitalSignDetailsModal'));
+            modal.show();
+        }
+
+        // Patient search functionality
+        document.getElementById('patientSearchButton').addEventListener('click', function() {
+            var searchTerm = document.getElementById('patientSearchInput').value;
+            if (searchTerm.length < 2) {
+                alert('Please enter at least 2 characters to search');
+                return;
+            }
+            
+            fetch(`/api/patients/search?term=${encodeURIComponent(searchTerm)}`)
+                .then(response => response.json())
+                .then(data => {
+                    var resultsTable = document.getElementById('patientSearchResults').getElementsByTagName('tbody')[0];
+                    resultsTable.innerHTML = '';
+                    
+                    if (data.length === 0) {
+                        var row = resultsTable.insertRow();
+                        var cell = row.insertCell();
+                        cell.colSpan = 3;
+                        cell.className = 'text-center';
+                        cell.textContent = 'No patients found';
+                        return;
+                    }
+                    
+                    data.forEach(patient => {
+                        var row = resultsTable.insertRow();
+                        
+                        var nameCell = row.insertCell();
+                        nameCell.textContent = patient.name;
+                        
+                        var infoCell = row.insertCell();
+                        infoCell.textContent = patient.appointmentInfo || 'No appointment';
+                        
+                        var actionCell = row.insertCell();
+                        var selectBtn = document.createElement('button');
+                        selectBtn.className = 'btn btn-sm btn-primary';
+                        selectBtn.textContent = 'Select';
+                        selectBtn.onclick = function() {
+                            // Find the select element and set its value
+                            var selectElement = document.querySelector('select[name="NewVitalSign.PatientId"]');
+                            selectElement.value = patient.id;
+                            
+                            // Close the modal
+                            var modal = bootstrap.Modal.getInstance(document.getElementById('patientSearchModal'));
+                            modal.hide();
+                        };
+                        actionCell.appendChild(selectBtn);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error searching for patients:', error);
+                    alert('An error occurred while searching for patients');
+                });
+        });
+
+        // Allow pressing Enter in the search input to trigger search
+        document.getElementById('patientSearchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('patientSearchButton').click();
+            }
+        });
+    </script>
+}

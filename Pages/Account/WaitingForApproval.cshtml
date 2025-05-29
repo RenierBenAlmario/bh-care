@@ -1,0 +1,71 @@
+@page
+@model Barangay.Pages.Account.WaitingForApprovalModel
+@{
+    ViewData["Title"] = "Account Pending Approval";
+}
+
+<div class="container py-5">
+    <div class="waiting-approval-container">
+        <div class="text-center mb-4">
+            <i class="fas fa-clock waiting-icon"></i>
+        </div>
+        
+        <h2 class="text-center mb-3">Your Account is Pending Approval</h2>
+        
+        <div class="alert alert-info">
+            <p>Thank you for registering with the Barangay Health Center. Your account is currently pending approval by an administrator.</p>
+            <p>Once your residency proof has been verified, you will be able to access all features of the system.</p>
+            <p>Please check back later or wait for a notification email when your account is approved.</p>
+        </div>
+        
+        <div class="text-center mt-4">
+            <h4>What's Next?</h4>
+            <div class="steps-container mt-3">
+                <div class="verification-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h5>Document Review</h5>
+                        <p>Our admin team is reviewing your submitted residency proof document.</p>
+                    </div>
+                </div>
+                
+                <div class="verification-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h5>Verification Process</h5>
+                        <p>Your information is being verified against barangay records.</p>
+                    </div>
+                </div>
+                
+                <div class="verification-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h5>Account Activation</h5>
+                        <p>Once approved, your account will be automatically activated.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <p>If you have any questions or concerns, please contact us at:</p>
+            <p><a href="mailto:support@barangayhealth.ph"><i class="fas fa-envelope me-2"></i>support@barangayhealth.ph</a></p>
+            <p><a href="tel:+6328123456"><i class="fas fa-phone me-2"></i>(02) 8123-4567</a></p>
+        </div>
+        
+        <div class="text-center mt-4">
+            <a asp-page="/Index" class="btn btn-outline-primary me-2">
+                <i class="fas fa-home me-2"></i>Return to Home
+            </a>
+            <form method="post" class="d-inline">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-sign-out-alt me-2"></i>Sign Out
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/waiting-approval.css" />
+} 

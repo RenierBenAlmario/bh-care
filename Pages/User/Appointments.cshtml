@@ -1,0 +1,170 @@
+@page
+@model Barangay.Pages.User.AppointmentsModel
+@{
+    ViewData["Title"] = "My Appointments";
+    Layout = "_UserLayout";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-calendar-check me-3 fs-4"></i>
+                    <div>
+                        <strong>My Appointments</strong>
+                        <p class="mb-0">View and manage your scheduled appointments with our healthcare providers.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Upcoming Appointments</h5>
+                    <a href="/BookAppointment" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Book New Appointment
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>Doctor</th>
+                                    <th>Service</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.UpcomingAppointments.Any())
+                                {
+                                    @foreach (var appointment in Model.UpcomingAppointments)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="fw-bold">@appointment.AppointmentDate.ToString("MMMM dd, yyyy")</div>
+                                                <div class="small text-muted">@appointment.GetFormattedTime()</div>
+                                            </td>
+                                            <td>@Model.GetDoctorName(appointment.DoctorId)</td>
+                                            <td>@appointment.ReasonForVisit</td>
+                                            <td><span class="badge bg-@GetStatusClass(appointment.Status)">@appointment.Status</span></td>
+                                            <td>
+                                                @if (appointment.Status != AppointmentStatus.Cancelled)
+                                                {
+                                                    <form method="post" asp-page-handler="CancelAppointment" class="d-inline">
+                                                        <input type="hidden" name="appointmentId" value="@appointment.Id" />
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to cancel this appointment?')">
+                                                            <i class="fas fa-times"></i> Cancel
+                                                        </button>
+                                                    </form>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="5" class="text-center">No upcoming appointments</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Appointment History</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>Doctor</th>
+                                    <th>Service</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.PastAppointments.Any())
+                                {
+                                    @foreach (var appointment in Model.PastAppointments)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="fw-bold">@appointment.AppointmentDate.ToString("MMMM dd, yyyy")</div>
+                                                <div class="small text-muted">@appointment.GetFormattedTime()</div>
+                                            </td>
+                                            <td>@Model.GetDoctorName(appointment.DoctorId)</td>
+                                            <td>@appointment.ReasonForVisit</td>
+                                            <td><span class="badge bg-@GetStatusClass(appointment.Status)">@appointment.Status</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i> View
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="5" class="text-center">No appointment history</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetStatusClass(AppointmentStatus status)
+    {
+        return status switch
+        {
+            AppointmentStatus.Confirmed => "success",
+            AppointmentStatus.Pending => "warning text-dark",
+            AppointmentStatus.Cancelled => "danger",
+            AppointmentStatus.Completed => "secondary",
+            AppointmentStatus.InProgress => "info",
+            AppointmentStatus.Urgent => "danger",
+            AppointmentStatus.NoShow => "dark",
+            _ => "secondary"
+        };
+    }
+} 

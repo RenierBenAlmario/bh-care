@@ -1,0 +1,56 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>72c885e8-97e6-40da-a044-e6af3a448324</UserSecretsId>
+    <NoWarn>CS8601;CS8602;CS8603;CS8604;CS8618;CS8625</NoWarn>
+    <StaticWebAssetBasePath>/</StaticWebAssetBasePath>
+    <RootNamespace>Barangay</RootNamespace>
+    <AssemblyName>Barangay</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="ClosedXML" Version="0.102.2" />
+    <PackageReference Include="itext7" Version="9.1.0" />
+    <PackageReference Include="itext7.commons" Version="9.1.0" />
+    <PackageReference Include="itext7.pdfhtml" Version="5.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.2" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.6.0" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.6.0" />
+  </ItemGroup>
+  
+  <!-- Fix for static web asset conflict -->
+  <ItemGroup>
+    <!-- Remove external references -->
+    <Content Remove="D:\Imbakan\tester\B123\**\*.*" />
+    <!-- Remove and re-include CSS files to avoid conflicts -->
+    <Content Remove="**\*.css" />
+    <Content Include="wwwroot\css\**\*.css">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <!-- Exclude external project references -->
+  <ItemGroup>
+    <None Remove="D:\Imbakan\tester\B123\**" />
+    <Compile Remove="D:\Imbakan\tester\B123\**" />
+    <EmbeddedResource Remove="D:\Imbakan\tester\B123\**" />
+  </ItemGroup>
+</Project>

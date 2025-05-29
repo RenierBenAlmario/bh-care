@@ -1,0 +1,385 @@
+@page
+@model Barangay.Pages.Settings.IndexModel
+@{
+    ViewData["Title"] = "Settings";
+    Layout = "_UserLayout";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Settings</h2>
+        <button type="button" id="saveAllChanges" class="btn btn-primary">
+            <i class="fas fa-save me-2"></i>Save All Changes
+        </button>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Settings Menu</h5>
+                </div>
+                <div class="list-group list-group-flush" id="settings-tabs" role="tablist">
+                    <a class="list-group-item list-group-item-action active" id="profile-tab" data-bs-toggle="list" href="#profile" role="tab" aria-controls="profile">
+                        <i class="fas fa-user me-2 text-primary"></i> Profile
+                    </a>
+                    <a class="list-group-item list-group-item-action" id="account-tab" data-bs-toggle="list" href="#account" role="tab" aria-controls="account">
+                        <i class="fas fa-user-shield me-2 text-primary"></i> Account Security
+                    </a>
+                    <a class="list-group-item list-group-item-action" id="notifications-tab" data-bs-toggle="list" href="#notifications" role="tab" aria-controls="notifications">
+                        <i class="fas fa-bell me-2 text-primary"></i> Notifications
+                    </a>
+                    <a class="list-group-item list-group-item-action" id="privacy-tab" data-bs-toggle="list" href="#privacy" role="tab" aria-controls="privacy">
+                        <i class="fas fa-lock me-2 text-primary"></i> Privacy
+                    </a>
+                    <a class="list-group-item list-group-item-action" id="appearance-tab" data-bs-toggle="list" href="#appearance" role="tab" aria-controls="appearance">
+                        <i class="fas fa-palette me-2 text-primary"></i> Appearance
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Personal Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <form>
+                                <div class="row mb-4">
+                                    <div class="col-md-3 text-center">
+                                        <div class="mb-3">
+                                            <img src="https://via.placeholder.com/150" class="rounded-circle img-thumbnail" alt="Profile Picture" style="width: 150px; height: 150px; object-fit: cover;">
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-camera me-1"></i> Change Photo
+                                        </button>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">First Name</label>
+                                                <input type="text" class="form-control" value="@Model.FirstName">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Last Name</label>
+                                                <input type="text" class="form-control" value="@Model.LastName">
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Email</label>
+                                                <input type="email" class="form-control" value="@Model.Email" readonly>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Phone Number</label>
+                                                <input type="tel" class="form-control" value="@Model.PhoneNumber">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Date of Birth</label>
+                                                <input type="date" class="form-control" value="@Model.DateOfBirth?.ToString("yyyy-MM-dd")">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Gender</label>
+                                                <select class="form-select">
+                                                    <option value="">Select gender</option>
+                                                    @if (Model.Gender == "Male")
+                                                    {
+                                                        <option value="Male" selected>Male</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="Male">Male</option>
+                                                    }
+                                                    
+                                                    @if (Model.Gender == "Female")
+                                                    {
+                                                        <option value="Female" selected>Female</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="Female">Female</option>
+                                                    }
+                                                    
+                                                    @if (Model.Gender == "Other")
+                                                    {
+                                                        <option value="Other" selected>Other</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="Other">Other</option>
+                                                    }
+                                                    
+                                                    @if (Model.Gender == "Prefer not to say")
+                                                    {
+                                                        <option value="Prefer not to say" selected>Prefer not to say</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="Prefer not to say">Prefer not to say</option>
+                                                    }
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Address</label>
+                                    <input type="text" class="form-control" value="@Model.Address">
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label">City</label>
+                                        <input type="text" class="form-control" value="@Model.City">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Province</label>
+                                        <input type="text" class="form-control" value="@Model.Province">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Postal Code</label>
+                                        <input type="text" class="form-control" value="@Model.PostalCode">
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Emergency Contact</label>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <input type="text" class="form-control" placeholder="Name" value="@Model.EmergencyContactName">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="tel" class="form-control" placeholder="Phone Number" value="@Model.EmergencyContactPhone">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-end">
+                                    <button type="button" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>Save Changes
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="account" role="tabpanel" aria-labelledby="account-tab">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Account Security</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <h6 class="mb-3">Change Password</h6>
+                                <form>
+                                    <div class="mb-3">
+                                        <label class="form-label">Current Password</label>
+                                        <input type="password" class="form-control">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">New Password</label>
+                                        <input type="password" class="form-control">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Confirm New Password</label>
+                                        <input type="password" class="form-control">
+                                    </div>
+                                    <div class="d-flex justify-content-end">
+                                        <button type="button" class="btn btn-primary">Update Password</button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <hr>
+
+                            <div class="mb-4">
+                                <h6 class="mb-3">Two-Factor Authentication</h6>
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="enableTFA" @(Model.TwoFactorEnabled ? "checked" : "")>
+                                    <label class="form-check-label" for="enableTFA">Enable Two-Factor Authentication</label>
+                                </div>
+                                <p class="text-muted small">Enhance your account security by requiring a second form of verification when signing in.</p>
+                                <button type="button" class="btn btn-outline-primary btn-sm">Setup Two-Factor Authentication</button>
+                            </div>
+
+                            <hr>
+
+                            <div>
+                                <h6 class="mb-3">Account Activity</h6>
+                                <p class="mb-2"><strong>Last Login:</strong> @Model.LastLogin.ToString("MMM dd, yyyy hh:mm tt")</p>
+                                <p class="mb-2"><strong>Last Password Change:</strong> @Model.LastPasswordChange.ToString("MMM dd, yyyy")</p>
+                                <a href="#" class="btn btn-outline-primary btn-sm">View Login History</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="notifications" role="tabpanel" aria-labelledby="notifications-tab">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Notification Preferences</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <h6 class="mb-3">Email Notifications</h6>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="appointmentConfirmation" checked>
+                                    <label class="form-check-label" for="appointmentConfirmation">Appointment Confirmations</label>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="appointmentReminders" checked>
+                                    <label class="form-check-label" for="appointmentReminders">Appointment Reminders</label>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="prescriptionRefills" checked>
+                                    <label class="form-check-label" for="prescriptionRefills">Prescription Refill Notifications</label>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="testResults" checked>
+                                    <label class="form-check-label" for="testResults">Test Result Notifications</label>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="newsletter">
+                                    <label class="form-check-label" for="newsletter">Newsletter and Health Tips</label>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <div class="mb-4">
+                                <h6 class="mb-3">SMS Notifications</h6>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="smsAppointment" checked>
+                                    <label class="form-check-label" for="smsAppointment">Appointment Reminders</label>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="smsPrescription">
+                                    <label class="form-check-label" for="smsPrescription">Prescription Ready Notifications</label>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end">
+                                <button type="button" class="btn btn-primary">Save Preferences</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="privacy" role="tabpanel" aria-labelledby="privacy-tab">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Privacy Settings</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <h6 class="mb-3">Data Sharing</h6>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="shareAnonymized" checked>
+                                    <label class="form-check-label" for="shareAnonymized">
+                                        Allow anonymized data to be used for healthcare improvement and research
+                                    </label>
+                                </div>
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="sharePartners">
+                                    <label class="form-check-label" for="sharePartners">
+                                        Allow data sharing with healthcare partners (pharmacies, specialists, etc.)
+                                    </label>
+                                </div>
+                                <p class="text-muted small">Your personal information is always protected in accordance with our <a href="#">Privacy Policy</a>.</p>
+                            </div>
+
+                            <hr>
+
+                            <div class="mb-4">
+                                <h6 class="mb-3">Account Management</h6>
+                                <a href="#" class="btn btn-outline-danger btn-sm">Download My Data</a>
+                                <a href="#" class="btn btn-outline-danger btn-sm ms-2">Delete My Account</a>
+                            </div>
+
+                            <div class="d-flex justify-content-end">
+                                <button type="button" class="btn btn-primary">Save Privacy Settings</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="appearance" role="tabpanel" aria-labelledby="appearance-tab">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Appearance Settings</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <h6 class="mb-3">Theme Preference</h6>
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="theme" id="themeLight" value="light" checked>
+                                            <label class="form-check-label" for="themeLight">
+                                                Light Mode
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="theme" id="themeDark" value="dark">
+                                            <label class="form-check-label" for="themeDark">
+                                                Dark Mode
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="theme" id="themeSystem" value="system">
+                                            <label class="form-check-label" for="themeSystem">
+                                                Use System Setting
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <div class="mb-4">
+                                <h6 class="mb-3">Text Size</h6>
+                                <div class="mb-3">
+                                    <label for="textSizeRange" class="form-label">Adjust Text Size</label>
+                                    <input type="range" class="form-range" min="1" max="5" step="1" value="3" id="textSizeRange">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Small</span>
+                                        <span>Default</span>
+                                        <span>Large</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end">
+                                <button type="button" class="btn btn-primary">Save Appearance Settings</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Handle save all changes button
+            $('#saveAllChanges').click(function() {
+                // Simulate saving all changes
+                alert('All changes have been saved successfully!');
+            });
+        });
+    </script>
+} 

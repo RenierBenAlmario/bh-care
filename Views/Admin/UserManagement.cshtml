@@ -1,0 +1,391 @@
+@model IEnumerable<Barangay.Models.UserData>
+@{
+    ViewData["Title"] = "User Management";
+    var currentDateTime = ViewBag.CurrentDateTime as DateTime?;
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>User Management</h2>
+            <p class="text-muted">
+                Current Date and Time (PHT): @currentDateTime?.ToString("dddd, MMMM d, yyyy, h:mm tt")
+            </p>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="input-group">
+                <input type="text" id="searchInput" class="form-control" placeholder="Search by name, email, or PhilHealth ID...">
+                <div class="input-group-append">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <select id="statusFilter" class="form-control">
+                <option value="">All Statuses</option>
+                <option value="Active">Active</option>
+                <option value="Pending">Pending</option>
+                <option value="Inactive">Inactive</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover" id="usersTable">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>PhilHealth ID</th>
+                    <th>Age</th>
+                    <th>Birth Date</th>
+                    <th>Last Active</th>
+                    <th>Documents</th>
+                    <th>Guardian Info</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr data-status="@user.Status">
+                        <td>@user.Name</td>
+                        <td>@user.Email</td>
+                        <td><span class="badge badge-@(user.Status.ToLower() == "active" ? "success" : user.Status.ToLower() == "pending" ? "warning" : "danger")">@user.Status</span></td>
+                        <td>@user.PhilHealthId</td>
+                        <td>@user.Age</td>
+                        <td>@user.BirthDate.ToString("MM/dd/yyyy")</td>
+                        <td>@(user.LastActive?.ToString("MM/dd/yyyy h:mm tt") ?? "Never")</td>
+                        <td>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm @(user.Documents.Any() ? "btn-info" : "btn-primary")" 
+                                        data-toggle="modal" data-target="#documentsModal-@user.Id">
+                                    <i class="fas @(user.Documents.Any() ? "fa-file" : "fa-upload")"></i>
+                                    @(user.Documents.Any() ? $"View Documents ({user.Documents.Count})" : "Upload Document")
+                                </button>
+                            </div>
+
+                            <!-- Documents Modal -->
+                            <div class="modal fade" id="documentsModal-@user.Id" tabindex="-1" role="dialog">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Documents for @user.Name</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <!-- Upload Form -->
+                                            <form asp-action="UploadDocument" method="post" enctype="multipart/form-data" class="mb-4">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="userId" value="@user.Id" />
+                                                <div class="form-group">
+                                                    <label>Upload New Document</label>
+                                                    <div class="input-group">
+                                                        <div class="custom-file">
+                                                            <input type="file" class="custom-file-input" name="file" id="file-@user.Id" required>
+                                                            <label class="custom-file-label" for="file-@user.Id">Choose file</label>
+                                                        </div>
+                                                        <div class="input-group-append">
+                                                            <button class="btn btn-primary" type="submit">Upload</button>
+                                                        </div>
+                                                    </div>
+                                                    <small class="form-text text-muted">
+                                                        Allowed file types: PDF, JPEG, PNG. Maximum size: 10MB
+                                                    </small>
+                                                </div>
+                                            </form>
+
+                                            @if (user.Documents.Any())
+                                            {
+                                                <div class="table-responsive">
+                                                    <table class="table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>File Name</th>
+                                                                <th>Status</th>
+                                                                <th>Upload Date</th>
+                                                                <th>Size</th>
+                                                                <th>File Type</th>
+                                                                <th>Actions</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach (var doc in user.Documents)
+                                                            {
+                                                                <tr>
+                                                                    <td>
+                                                                        <i class="@(doc.ContentType?.Contains("pdf") == true ? "far fa-file-pdf" : "far fa-file-image") mr-2"></i>
+                                                                        @doc.FileName
+                                                                    </td>
+                                                                    <td>
+                                                                        <span class="badge badge-@(doc.Status == "Verified" ? "success" : doc.Status == "Pending" ? "warning" : "danger")">
+                                                                            @doc.Status
+                                                                        </span>
+                                                                    </td>
+                                                                    <td>@doc.UploadDate.ToString("MM/dd/yyyy h:mm tt")</td>
+                                                                    <td>@(doc.FileSize < 1024 * 1024 ? $"{doc.FileSize / 1024:N0} KB" : $"{doc.FileSize / (1024 * 1024):N1} MB")</td>
+                                                                    <td>@(string.IsNullOrEmpty(doc.FileType) ? "Unknown" : doc.FileType)</td>
+                                                                    <td>
+                                                                        <div class="btn-group">
+                                                                            <a href="@doc.FilePath" target="_blank" class="btn btn-sm btn-info" title="View Document">
+                                                                                <i class="fas fa-eye"></i>
+                                                                            </a>
+                                                                            @if (doc.Status == "Pending")
+                                                                            {
+                                                                                <form asp-action="ProcessDocument" method="post" style="display: inline;">
+                                                                                    @Html.AntiForgeryToken()
+                                                                                    <input type="hidden" name="documentId" value="@doc.Id" />
+                                                                                    <input type="hidden" name="action" value="approve" />
+                                                                                    <button type="submit" class="btn btn-sm btn-success" title="Approve Document">
+                                                                                        <i class="fas fa-check"></i>
+                                                                                    </button>
+                                                                                </form>
+                                                                                <form asp-action="ProcessDocument" method="post" style="display: inline;">
+                                                                                    @Html.AntiForgeryToken()
+                                                                                    <input type="hidden" name="documentId" value="@doc.Id" />
+                                                                                    <input type="hidden" name="action" value="reject" />
+                                                                                    <button type="submit" class="btn btn-sm btn-danger" title="Reject Document">
+                                                                                        <i class="fas fa-times"></i>
+                                                                                    </button>
+                                                                                </form>
+                                                                            }
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="alert alert-info">
+                                                    No documents uploaded yet.
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            @if (user.RequiresGuardianConsent)
+                            {
+                                if (user.HasGuardianConsent)
+                                {
+                                    <div class="guardian-info">
+                                        <button type="button" class="btn btn-sm btn-success view-details-btn" 
+                                                data-toggle="modal" data-target="#guardianModal-@user.Id">
+                                            <i class="fas fa-user-shield"></i> View Guardian Info
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Guardian Info Modal -->
+                                    <div class="modal fade" id="guardianModal-@user.Id" tabindex="-1" role="dialog" aria-labelledby="guardianModalLabel-@user.Id" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="guardianModalLabel-@user.Id">Guardian Information for @user.Name</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="card">
+                                                        <div class="card-body">
+                                                            <h6 class="card-subtitle mb-2 text-muted">Guardian Details</h6>
+                                                            <p><strong>Name:</strong> @user.GuardianFirstName @user.GuardianLastName</p>
+                                                            <hr />
+                                                            <h6>Residency Proof Document</h6>
+                                                            <div class="text-center">
+                                                                @if (user.HasResidencyProof && user.ResidencyProof != null)
+                                                                {
+                                                                    <img id="guardianProofImg-@user.Id" 
+                                                                         src="data:image/jpeg;base64,@Convert.ToBase64String(user.ResidencyProof)" 
+                                                                         class="img-fluid guardian-proof" 
+                                                                         alt="Guardian Residency Proof"
+                                                                         onerror="handleImageError(this)"
+                                                                         style="max-height: 400px; max-width: 100%;" />
+                                                                }
+                                                                else
+                                                                {
+                                                                    <div class="alert alert-warning">
+                                                                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                                                                        No residency proof available or document cannot be displayed as an image.
+                                                                    </div>
+                                                                }
+                                                            </div>
+                                                            @if (user.HasResidencyProof && user.ResidencyProof != null)
+                                                            {
+                                                                <div class="mt-3 text-center">
+                                                                    <a href="/api/Admin/GetGuardianProof/@user.GuardianInformationId" 
+                                                                       target="_blank" class="btn btn-primary">
+                                                                        <i class="fas fa-external-link-alt"></i> Open in New Tab
+                                                                    </a>
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-danger">
+                                        <i class="fas fa-exclamation-triangle"></i> Missing Guardian Consent
+                                    </span>
+                                }
+                            }
+                            else
+                            {
+                                <span class="badge badge-secondary">Not Required</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-info view-user-details" 
+                                        data-user-id="@user.Id" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <a href="@Url.Action("EditStaff", "Admin", new { id = user.Id })" 
+                                   class="btn btn-sm btn-warning" title="Edit Staff">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                @if (user.Status.ToLower() == "pending")
+                                {
+                                    <form asp-action="ApproveUserAccount" method="post" style="display: inline;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="userId" value="@user.Id" />
+                                        <button type="submit" class="btn btn-sm btn-success" 
+                                                title="Approve User Account" 
+                                                @((!user.Documents.Any() || (user.RequiresGuardianConsent && !user.HasGuardianConsent)) ? "disabled" : "")>
+                                            <i class="fas fa-check"></i> Approve
+                                        </button>
+                                    </form>
+                                    
+                                    <form asp-action="RejectUserAccount" method="post" style="display: inline;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="userId" value="@user.Id" />
+                                        <button type="submit" class="btn btn-sm btn-danger" 
+                                                title="Reject User Account">
+                                            <i class="fas fa-times"></i> Reject
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Initialize bootstrap components
+            $('.modal').modal({
+                show: false
+            });
+            
+            // Search functionality
+            $("#searchInput").on("keyup", function() {
+                var value = $(this).val().toLowerCase();
+                $("#usersTable tbody tr").filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+
+            // Status filter
+            $("#statusFilter").on("change", function() {
+                var value = $(this).val().toLowerCase();
+                if (value === "") {
+                    $("#usersTable tbody tr").show();
+                } else {
+                    $("#usersTable tbody tr").hide();
+                    $("#usersTable tbody tr[data-status='" + value + "']").show();
+                }
+            });
+
+            // Custom file input
+            $(".custom-file-input").on("change", function() {
+                var fileName = $(this).val().split("\\").pop();
+                $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+            });
+
+            // Auto-hide alerts after 5 seconds
+            $(".alert").delay(5000).fadeOut(500);
+            
+            // Handle View Details button clicks using AJAX instead of direct link
+            $(".view-user-details").on("click", function(e) {
+                e.preventDefault();
+                var userId = $(this).data("user-id");
+                // Show user details in a modal
+                alert("User details for ID: " + userId + " - This feature is under development");
+            });
+            
+            // Handle guardian info modal
+            $(".view-details-btn").on("click", function(e) {
+                e.preventDefault();
+                var modalId = $(this).data("target");
+                $(modalId).modal('show');
+            });
+            
+            // Add confirmation for approve/reject actions
+            $("form[asp-action='ApproveUserAccount']").on('submit', function(e) {
+                if (!confirm('Are you sure you want to approve this user?')) {
+                    e.preventDefault();
+                }
+            });
+            
+            $("form[asp-action='RejectUserAccount']").on('submit', function(e) {
+                if (!confirm('Are you sure you want to reject this user?')) {
+                    e.preventDefault();
+                }
+            });
+        });
+        
+        // Handle image loading errors (for PDFs or other non-image files)
+        function handleImageError(img) {
+            // Replace with PDF or file icon and message
+            $(img).replaceWith(
+                '<div class="text-center">' +
+                '<i class="far fa-file-pdf fa-5x text-danger"></i>' +
+                '<p class="mt-2">Document not viewable as image.<br>Click "Open in New Tab" to view.</p>' +
+                '</div>'
+            );
+        }
+    </script>
+} 

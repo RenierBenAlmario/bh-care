@@ -1,0 +1,50 @@
+@page
+@model Barangay.Pages.Admin.GrantEssentialPermissionsModel
+@{
+    ViewData["Title"] = "Grant Essential Permissions";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-shield-alt me-2"></i>
+                        Grant Essential Permissions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+                    {
+                        <div class="alert @(Model.IsError ? "alert-danger" : "alert-success") alert-dismissible fade show" role="alert">
+                            <i class="fas @(Model.IsError ? "fa-exclamation-circle" : "fa-check-circle") me-2"></i> @Model.StatusMessage
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    <p>
+                        Essential permissions have been granted to <strong>@Model.StaffName</strong>.
+                    </p>
+                    <p>
+                        This includes:
+                    </p>
+                    <ul>
+                        <li><strong>Manage Users</strong> - Allows managing user accounts</li>
+                        <li><strong>Access Admin Dashboard</strong> - Allows access to admin features</li>
+                    </ul>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a asp-page="./ManagePermissions" asp-route-userId="@Model.UserId" class="btn btn-primary">
+                            <i class="fas fa-arrow-left me-1"></i> Return to Permissions
+                        </a>
+                        <a asp-page="./AdminDashboard" class="btn btn-outline-secondary">
+                            <i class="fas fa-home me-1"></i> Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 
