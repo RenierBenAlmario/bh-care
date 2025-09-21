@@ -463,42 +463,39 @@ namespace Barangay.Controllers
             // Add medications
             if (model.Medications != null && model.Medications.Any())
             {
+                var medicationNames = model.Medications.Select(m => m.MedicationName.ToLower()).Distinct().ToList();
+                var existingMedications = await _context.Medications
+                    .Where(m => medicationNames.Contains(m.Name.ToLower()))
+                    .ToDictionaryAsync(m => m.Name.ToLower());
+
                 foreach (var med in model.Medications)
                 {
-                    var medication = new PrescriptionMedication
+                    if (string.IsNullOrWhiteSpace(med.MedicationName)) continue;
+
+                    if (!existingMedications.TryGetValue(med.MedicationName.ToLower(), out var medication))
                     {
-                        PrescriptionId = prescription.Id,
-                        MedicalRecordId = medicalRecord.Id,
-                        MedicationName = med.MedicationName ?? string.Empty,
+                        medication = new Medication { Name = med.MedicationName };
+                        _context.Medications.Add(medication);
+                    }
+
+                    var prescriptionMedication = new PrescriptionMedication
+                    {
+                        Prescription = prescription,
+                        MedicalRecord = medicalRecord,
+                        Medication = medication,
                         Dosage = med.Dosage ?? string.Empty,
                         Instructions = med.Instructions ?? string.Empty,
                         Frequency = med.Frequency ?? string.Empty,
                         Duration = med.Duration ?? string.Empty
                     };
-                    _context.PrescriptionMedications.Add(medication);
+                    _context.PrescriptionMedications.Add(prescriptionMedication);
                 }
                 await _context.SaveChangesAsync();
             }
 
             _logger.LogInformation($"Consultation saved for appointment {appointmentId}. MedicalRecord ID: {medicalRecord.Id}, Prescription ID: {prescription.Id}");
 
-            // Send email notification to patient
-            if (patient != null && !string.IsNullOrEmpty(patient.Email))
-            {
-                var subject = "Consultation Completed & Prescription";
-                var body = $"Dear {patient.FullName},<br>Your consultation is complete. Prescription: {model.Prescription}.";
-                try
-                {
-                    // Commented out email sending since we removed the EmailSender dependency
-                    // await _emailSender.SendEmailAsync(patient.Email, subject, body);
-                    _logger.LogInformation($"Email would be sent to {patient.Email}: {subject}");
-                }
-                catch (Exception ex)
-                {
-                    // Log the error for debugging purposes
-                    _logger.LogError(ex, "Failed to send email to {Email}", patient.Email);
-                }
-            }
+            // Prescription email sending removed - prescriptions are no longer sent via email
 
             return Ok(new { success = true, message = "Consultation and prescription saved!" });
         }

@@ -10,7 +10,7 @@
         .avatar-circle {
             width: 80px;
             height: 80px;
-            background-color: #1976d2;
+            background-color: #fd7e14;
             text-align: center;
             border-radius: 50%;
             -webkit-border-radius: 50%;
@@ -36,6 +36,29 @@
         .detail-label {
             font-weight: 600;
             color: #495057;
+        }
+
+        /* Improve contrast of tabs */
+        .patient-tabs .nav-link {
+            color: #000000;
+            font-weight: 600;
+            background-color: #f8f9fa;
+            margin-right: 2px;
+            border: 1px solid #dee2e6;
+        }
+        .patient-tabs .nav-link.active {
+            color: #ffffff;
+            background-color: #fd7e14;
+            border-color: #fd7e14 #fd7e14 transparent;
+        }
+        .card-header.bg-warning {
+            border-bottom: 0;
+        }
+        .tab-content {
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            border-top: none;
+            padding: 15px;
         }
     </style>
 }
@@ -77,7 +100,7 @@
             <!-- Patient Information Card -->
             <div class="col-md-4">
                 <div class="card mb-4">
-                    <div class="card-header bg-primary text-white">
+                    <div class="card-header bg-warning text-white">
                         <h5 class="mb-0">Patient Information</h5>
                     </div>
                     <div class="card-body">
@@ -101,6 +124,9 @@
                             <dt class="col-sm-5">Email:</dt>
                             <dd class="col-sm-7">@Model.Patient.Email</dd>
                             
+                            <dt class="col-sm-5">Barangay:</dt>
+                            <dd class="col-sm-7">@(string.IsNullOrEmpty(Model.Patient.User?.Barangay) ? "Not specified" : Model.Patient.User.Barangay)</dd>
+                            
                             <dt class="col-sm-5">Address:</dt>
                             <dd class="col-sm-7">@Model.Patient.Address</dd>
                             
@@ -113,9 +139,42 @@
                     </div>
                 </div>
                 
+                <!-- Guardian Information Card -->
+                @if (Model.Guardian != null)
+                {
+                    <div class="card mb-4">
+                    <div class="card-header bg-warning text-white">
+                        <h5 class="mb-0">Guardian Information</h5>
+                    </div>
+                        <div class="card-body">
+                            <dl class="row">
+                                <dt class="col-sm-5">Guardian Name:</dt>
+                                <dd class="col-sm-7">@Model.Guardian.GuardianFirstName @Model.Guardian.GuardianLastName</dd>
+                                
+                                <dt class="col-sm-5">Consent Status:</dt>
+                                <dd class="col-sm-7">
+                                    <span class="badge bg-@(Model.Guardian.ConsentStatus == "Approved" ? "success" : Model.Guardian.ConsentStatus == "Denied" ? "danger" : "warning")">
+                                        @Model.Guardian.ConsentStatus
+                                    </span>
+                                </dd>
+                                
+                                @if (!string.IsNullOrEmpty(Model.Guardian.ResidencyProofPath))
+                                {
+                                    <dt class="col-sm-5">Residency Proof:</dt>
+                                    <dd class="col-sm-7">
+                                        <a href="/api/Document/ViewDocument?path=@Model.Guardian.ResidencyProofPath" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-file-earmark-text"></i> View Document
+                                        </a>
+                                    </dd>
+                                }
+                            </dl>
+                        </div>
+                    </div>
+                }
+                
                 <!-- Allergies & Medical History Card -->
                 <div class="card mb-4">
-                    <div class="card-header bg-warning">
+                    <div class="card-header bg-warning text-white">
                         <h5 class="mb-0">Medical Information</h5>
                     </div>
                     <div class="card-body">
@@ -138,8 +197,8 @@
             <!-- Tabs for Medical Records, Appointments, etc. -->
             <div class="col-md-8">
                 <div class="card mb-4">
-                    <div class="card-header bg-light">
-                        <ul class="nav nav-tabs card-header-tabs">
+                    <div class="card-header bg-warning text-white">
+                        <ul class="nav nav-tabs card-header-tabs patient-tabs">
                             <li class="nav-item">
                                 <a class="nav-link active" data-bs-toggle="tab" href="#medical-records">Medical Records</a>
                             </li>
@@ -318,10 +377,10 @@
                                                     <tr>
                                                         <td>@vs.RecordedAt.ToString("MMM dd, yyyy")</td>
                                                         <td>@vs.BloodPressure</td>
-                                                        <td>@(vs.HeartRate.HasValue ? $"{vs.HeartRate} bpm" : "N/A")</td>
-                                                        <td>@(vs.Temperature.HasValue ? $"{vs.Temperature:F1} °C" : "N/A")</td>
-                                                        <td>@(vs.Weight.HasValue ? $"{vs.Weight:F1} kg" : "N/A")</td>
-                                                        <td>@(vs.Height.HasValue ? $"{vs.Height:F1} cm" : "N/A")</td>
+                                                        <td>@(string.IsNullOrEmpty(vs.HeartRate) ? "N/A" : $"{vs.HeartRate} bpm")</td>
+                                                        <td>@(string.IsNullOrEmpty(vs.Temperature) ? "N/A" : $"{vs.Temperature} °C")</td>
+                                                        <td>@(string.IsNullOrEmpty(vs.Weight) ? "N/A" : $"{vs.Weight} kg")</td>
+                                                        <td>@(string.IsNullOrEmpty(vs.Height) ? "N/A" : $"{vs.Height} cm")</td>
                                                         <td>@(Model.Patient.BMI.HasValue ? $"{Model.Patient.BMI:F1}" : "N/A")</td>
                                                     </tr>
                                                 }

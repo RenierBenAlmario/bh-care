@@ -1,0 +1,72 @@
+/* Nurse Orange+White Sidebar Theme (Pairs with theme-orange.css) */
+:root{
+  --nurse-primary:#FF8C42; /* primary orange */
+  --nurse-accent:#E76F2B;  /* accent orange */
+  --nurse-hover:#FFA75C;   /* soft orange */
+  --health-green:#2ECC71;  /* health accent */
+  --nurse-white:#FFFFFF;
+  --nurse-text:#222222;
+  --nurse-shadow:rgba(231,111,43,.18);
+}
+
+/* Sidebar container */
+.sidebar{
+  background: linear-gradient(180deg, var(--nurse-primary) 0%, #ff7b2e 100%) !important;
+  box-shadow: 2px 0 16px var(--nurse-shadow);
+}
+
+/* Sidebar profile */
+.sidebar-profile{ color:#fff !important; }
+.sidebar-profile .user-name{ color:#fff; }
+
+/* Links: white by default, soft pill hover, active accent */
+body.nurse .sidebar .nav-link{
+  color: rgba(255,255,255,.95) !important;
+  border-radius: 10px !important;
+  margin: 4px 8px !important;
+  padding: .75rem .85rem !important;
+  transition: background .2s ease, color .2s ease !important;
+}
+body.nurse .sidebar .nav-link i{ color:#fff !important; }
+
+/* Hover pill */
+body.nurse .sidebar .nav-link:hover,
+body.nurse .sidebar .nav-link:focus{
+  background: rgba(255,255,255,.18) !important;
+  color:#fff !important;
+}
+
+/* Active: white pill with accent icon/text */
+body.nurse .sidebar .nav-link.active{
+  background: #fff !important;
+  color: var(--nurse-accent) !important;
+}
+body.nurse .sidebar .nav-link.active i{ color: var(--nurse-accent) !important; }
+
+/* Optional health accent on hover for icons */
+body.nurse .sidebar .nav-link:hover i{ color: var(--health-green) !important; }
+
+/* Toggle button */
+#sidebarToggle{
+  background: var(--nurse-primary) !important;
+  color:#fff !important;
+  border-radius: 0 6px 6px 0;
+}
+#sidebarToggle:hover{ background: var(--nurse-hover) !important; }
+
+/* Collapsed behavior keeps icons centered; labels hidden (handled in layout CSS) */
+.sidebar.collapsed .nav-link{ justify-content:center; }
+.sidebar.collapsed .nav-link span{ display:none; }
+
+/* Main content spacing */
+.main-content{ background:#fff !important; }
+
+/* Global replacements for former blue badges/headers inside nurse pages */
+.card, .alert, .table{ border-radius:12px; }
+.card-header{ background: var(--color-bg-soft) !important; }
+
+/* Replace any primary-blue .bg-primary in nurse pages to accent orange */
+.nurse .bg-primary{ background: var(--nurse-accent) !important; }
+
+/* Accessibility: ensure focus ring visible on orange */
+.sidebar .nav-link:focus{ outline: 2px solid rgba(255,255,255,.5); outline-offset: 2px; }

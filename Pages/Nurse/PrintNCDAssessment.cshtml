@@ -1,0 +1,458 @@
+@page
+@model Barangay.Pages.Nurse.PrintNCDAssessmentModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NCD Risk Assessment - Print</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+            margin: 0;
+            padding: 20px;
+            color: #000;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 20px;
+        }
+        
+        .header h1 {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0 0 10px 0;
+        }
+        
+        .header h2 {
+            font-size: 14px;
+            font-weight: bold;
+            margin: 0;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+            page-break-inside: avoid;
+        }
+        
+        .section-title {
+            font-size: 14px;
+            font-weight: bold;
+            background-color: #f0f0f0;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #000;
+        }
+        
+        .form-row {
+            display: flex;
+            margin-bottom: 8px;
+        }
+        
+        .form-group {
+            flex: 1;
+            margin-right: 15px;
+        }
+        
+        .form-group:last-child {
+            margin-right: 0;
+        }
+        
+        .form-label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 3px;
+        }
+        
+        .form-value {
+            border-bottom: 1px solid #000;
+            padding: 2px 0;
+            min-height: 18px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        
+        .checkbox {
+            width: 15px;
+            height: 15px;
+            border: 2px solid #000;
+            margin-right: 8px;
+            display: inline-block;
+            position: relative;
+            vertical-align: middle;
+            text-align: center;
+            line-height: 11px;
+        }
+        
+        .checkbox.checked {
+            background-color: #000;
+            color: #fff;
+        }
+        
+        .checkbox.checked::after {
+            content: "✓";
+            font-weight: bold;
+            font-size: 12px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .checkbox-label {
+            font-weight: normal;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        
+        .table th,
+        .table td {
+            border: 1px solid #000;
+            padding: 5px;
+            text-align: left;
+        }
+        
+        .table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            border-top: 1px solid #000;
+            padding-top: 20px;
+        }
+        
+        .signature-section {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        
+        .signature-box {
+            width: 200px;
+            text-align: center;
+        }
+        
+        .signature-line {
+            border-bottom: 1px solid #000;
+            height: 40px;
+            margin-bottom: 5px;
+        }
+        
+        @@media print {
+            body {
+                margin: 0;
+                padding: 15px;
+            }
+            
+            .no-print {
+                display: none !important;
+            }
+            
+            .page-break {
+                page-break-before: always;
+            }
+            
+            .checkbox {
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            .checkbox.checked {
+                background-color: #000 !important;
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            .checkbox.checked::after {
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>REPUBLIC OF THE PHILIPPINES</h1>
+        <h2>NON-COMMUNICABLE DISEASE RISK ASSESSMENT FORM</h2>
+        <p><strong>Assessment Date:</strong> @DateTime.Now.ToString("MMMM dd, yyyy")</p>
+    </div>
+
+    <div class="section">
+        <div class="section-title">PART I: DEMOGRAPHIC-SOCIO-ECONOMIC PROFILE</div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Health Facility:</span>
+                <div class="form-value">@Model.NCDRiskAssessment.HealthFacility</div>
+            </div>
+            <div class="form-group">
+                <span class="form-label">Family No:</span>
+                <div class="form-value">@Model.NCDRiskAssessment.FamilyNo</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Name:</span>
+                <div class="form-value">@Model.NCDRiskAssessment.FirstName @Model.NCDRiskAssessment.MiddleName @Model.NCDRiskAssessment.LastName</div>
+            </div>
+            <div class="form-group">
+                <span class="form-label">Age:</span>
+                <div class="form-value">@Model.NCDRiskAssessment.Edad years</div>
+            </div>
+            <div class="form-group">
+                <span class="form-label">Gender:</span>
+                <div class="form-value">@Model.NCDRiskAssessment.Kasarian</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Civil Status:</span>
+                <div class="form-value">@Model.NCDRiskAssessment.CivilStatus</div>
+            </div>
+            <div class="form-group">
+                <span class="form-label">Occupation:</span>
+                <div class="form-value">@Model.NCDRiskAssessment.Occupation</div>
+            </div>
+            <div class="form-group">
+                <span class="form-label">Religion:</span>
+                <div class="form-value">@Model.NCDRiskAssessment.Relihiyon</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Address:</span>
+                <div class="form-value">@Model.NCDRiskAssessment.Address</div>
+            </div>
+            <div class="form-group">
+                <span class="form-label">Barangay:</span>
+                <div class="form-value">@Model.NCDRiskAssessment.Barangay</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Contact Number:</span>
+                <div class="form-value">@Model.NCDRiskAssessment.Telepono</div>
+            </div>
+            <div class="form-group">
+                <span class="form-label">Birthday:</span>
+                <div class="form-value">@Model.NCDRiskAssessment.Birthday</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">PART II: PAST MEDICAL HISTORY</div>
+        
+        <div class="form-row">
+            <div class="checkbox-group">
+                <span class="checkbox @(Model.NCDRiskAssessment.HasDiabetes == "true" ? "checked" : "")"></span>
+                <span class="checkbox-label">Diabetes</span>
+                @if (Model.NCDRiskAssessment.HasDiabetes == "true")
+                {
+                    <span> - Year: @Model.NCDRiskAssessment.DiabetesYear, Medication: @Model.NCDRiskAssessment.DiabetesMedication</span>
+                }
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="checkbox-group">
+                <span class="checkbox @(Model.NCDRiskAssessment.HasHypertension == "true" ? "checked" : "")"></span>
+                <span class="checkbox-label">Hypertension</span>
+                @if (Model.NCDRiskAssessment.HasHypertension == "true")
+                {
+                    <span> - Year: @Model.NCDRiskAssessment.HypertensionYear, Medication: @Model.NCDRiskAssessment.HypertensionMedication</span>
+                }
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="checkbox-group">
+                <span class="checkbox @(Model.NCDRiskAssessment.HasCancer == "true" ? "checked" : "")"></span>
+                <span class="checkbox-label">Cancer</span>
+                @if (Model.NCDRiskAssessment.HasCancer == "true")
+                {
+                    <span> - Type: @Model.NCDRiskAssessment.CancerType, Year: @Model.NCDRiskAssessment.CancerYear, Medication: @Model.NCDRiskAssessment.CancerMedication</span>
+                }
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="checkbox-group">
+                <span class="checkbox @(Model.NCDRiskAssessment.HasCOPD == "true" ? "checked" : "")"></span>
+                <span class="checkbox-label">COPD</span>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="checkbox-group">
+                <span class="checkbox @(Model.NCDRiskAssessment.HasLungDisease == "true" ? "checked" : "")"></span>
+                <span class="checkbox-label">Lung Disease</span>
+                @if (Model.NCDRiskAssessment.HasLungDisease == "true")
+                {
+                    <span> - Year: @Model.NCDRiskAssessment.LungDiseaseYear, Medication: @Model.NCDRiskAssessment.LungDiseaseMedication</span>
+                }
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="checkbox-group">
+                <span class="checkbox @(Model.NCDRiskAssessment.HasEyeDisease == "true" ? "checked" : "")"></span>
+                <span class="checkbox-label">Eye Disease</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">PART III: ASSESSMENT OF RISK FACTORS</div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Smoking Status:</span>
+                <div class="form-value">@Model.NCDRiskAssessment.SmokingStatus</div>
+            </div>
+            <div class="form-group">
+                <span class="form-label">Alcohol Frequency:</span>
+                <div class="form-value">@Model.NCDRiskAssessment.AlcoholFrequency</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Exercise Duration (minutes/week):</span>
+                <div class="form-value">@Model.NCDRiskAssessment.ExerciseDuration</div>
+            </div>
+            <div class="form-group">
+                <span class="form-label">High Salt Intake:</span>
+                <div class="form-value">@(Model.NCDRiskAssessment.HighSaltIntake == "true" ? "Yes" : "No")</div>
+            </div>
+        </div>
+        
+        @if (!string.IsNullOrEmpty(Model.NCDRiskAssessment.AlcoholConsumption))
+        {
+            <div class="form-row">
+                <div class="form-group">
+                    <span class="form-label">Alcohol Consumption Details:</span>
+                    <div class="form-value">@Model.NCDRiskAssessment.AlcoholConsumption</div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="section">
+        <div class="section-title">PART IV: FAMILY HISTORY</div>
+        
+        <div class="form-row">
+            <div class="checkbox-group">
+                <span class="checkbox @(Model.NCDRiskAssessment.FamilyHasHypertension == "true" ? "checked" : "")"></span>
+                <span class="checkbox-label">Family Hypertension</span>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="checkbox-group">
+                <span class="checkbox @(Model.NCDRiskAssessment.FamilyHasHeartDisease == "true" ? "checked" : "")"></span>
+                <span class="checkbox-label">Family Heart Disease</span>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="checkbox-group">
+                <span class="checkbox @(Model.NCDRiskAssessment.FamilyHasStroke == "true" ? "checked" : "")"></span>
+                <span class="checkbox-label">Family Stroke</span>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="checkbox-group">
+                <span class="checkbox @(Model.NCDRiskAssessment.FamilyHasDiabetes == "true" ? "checked" : "")"></span>
+                <span class="checkbox-label">Family Diabetes</span>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="checkbox-group">
+                <span class="checkbox @(Model.NCDRiskAssessment.FamilyHasCancer == "true" ? "checked" : "")"></span>
+                <span class="checkbox-label">Family Cancer</span>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="checkbox-group">
+                <span class="checkbox @(Model.NCDRiskAssessment.FamilyHasKidneyDisease == "true" ? "checked" : "")"></span>
+                <span class="checkbox-label">Family Kidney Disease</span>
+            </div>
+        </div>
+        
+        @if (!string.IsNullOrEmpty(Model.NCDRiskAssessment.FamilyOtherDiseaseDetails))
+        {
+            <div class="form-row">
+                <div class="form-group">
+                    <span class="form-label">Other Family Disease Details:</span>
+                    <div class="form-value">@Model.NCDRiskAssessment.FamilyOtherDiseaseDetails</div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="section">
+        <div class="section-title">PART V: RISK SCREENING</div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Risk Status:</span>
+                <div class="form-value">@Model.NCDRiskAssessment.RiskStatus</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="signature-section">
+            <div class="signature-box">
+                <div class="signature-line"></div>
+                <div>Patient Signature</div>
+            </div>
+            <div class="signature-box">
+                <div class="signature-line"></div>
+                <div>Interviewer/Assessor Signature</div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 20px; text-align: center;">
+            <p><strong>Date:</strong> @DateTime.Now.ToString("MMMM dd, yyyy")</p>
+        </div>
+    </div>
+
+    <script>
+        // Auto-print when page loads
+        window.onload = function() {
+            window.print();
+        };
+    </script>
+</body>
+</html>

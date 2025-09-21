@@ -68,7 +68,7 @@ namespace Barangay.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> AccessDenied(string returnUrl = null)
+        public IActionResult AccessDenied(string returnUrl = null)
         {
             // This method handles the redirect from access denied pages
             // For user-specific pages that need custom handling
@@ -138,12 +138,12 @@ namespace Barangay.Controllers
                 var user = new ApplicationUser
                 {
                     UserName = model.Email,
-                    Email = model.Email,
+                    Email = _encryptionService.Encrypt(model.Email), // Encrypt email
                     FullName = model.FullName,
-                    BirthDate = model.BirthDate.HasValue ? model.BirthDate.Value : DateTime.Now,
+                    BirthDate = model.BirthDate.HasValue ? _encryptionService.Encrypt(model.BirthDate.Value.ToString("yyyy-MM-dd")) : _encryptionService.Encrypt(DateTime.Now.ToString("yyyy-MM-dd")),
                     Gender = model.Gender,
-                    PhoneNumber = model.PhoneNumber,
-                    Address = model.Address,
+                    PhoneNumber = _encryptionService.Encrypt(model.PhoneNumber), // Encrypt phone number
+                    Address = _encryptionService.Encrypt(model.Address), // Encrypt address
                     CreatedAt = DateTime.UtcNow
                 };
 
@@ -193,11 +193,11 @@ namespace Barangay.Controllers
                 var user = new ApplicationUser
                 {
                     UserName = model.Email ?? string.Empty,
-                    Email = model.Email ?? string.Empty,
+                    Email = _encryptionService.Encrypt(model.Email ?? string.Empty), // Encrypt email
                     FullName = model.FullName ?? string.Empty,
-                    BirthDate = model.BirthDate,
+                    BirthDate = _encryptionService.Encrypt(model.BirthDate.ToString("yyyy-MM-dd")),
                     Gender = model.Gender ?? string.Empty,
-                    Address = model.Address ?? string.Empty
+                    Address = _encryptionService.Encrypt(model.Address ?? string.Empty) // Encrypt address
                 };
 
                 var result = await _userManager.CreateAsync(user, model.Password);

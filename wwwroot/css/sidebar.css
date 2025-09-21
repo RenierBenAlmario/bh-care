@@ -30,13 +30,68 @@
     transition: all var(--transition-speed) ease;
     z-index: 999;
     height: 100%;
-    position: sticky;
+    position: relative;
     top: 0;
     left: 0;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
     font-family: 'Roboto', sans-serif;
 }
 
+/* Fixed sidebar links */
+#sidebar ul li a,
+.minimal-sidebar .nav-link,
+.sidebar-menu-item,
+.sidebar-menu a {
+    color: #ffffff !important;
+    font-weight: 500;
+}
+
+#sidebar ul li a i,
+.minimal-sidebar .nav-icon,
+.sidebar-menu-item i {
+    color: #ffffff !important;
+}
+
+/* Sidebar active state */
+#sidebar ul li a.active,
+.minimal-sidebar .nav-link.active,
+.sidebar-menu-item.active {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+    border-left: 4px solid white;
+}
+
+/* Sidebar collapsed styles */
+.minimal-sidebar,
+.sidebar,
+.sidebar.collapsed {
+    background: #1E3A8A !important;
+}
+
+/* Sidebar hover state */
+.sidebar-menu-item:hover,
+.minimal-sidebar .nav-link:hover,
+#sidebar ul li a:hover {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+}
+
+/* Sidebar header text */
+.sidebar-header h3,
+.sidebar-header .icon,
+.sidebar-header {
+    color: #ffffff !important;
+}
+
+/* User text in sidebar */
+.user-info,
+.user-name,
+.user-role,
+.sidebar-user-section .user-name {
+    color: #ffffff !important;
+}
+
+/* Maintain other styling */
 #sidebar.active {
     min-width: var(--sidebar-collapsed-width);
     max-width: var(--sidebar-collapsed-width);
@@ -54,7 +109,6 @@
 }
 
 #sidebar .sidebar-header h3 {
-    color: white;
     margin: 0;
     font-size: 1.25rem;
     font-weight: 500;
@@ -144,7 +198,7 @@
 #content {
     width: 100%;
     transition: all var(--transition-speed) ease;
-    background: #f5f7fa;
+    background: var(--bg-main, #f5f7fa);
     min-height: calc(100vh - var(--top-navbar-height) - 100px); /* Adjust for navbar and footer */
     padding: 0;
     margin: 0;
@@ -176,7 +230,7 @@
         max-width: var(--sidebar-collapsed-width);
         text-align: center;
         margin-left: calc(-1 * var(--sidebar-collapsed-width));
-        position: fixed;
+        position: relative;
         height: 100vh;
         z-index: 1050;
     }
@@ -231,7 +285,7 @@
     }
     
     #sidebar {
-        position: fixed;
+        position: relative;
         top: var(--top-navbar-height); /* Adjust for navbar height */
         left: 0;
         height: calc(100vh - var(--top-navbar-height));
@@ -386,23 +440,15 @@
     background-color: #1E3A8A;
 }
 
-.bg-success-card {
-    background-color: #3B82F6;
-}
-
-.bg-warning-card {
-    background-color: #60A5FA;
-}
-
-.bg-info-card {
-    background-color: #93C5FD;
-}
+.bg-success-card { background-color: var(--color-primary); }
+.bg-warning-card { background-color: var(--color-primary-hover); }
+.bg-info-card { background-color: var(--color-primary); }
 
 /* Dashboard heading styles */
 .dashboard-heading {
     font-size: 2rem;
     font-weight: 600;
-    color: #1E3A8A;
+    color: var(--text-color);
     margin-bottom: 0.5rem;
 }
 
@@ -438,7 +484,7 @@
 }
 
 .breadcrumb-item a {
-    color: #1E3A8A;
+    color: var(--color-primary);
     text-decoration: none;
 }
 
@@ -449,7 +495,7 @@
 /* Ensure sidebar is fixed and covers full height on bigger screens */
 @media (min-width: 769px) {
     #sidebar {
-        position: sticky;
+        position: relative;
         top: 0;
         height: 100%;
         min-height: calc(100vh - var(--top-navbar-height));

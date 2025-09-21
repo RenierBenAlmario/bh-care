@@ -30,7 +30,7 @@ namespace Barangay.Pages.Admin
         [BindProperty]
         public StaffInputModel Input { get; set; }
 
-        public List<SelectListItem> Departments { get; set; }
+        // Department field removed
         public List<SelectListItem> Positions { get; set; }
         public List<SelectListItem> Roles { get; set; }
 
@@ -43,9 +43,6 @@ namespace Barangay.Pages.Admin
             [Required]
             [EmailAddress]
             public string Email { get; set; }
-
-            [Required]
-            public string Department { get; set; }
 
             [Required]
             public string Position { get; set; }
@@ -86,7 +83,7 @@ namespace Barangay.Pages.Admin
             _logger.LogInformation($"Attempting to find staff member with ID: {id}");
 
             // Check if the ID is a user ID (GUID) or a staff member ID (int)
-            StaffMember staffMember = null;
+            StaffMember? staffMember = null;
             
             // First try to find by staff ID (numeric)
             if (int.TryParse(id, out int staffId))
@@ -134,7 +131,6 @@ namespace Barangay.Pages.Admin
             {
                 Name = staffMember.Name,
                 Email = staffMember.Email,
-                Department = staffMember.Department ?? "General",
                 Position = staffMember.Position ?? "Staff",
                 Specialization = staffMember.Specialization ?? "",
                 LicenseNumber = staffMember.LicenseNumber ?? "",
@@ -161,7 +157,7 @@ namespace Barangay.Pages.Admin
             }
 
             // Use the same improved lookup logic as in OnGetAsync
-            StaffMember staffMember = null;
+            StaffMember? staffMember = null;
             
             // First try to find by staff ID (numeric)
             if (int.TryParse(Id, out int staffId))
@@ -193,7 +189,6 @@ namespace Barangay.Pages.Admin
             // Update staff member properties
             staffMember.Name = Input.Name;
             staffMember.Email = Input.Email;
-            staffMember.Department = Input.Department;
             staffMember.Position = Input.Position;
             staffMember.Specialization = Input.Specialization;
             staffMember.LicenseNumber = Input.LicenseNumber;
@@ -204,11 +199,26 @@ namespace Barangay.Pages.Admin
             staffMember.IsActive = Input.IsActive;
             staffMember.Role = Input.Role;
 
+            // Sync with DoctorAvailability if this is a doctor
+            if (staffMember.Role == "Doctor")
+            {
+                _logger.LogInformation($"Syncing DoctorAvailability for doctor {staffMember.UserId} with working days: {staffMember.WorkingDays}");
+                await SyncDoctorAvailabilityAsync(staffMember);
+            }
+
             try
             {
                 await _context.SaveChangesAsync();
                 _logger.LogInformation($"Staff member updated: {staffMember.Id}");
-                TempData["SuccessMessage"] = "Staff member updated successfully.";
+                
+                if (staffMember.Role == "Doctor")
+                {
+                    TempData["SuccessMessage"] = $"Staff member updated successfully! Doctor availability has been synced for weekend appointments.";
+                }
+                else
+                {
+                    TempData["SuccessMessage"] = "Staff member updated successfully!";
+                }
                 return RedirectToPage("/Admin/StaffList");
             }
             catch (Exception ex)
@@ -222,16 +232,7 @@ namespace Barangay.Pages.Admin
 
         private void PopulateDropdowns()
         {
-            // Populate departments
-            Departments = new List<SelectListItem>
-            {
-                new SelectListItem { Value = "General", Text = "General" },
-                new SelectListItem { Value = "Pediatrics", Text = "Pediatrics" },
-                new SelectListItem { Value = "Internal Medicine", Text = "Internal Medicine" },
-                new SelectListItem { Value = "OB-GYN", Text = "OB-GYN" },
-                new SelectListItem { Value = "Surgery", Text = "Surgery" },
-                new SelectListItem { Value = "Emergency", Text = "Emergency" }
-            };
+            // Department dropdown removed
 
             // Populate positions
             Positions = new List<SelectListItem>
@@ -251,6 +252,87 @@ namespace Barangay.Pages.Admin
                 new SelectListItem { Value = "Admin", Text = "Admin" },
                 new SelectListItem { Value = "User", Text = "User" }
             };
+        }
+
+        private async Task SyncDoctorAvailabilityAsync(StaffMember staffMember)
+        {
+            try
+            {
+                // Find or create DoctorAvailability record
+                var doctorAvailability = await _context.DoctorAvailabilities
+                    .FirstOrDefaultAsync(da => da.DoctorId == staffMember.UserId);
+
+                if (doctorAvailability == null)
+                {
+                    // Create new DoctorAvailability record
+                    doctorAvailability = new DoctorAvailability
+                    {
+                        DoctorId = staffMember.UserId,
+                        IsAvailable = staffMember.IsActive,
+                        LastUpdated = DateTime.Now
+                    };
+                    _context.DoctorAvailabilities.Add(doctorAvailability);
+                }
+                else
+                {
+                    // Update existing record
+                    doctorAvailability.IsAvailable = staffMember.IsActive;
+                    doctorAvailability.LastUpdated = DateTime.Now;
+                }
+
+                // Parse working days from StaffMember
+                var workingDays = staffMember.WorkingDays?.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(d => d.Trim())
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase) ?? new HashSet<string>();
+
+                // Update day availability
+                doctorAvailability.Monday = workingDays.Contains("Monday");
+                doctorAvailability.Tuesday = workingDays.Contains("Tuesday");
+                doctorAvailability.Wednesday = workingDays.Contains("Wednesday");
+                doctorAvailability.Thursday = workingDays.Contains("Thursday");
+                doctorAvailability.Friday = workingDays.Contains("Friday");
+                doctorAvailability.Saturday = workingDays.Contains("Saturday");
+                doctorAvailability.Sunday = workingDays.Contains("Sunday");
+
+                // Parse working hours from StaffMember
+                if (!string.IsNullOrEmpty(staffMember.WorkingHours))
+                {
+                    var timeMatch = System.Text.RegularExpressions.Regex.Match(
+                        staffMember.WorkingHours, 
+                        @"(\d{1,2}):(\d{2})\s*(AM|PM)?\s*-\s*(\d{1,2}):(\d{2})\s*(AM|PM)?", 
+                        System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+                    if (timeMatch.Success)
+                    {
+                        var startHour = int.Parse(timeMatch.Groups[1].Value);
+                        var startMinute = int.Parse(timeMatch.Groups[2].Value);
+                        var startPeriod = timeMatch.Groups[3].Value.ToUpper();
+                        var endHour = int.Parse(timeMatch.Groups[4].Value);
+                        var endMinute = int.Parse(timeMatch.Groups[5].Value);
+                        var endPeriod = timeMatch.Groups[6].Value.ToUpper();
+
+                        // Convert to 24-hour format
+                        if (startPeriod == "PM" && startHour != 12) startHour += 12;
+                        else if (startPeriod == "AM" && startHour == 12) startHour = 0;
+
+                        if (endPeriod == "PM" && endHour != 12) endHour += 12;
+                        else if (endPeriod == "AM" && endHour == 12) endHour = 0;
+
+                        doctorAvailability.StartTime = new TimeSpan(startHour, startMinute, 0);
+                        doctorAvailability.EndTime = new TimeSpan(endHour, endMinute, 0);
+                    }
+                }
+
+                _logger.LogInformation($"Synced DoctorAvailability for doctor {staffMember.UserId}: " +
+                    $"Mon={doctorAvailability.Monday}, Tue={doctorAvailability.Tuesday}, " +
+                    $"Wed={doctorAvailability.Wednesday}, Thu={doctorAvailability.Thursday}, " +
+                    $"Fri={doctorAvailability.Friday}, Sat={doctorAvailability.Saturday}, " +
+                    $"Sun={doctorAvailability.Sunday}, Hours={doctorAvailability.StartTime}-{doctorAvailability.EndTime}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error syncing DoctorAvailability for staff member {staffMember.Id}");
+            }
         }
     }
 } 

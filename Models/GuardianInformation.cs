@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -25,9 +25,33 @@ namespace Barangay.Models
         [Display(Name = "Residency Proof")]
         public byte[] ResidencyProof { get; set; }
 
+        [Display(Name = "Residency Proof Path")]
+        public string ResidencyProofPath { get; set; }
+
+        [Display(Name = "Proof Type")]
+        public string ProofType { get; set; } = "GuardianResidencyProof";
+
+        [Display(Name = "Consent Status")]
+        public string ConsentStatus { get; set; } = "Pending";
+
+        // Alias properties to fix compatibility issues
+        public string FirstName 
+        { 
+            get => GuardianFirstName; 
+            set => GuardianFirstName = value; 
+        }
+
+        public string LastName 
+        { 
+            get => GuardianLastName; 
+            set => GuardianLastName = value; 
+        }
+
         public DateTime CreatedAt { get; set; }
 
         [ForeignKey("UserId")]
         public virtual ApplicationUser User { get; set; }
     }
 } 
+
+

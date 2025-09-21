@@ -1,0 +1,92 @@
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<Barangay.Models.ApplicationUser> SignInManager
+@inject UserManager<Barangay.Models.ApplicationUser> UserManager
+
+@{
+    var activePage = ViewData["ActivePage"] as string;
+    var currentUser = await UserManager.GetUserAsync(User);
+    var displayName = !string.IsNullOrWhiteSpace(currentUser?.FullName)
+        ? currentUser.FullName
+        : (!string.IsNullOrWhiteSpace(currentUser?.Name) ? currentUser.Name : User.Identity?.Name);
+    var userRoles = new List<string>();
+    if (currentUser != null)
+    {
+        userRoles = (await UserManager.GetRolesAsync(currentUser)).ToList();
+    }
+    var currentPage = ViewContext.RouteData.Values["page"]?.ToString().ToLower();
+    var isActive = (string routeValue) => currentPage?.EndsWith(routeValue.ToLower()) == true ? "active" : "";
+    var isRecordsActive = (isActive("medicalrecords") == "active" || isActive("prescriptions") == "active") ? "active" : "";
+    var isDoctorToolsActive = (isActive("createprescription") == "active" || isActive("createmedicalrecord") == "active") ? "active" : "";
+}
+
+<nav class="navbar navbar-expand-lg dashboard-navbar">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/User/UserDashboard">
+            <i class="fa-solid fa-heart-pulse"></i>
+            BHCARE
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link @isActive("userdashboard")" href="/User/UserDashboard">
+                        <i class="fa-solid fa-chart-line me-1"></i>Dashboard
+                    </a>
+                </li>
+                
+                <!-- Patient Only -->
+                @if (userRoles.Contains("Patient"))
+                {
+                    // "Book Appointment" and "My Records" links removed as requested
+                }
+                
+                <!-- Doctor Only -->
+                @if (userRoles.Contains("Doctor"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link @isActive("appointments")" href="/Doctor/Appointments">
+                            <i class="fa-solid fa-calendar-days me-1"></i>Appointments
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @isActive("patients")" href="/Doctor/Patients">
+                            <i class="fa-solid fa-user-injured me-1"></i>Patients
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle @isDoctorToolsActive" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa-solid fa-stethoscope me-1"></i>Doctor Tools
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item @isActive("createmedicalrecord")" href="/Doctor/CreateMedicalRecord"><i class="fa-solid fa-file-medical"></i>Create Record</a></li>
+                            <li><a class="dropdown-item @isActive("createprescription")" href="/Doctor/CreatePrescription"><i class="fa-solid fa-prescription"></i>Create Prescription</a></li>
+                        </ul>
+                    </li>
+                }
+                
+                <!-- Common Menu Items for All Users -->
+                <!-- "Provide Feedback" link removed as requested -->
+            </ul>
+            
+            <!-- User Menu Dropdown -->
+            <ul class="navbar-nav">
+                <li class="nav-item dropdown user-dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="@(string.IsNullOrEmpty(currentUser?.ProfileImage) ? "/images/default-profile.png" : $"/images/profiles/{currentUser.ProfileImage}?v={currentUser.UpdatedAt.Ticks}")" 
+                         alt="Profile" 
+                         class="user-profile-picture me-2">
+                    <span>@displayName</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <li><a class="dropdown-item" href="/User/Settings"><i class="fa-solid fa-gear"></i>Settings</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="javascript:document.getElementById('logoutForm').submit();"><i class="fa-solid fa-right-from-bracket"></i>Logout</a></li>
+                    </ul>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+</nav>

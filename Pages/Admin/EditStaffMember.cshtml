@@ -37,13 +37,6 @@
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label asp-for="Input.Department" class="form-label"></label>
-                            <select asp-for="Input.Department" class="form-select" asp-items="Model.Departments"></select>
-                            <span asp-validation-for="Input.Department" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
                             <label asp-for="Input.Position" class="form-label"></label>
                             <select asp-for="Input.Position" class="form-select" asp-items="Model.Positions"></select>
                             <span asp-validation-for="Input.Position" class="text-danger"></span>
@@ -79,21 +72,54 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label asp-for="Input.ContactNumber" class="form-label"></label>
-                            <input asp-for="Input.ContactNumber" class="form-control" />
+                            <input asp-for="Input.ContactNumber" class="form-control" placeholder="09XX-XXX-XXXX" pattern="[0-9]*" inputmode="numeric" onkeypress="return event.charCode >= 48 && event.charCode <= 57" />
                             <span asp-validation-for="Input.ContactNumber" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label asp-for="Input.WorkingDays" class="form-label"></label>
-                            <input asp-for="Input.WorkingDays" class="form-control" />
+                            <label class="form-label d-block">Working Days <span class="text-danger">*</span></label>
+                            <div class="btn-group d-flex flex-wrap" role="group" aria-label="Working days">
+                                <input type="checkbox" class="btn-check working-days-checkbox" id="day_Monday" value="Monday" autocomplete="off">
+                                <label class="btn btn-outline-primary m-1" for="day_Monday">Monday</label>
+                                
+                                <input type="checkbox" class="btn-check working-days-checkbox" id="day_Tuesday" value="Tuesday" autocomplete="off">
+                                <label class="btn btn-outline-primary m-1" for="day_Tuesday">Tuesday</label>
+                                
+                                <input type="checkbox" class="btn-check working-days-checkbox" id="day_Wednesday" value="Wednesday" autocomplete="off">
+                                <label class="btn btn-outline-primary m-1" for="day_Wednesday">Wednesday</label>
+                                
+                                <input type="checkbox" class="btn-check working-days-checkbox" id="day_Thursday" value="Thursday" autocomplete="off">
+                                <label class="btn btn-outline-primary m-1" for="day_Thursday">Thursday</label>
+                                
+                                <input type="checkbox" class="btn-check working-days-checkbox" id="day_Friday" value="Friday" autocomplete="off">
+                                <label class="btn btn-outline-primary m-1" for="day_Friday">Friday</label>
+                                
+                                <input type="checkbox" class="btn-check working-days-checkbox" id="day_Saturday" value="Saturday" autocomplete="off">
+                                <label class="btn btn-outline-primary m-1" for="day_Saturday">Saturday</label>
+                                
+                                <input type="checkbox" class="btn-check working-days-checkbox" id="day_Sunday" value="Sunday" autocomplete="off">
+                                <label class="btn btn-outline-primary m-1" for="day_Sunday">Sunday</label>
+                            </div>
+                            <input type="hidden" asp-for="Input.WorkingDays" id="workingDaysInput" required />
+                            <div class="invalid-feedback">Please select at least one working day.</div>
                             <span asp-validation-for="Input.WorkingDays" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label asp-for="Input.WorkingHours" class="form-label"></label>
-                            <input asp-for="Input.WorkingHours" class="form-control" />
+                            <label class="form-label">Working Hours <span class="text-danger">*</span></label>
+                            <div class="row">
+                                <div class="col-6">
+                                    <label class="form-label small">Start Time</label>
+                                    <input type="time" class="form-control" id="startTime" required />
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small">End Time</label>
+                                    <input type="time" class="form-control" id="endTime" required />
+                                </div>
+                            </div>
+                            <input type="hidden" asp-for="Input.WorkingHours" id="workingHoursInput" required />
                             <span asp-validation-for="Input.WorkingHours" class="text-danger"></span>
                         </div>
                     </div>
@@ -133,4 +159,121 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function() {
+            // Initialize working days from the hidden input value
+            const workingDaysValue = $('#workingDaysInput').val();
+            if (workingDaysValue) {
+                const days = workingDaysValue.split(',');
+                days.forEach(function(day) {
+                    const trimmedDay = day.trim();
+                    $(`#day_${trimmedDay}`).prop('checked', true);
+                });
+            }
+
+            // Initialize working hours from the hidden input value
+            const workingHoursValue = $('#workingHoursInput').val();
+            if (workingHoursValue) {
+                // Parse format like "9:00 AM - 5:00 PM" or "6:00 AM-6:00 AM"
+                const timeMatch = workingHoursValue.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?\s*-\s*(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
+                if (timeMatch) {
+                    let startHour = parseInt(timeMatch[1]);
+                    let startMinute = timeMatch[2];
+                    let startPeriod = timeMatch[3] || 'AM';
+                    let endHour = parseInt(timeMatch[4]);
+                    let endMinute = timeMatch[5];
+                    let endPeriod = timeMatch[6] || 'AM';
+
+                    // Convert to 24-hour format for time inputs
+                    if (startPeriod.toUpperCase() === 'PM' && startHour !== 12) {
+                        startHour += 12;
+                    } else if (startPeriod.toUpperCase() === 'AM' && startHour === 12) {
+                        startHour = 0;
+                    }
+
+                    if (endPeriod.toUpperCase() === 'PM' && endHour !== 12) {
+                        endHour += 12;
+                    } else if (endPeriod.toUpperCase() === 'AM' && endHour === 12) {
+                        endHour = 0;
+                    }
+
+                    $('#startTime').val(String(startHour).padStart(2, '0') + ':' + startMinute);
+                    $('#endTime').val(String(endHour).padStart(2, '0') + ':' + endMinute);
+                }
+            }
+
+            // Handle working days checkbox changes
+            $('.working-days-checkbox').on('change', function() {
+                const selectedDays = [];
+                $('.working-days-checkbox:checked').each(function() {
+                    selectedDays.push($(this).val());
+                });
+                $('#workingDaysInput').val(selectedDays.join(','));
+                
+                // Validate at least one day is selected
+                if (selectedDays.length === 0) {
+                    $('#workingDaysInput').addClass('is-invalid');
+                } else {
+                    $('#workingDaysInput').removeClass('is-invalid');
+                }
+            });
+
+            // Handle working hours changes
+            $('#startTime, #endTime').on('change', function() {
+                const startTime = $('#startTime').val();
+                const endTime = $('#endTime').val();
+                
+                if (startTime && endTime) {
+                    // Convert to 12-hour format for display
+                    const startHour = parseInt(startTime.split(':')[0]);
+                    const startMinute = startTime.split(':')[1];
+                    const endHour = parseInt(endTime.split(':')[0]);
+                    const endMinute = endTime.split(':')[1];
+
+                    let startPeriod = startHour >= 12 ? 'PM' : 'AM';
+                    let displayStartHour = startHour % 12 || 12;
+                    
+                    let endPeriod = endHour >= 12 ? 'PM' : 'AM';
+                    let displayEndHour = endHour % 12 || 12;
+
+                    const formattedHours = `${displayStartHour}:${startMinute} ${startPeriod} - ${displayEndHour}:${endMinute} ${endPeriod}`;
+                    $('#workingHoursInput').val(formattedHours);
+                    
+                    // Validate end time is after start time
+                    if (startTime >= endTime) {
+                        $('#endTime').addClass('is-invalid');
+                        $('#workingHoursInput').addClass('is-invalid');
+                    } else {
+                        $('#endTime').removeClass('is-invalid');
+                        $('#workingHoursInput').removeClass('is-invalid');
+                    }
+                }
+            });
+
+            // Form validation before submit
+            $('form').on('submit', function(e) {
+                let isValid = true;
+
+                // Check working days
+                const selectedDays = $('.working-days-checkbox:checked').length;
+                if (selectedDays === 0) {
+                    $('#workingDaysInput').addClass('is-invalid');
+                    isValid = false;
+                }
+
+                // Check working hours
+                const startTime = $('#startTime').val();
+                const endTime = $('#endTime').val();
+                if (!startTime || !endTime || startTime >= endTime) {
+                    $('#workingHoursInput').addClass('is-invalid');
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    e.preventDefault();
+                    alert('Please fix the validation errors before submitting.');
+                }
+            });
+        });
+    </script>
 } 

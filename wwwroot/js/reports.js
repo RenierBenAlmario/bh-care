@@ -15,21 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
         window.demographicsData = {};
     }
     
-    // Handle dark mode theme changes
-    const darkModeObserver = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.attributeName === 'class') {
-                const isDarkMode = document.documentElement.classList.contains('dark-mode');
-                updateChartsTheme(isDarkMode);
-            }
-        });
-    });
-    
-    darkModeObserver.observe(document.documentElement, { attributes: true });
-    
-    // Initially set theme based on current state
-    const isDarkMode = document.documentElement.classList.contains('dark-mode');
-    updateChartsTheme(isDarkMode);
+    // Dark mode functionality removed
 });
 
 function setupFilterHandlers() {
@@ -353,34 +339,10 @@ function createToastContainer() {
 }
 
 /**
- * Update all charts to match the current theme
- * @param {boolean} isDarkMode - Whether dark mode is active
+ * Dark mode functionality removed
  */
-function updateChartsTheme(isDarkMode) {
-    // Colors for light/dark themes
-    const colors = {
-        grid: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
-        text: isDarkMode ? '#f5f5f5' : '#333',
-        textSecondary: isDarkMode ? '#b3b3b3' : '#666',
-        background: isDarkMode ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.8)'
-    };
-    
-    // Update each chart if they exist
-    if (window.staffDistributionChart) {
-        updateChartTheme(window.staffDistributionChart, colors);
-    }
-    
-    if (window.patientRegistrationsChart) {
-        updateChartTheme(window.patientRegistrationsChart, colors);
-    }
-    
-    if (window.consultationsByTypeChart) {
-        updateChartTheme(window.consultationsByTypeChart, colors);
-    }
-    
-    if (window.healthIndexChart) {
-        updateChartTheme(window.healthIndexChart, colors);
-    }
+function updateChartsTheme() {
+    // Dark mode functionality removed
 }
 
 /**

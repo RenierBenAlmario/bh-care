@@ -3,95 +3,128 @@
 @using Barangay.Services
 
 @inject UserManager<ApplicationUser> UserManager
-@inject PermissionService PermissionService
+@inject IPermissionService PermissionService
 
 @{
     var user = await UserManager.GetUserAsync(User);
     var currentUrl = Context.Request.Path;
+
+    // Permission checks for navigation
+    var canAccessDashboard = await PermissionService.UserHasAnyPermissionAsync(User, new[] { "Access Admin Dashboard", "Access Dashboard" });
+    
+    var canViewPatientsList = await PermissionService.UserHasAnyPermissionAsync(User, new[] { "View Medical Records", "View Patient History" });
+    var canAddPatient = await PermissionService.UserHasPermissionAsync(User, "Create Medical Records");
+    var canViewMedicalRecords = await PermissionService.UserHasPermissionAsync(User, "View Medical Records");
+    var showPatientsSection = canViewPatientsList || canAddPatient || canViewMedicalRecords;
+
+    var canManageAppointments = await PermissionService.UserHasAnyPermissionAsync(User, new[] { "Manage Appointments", "Create Appointments", "View Appointments" });
+
+    var canViewReports = await PermissionService.UserHasPermissionAsync(User, "View Reports");
 }
 
 <nav class="navbar-vertical navbar">
     <div class="nav accordion" id="accordionSidenav">
         <!-- Dashboard -->
-        <li class="nav-item">
-            <a class="nav-link @(currentUrl.Value.Contains("/AdminStaff/Dashboard") ? "active" : "")" 
-               asp-page="/AdminStaff/Dashboard">
-                <div class="nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-                Dashboard
-            </a>
-        </li>
+        @if (canAccessDashboard)
+        {
+            <li class="nav-item">
+                <a class="nav-link @(currentUrl.Value.Contains("/AdminStaff/Dashboard") ? "active" : "")" 
+                   asp-page="/AdminStaff/Dashboard">
+                    <div class="nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                    Dashboard
+                </a>
+            </li>
+        }
 
         <!-- Patients -->
-        <a class="nav-link @(currentUrl.Value.Contains("/AdminStaff/Patient") ? "active" : "") collapsed" 
-           href="#" data-bs-toggle="collapse" data-bs-target="#collapsePatients" 
-           aria-expanded="@(currentUrl.Value.Contains("/AdminStaff/Patient") ? "true" : "false")" 
-           aria-controls="collapsePatients">
-            <div class="nav-link-icon"><i class="fas fa-users"></i></div>
-            Patients
-            <div class="sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-        </a>
-        <div class="collapse @(currentUrl.Value.Contains("/AdminStaff/Patient") ? "show" : "")" 
-             id="collapsePatients" data-bs-parent="#accordionSidenav">
-            <nav class="sidenav-menu-nested nav">
-                <a class="nav-link @(currentUrl.Value.Contains("/AdminStaff/PatientsList") ? "active" : "")" 
-                   asp-page="/AdminStaff/PatientsList">
-                    <i class="fas fa-list fa-fw me-2"></i> Patients List
-                </a>
-                <a class="nav-link @(currentUrl.Value.Contains("/AdminStaff/AddPatient") ? "active" : "")" 
-                   asp-page="/AdminStaff/AddPatient">
-                    <i class="fas fa-user-plus fa-fw me-2"></i> Add New Patient
-                </a>
-                <a class="nav-link @(currentUrl.Value.Contains("/AdminStaff/PatientRecords") ? "active" : "")" 
-                   asp-page="/AdminStaff/PatientRecords">
-                    <i class="fas fa-folder-open fa-fw me-2"></i> Medical Records
-                </a>
-            </nav>
-        </div>
+        @if (showPatientsSection)
+        {
+            <a class="nav-link @(currentUrl.Value.Contains("/AdminStaff/Patient") ? "active" : "") collapsed" 
+               href="#" data-bs-toggle="collapse" data-bs-target="#collapsePatients" 
+               aria-expanded="@(currentUrl.Value.Contains("/AdminStaff/Patient") ? "true" : "false")" 
+               aria-controls="collapsePatients">
+                <div class="nav-link-icon"><i class="fas fa-users"></i></div>
+                Patients
+                <div class="sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+            </a>
+            <div class="collapse @(currentUrl.Value.Contains("/AdminStaff/Patient") ? "show" : "")" 
+                 id="collapsePatients" data-bs-parent="#accordionSidenav">
+                <nav class="sidenav-menu-nested nav">
+                    @if (canViewPatientsList)
+                    {
+                        <a class="nav-link @(currentUrl.Value.Contains("/AdminStaff/PatientsList") ? "active" : "")" 
+                           asp-page="/AdminStaff/PatientsList">
+                            <i class="fas fa-list fa-fw me-2"></i> Patients List
+                        </a>
+                    }
+                    @if (canAddPatient)
+                    {
+                        <a class="nav-link @(currentUrl.Value.Contains("/AdminStaff/AddPatient") ? "active" : "")" 
+                           asp-page="/AdminStaff/AddPatient">
+                            <i class="fas fa-user-plus fa-fw me-2"></i> Add New Patient
+                        </a>
+                    }
+                    @if (canViewMedicalRecords)
+                    {
+                        <a class="nav-link @(currentUrl.Value.Contains("/AdminStaff/PatientRecords") ? "active" : "")" 
+                           asp-page="/AdminStaff/PatientRecords">
+                            <i class="fas fa-folder-open fa-fw me-2"></i> Medical Records
+                        </a>
+                    }
+                </nav>
+            </div>
+        }
 
         <!-- Appointments -->
-        <a class="nav-link @(currentUrl.Value.Contains("/AdminStaff/ManageAppointments") ? "active" : "") collapsed"
-           href="#" data-bs-toggle="collapse" data-bs-target="#collapseAppointments"
-           aria-expanded="@(currentUrl.Value.Contains("/AdminStaff/ManageAppointments") ? "true" : "false")"
-           aria-controls="collapseAppointments">
-            <div class="nav-link-icon"><i class="fas fa-calendar-alt"></i></div>
-            Appointments
-            <div class="sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-        </a>
-        <div class="collapse @(currentUrl.Value.Contains("/AdminStaff/ManageAppointments") ? "show" : "")"
-             id="collapseAppointments" data-bs-parent="#accordionSidenav">
-            <nav class="sidenav-menu-nested nav">
-                <a class="nav-link @(currentUrl.Value.Contains("/AdminStaff/ManageAppointments") ? "active" : "")"
-                   asp-page="/AdminStaff/ManageAppointments">
-                    <i class="fas fa-calendar-check fa-fw me-2"></i> Manage Appointments
-                </a>
-            </nav>
-        </div>
+        @if (canManageAppointments)
+        {
+            <a class="nav-link @(currentUrl.Value.Contains("/AdminStaff/ManageAppointments") ? "active" : "") collapsed"
+               href="#" data-bs-toggle="collapse" data-bs-target="#collapseAppointments"
+               aria-expanded="@(currentUrl.Value.Contains("/AdminStaff/ManageAppointments") ? "true" : "false")"
+               aria-controls="collapseAppointments">
+                <div class="nav-link-icon"><i class="fas fa-calendar-alt"></i></div>
+                Appointments
+                <div class="sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+            </a>
+            <div class="collapse @(currentUrl.Value.Contains("/AdminStaff/ManageAppointments") ? "show" : "")"
+                 id="collapseAppointments" data-bs-parent="#accordionSidenav">
+                <nav class="sidenav-menu-nested nav">
+                    <a class="nav-link @(currentUrl.Value.Contains("/AdminStaff/ManageAppointments") ? "active" : "")"
+                       asp-page="/AdminStaff/ManageAppointments">
+                        <i class="fas fa-calendar-check fa-fw me-2"></i> Manage Appointments
+                    </a>
+                </nav>
+            </div>
+        }
 
         <!-- Reports -->
-        <a class="nav-link @(currentUrl.Value.Contains("/AdminStaff/Reports") ? "active" : "") collapsed"
-           href="#" data-bs-toggle="collapse" data-bs-target="#collapseReports"
-           aria-expanded="@(currentUrl.Value.Contains("/AdminStaff/Reports") ? "true" : "false")"
-           aria-controls="collapseReports">
-            <div class="nav-link-icon"><i class="fas fa-chart-bar"></i></div>
-            Reports
-            <div class="sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-        </a>
-        <div class="collapse @(currentUrl.Value.Contains("/AdminStaff/Reports") ? "show" : "")"
-             id="collapseReports" data-bs-parent="#accordionSidenav">
-            <nav class="sidenav-menu-nested nav">
-                <a class="nav-link @(currentUrl.Value.Contains("/AdminStaff/Reports/DailyConsultations") ? "active" : "")"
-                   asp-page="/AdminStaff/Reports/DailyConsultations">
-                    <i class="fas fa-file-medical fa-fw me-2"></i> Daily Consultations
-                </a>
-                <a class="nav-link @(currentUrl.Value.Contains("/AdminStaff/Reports/PatientRegistrations") ? "active" : "")"
-                   asp-page="/AdminStaff/Reports/PatientRegistrations">
-                    <i class="fas fa-user-plus fa-fw me-2"></i> Patient Registrations
-                </a>
-                <a class="nav-link @(currentUrl.Value.Contains("/AdminStaff/Reports/AppointmentSummary") ? "active" : "")"
-                   asp-page="/AdminStaff/Reports/AppointmentSummary">
-                    <i class="fas fa-calendar-check fa-fw me-2"></i> Appointment Summary
-                </a>
-            </nav>
-        </div>
+        @if (canViewReports)
+        {
+            <a class="nav-link @(currentUrl.Value.Contains("/AdminStaff/Reports") ? "active" : "") collapsed"
+               href="#" data-bs-toggle="collapse" data-bs-target="#collapseReports"
+               aria-expanded="@(currentUrl.Value.Contains("/AdminStaff/Reports") ? "true" : "false")"
+               aria-controls="collapseReports">
+                <div class="nav-link-icon"><i class="fas fa-chart-bar"></i></div>
+                Reports
+                <div class="sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+            </a>
+            <div class="collapse @(currentUrl.Value.Contains("/AdminStaff/Reports") ? "show" : "")"
+                 id="collapseReports" data-bs-parent="#accordionSidenav">
+                <nav class="sidenav-menu-nested nav">
+                    <a class="nav-link @(currentUrl.Value.Contains("/AdminStaff/Reports/DailyConsultations") ? "active" : "")"
+                       asp-page="/AdminStaff/Reports/DailyConsultations">
+                        <i class="fas fa-file-medical fa-fw me-2"></i> Daily Consultations
+                    </a>
+                    <a class="nav-link @(currentUrl.Value.Contains("/AdminStaff/Reports/PatientRegistrations") ? "active" : "")"
+                       asp-page="/AdminStaff/Reports/PatientRegistrations">
+                        <i class="fas fa-user-plus fa-fw me-2"></i> Patient Registrations
+                    </a>
+                    <a class="nav-link @(currentUrl.Value.Contains("/AdminStaff/Reports/AppointmentSummary") ? "active" : "")"
+                       asp-page="/AdminStaff/Reports/AppointmentSummary">
+                        <i class="fas fa-calendar-check fa-fw me-2"></i> Appointment Summary
+                    </a>
+                </nav>
+            </div>
+        }
     </div>
-</nav> 
+</nav>  

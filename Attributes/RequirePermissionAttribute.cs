@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Barangay.Attributes
@@ -41,10 +42,10 @@ namespace Barangay.Attributes
             }
 
             // Get permission service from DI
-            var permissionService = context.HttpContext.RequestServices.GetService(typeof(PermissionService)) as PermissionService;
+            var permissionService = context.HttpContext.RequestServices.GetService(typeof(IPermissionService)) as IPermissionService;
             if (permissionService == null)
             {
-                throw new InvalidOperationException("PermissionService is not registered in the service collection.");
+                throw new InvalidOperationException("IPermissionService is not registered in the service collection.");
             }
 
             // Check if user has the required permission

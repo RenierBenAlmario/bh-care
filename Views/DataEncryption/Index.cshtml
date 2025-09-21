@@ -1,0 +1,145 @@
+@{
+    ViewData["Title"] = "Data Encryption Management";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-shield-alt"></i>
+                        Data Encryption Management
+                    </h3>
+                </div>
+                <div class="card-body">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle"></i>
+                            @TempData["SuccessMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            @TempData["ErrorMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    <h5 class="card-title mb-0">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        Encrypt Existing Data
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">
+                                        This action will encrypt all existing sensitive data in the database. 
+                                        This process is <strong>irreversible</strong> and should only be performed once.
+                                    </p>
+                                    <div class="alert alert-warning">
+                                        <strong>Warning:</strong> Make sure to backup your database before proceeding!
+                                    </div>
+                                    <form asp-action="EncryptExistingData" method="post">
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="checkbox" id="confirmEncryption" required>
+                                            <label class="form-check-label" for="confirmEncryption">
+                                                I understand that this action will encrypt all existing data and cannot be undone.
+                                            </label>
+                                        </div>
+                                        <button type="submit" class="btn btn-warning" id="encryptBtn" disabled>
+                                            <i class="fas fa-lock"></i>
+                                            Encrypt All Existing Data
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card border-info">
+                                <div class="card-header bg-info text-white">
+                                    <h5 class="card-title mb-0">
+                                        <i class="fas fa-flask"></i>
+                                        Test Encryption
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">
+                                        Test the encryption functionality with sample data to ensure it's working correctly.
+                                    </p>
+                                    <form asp-action="TestEncryption" method="post">
+                                        <div class="mb-3">
+                                            <label for="testData" class="form-label">Test Data:</label>
+                                            <input type="text" class="form-control" id="testData" name="testData" 
+                                                   placeholder="Enter test data to encrypt" required>
+                                        </div>
+                                        <button type="submit" class="btn btn-info">
+                                            <i class="fas fa-vial"></i>
+                                            Test Encryption
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card border-success">
+                                <div class="card-header bg-success text-white">
+                                    <h5 class="card-title mb-0">
+                                        <i class="fas fa-info-circle"></i>
+                                        Encryption Information
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <h6>What data is encrypted?</h6>
+                                    <ul>
+                                        <li><strong>Patient Data:</strong> Names, addresses, contact numbers, medical history, allergies</li>
+                                        <li><strong>Medical Records:</strong> Diagnoses, treatments, notes, prescriptions</li>
+                                        <li><strong>Appointments:</strong> Patient information, medical details, descriptions</li>
+                                        <li><strong>User Data:</strong> Names, addresses, PhilHealth IDs</li>
+                                        <li><strong>Lab Results:</strong> Test names, results, notes</li>
+                                    </ul>
+
+                                    <h6>Who can decrypt data?</h6>
+                                    <ul>
+                                        <li><strong>Administrators:</strong> Full access to all encrypted data</li>
+                                        <li><strong>Doctors:</strong> Access to patient medical data</li>
+                                        <li><strong>Nurses:</strong> Access to patient medical data</li>
+                                        <li><strong>System Administrators:</strong> Full access to all encrypted data</li>
+                                    </ul>
+
+                                    <h6>Security Features:</h6>
+                                    <ul>
+                                        <li>AES-256 encryption for maximum security</li>
+                                        <li>Role-based access control</li>
+                                        <li>Automatic encryption/decryption</li>
+                                        <li>Secure key management</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('confirmEncryption').addEventListener('change', function() {
+            document.getElementById('encryptBtn').disabled = !this.checked;
+        });
+    </script>
+}

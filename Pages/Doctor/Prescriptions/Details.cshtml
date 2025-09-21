@@ -1,0 +1,160 @@
+@page "{id:int}"
+@model Barangay.Pages.Doctor.Prescriptions.DetailsModel
+@{
+    ViewData["Title"] = "Prescription Details";
+    Layout = "_DoctorLayout";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Prescription Details</h2>
+        <div>
+            <a href="javascript:history.back()" class="btn btn-outline-secondary me-2">
+                <i class="fas fa-arrow-left me-1"></i> Back
+            </a>
+            <button class="btn btn-success" onclick="window.print()">
+                <i class="fas fa-print me-1"></i> Print
+            </button>
+        </div>
+    </div>
+
+    @if (Model.Prescription != null)
+    {
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Patient Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Patient Name:</strong> @Model.Prescription.PatientName</p>
+                        <p><strong>Patient ID:</strong> @Model.Prescription.PatientId</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Date:</strong> @Model.Prescription.PrescriptionDate.ToString("MMMM dd, yyyy")</p>
+                        <p><strong>Status:</strong> <span class="badge bg-@Model.GetStatusBadgeColor(Model.Prescription.Status)">@Model.Prescription.Status</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Prescription Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <h6>Diagnosis</h6>
+                        <p class="border p-2 rounded bg-light">@Model.Prescription.Diagnosis</p>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>Prescribed By:</strong> Dr. @Model.Prescription.DoctorName</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Duration:</strong> @Model.Prescription.Duration days</p>
+                        <p><strong>Valid Until:</strong> @(Model.Prescription.ValidUntil?.ToString("MMMM dd, yyyy") ?? Model.Prescription.PrescriptionDate.AddDays(Model.Prescription.Duration).ToString("MMMM dd, yyyy"))</p>
+                    </div>
+                </div>
+                
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Medications</h5>
+                    <a href="/Doctor/Prescriptions/AddMedication/@Model.Prescription.Id" class="btn btn-sm btn-light">
+                        <i class="fas fa-plus-circle me-1"></i> Add Medication
+                    </a>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Medication</th>
+                                        <th>Dosage</th>
+                                        <th>Frequency</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.PrescriptionMedicines != null && Model.PrescriptionMedicines.Any())
+                                    {
+                                        @foreach (var medicine in Model.PrescriptionMedicines)
+                                        {
+                                            <tr>
+                                                <td>@(medicine.Medication?.Name ?? "Unknown Medication")</td>
+                                                <td>@medicine.Dosage @medicine.Unit</td>
+                                                <td>@medicine.Frequency</td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="3" class="text-center">No medications found</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                @if (!string.IsNullOrEmpty(Model.Prescription.Notes))
+                {
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <h6>Additional Notes</h6>
+                            <p class="border p-2 rounded bg-light">@Model.Prescription.Notes</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-danger">
+            Prescription not found or you don't have permission to view it.
+        </div>
+    }
+</div>
+
+@section Styles {
+    <style>
+        @@media print {
+            .btn, .navbar, .sidebar, .footer {
+                display: none !important;
+            }
+            
+            body {
+                padding: 0;
+                margin: 0;
+            }
+            
+            .container {
+                width: 100%;
+                max-width: 100%;
+                padding: 0;
+            }
+            
+            .card {
+                border: 1px solid #ddd !important;
+                break-inside: avoid;
+            }
+            
+            .card-header {
+                background-color: #f8f9fa !important;
+                color: #000 !important;
+                border-bottom: 1px solid #ddd !important;
+            }
+            
+            .badge {
+                border: 1px solid #000 !important;
+                color: #000 !important;
+                background-color: transparent !important;
+            }
+        }
+    </style>
+} 

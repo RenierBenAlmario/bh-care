@@ -34,6 +34,7 @@ namespace Barangay
                     await ExecuteScriptAsync(connection, GetDatabaseSchemaFixScript());
                     await ExecuteScriptAsync(connection, GetDataMigrationScript());
                     await ExecuteScriptAsync(connection, GetIndexesAndConstraintsScript());
+                    await ExecuteScriptAsync(connection, GetPermissionsSeedScript());
                 }
 
                 _logger.LogInformation("Database migration completed successfully");
@@ -93,6 +94,18 @@ namespace Barangay
                     }
                 }
             }
+        }
+
+        private string GetPermissionsSeedScript()
+        {
+            var scriptPath = Path.Combine(AppContext.BaseDirectory, "SeedPermissions.sql");
+            if (!File.Exists(scriptPath))
+            {
+                _logger.LogWarning($"Permissions seed script not found at {scriptPath}");
+                return string.Empty;
+            }
+            _logger.LogInformation("Loading permissions seed script from {path}", scriptPath);
+            return File.ReadAllText(scriptPath);
         }
 
         private string GetDatabaseSchemaFixScript()

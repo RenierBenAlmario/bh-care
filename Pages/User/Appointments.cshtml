@@ -2,6 +2,7 @@
 @model Barangay.Pages.User.AppointmentsModel
 @{
     ViewData["Title"] = "My Appointments";
+    ViewData["ShowDashboardNav"] = true;
     Layout = "_UserLayout";
 }
 
@@ -10,7 +11,7 @@
         <div class="col-12">
             <div class="alert alert-info" role="alert">
                 <div class="d-flex align-items-center">
-                    <i class="fas fa-calendar-check me-3 fs-4"></i>
+                    <i class="fa-solid fa-calendar-check me-3 fs-4"></i>
                     <div>
                         <strong>My Appointments</strong>
                         <p class="mb-0">View and manage your scheduled appointments with our healthcare providers.</p>
@@ -42,7 +43,7 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Upcoming Appointments</h5>
                     <a href="/BookAppointment" class="btn btn-primary">
-                        <i class="fas fa-plus me-2"></i>Book New Appointment
+                        <i class="fa-solid fa-plus me-2"></i>Book New Appointment
                     </a>
                 </div>
                 <div class="card-body">
@@ -51,8 +52,8 @@
                             <thead>
                                 <tr>
                                     <th>Date & Time</th>
-                                    <th>Doctor</th>
-                                    <th>Service</th>
+                                    <th>Consultation Type</th>
+                                    <th>Reason for Visit</th>
                                     <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
@@ -65,18 +66,32 @@
                                         <tr>
                                             <td>
                                                 <div class="fw-bold">@appointment.AppointmentDate.ToString("MMMM dd, yyyy")</div>
-                                                <div class="small text-muted">@appointment.GetFormattedTime()</div>
+                                                <div class="fw-semibold text-primary">@appointment.GetFormattedTime()</div>
+                                                <div class="small text-muted">Age: @appointment.AgeValue</div>
                                             </td>
-                                            <td>@Model.GetDoctorName(appointment.DoctorId)</td>
+                                            <td>@Model.GetFullConsultationType(appointment.Type)</td>
                                             <td>@appointment.ReasonForVisit</td>
-                                            <td><span class="badge bg-@GetStatusClass(appointment.Status)">@appointment.Status</span></td>
+                                            <td><span class="badge bg-@GetStatusClass(appointment.Status)">@(appointment.Status == AppointmentStatus.Pending ? "On-Going" : appointment.Status.ToString())</span></td>
                                             <td>
-                                                @if (appointment.Status != AppointmentStatus.Cancelled)
+                                                @if (appointment.Status == AppointmentStatus.Draft)
+                                                {
+                                                    <a href="@(appointment.AgeValue >= 20 ? $"/User/NCDRiskAssessment?appointmentId={appointment.Id}" : 
+                                                        (appointment.AgeValue >= 10 ? $"/User/HEEADSSSAssessment?appointmentId={appointment.Id}" : "#"))"
+                                                        class="btn btn-sm btn-success me-2 complete-form-btn" 
+                                                        data-appointment-id="@appointment.Id"
+                                                        data-age="@appointment.AgeValue"
+                                                        title="Age: @appointment.AgeValue - @(appointment.AgeValue >= 20 ? "NCD Risk Assessment" : 
+                                                        (appointment.AgeValue >= 10 ? "HEEADSSS Assessment" : "No form available"))"
+                                                        onclick="handleCompleteFormClick(this, @appointment.AgeValue, @appointment.Id, event)">
+                                                        <i class="fa-solid fa-check"></i> Complete Form
+                                                    </a>
+                                                }
+                                                @if (appointment.Status != AppointmentStatus.Cancelled && appointment.Status != AppointmentStatus.Completed)
                                                 {
                                                     <form method="post" asp-page-handler="CancelAppointment" class="d-inline">
                                                         <input type="hidden" name="appointmentId" value="@appointment.Id" />
                                                         <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to cancel this appointment?')">
-                                                            <i class="fas fa-times"></i> Cancel
+                                                            <i class="fa-solid fa-xmark"></i> Cancel
                                                         </button>
                                                     </form>
                                                 }
@@ -110,8 +125,8 @@
                             <thead>
                                 <tr>
                                     <th>Date & Time</th>
-                                    <th>Doctor</th>
-                                    <th>Service</th>
+                                    <th>Consultation Type</th>
+                                    <th>Reason for Visit</th>
                                     <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
@@ -124,14 +139,15 @@
                                         <tr>
                                             <td>
                                                 <div class="fw-bold">@appointment.AppointmentDate.ToString("MMMM dd, yyyy")</div>
-                                                <div class="small text-muted">@appointment.GetFormattedTime()</div>
+                                                <div class="fw-semibold text-primary">@appointment.GetFormattedTime()</div>
+                                                <div class="small text-muted">Age: @appointment.AgeValue</div>
                                             </td>
-                                            <td>@Model.GetDoctorName(appointment.DoctorId)</td>
+                                            <td>@Model.GetFullConsultationType(appointment.Type)</td>
                                             <td>@appointment.ReasonForVisit</td>
                                             <td><span class="badge bg-@GetStatusClass(appointment.Status)">@appointment.Status</span></td>
                                             <td>
                                                 <button class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-eye"></i> View
+                                                    <i class="fa-solid fa-eye"></i> View
                                                 </button>
                                             </td>
                                         </tr>
@@ -164,7 +180,76 @@
             AppointmentStatus.InProgress => "info",
             AppointmentStatus.Urgent => "danger",
             AppointmentStatus.NoShow => "dark",
+            AppointmentStatus.Draft => "primary",
             _ => "secondary"
         };
     }
+}
+
+@section Scripts {
+    <script>
+        function handleCompleteFormClick(element, age, appointmentId, event) {
+            console.log('Complete Form clicked:', { age: age, appointmentId: appointmentId });
+            
+            // Prevent default link behavior
+            if (event) {
+                event.preventDefault();
+            }
+            
+            // Show loading state
+            const originalText = element.innerHTML;
+            element.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading...';
+            element.disabled = true;
+            
+            // Determine the correct assessment form based on age
+            let redirectUrl;
+            if (age >= 20) {
+                redirectUrl = `/User/NCDRiskAssessment?appointmentId=${appointmentId}`;
+                console.log('Redirecting to NCD Risk Assessment for age:', age);
+            } else if (age >= 10) {
+                redirectUrl = `/User/HEEADSSSAssessment?appointmentId=${appointmentId}`;
+                console.log('Redirecting to HEEADSSS Assessment for age:', age);
+            } else {
+                alert('No assessment form is required for patients under 10 years old.');
+                // Restore button state
+                element.innerHTML = originalText;
+                element.disabled = false;
+                return;
+            }
+            
+            // Test the URL first
+            console.log('Testing URL accessibility...');
+            fetch(redirectUrl, { method: 'HEAD' })
+                .then(response => {
+                    console.log('URL test response:', response.status, response.statusText);
+                    if (response.ok) {
+                        console.log('URL is accessible, redirecting...');
+                        window.location.href = redirectUrl;
+                    } else {
+                        console.error('URL not accessible:', response.status);
+                        element.innerHTML = originalText;
+                        element.disabled = false;
+                        alert(`Assessment form is not accessible (Status: ${response.status}). Please contact support.`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error testing URL:', error);
+                    element.innerHTML = originalText;
+                    element.disabled = false;
+                    alert('Error accessing assessment form. Please try again or contact support.');
+                });
+        }
+        
+        // Add event listeners for all Complete Form buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const completeFormButtons = document.querySelectorAll('.complete-form-btn');
+            console.log('Found Complete Form buttons:', completeFormButtons.length);
+            
+            completeFormButtons.forEach(button => {
+                const appointmentId = button.getAttribute('data-appointment-id');
+                const age = parseInt(button.getAttribute('data-age'));
+                console.log('Button details:', { appointmentId, age });
+            });
+        });
+    </script>
 } 

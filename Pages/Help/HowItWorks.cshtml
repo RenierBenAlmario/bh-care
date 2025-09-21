@@ -1,0 +1,10 @@
+@page
+@namespace Barangay.Pages.Help
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@functions {
+    public Microsoft.AspNetCore.Mvc.IActionResult OnGet()
+    {
+        // Redirect to the section on the home page that already contains the How It Works content.
+        return RedirectPermanent("/#how-it-works");
+    }
+}

@@ -1,0 +1,584 @@
+@page
+@model Barangay.Pages.Admin.UploadNCDFormImageModel
+@{
+    ViewData["Title"] = "Upload NCD Form Images";
+}
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-upload me-2"></i>Upload NCD Risk Assessment Form Images</h5>
+        </div>
+        <div class="card-body">
+            <p class="text-muted mb-4">
+                Use this page to upload the official NCD Risk Assessment Form images. These images will be displayed 
+                as a reference for users filling out the digital form.
+            </p>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="ncdFormImageUploader" class="form-label">Select Image File</label>
+                        <input class="form-control" type="file" id="ncdFormImageUploader" accept="image/jpeg,image/png">
+                        <div class="form-text">Max file size: 5MB. Accepted formats: JPG, PNG</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="ncdFormPageSelector" class="form-label">Select Page Number</label>
+                        <select class="form-select" id="ncdFormPageSelector">
+                            <option value="">-- Select Page --</option>
+                            <option value="1">Page 1</option>
+                            <option value="2">Page 2</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <button type="button" id="uploadNcdFormImage" class="btn btn-primary" disabled>
+                            <i class="fas fa-upload me-1"></i> Upload
+                        </button>
+                        <button type="button" id="extractTextFromImage" class="btn btn-success ms-2" disabled>
+                            <i class="fas fa-eye me-1"></i> Extract Text (OCR)
+                        </button>
+                    </div>
+                    
+                    <div id="ncdFormUploadStatus"></div>
+                    
+                    <!-- OCR Results Section -->
+                    <div id="ocrResultsSection" class="mt-4" style="display: none;">
+                        <div class="card">
+                            <div class="card-header bg-success text-white">
+                                <h6 class="mb-0"><i class="fas fa-eye me-2"></i>Extracted Text (OCR Results)</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="ocrResults" class="mb-3">
+                                    <p class="text-muted">OCR results will appear here...</p>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button type="button" id="useOcrResults" class="btn btn-success btn-sm">
+                                        <i class="fas fa-check me-1"></i> Use OCR Results
+                                    </button>
+                                    <button type="button" id="manualEntry" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit me-1"></i> Manual Entry
+                                    </button>
+                                    <button type="button" id="retryOcr" class="btn btn-info btn-sm">
+                                        <i class="fas fa-redo me-1"></i> Retry OCR
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">Image Preview</h6>
+                        </div>
+                        <div class="card-body text-center">
+                            <div id="ncdFormImagePreview" class="p-3">
+                                <div class="text-muted">
+                                    <i class="fas fa-image fa-4x mb-3"></i>
+                                    <p>Preview will appear here</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Admin Notice -->
+            <div class="card mt-4">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Admin-Only Functionality</h6>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">
+                        <strong>Note:</strong> This page is for administrative use only. Uploaded images will be used as reference forms for users filling out digital assessments.
+                    </p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Enhanced Management:</strong> Use the new <a href="/Admin/NCDFormManagement" class="alert-link">NCD Form Management</a> page for advanced image management features.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="action-buttons mt-4">
+                <a href="/Admin/AdminDashboard" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+                </a>
+                <div class="btn-group ms-2" role="group">
+                    <a href="/User/NCDRiskAssessment" class="btn btn-outline-primary" target="_blank">
+                        <i class="fas fa-file-medical me-1"></i> NCD Risk Assessment Form
+                    </a>
+                    <a href="/User/HEEADSSSAssessment" class="btn btn-outline-info" target="_blank">
+                        <i class="fas fa-user-md me-1"></i> HEEADSSS Assessment Form
+                    </a>
+                </div>
+            </div>
+
+            <hr class="my-4">
+            
+            <h5 class="mb-3">Current Uploaded Images</h5>
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">Page 1</h6>
+                            <span class="badge bg-info">Primary Information</span>
+                        </div>
+                        <div class="card-body text-center">
+                            <img src="/images/forms/ncd-form-page1.jpg" 
+                                 alt="NCD Form Page 1" 
+                                 class="img-fluid border" 
+                                 id="currentPage1Image"
+                                 onerror="if(!this.dataset.errorShown){ this.dataset.errorShown='true'; this.onerror=null; this.src='/images/preview-placeholder.jpg'; this.classList.add('border-danger'); if(!this.parentNode.querySelector('.image-not-found-msg')){ const msg=document.createElement('div'); msg.className='mt-3 text-danger image-not-found-msg'; msg.innerHTML='<i class=&quot;fas fa-exclamation-triangle&quot;></i> Image not found'; this.parentNode.appendChild(msg);} }">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">Page 2</h6>
+                            <span class="badge bg-info">Risk Assessment</span>
+                        </div>
+                        <div class="card-body text-center">
+                            <img src="/images/forms/ncd-form-page2.jpg" 
+                                 alt="NCD Form Page 2" 
+                                 class="img-fluid border" 
+                                 id="currentPage2Image"
+                                 onerror="if(!this.dataset.errorShown){ this.dataset.errorShown='true'; this.onerror=null; this.src='/images/preview-placeholder.jpg'; this.classList.add('border-danger'); if(!this.parentNode.querySelector('.image-not-found-msg')){ const msg=document.createElement('div'); msg.className='mt-3 text-danger image-not-found-msg'; msg.innerHTML='<i class=&quot;fas fa-exclamation-triangle&quot;></i> Image not found'; this.parentNode.appendChild(msg);} }">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Manual Form Entry Section -->
+            <div id="manualFormSection" class="mt-4" style="display: none;">
+                <hr class="my-4">
+                <h5 class="mb-3">Manual Form Entry</h5>
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="mb-0"><i class="fas fa-edit me-2"></i>Fill Form Manually</h6>
+                    </div>
+                    <div class="card-body">
+                        <form id="manualNcdForm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="manualHealthFacility" class="form-label">Health Facility:</label>
+                                        <input type="text" id="manualHealthFacility" name="healthFacility" class="form-control" value="Barangay Health Center 161" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="manualFamilyNo" class="form-label">Family No.:</label>
+                                        <input type="text" id="manualFamilyNo" name="familyNo" class="form-control">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="manualDateAssessment" class="form-label">Date of Assessment:</label>
+                                        <input type="text" id="manualDateAssessment" name="dateAssessment" class="form-control" value="@DateTime.Now.ToString("MM/dd/yyyy")" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="manualIdNo" class="form-label">ID No.:</label>
+                                        <input type="text" id="manualIdNo" name="idNo" class="form-control" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="manualFirstName" class="form-label">Unang Pangalan:</label>
+                                        <input type="text" id="manualFirstName" name="firstName" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="manualMiddleName" class="form-label">Gitnang Pangalan:</label>
+                                        <input type="text" id="manualMiddleName" name="middleName" class="form-control">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="manualLastName" class="form-label">Apelyido:</label>
+                                        <input type="text" id="manualLastName" name="lastName" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="manualAddress" class="form-label">Address:</label>
+                                        <input type="text" id="manualAddress" name="address" class="form-control">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="manualBarangay" class="form-label">Barangay:</label>
+                                        <input type="text" id="manualBarangay" name="barangay" class="form-control">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="manualTelefono" class="form-label">Telepono:</label>
+                                        <input type="text" id="manualTelefono" name="telefono" class="form-control" pattern="[0-9]{11}" maxlength="11">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="manualBirthday" class="form-label">Birthday:</label>
+                                        <input type="date" id="manualBirthday" name="birthday" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="manualEdad" class="form-label">Edad:</label>
+                                        <input type="number" id="manualEdad" name="edad" class="form-control" min="1" max="120" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Kasarian:</label>
+                                        <div class="form-check">
+                                            <input type="radio" id="manualKasarianMale" name="kasarian" value="Male" class="form-check-input" required>
+                                            <label for="manualKasarianMale" class="form-check-label">Male</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input type="radio" id="manualKasarianFemale" name="kasarian" value="Female" class="form-check-input">
+                                            <label for="manualKasarianFemale" class="form-check-label">Female</label>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="manualRelihiyon" class="form-label">Relihiyon:</label>
+                                        <input type="text" id="manualRelihiyon" name="relihiyon" class="form-control">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="manualHanapbuhay" class="form-label">Hanapbuhay:</label>
+                                        <input type="text" id="manualHanapbuhay" name="Occupation" class="form-control">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="manualEstadoSibil" class="form-label">Estado Sivil:</label>
+                                        <input type="text" id="manualEstadoSibil" name="CivilStatus" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Medical History Section -->
+                            <hr class="my-4">
+                            <h6>Medical History</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input type="checkbox" id="manualHasDiabetes" name="HasDiabetes" value="true" class="form-check-input">
+                                            <label for="manualHasDiabetes" class="form-check-label">Diabetes (DM)</label>
+                                        </div>
+                                        <input type="text" id="manualDiabetesYear" name="DiabetesYear" class="form-control mt-2" placeholder="Year diagnosed">
+                                        <input type="text" id="manualDiabetesMedication" name="DiabetesMedication" class="form-control mt-2" placeholder="Medication">
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input type="checkbox" id="manualHasHypertension" name="HasHypertension" value="true" class="form-check-input">
+                                            <label for="manualHasHypertension" class="form-check-label">Hypertension (HPN)</label>
+                                        </div>
+                                        <input type="text" id="manualHypertensionYear" name="HypertensionYear" class="form-control mt-2" placeholder="Year diagnosed">
+                                        <input type="text" id="manualHypertensionMedication" name="HypertensionMedication" class="form-control mt-2" placeholder="Medication">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input type="checkbox" id="manualHasCancer" name="HasCancer" value="true" class="form-check-input">
+                                            <label for="manualHasCancer" class="form-check-label">Cancer</label>
+                                        </div>
+                                        <input type="text" id="manualCancerType" name="CancerType" class="form-control mt-2" placeholder="Cancer type">
+                                        <input type="text" id="manualCancerYear" name="CancerYear" class="form-control mt-2" placeholder="Year diagnosed">
+                                        <input type="text" id="manualCancerMedication" name="CancerMedication" class="form-control mt-2" placeholder="Medication">
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input type="checkbox" id="manualHasCOPD" name="HasCOPD" value="true" class="form-check-input">
+                                            <label for="manualHasCOPD" class="form-check-label">COPD</label>
+                                        </div>
+                                        <input type="text" id="manualLungDiseaseYear" name="LungDiseaseYear" class="form-control mt-2" placeholder="Year diagnosed">
+                                        <input type="text" id="manualLungDiseaseMedication" name="LungDiseaseMedication" class="form-control mt-2" placeholder="Medication">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex gap-2 mt-4">
+                                <button type="button" id="saveManualForm" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i> Save Form Data
+                                </button>
+                                <button type="button" id="clearManualForm" class="btn btn-secondary">
+                                    <i class="fas fa-eraser me-1"></i> Clear Form
+                                </button>
+                                <button type="button" id="backToUpload" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-1"></i> Back to Upload
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Tesseract.js for OCR functionality -->
+    <script src="https://unpkg.com/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
+    <script src="/js/admin-tools.js"></script>
+    <script>
+        // Refresh current images on successful upload
+        function refreshCurrentImages() {
+            // Add timestamp to prevent caching
+            const timestamp = new Date().getTime();
+            $('#currentPage1Image').attr('src', `/images/forms/ncd-form-page1.jpg?t=${timestamp}`);
+            $('#currentPage2Image').attr('src', `/images/forms/ncd-form-page2.jpg?t=${timestamp}`);
+        }
+        
+        // Add refresh functionality to the upload success handler
+        $(document).ready(function() {
+            const originalAjaxSuccess = $.ajax;
+            
+            $.ajax = function() {
+                const xhr = originalAjaxSuccess.apply(this, arguments);
+                
+                if (arguments[0].url === '/Admin/UploadNCDFormImage' && arguments[0].type === 'POST') {
+                    xhr.done(function(response) {
+                        if (response.success) {
+                            setTimeout(refreshCurrentImages, 500);
+                        }
+                    });
+                }
+                
+                return xhr;
+            };
+            
+            // Initialize OCR functionality
+            initializeOCR();
+            initializeManualForm();
+        });
+        
+        // OCR Functionality
+        function initializeOCR() {
+            const extractButton = $('#extractTextFromImage');
+            const ocrResultsSection = $('#ocrResultsSection');
+            const ocrResults = $('#ocrResults');
+            const useOcrButton = $('#useOcrResults');
+            const manualEntryButton = $('#manualEntry');
+            const retryOcrButton = $('#retryOcr');
+            
+            // Enable OCR button when file is selected
+            $('#ncdFormImageUploader').on('change', function() {
+                const hasFile = this.files.length > 0;
+                extractButton.prop('disabled', !hasFile);
+            });
+            
+            // Extract text using OCR
+            extractButton.on('click', function() {
+                const fileInput = $('#ncdFormImageUploader')[0];
+                const file = fileInput.files[0];
+                
+                if (!file) {
+                    alert('Please select an image file first.');
+                    return;
+                }
+                
+                // Show loading state
+                extractButton.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
+                ocrResults.html('<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Extracting text from image...</div>');
+                ocrResultsSection.show();
+                
+                // Use Tesseract.js for OCR
+                Tesseract.recognize(file, 'eng', {
+                    logger: m => {
+                        if (m.status === 'recognizing text') {
+                            ocrResults.html(`<div class="text-center"><i class="fas fa-spinner fa-spin"></i> ${m.progress * 100}% complete...</div>`);
+                        }
+                    }
+                }).then(({ data: { text } }) => {
+                    // Display OCR results
+                    displayOCRResults(text);
+                    extractButton.prop('disabled', false).html('<i class="fas fa-eye me-1"></i> Extract Text (OCR)');
+                }).catch(error => {
+                    console.error('OCR Error:', error);
+                    ocrResults.html('<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> OCR failed. Please try manual entry or retry with a clearer image.</div>');
+                    extractButton.prop('disabled', false).html('<i class="fas fa-eye me-1"></i> Extract Text (OCR)');
+                });
+            });
+            
+            // Use OCR results
+            useOcrButton.on('click', function() {
+                populateManualFormFromOCR();
+                $('#manualFormSection').show();
+                ocrResultsSection.hide();
+            });
+            
+            // Manual entry
+            manualEntryButton.on('click', function() {
+                $('#manualFormSection').show();
+                ocrResultsSection.hide();
+            });
+            
+            // Retry OCR
+            retryOcrButton.on('click', function() {
+                extractButton.click();
+            });
+        }
+        
+        // Display OCR results
+        function displayOCRResults(text) {
+            const ocrResults = $('#ocrResults');
+            
+            if (!text || text.trim().length === 0) {
+                ocrResults.html('<div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> No text detected in the image. Please try manual entry.</div>');
+                return;
+            }
+            
+            // Clean up the text
+            const cleanedText = text.replace(/\n\s*\n/g, '\n').trim();
+            
+            // Display the extracted text
+            ocrResults.html(`
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-check-circle"></i> Text Successfully Extracted!</h6>
+                    <p class="mb-2">The following text was detected in the image:</p>
+                </div>
+                <div class="border p-3 bg-light" style="max-height: 300px; overflow-y: auto;">
+                    <pre style="white-space: pre-wrap; font-family: inherit; margin: 0;">${cleanedText}</pre>
+                </div>
+                <div class="mt-2">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle"></i> 
+                        Review the extracted text above. If it looks accurate, click "Use OCR Results" to auto-fill the form. 
+                        Otherwise, use "Manual Entry" to fill the form manually.
+                    </small>
+                </div>
+            `);
+        }
+        
+        // Populate manual form from OCR results
+        function populateManualFormFromOCR() {
+            const ocrText = $('#ocrResults pre').text();
+            
+            // Simple text parsing - this can be enhanced with more sophisticated parsing
+            const lines = ocrText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+            
+            // Try to extract common fields
+            lines.forEach(line => {
+                const lowerLine = line.toLowerCase();
+                
+                // Extract names (simple heuristic)
+                if (lowerLine.includes('pangalan') || lowerLine.includes('name')) {
+                    const nameMatch = line.match(/([A-Za-z\s]+)/);
+                    if (nameMatch) {
+                        const names = nameMatch[1].trim().split(' ');
+                        if (names.length >= 2) {
+                            $('#manualFirstName').val(names[0]);
+                            $('#manualLastName').val(names[names.length - 1]);
+                            if (names.length > 2) {
+                                $('#manualMiddleName').val(names.slice(1, -1).join(' '));
+                            }
+                        }
+                    }
+                }
+                
+                // Extract address
+                if (lowerLine.includes('address') || lowerLine.includes('tirahan')) {
+                    $('#manualAddress').val(line);
+                }
+                
+                // Extract phone number
+                const phoneMatch = line.match(/(\d{11}|\d{3}-\d{3}-\d{4}|\d{4}-\d{3}-\d{4})/);
+                if (phoneMatch) {
+                    $('#manualTelefono').val(phoneMatch[1].replace(/-/g, ''));
+                }
+                
+                // Extract age
+                const ageMatch = line.match(/(\d{1,2})\s*(taon|years?|edad)/i);
+                if (ageMatch) {
+                    $('#manualEdad').val(ageMatch[1]);
+                }
+                
+                // Extract gender
+                if (lowerLine.includes('lalaki') || lowerLine.includes('male')) {
+                    $('#manualKasarianMale').prop('checked', true);
+                } else if (lowerLine.includes('babae') || lowerLine.includes('female')) {
+                    $('#manualKasarianFemale').prop('checked', true);
+                }
+                
+                // Extract medical conditions
+                if (lowerLine.includes('diabetes') || lowerLine.includes('dm')) {
+                    $('#manualHasDiabetes').prop('checked', true);
+                }
+                if (lowerLine.includes('hypertension') || lowerLine.includes('hpn')) {
+                    $('#manualHasHypertension').prop('checked', true);
+                }
+                if (lowerLine.includes('cancer') || lowerLine.includes('kanser')) {
+                    $('#manualHasCancer').prop('checked', true);
+                }
+                if (lowerLine.includes('copd') || lowerLine.includes('lung')) {
+                    $('#manualHasCOPD').prop('checked', true);
+                }
+            });
+            
+            // Generate random ID and family number
+            $('#manualIdNo').val('ID-' + Math.floor(10000 + Math.random() * 90000));
+            $('#manualFamilyNo').val('F-' + Math.floor(100 + Math.random() * 900));
+        }
+        
+        // Manual Form Functionality
+        function initializeManualForm() {
+            // Auto-calculate age when birthday changes
+            $('#manualBirthday').on('change', function() {
+                if (this.value) {
+                    const birthDate = new Date(this.value);
+                    const today = new Date();
+                    let age = today.getFullYear() - birthDate.getFullYear();
+                    const monthDiff = today.getMonth() - birthDate.getMonth();
+                    
+                    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                        age--;
+                    }
+                    
+                    $('#manualEdad').val(age);
+                }
+            });
+            
+            // Phone number validation
+            $('#manualTelefono').on('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+                if (this.value.length > 11) {
+                    this.value = this.value.slice(0, 11);
+                }
+            });
+            
+            // Save manual form
+            $('#saveManualForm').on('click', function() {
+                const formData = new FormData($('#manualNcdForm')[0]);
+                
+                // Convert FormData to object
+                const data = {};
+                for (let [key, value] of formData.entries()) {
+                    data[key] = value;
+                }
+                
+                // Send to server
+                $.ajax({
+                    url: '/Admin/UploadNCDFormImage?handler=SaveManualForm',
+                    type: 'POST',
+                    data: JSON.stringify(data),
+                    contentType: 'application/json',
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            alert('Form data saved successfully!');
+                        } else {
+                            alert('Error saving form data: ' + response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('Server error occurred while saving form data.');
+                    }
+                });
+            });
+            
+            // Clear manual form
+            $('#clearManualForm').on('click', function() {
+                if (confirm('Are you sure you want to clear all form data?')) {
+                    $('#manualNcdForm')[0].reset();
+                    $('#manualHealthFacility').val('Barangay Health Center 161');
+                    $('#manualDateAssessment').val('@DateTime.Now.ToString("MM/dd/yyyy")');
+                }
+            });
+            
+            // Back to upload
+            $('#backToUpload').on('click', function() {
+                $('#manualFormSection').hide();
+                $('#ocrResultsSection').hide();
+            });
+        }
+    </script>
+} 

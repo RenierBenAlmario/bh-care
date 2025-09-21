@@ -1,0 +1,12 @@
+{
+  "name": "permission-fix-example",
+  "version": "1.0.0",
+  "description": "Example of dynamic permission system.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

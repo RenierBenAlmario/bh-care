@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fix Doctor Role</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        button { padding: 10px 20px; margin: 10px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin: 20px 0; padding: 10px; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <h1>Fix Doctor Role</h1>
+    <p>This page will fix the doctor role assignment so the doctor appears in the Staff Overview.</p>
+    
+    <button onclick="fixStaffRoles()">Fix Staff Roles</button>
+    <button onclick="seedDatabase()">Seed Database</button>
+    
+    <div id="result"></div>
+
+    <script>
+        async function fixStaffRoles() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>Fixing staff roles...</p>';
+            
+            try {
+                const response = await fetch('/api/Admin/FixStaffRoles', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `<div class="result success">
+                        <h3>Success!</h3>
+                        <p>${data.message}</p>
+                        <p>Details: ${data.details ? data.details.join(', ') : 'No details'}</p>
+                    </div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="result error">
+                        <h3>Error</h3>
+                        <p>${data.message}</p>
+                    </div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result error">
+                    <h3>Error</h3>
+                    <p>Failed to fix staff roles: ${error.message}</p>
+                </div>`;
+            }
+        }
+
+        async function seedDatabase() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>Seeding database...</p>';
+            
+            try {
+                const response = await fetch('/api/Admin/SeedDatabase', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `<div class="result success">
+                        <h3>Success!</h3>
+                        <p>${data.message}</p>
+                    </div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="result error">
+                        <h3>Error</h3>
+                        <p>${data.message}</p>
+                    </div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result error">
+                    <h3>Error</h3>
+                    <p>Failed to seed database: ${error.message}</p>
+                </div>`;
+            }
+        }
+    </script>
+</body>
+</html>

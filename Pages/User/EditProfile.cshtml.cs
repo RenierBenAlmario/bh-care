@@ -14,6 +14,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Security.Claims;
 using System.Collections.Generic;
+using Barangay.Services;
+using Barangay.Extensions;
 
 namespace Barangay.Pages.User
 {
@@ -23,17 +25,20 @@ namespace Barangay.Pages.User
         private readonly IWebHostEnvironment _environment;
         private readonly ILogger<EditProfileModel> _logger;
         private readonly ApplicationDbContext _context;
+        private readonly IDataEncryptionService _encryptionService;
 
         public EditProfileModel(
             UserManager<ApplicationUser> userManager,
             IWebHostEnvironment environment,
             ILogger<EditProfileModel> logger,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            IDataEncryptionService encryptionService)
         {
             _userManager = userManager;
             _environment = environment;
             _logger = logger;
             _context = context;
+            _encryptionService = encryptionService;
             CurrentUser = new ApplicationUser();
         }
 
@@ -97,6 +102,19 @@ namespace Barangay.Pages.User
                 {
                     _logger.LogWarning("User not found");
                     return NotFound("User not found");
+                }
+
+                // Decrypt user data for authorized users
+                user = user.DecryptSensitiveData(_encryptionService, User);
+                
+                // Manually decrypt Email and PhoneNumber since they're not marked with [Encrypted] attribute
+                if (!string.IsNullOrEmpty(user.Email) && _encryptionService.IsEncrypted(user.Email))
+                {
+                    user.Email = user.Email.DecryptForUser(_encryptionService, User);
+                }
+                if (!string.IsNullOrEmpty(user.PhoneNumber) && _encryptionService.IsEncrypted(user.PhoneNumber))
+                {
+                    user.PhoneNumber = user.PhoneNumber.DecryptForUser(_encryptionService, User);
                 }
 
                 CurrentUser = new ApplicationUser
@@ -239,7 +257,7 @@ namespace Barangay.Pages.User
                     patient.Address = user.Address;
                     patient.ContactNumber = user.PhoneNumber;
                     
-                    patient.BirthDate = user.BirthDate;
+                    patient.BirthDate = DateTime.TryParse(user.BirthDate, out var parsedPatientBirthDate) ? parsedPatientBirthDate : DateTime.MinValue;
                     
                     patient.EmergencyContact = EmergencyContact;
                     patient.EmergencyContactNumber = EmergencyContactNumber;
@@ -264,7 +282,7 @@ namespace Barangay.Pages.User
                         {
                             appointment.PatientName = user.FullName ?? string.Empty;
                             appointment.ContactNumber = user.PhoneNumber;
-                            appointment.DateOfBirth = user.BirthDate;
+                            appointment.DateOfBirth = DateTime.TryParse(user.BirthDate, out var parsedAppointmentBirthDate) ? parsedAppointmentBirthDate : DateTime.MinValue;
                             appointment.Address = user.Address;
                             appointment.EmergencyContact = EmergencyContact;
                             appointment.EmergencyContactNumber = EmergencyContactNumber;

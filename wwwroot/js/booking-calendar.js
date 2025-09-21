@@ -60,19 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     break;
                     
-                case 'dental':
-                    // Dental Consultation: Mon, Wed, Fri (1, 3, 5)
-                    if (dayOfWeek === 1 || dayOfWeek === 3 || dayOfWeek === 5) {
-                        addOption('8:00 AM', '8:00 AM');
-                        addOption('8:30 AM', '8:30 AM');
-                        addOption('9:00 AM', '9:00 AM');
-                        addOption('9:30 AM', '9:30 AM');
-                        addOption('10:00 AM', '10:00 AM');
-                        addOption('10:30 AM', '10:30 AM');
-                    } else {
-                        addOption('Available only on Mon, Wed, Fri', '', true);
-                    }
-                    break;
+
                     
                 case 'immunization':
                     // Immunization: Wed only (3)

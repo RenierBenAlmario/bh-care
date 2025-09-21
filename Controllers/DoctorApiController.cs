@@ -170,7 +170,7 @@ namespace Barangay.Controllers
                     p.UserId,
                     p.Name,
                     p.Gender,
-                    Age = CalculateAge(p.User.BirthDate),
+                    Age = 0, // Will be calculated after query
                     p.Status,
                     LastVisit = _context.Appointments
                         .Where(a => a.PatientId == p.UserId && a.Status != AppointmentStatus.Cancelled)
@@ -181,11 +181,28 @@ namespace Barangay.Controllers
                     p.Address,
                     p.MedicalHistory,
                     p.Allergies,
-                    p.CurrentMedications
+                    p.CurrentMedications,
+                    UserBirthDate = p.User.BirthDate // Include birthdate for age calculation
                 })
                 .ToListAsync();
 
-            return Ok(patients);
+            // Calculate ages after query to avoid LINQ expression tree issues
+            var patientsWithAge = patients.Select(p => new
+            {
+                p.UserId,
+                p.Name,
+                p.Gender,
+                Age = CalculateAge(DateTime.TryParse(p.UserBirthDate, out var parsedBirthDate) ? parsedBirthDate : DateTime.MinValue),
+                p.Status,
+                p.LastVisit,
+                p.ContactNumber,
+                p.Address,
+                p.MedicalHistory,
+                p.Allergies,
+                p.CurrentMedications
+            }).ToList();
+
+            return Ok(patientsWithAge);
         }
 
         [HttpGet("patients/{patientId}")]
@@ -204,7 +221,7 @@ namespace Barangay.Controllers
                     p.UserId,
                     p.Name,
                     p.Gender,
-                    Age = CalculateAge(p.User.BirthDate),
+                    Age = 0, // Will be calculated after query
                     p.Status,
                     LastVisit = _context.Appointments
                         .Where(a => a.PatientId == p.UserId && a.Status != AppointmentStatus.Cancelled)
@@ -345,6 +362,9 @@ namespace Barangay.Controllers
                         .Where(p => p.DoctorId == doctorId && 
                                p.PrescriptionDate >= startDate && 
                                p.PrescriptionDate <= endDate)
+                        .Include(p => p.Patient)
+                        .Include(p => p.PrescriptionMedicines)
+                            .ThenInclude(pm => pm.Medication)
                         .OrderByDescending(p => p.PrescriptionDate)
                         .ToListAsync();
                     break;
@@ -505,7 +525,7 @@ namespace Barangay.Controllers
                     { 
                         DateTimeHelper.ToDateString(prescription.PrescriptionDate),
                         prescription.Patient?.FullName ?? "Unknown",
-                        string.Join(", ", prescription.PrescriptionMedicines.Select(m => m.MedicationName)),
+                        string.Join(", ", prescription.PrescriptionMedicines.Select(m => m.Medication?.Name ?? "Unknown")),
                         firstMedicine?.Dosage.ToString() ?? string.Empty,
                         prescription.Duration.ToString()
                     };

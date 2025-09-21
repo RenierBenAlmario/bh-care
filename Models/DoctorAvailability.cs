@@ -31,10 +31,10 @@ namespace Barangay.Models
         public bool Friday { get; set; } = true;
         
         [Required]
-        public bool Saturday { get; set; } = false;
+        public bool Saturday { get; set; } = true;  // ENABLE WEEKENDS BY DEFAULT
         
         [Required]
-        public bool Sunday { get; set; } = false;
+        public bool Sunday { get; set; } = true;    // ENABLE WEEKENDS BY DEFAULT
 
         [Required]
         public TimeSpan StartTime { get; set; } = new TimeSpan(9, 0, 0); // 9:00 AM

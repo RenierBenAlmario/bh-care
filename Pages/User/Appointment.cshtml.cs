@@ -101,7 +101,8 @@ namespace Barangay.Pages.User
                 else
                 {
                     // If no patient record, use user's birthdate
-                    ViewData["PatientAge"] = CalculateAge(user.BirthDate);
+                    var userBirthDateForAge = DateTime.TryParse(user.BirthDate, out var parsedUserBirthDate) ? parsedUserBirthDate : DateTime.MinValue;
+                    ViewData["PatientAge"] = CalculateAge(userBirthDateForAge);
                 }
             }
 
@@ -207,7 +208,7 @@ namespace Barangay.Pages.User
             // And IntegratedAssessment entity has string UserId and string FamilyNo
             try
             {
-                IntegratedAssessment existingAssessment = null;
+                IntegratedAssessment? existingAssessment = null;
                 try
                 {
                     existingAssessment = await _context.IntegratedAssessments
@@ -219,7 +220,7 @@ namespace Barangay.Pages.User
                     _logger.LogError(ex, "Error querying IntegratedAssessments. Table might not exist.");
                 }
 
-                if (existingAssessment != null)
+                if (existingAssessment != null && !string.IsNullOrEmpty(existingAssessment.FamilyNo))
                 {
                     FamilyNo = existingAssessment.FamilyNo;
                     FamilyNoPreexisting = true;
@@ -271,10 +272,11 @@ namespace Barangay.Pages.User
             // Pre-fill parts of the Input model if necessary (e.g., from user profile)
             Input.Address = user.Address;
             Input.Telepono = user.PhoneNumber;
-            if (user.BirthDate != DateTime.MinValue)
+            var userBirthDateForInput = DateTime.TryParse(user.BirthDate, out var parsedUserBirthDateForInput) ? parsedUserBirthDateForInput : DateTime.MinValue;
+            if (userBirthDateForInput != DateTime.MinValue)
             {
-                Input.Birthday = user.BirthDate;
-                Input.Edad = CalculateAge(user.BirthDate);
+                Input.Birthday = userBirthDateForInput;
+                Input.Edad = CalculateAge(userBirthDateForInput);
             }
 
             return Page();
@@ -444,23 +446,20 @@ namespace Barangay.Pages.User
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
-            {
-                // Repopulate HealthFacility and FamilyNo if needed for display on validation error
-                var userForRepost = await _userManager.GetUserAsync(User);
-                if (userForRepost != null) {
-                    // Simplified re-population logic, consider abstracting if complex
-                    if (userForRepost.Address != null && userForRepost.Address.Contains("Barangay")) { /*...*/ HealthFacility = "Barangay Health Center (Default)"; } else { HealthFacility = "Barangay Health Center 161"; }
-                    if (string.IsNullOrEmpty(FamilyNo)) { FamilyNo = "TEMP-000"; } // Avoid losing this on postback
-                }
-                return Page();
+            // Remove ModelState validation check
+            // We still repopulate HealthFacility and FamilyNo for display consistency
+            var userForRepost = await _userManager.GetUserAsync(User);
+            if (userForRepost != null) {
+                // Simplified re-population logic, consider abstracting if complex
+                if (userForRepost.Address != null && userForRepost.Address.Contains("Barangay")) { /*...*/ HealthFacility = "Barangay Health Center (Default)"; } else { HealthFacility = "Barangay Health Center 161"; }
+                if (string.IsNullOrEmpty(FamilyNo)) { FamilyNo = "TEMP-000"; } // Avoid losing this on postback
             }
 
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
                 return NotFound("User not found.");
-                }
+            }
 
             _logger.LogInformation($"Form submitted by User ID: {user.Id}");
             _logger.LogInformation($"Input Address: {Input.Address}");
@@ -533,31 +532,31 @@ namespace Barangay.Pages.User
     public class AppointmentInputModel
     {
         [Display(Name = "Health Facility")]
-        public string HealthFacility { get; set; } // If it becomes an editable part of the form
+        public string? HealthFacility { get; set; } // If it becomes an editable part of the form
 
         [Display(Name = "Family No.")]
-        public string FamilyNo { get; set; } // If it becomes an editable part of the form
+        public string? FamilyNo { get; set; } // If it becomes an editable part of the form
 
-        [Required(ErrorMessage = "Address is required.")]
-        public string Address { get; set; }
+        [Display(Name = "Address")]
+        public string? Address { get; set; }
 
-        [Required(ErrorMessage = "Barangay is required.")]
-        public string Barangay { get; set; }
+        [Display(Name = "Barangay")]
+        public string? Barangay { get; set; }
         
-        [Required(ErrorMessage = "Birthday is required.")]
+        [Display(Name = "Birthday")]
         [DataType(DataType.Date)]
-        public DateTime Birthday { get; set; } = DateTime.Now.AddYears(-15); // Default value
+        public DateTime? Birthday { get; set; } = DateTime.Now.AddYears(-15); // Default value
 
-        [Required(ErrorMessage = "Telepono (Phone Number) is required.")]
+        [Display(Name = "Telepono (Phone Number)")]
         [Phone]
-        public string Telepono { get; set; }
+        public string? Telepono { get; set; }
 
-        public int Edad { get; set; } // Auto-calculated
+        public int? Edad { get; set; } // Auto-calculated
 
-        [Required(ErrorMessage = "Kasarian (Gender) is required.")]
-        public string Kasarian { get; set; } // e.g., "Male", "Female"
+        [Display(Name = "Kasarian (Gender)")]
+        public string? Kasarian { get; set; } // e.g., "Male", "Female"
 
-        public string Relihiyon { get; set; }
+        public string? Relihiyon { get; set; }
 
         // Fields from Step 2: Past Medical History
         public bool HasDiabetes { get; set; }
@@ -569,9 +568,9 @@ namespace Barangay.Pages.User
         public bool HasEyeDisease { get; set; }
 
         // Additional fields from NCD context that might be part of this "Integrated" form
-        public string CancerType { get; set; } // If HasCancer is true
-        public string AppointmentType { get; set; } = "General Checkup"; // Default
-        public string FamilyOtherDiseaseDetails { get; set; }
+        public string? CancerType { get; set; } // If HasCancer is true
+        public string? AppointmentType { get; set; } = "General Checkup"; // Default
+        public string? FamilyOtherDiseaseDetails { get; set; }
     }
 
     // Placeholder for DbContext if not already defined or if IntegratedAssessments is new

@@ -16,10 +16,10 @@ namespace Barangay.TagHelpers
     [HtmlTargetElement(Attributes = "nav-permission")]
     public class NavPermissionTagHelper : TagHelper
     {
-        private readonly PermissionService _permissionService;
+        private readonly IPermissionService _permissionService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public NavPermissionTagHelper(PermissionService permissionService, IHttpContextAccessor httpContextAccessor)
+        public NavPermissionTagHelper(IPermissionService permissionService, IHttpContextAccessor httpContextAccessor)
         {
             _permissionService = permissionService;
             _httpContextAccessor = httpContextAccessor;

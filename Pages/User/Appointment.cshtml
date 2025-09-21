@@ -103,7 +103,7 @@
     <div class="row mb-4">
         <div class="col-12">
         <a href="/User/UserDashboard" class="btn btn-outline-primary">
-            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            <i class="fa-solid fa-arrow-left me-2"></i>Back to Dashboard
         </a>
         </div>
     </div>
@@ -187,29 +187,29 @@
                 <!-- Personal Information -->
                 <div class="row">
                     <div class="col-md-12 mb-3">
-                        <label class="form-label required">Address:</label>
-                        <input type="text" class="form-control" asp-for="Input.Address" required />
+                        <label class="form-label">Address:</label>
+                        <input type="text" class="form-control" asp-for="Input.Address" />
                         <span asp-validation-for="Input.Address" class="text-danger"></span>
                     </div>
                         </div>
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label required">Barangay:</label>
-                        <input type="text" class="form-control" asp-for="Input.Barangay" required />
+                        <label class="form-label">Barangay:</label>
+                        <input type="text" class="form-control" asp-for="Input.Barangay" />
                         <span asp-validation-for="Input.Barangay" class="text-danger"></span>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label required">Birthday (mm/dd/yyyy):</label>
-                        <input type="date" class="form-control" asp-for="Input.Birthday" id="birthdayInput" required />
+                        <label class="form-label">Birthday (mm/dd/yyyy):</label>
+                        <input type="date" class="form-control" asp-for="Input.Birthday" id="birthdayInput" />
                         <span asp-validation-for="Input.Birthday" class="text-danger"></span>
                     </div>
                         </div>
 
                 <div class="row">
                     <div class="col-md-4 mb-3">
-                        <label class="form-label required">Telepono:</label>
-                        <input type="tel" class="form-control" asp-for="Input.Telepono" required />
+                        <label class="form-label">Telepono:</label>
+                        <input type="tel" class="form-control" asp-for="Input.Telepono" placeholder="09XX-XXX-XXXX" pattern="[0-9]*" inputmode="numeric" onkeypress="return event.charCode >= 48 && event.charCode <= 57" />
                         <span asp-validation-for="Input.Telepono" class="text-danger"></span>
                     </div>
                     <div class="col-md-4 mb-3">
@@ -218,8 +218,8 @@
                         <span asp-validation-for="Input.Edad" class="text-danger"></span>
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label class="form-label required">Kasarian:</label>
-                        <select class="form-select" asp-for="Input.Kasarian" required>
+                        <label class="form-label">Kasarian:</label>
+                        <select class="form-select" asp-for="Input.Kasarian">
                             <option value="">Select</option>
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
@@ -364,6 +364,10 @@
             
             // Validate step
             function validateStep(step) {
+                // All fields are optional now, so we'll always return true
+                return true;
+                
+                /* Original validation code commented out
                 let isValid = true;
                 
                 if (step === 1) {
@@ -388,6 +392,7 @@
                 }
                 
                 return isValid;
+                */
             }
             
             // Next button click

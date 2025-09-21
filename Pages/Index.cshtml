@@ -10,6 +10,18 @@
         body:not(.logged-in) .navbar {
             box-shadow: none;
         }
+        
+        .forgot-password {
+            color: #1E88E5 !important;
+            font-size: 0.9rem;
+            text-decoration: none !important;
+            transition: all 0.3s ease;
+        }
+        
+        .forgot-password:hover {
+            color: #1565C0 !important;
+            text-decoration: none !important;
+        }
     </style>
 }
 
@@ -27,8 +39,8 @@
     <div class="container">
         <div class="row">
             <div class="col-md-6 hero-content">
-                <h1 class="text-white hero-title">Barangay Health Care System</h1>
-                <p class="text-white hero-text">A community-based health information system for Barangay 161, designed to provide accessible health services to all residents.</p>
+                <h1 class="text-white hero-title">Barangay Health Care</h1>
+                <p class="text-white hero-text">A community-based health information system for Barangay 158, 159, 160, 161, designed to provide accessible health services to all selected barangays.</p>
                 <div class="hero-buttons">
                     <a asp-page="/Account/SignUp" class="btn btn-light btn-lg signup-btn">
                         <i class="fas fa-user-plus me-2"></i>Register Now
@@ -48,7 +60,7 @@
                                         <i class="fas fa-envelope"></i>
                                     </span>
                                 </div>
-                                <input asp-for="Input.Email" class="form-control" aria-label="Email Address" placeholder="Enter your email" />
+                                <input asp-for="Input.Email" class="form-control" aria-label="Email Address" placeholder="Enter your email" value="" autocomplete="off" />
                             </div>
                             <span asp-validation-for="Input.Email" class="text-danger"></span>
                         </div>
@@ -64,9 +76,17 @@
                             </div>
                             <span asp-validation-for="Input.Password" class="text-danger"></span>
                         </div>
-                        <div class="form-group form-check">
-                            <input asp-for="Input.RememberMe" class="form-check-input" />
-                            <label asp-for="Input.RememberMe" class="form-check-label text-dark">Remember Me</label>
+
+                        <div class="form-group">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="form-check">
+                                    <input asp-for="Input.RememberMe" class="form-check-input" />
+                                    <label asp-for="Input.RememberMe" class="form-check-label text-dark">Remember Me</label>
+                                </div>
+                                <a asp-page="/Account/ForgotPassword" class="forgot-password text-decoration-none">
+                                    <i class="fas fa-key me-1"></i> Forgot Password?
+                                </a>
+                            </div>
                         </div>
                         <button type="submit" class="btn btn-primary btn-block" id="loginButton">
                             <i class="fas fa-sign-in-alt me-2"></i>
@@ -188,13 +208,26 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
+            // Clear any cached email values to prevent admin@example.com from appearing
+            $('input[name="Input.Email"]').val('');
+            
             // Add logged-in class to body if user is authenticated
             @if (isLoggedIn) {
                 <text>$('body').addClass('logged-in');</text>
             }
             
-            // Show loading spinner when form is submitted
-            $("#loginForm").on("submit", function() {
+            // Prevent admin users from submitting home page login form
+            $("#loginForm").on("submit", function(e) {
+                const email = $('input[name="Input.Email"]').val().toLowerCase();
+                
+                // Check for common admin email patterns
+                if (email.includes('admin') || email.includes('administrator')) {
+                    e.preventDefault();
+                    alert('❌ ACCESS DENIED: Admin users must use the Admin Login page. Please go to the Login page and use the "Admin Login Only" button.');
+                    return false;
+                }
+                
+                // Show loading spinner when form is submitted
                 $("#loginText").addClass("d-none");
                 $("#loginSpinner").removeClass("d-none");
                 $("#loginButton").attr("disabled", true);

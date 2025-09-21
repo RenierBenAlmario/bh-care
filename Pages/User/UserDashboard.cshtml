@@ -3,275 +3,745 @@
 @using Barangay.Models
 @{
     ViewData["Title"] = "Dashboard";
+    ViewData["ShowDashboardNav"] = true;
     Layout = "_UserLayout";
+    var isActive = (string routeValue) => 
+        ViewContext.RouteData.Values["page"]?.ToString().ToLower().EndsWith(routeValue.ToLower()) == true ? "active" : "";
 }
 
 <style>
-    /* Fix border overlap */
-    .container-fluid {
-        margin-left: 250px; /* Adjust based on your sidebar width */
-        width: calc(100% - 250px);
-        padding-right: 30px;
+    /* Enhanced Modern Dashboard Styles */
+    body {
+        background-color: #f8f9fa;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-
-    .health-metric {
-        background: #f8f9fa;
+    
+    /* Hide the top header */
+    .top-header {
+        display: none !important;
+    }
+    
+    /* Main content styling without sidebar */
+    .main-content {
         padding: 20px;
-        border-radius: 10px;
-        text-align: center;
+        width: 100%;
+        max-width: 100%;
     }
-
-    .health-metric i {
-        font-size: 24px;
-        margin-bottom: 10px;
+    
+    /* Page title styling */
+    .page-title-wrapper {
+        padding: 0.5rem 0 1rem 0;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        margin-bottom: 1.5rem !important;
     }
-
-    .health-metric h6 {
-        margin-bottom: 5px;
-        color: #6c757d;
-    }
-
-    .health-metric p {
-        font-size: 18px;
+    
+    .page-title {
+        font-size: 1.75rem;
         font-weight: 600;
-        margin-bottom: 0;
+        color: #212529;
+        margin-bottom: 0.5rem;
     }
-
+    
+    /* Card styling */
+    .card {
+        margin-bottom: 1.5rem;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+        box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+    
+    .card-header {
+        background-color: white;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        border-top-left-radius: 12px !important;
+        border-top-right-radius: 12px !important;
+        padding: 1rem 1.25rem;
+    }
+    
+    .card-body {
+        padding: 1.25rem;
+    }
+    
+    /* Responsive appointments layout */
+    .appointments-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+    
+    .appointment-column {
+        flex: 1;
+        min-width: 300px;
+    }
+    
+    .appointment-column h6 {
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #495057;
+        font-size: 1rem;
+    }
+    
+    /* Enhanced appointment cards */
     .appointment-card {
+        background: white;
+        padding: 16px;
+        border-radius: 10px;
+        margin-bottom: 12px;
+        transition: all 0.2s ease;
+        border-left: 4px solid #1a73e8;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    
+    .appointment-card:hover {
         background: #f8f9fa;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 15px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
 
     .appointment-card h6 {
         margin-bottom: 5px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #343a40;
+    }
+    
+    .appointment-card p {
+        margin-bottom: 5px;
+        font-size: 0.85rem;
+        color: #6c757d;
     }
 
     .badge {
         padding: 5px 10px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        border-radius: 50px;
     }
 
-    .bg-completed { background-color: #28a745; }
-    .bg-pending { background-color: #ffc107; }
+    /* Health metrics in flexible grid */
+    .health-metrics {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1.25rem;
+    }
+    
+    .metric {
+        background: white;
+        padding: 1.25rem;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        transition: all 0.3s ease;
+    }
+    
+    .metric:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+    }
+    
+    .metric-icon {
+        font-size: 2rem;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+    
+    .metric-name {
+        display: block;
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-bottom: 0.5rem;
+    }
+    
+    .metric-value {
+        display: block;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #212529;
+    }
+    
+    /* Info alert styling */
+    .alert {
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        border: none;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    }
+    
+    .alert-info {
+        background-color: #e8f4fd;
+        color: #0c5396;
+    }
+    
+    /* Status badge colors with better contrast */
+    .bg-completed, .bg-confirmed { background-color: #28a745; }
+    .bg-pending { background-color: #fd7e14; }
     .bg-cancelled { background-color: #dc3545; }
-    .bg-inprogress { background-color: #17a2b8; }
+    .bg-inprogress, .bg-rescheduled { background-color: #17a2b8; }
     .bg-urgent { background-color: #dc3545; }
-    .bg-noshow { background-color: #343a40; }
-    .bg-confirmed { background-color: #28a745; }
+    .bg-noshow { background-color: #6c757d; }
+    
+    /* Button styling */
+    .btn {
+        border-radius: 6px;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        transition: all 0.2s;
+    }
+    
+    .btn-primary {
+        background-color: #1a73e8;
+        border-color: #1a73e8;
+    }
+    
+    .btn-primary:hover {
+        background-color: #0d62c9;
+        border-color: #0d62c9;
+    }
+    
+    .btn-outline-primary {
+        color: #1a73e8;
+        border-color: #1a73e8;
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: #1a73e8;
+        color: white;
+    }
+    
+    .btn-sm {
+        padding: 0.25rem 0.75rem;
+        font-size: 0.85rem;
+    }
+    
+    /* Form controls */
+    .form-check-input:checked {
+        background-color: #1a73e8;
+        border-color: #1a73e8;
+    }
+    
+    /* Empty state styling */
+    .text-muted {
+        color: #6c757d !important;
+    }
+    
+    /* Fullscreen toggle button */
+    .view-toggle {
+        cursor: pointer;
+        color: #1a73e8;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.2s;
+    }
+    
+    .view-toggle:hover {
+        background-color: rgba(26, 115, 232, 0.1);
+    }
+
+    /* Toast notification styles */
+    .toast-notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: white;
+        border-radius: 8px;
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        z-index: 9999;
+        transform: translateX(120%);
+        transition: transform 0.3s ease;
+        max-width: 350px;
+    }
+    
+    .toast-notification.show {
+        transform: translateX(0);
+    }
+    
+    .toast-icon {
+        margin-right: 12px;
+        font-size: 1.2rem;
+    }
+    
+    .toast-info .toast-icon {
+        color: #1a73e8;
+    }
+    
+    .toast-success .toast-icon {
+        color: #28a745;
+    }
+    
+    .toast-error .toast-icon {
+        color: #dc3545;
+    }
+    
+    .toast-message {
+        font-size: 0.95rem;
+    }
+
+    /* For very small screens */
+    @@media (max-width: 576px) {
+        .dashboard-navbar .navbar-brand {
+            font-size: 1.25rem;
+        }
+        
+        .page-title-wrapper .d-flex {
+            flex-direction: column;
+        }
+        
+        .page-title-wrapper .d-flex > div:last-child {
+            margin-top: 1rem;
+        }
+    }
+    
+    /* NCD Risk Assessment Styles */
+    .ncd-assessment-card .card-header {
+        background-color: #1a73e8;
+        color: white;
+        border-bottom: none;
+    }
+    
+    .status-bar {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 10px 15px;
+        margin-bottom: 20px;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .form-label.required:after {
+        content: " *";
+        color: #dc3545;
+    }
+    
+    #ncdFormReferenceContent .card-header {
+        background-color: #1a73e8;
+        color: white;
+    }
+    
+    
 </style>
 
-<div class="container-fluid px-4">
-    <!-- Current Queue Info -->
-    <div class="alert alert-info mb-4">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <strong>Current Queue:</strong> @Model.CurrentQueueCount patients waiting (Est. wait time: @Model.EstimatedWaitTime mins)
-            </div>
-            <div>
-                <strong>Health Tip:</strong> Stay hydrated and bring your ID to appointments
+
+
+<!-- Main Content -->
+<div class="main-content" id="mainContent">
+    <div class="container-fluid" id="dashboard-container">
+        <!-- Current Queue Info -->
+        <div class="alert alert-info mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fa-solid fa-users me-2"></i>
+                    <strong>Current Queue:</strong> @Model.CurrentQueueCount patients waiting (Est. wait time: @Model.EstimatedWaitTime mins)
+                </div>
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="fa-solid fa-lightbulb me-2"></i>
+                        <strong>Health Tip:</strong> Stay hydrated and bring your ID to appointments
+                    </div>
+                    <div class="view-toggle" onclick="toggleFullWidth()" title="Toggle fullscreen">
+                        <i class="fa-solid fa-expand" id="expand-icon"></i>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Health Report Section -->
-    <div class="card mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Health Report - Last Checkup (@(Model.LatestHealthReport?.CheckupDate.ToString("MMMM dd, yyyy") ?? "No checkup data"))</h5>
-            <div>
-                @if (Model.LatestHealthReport != null)
-                {
-                    <a href="javascript:void(0)" onclick="downloadReport(@Model.LatestHealthReport.Id)" class="btn btn-primary btn-sm">
-                        <i class="fas fa-download"></i> Download Health Report
+        <!-- Health Report Section -->
+        <div class="card mb-4 health-report-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fa-solid fa-heart-pulse me-2 text-primary"></i>Health Report - Last Checkup (@(Model.LatestHealthReport?.CheckupDate.ToString("MMMM dd, yyyy") ?? "No checkup data"))</h5>
+                <div>
+                    @if (Model.LatestHealthReport != null)
+                    {
+                        <a href="javascript:void(0)" onclick="downloadReport(@Model.LatestHealthReport.Id)" class="btn btn-primary btn-sm">
+                            <i class="fa-solid fa-download me-1"></i> Download Health Report
+                        </a>
+                    }
+                    <a href="/User/Reports" class="btn btn-outline-secondary btn-sm ms-2">
+                        <i class="fa-solid fa-list me-1"></i> View All Reports
                     </a>
-                }
-                <a href="/User/Reports" class="btn btn-secondary btn-sm ms-2">
-                    <i class="fas fa-list"></i> View All Reports
-                </a>
+                </div>
             </div>
-        </div>
-        <div class="card-body">
-            @if (Model.LatestHealthReport != null)
-            {
-                <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <div class="health-metric">
-                            <i class="fas fa-heartbeat text-primary"></i>
-                            <h6>Blood Pressure</h6>
-                            <p>@Model.LatestHealthReport.BloodPressure mmHg</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="health-metric">
-                            <i class="fas fa-heart text-danger"></i>
-                            <h6>Heart Rate</h6>
-                            <p>@Model.LatestHealthReport.HeartRate BPM</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="health-metric">
-                            <i class="fas fa-tint text-info"></i>
-                            <h6>Blood Sugar</h6>
-                            <p>@Model.LatestHealthReport.BloodSugar mg/dL</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="health-metric">
-                            <i class="fas fa-weight text-success"></i>
-                            <h6>Weight</h6>
-                            <p>@Model.LatestHealthReport.Weight lbs</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="health-metric">
-                            <i class="fas fa-thermometer-half text-warning"></i>
-                            <h6>Temperature</h6>
-                            <p>@Model.LatestHealthReport.Temperature°C</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="health-metric">
-                            <i class="fas fa-running text-primary"></i>
-                            <h6>Physical Activity</h6>
-                            <p>@Model.LatestHealthReport.PhysicalActivity</p>
-                        </div>
-                    </div>
-                </div>
-            }
-            else
-            {
-                <div class="alert alert-warning">
-                    No health report data available. Schedule a checkup to get your health metrics.
-                </div>
-            }
-        </div>
-    </div>
-
-    <!-- Appointments Section -->
-    <div class="card mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Appointments</h5>
-            <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="autoRefreshToggle" checked>
-                <label class="form-check-label" for="autoRefreshToggle">Auto-Refresh</label>
-            </div>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <!-- Today's Appointments -->
-                <div class="col-md-4">
-                    <h6>Today's Appointments</h6>
-                    <div id="todayAppointments">
-                        @if (!Model.TodayAppointments.Any())
-                        {
-                            <p class="text-muted">No appointments scheduled for today.</p>
-                        }
-                        else
-                        {
-                            foreach (var apt in Model.TodayAppointments)
-                            {
-                                <div class="appointment-card">
-                                    <h6>@(Model.IsDoctor ? apt.PatientName : $"Dr. {apt.Doctor?.FullName}")</h6>
-                                    <p class="mb-0">@(apt.GetFormattedTime())</p>
-                                    <span class="badge bg-@apt.Status.ToString().ToLower()">@apt.Status</span>
-                                </div>
-                            }
-                        }
-                    </div>
-                </div>
-
-                <!-- Upcoming Appointments -->
-                <div class="col-md-4">
-                    <h6>Upcoming Appointments</h6>
-                    <div id="upcomingAppointments">
-                        @if (!Model.UpcomingAppointments.Any())
-                        {
-                            <p class="text-muted">No upcoming appointments.</p>
-                        }
-                        else
-                        {
-                            foreach (var apt in Model.UpcomingAppointments)
-                            {
-                                <div class="appointment-card">
-                                    <h6>@(Model.IsDoctor ? apt.PatientName : $"Dr. {apt.Doctor?.FullName}")</h6>
-                                    <p class="mb-0">@(apt.GetFormattedDate()) at @(apt.GetFormattedTime())</p>
-                                    <span class="badge bg-@apt.Status.ToString().ToLower()">@apt.Status</span>
-                                </div>
-                            }
-                        }
-                    </div>
-                </div>
-
-                <!-- Recent Appointments -->
-                <div class="col-md-4">
-                    <h6>Recent Appointments</h6>
-                    <div id="recentAppointments">
-                        @foreach (var apt in Model.PastAppointments.Take(5))
-                        {
-                            <div class="appointment-card">
-                                <h6>@(Model.IsDoctor ? apt.PatientName : $"Dr. {apt.Doctor?.FullName}")</h6>
-                                <p class="mb-0">@(apt.GetFormattedDate())</p>
-                                <span class="badge bg-@apt.Status.ToString().ToLower()">@apt.Status</span>
+            <div class="card-body">
+                <div class="health-report-summary-card">
+                    <h3 class="mb-4">Latest Health Summary</h3>
+                    @if (Model.LatestHealthReport != null)
+                    {
+                        <div class="health-metrics">
+                            <div class="metric">
+                                <span class="metric-icon">❤️</span>
+                                <span class="metric-name">Blood Pressure</span>
+                                <span class="metric-value">@Model.LatestHealthReport.BloodPressure</span>
                             </div>
-                        }
-                        <a href="/User/Appointments" class="btn btn-link btn-sm">Show more</a>
+                            <div class="metric">
+                                <span class="metric-icon">🧠</span>
+                                <span class="metric-name">Heart Rate</span>
+                                <span class="metric-value">@Model.LatestHealthReport.HeartRate BPM</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-icon">🌡️</span>
+                                <span class="metric-name">Temperature</span>
+                                <span class="metric-value">@Model.LatestHealthReport.Temperature°C</span>
+                            </div>
+                        </div>
+                        <div class="text-center mt-4">
+                            <a asp-page="/Health/ViewReport" asp-route-id="@Model.LatestHealthReport.Id" class="btn btn-outline-primary">
+                                <i class="fa-solid fa-file-medical me-1"></i> View Full Report
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <i class="fa-solid fa-circle-info me-2"></i> No health reports available yet. Your health metrics will appear here after your first checkup.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Two-column layout for Appointments and NCD Risk Assessment -->
+        <div class="row">
+        <!-- Appointments Section -->
+            <div class="@(Model.IsEligibleForNCDAssessment ? "col-lg-8" : "col-12")">
+        <div class="card appointments-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fa-solid fa-calendar-days me-2 text-primary"></i>Appointments</h5>
+                <div class="d-flex align-items-center">
+                    <div class="form-check form-switch me-3">
+                        <input class="form-check-input" type="checkbox" id="autoRefreshToggle" checked>
+                        <label class="form-check-label" for="autoRefreshToggle">Auto-Refresh</label>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="appointments-container">
+                    <!-- Today's Appointments -->
+                    <div class="appointment-column">
+                        <h6><i class="fa-solid fa-calendar-day me-2"></i>Today's Appointments</h6>
+                        <div id="todayAppointments">
+                            @if (!Model.TodayAppointments.Any())
+                            {
+                                <p class="text-muted"><i class="fa-solid fa-circle-info me-1"></i>No appointments scheduled for today.</p>
+                            }
+                            else
+                            {
+                                foreach (var apt in Model.TodayAppointments)
+                                {
+                                    <div class="appointment-card">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <h6>@(Model.IsDoctor ? apt.PatientName : $"Dr. {apt.Doctor?.FullName}")</h6>
+                                            <span class="badge bg-@apt.Status.ToString().ToLower()">@(apt.Status == AppointmentStatus.Pending ? "On-Going" : apt.Status.ToString())</span>
+                                        </div>
+                                        <p class="mb-1"><i class="fa-regular fa-clock me-1"></i>@(apt.GetFormattedTime())</p>
+                                        @if (!string.IsNullOrEmpty(apt.ReasonForVisit))
+                                        {
+                                            <p class="small text-muted mb-0"><i class="fa-solid fa-comment-medical me-1"></i>@apt.ReasonForVisit</p>
+                                        }
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Upcoming Appointments -->
+                    <div class="appointment-column">
+                        <h6><i class="fa-solid fa-calendar-week me-2"></i>Upcoming Appointments</h6>
+                        <div id="upcomingAppointments">
+                            @if (!Model.UpcomingAppointments.Any())
+                            {
+                                <p class="text-muted"><i class="fa-solid fa-circle-info me-1"></i>No upcoming appointments.</p>
+                            }
+                            else
+                            {
+                                foreach (var apt in Model.UpcomingAppointments)
+                                {
+                                    <div class="appointment-card">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <h6>@(Model.IsDoctor ? apt.PatientName : $"Dr. {apt.Doctor?.FullName}")</h6>
+                                            <span class="badge bg-@apt.Status.ToString().ToLower()">@(apt.Status == AppointmentStatus.Pending ? "On-Going" : apt.Status.ToString())</span>
+                                        </div>
+                                        <p class="mb-1"><i class="fa-regular fa-calendar-days me-1"></i>@(apt.GetFormattedDate()) at @(apt.GetFormattedTime())</p>
+                                        @if (!string.IsNullOrEmpty(apt.ReasonForVisit))
+                                        {
+                                            <p class="small text-muted mb-0"><i class="fa-solid fa-comment-medical me-1"></i>@apt.ReasonForVisit</p>
+                                        }
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Recent Appointments -->
+                    <div class="appointment-column">
+                        <h6><i class="fa-solid fa-clock-rotate-left me-2"></i>Recent Appointments</h6>
+                        <div id="recentAppointments">
+                            @if (!Model.PastAppointments.Any())
+                            {
+                                <p class="text-muted"><i class="fa-solid fa-circle-info me-1"></i>No past appointments.</p>
+                            }
+                            else
+                            {
+                                foreach (var apt in Model.PastAppointments.Take(5))
+                                {
+                                    <div class="appointment-card">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <h6>@(Model.IsDoctor ? apt.PatientName : $"Dr. {apt.Doctor?.FullName}")</h6>
+                                            <span class="badge bg-@apt.Status.ToString().ToLower()">@apt.Status</span>
+                                        </div>
+                                        <p class="mb-0"><i class="fa-regular fa-calendar-days me-1"></i>@(apt.GetFormattedDate())</p>
+                                    </div>
+                                }
+                                <a href="/User/Appointments" class="btn btn-link btn-sm">
+                                    <i class="fa-solid fa-up-right-from-square me-1"></i>Show more
+                                </a>
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-@section Scripts {
-    <script>
-        let autoRefreshInterval;
-
-        function toggleAutoRefresh(enabled) {
-            if (enabled) {
-                autoRefreshInterval = setInterval(refreshAppointments, 30000); // Refresh every 30 seconds
-            } else {
-                clearInterval(autoRefreshInterval);
-            }
+<!-- Add JavaScript for sidebar functionality -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        
+        // Toggle NCD Form Reference
+        const toggleNcdFormReference = document.getElementById('toggleNcdFormReference');
+        if (toggleNcdFormReference) {
+            toggleNcdFormReference.addEventListener('click', function() {
+                const content = document.getElementById('ncdFormReferenceContent');
+                const isVisible = content.style.display !== 'none';
+                
+                if (isVisible) {
+                    content.style.display = 'none';
+                    this.innerHTML = '<i class="fa-solid fa-eye me-1"></i> Show Reference Form';
+                } else {
+                    content.style.display = 'block';
+                    this.innerHTML = '<i class="fa-solid fa-eye-slash me-1"></i> Hide Reference Form';
+                }
+            });
         }
-
-        function refreshAppointments() {
-            fetch('?handler=RefreshAppointments')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        document.getElementById('todayAppointments').innerHTML = renderAppointments(data.today, true);
-                        document.getElementById('upcomingAppointments').innerHTML = renderAppointments(data.upcoming, false);
-                        document.getElementById('recentAppointments').innerHTML = renderAppointments(data.recent, false);
+        
+        // Handle NCD Risk Assessment form navigation
+        function setupNCDAssessmentButton(buttonId) {
+            const button = document.getElementById(buttonId);
+            if (button) {
+                button.addEventListener('click', function(e) {
+                    // Store current appointment ID if available
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const appointmentId = urlParams.get('appointmentId');
+                    
+                    if (appointmentId) {
+                        e.preventDefault();
+                        window.location.href = `/User/NCDRiskAssessment?appointmentId=${appointmentId}`;
                     }
                 });
-        }
-
-        function downloadReport(reportId) {
-            window.location.href = `?handler=DownloadReport&reportId=${reportId}`;
-        }
-
-        function renderAppointments(appointments, isToday) {
-            if (!appointments || appointments.length === 0) {
-                return '<p class="text-muted">No appointments ' + (isToday ? 'scheduled for today.' : 'found.') + '</p>';
             }
-
-            return appointments.map(apt => `
-                <div class="appointment-card">
-                    <h6>${apt.doctor ? 'Dr. ' + apt.doctor.fullName : apt.patientName}</h6>
-                    <p class="mb-0">${isToday ? 
-                        apt.formattedTime || 'Time not specified' :
-                        (apt.formattedDate || 'Date not specified') + (apt.formattedTime ? ' at ' + apt.formattedTime : '')}
-                    </p>
-                    <span class="badge bg-${apt.status.toLowerCase()}">${apt.status}</span>
+        }
+        
+        // Setup both NCD Assessment buttons
+        setupNCDAssessmentButton('startNCDAssessmentBtn');
+        setupNCDAssessmentButton('ncdNextBtn');
+        
+        // Toast notification function
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast-notification toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    <i class="fa-solid ${type === 'success' ? 'fa-check' : type === 'error' ? 'fa-triangle-exclamation' : 'fa-circle-info'}"></i>
                 </div>
-            `).join('');
+                <div class="toast-message">${message}</div>
+            `;
+            document.body.appendChild(toast);
+            
+            // Animate in
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+            
+            // Animate out and remove
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
         }
 
-        document.getElementById('autoRefreshToggle').addEventListener('change', function(e) {
-            toggleAutoRefresh(e.target.checked);
+        // Add animation to cards
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+                this.style.boxShadow = '0 8px 16px rgba(0,0,0,0.1)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = '';
+                this.style.boxShadow = '';
+            });
         });
 
-        // Start auto-refresh by default
-        toggleAutoRefresh(true);
-    </script>
-}
+        // Add active class to current nav item
+        const currentPath = window.location.pathname;
+        document.querySelectorAll('.navbar-nav .nav-link').forEach(link => {
+            if (link.getAttribute('href') === currentPath) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
+        });
+    });
+    
+    // Fullscreen toggle function
+    function toggleFullWidth() {
+        const container = document.getElementById('dashboard-container');
+        container.classList.toggle('full-width-mode');
+        
+        const icon = document.getElementById('expand-icon');
+        if (container.classList.contains('full-width-mode')) {
+            icon.classList.remove('fa-expand');
+            icon.classList.add('fa-compress');
+        } else {
+            icon.classList.remove('fa-compress');
+            icon.classList.add('fa-expand');
+        }
+    }
+    
+    // Appointment auto-refresh functionality
+    let refreshInterval;
+    const autoRefreshToggle = document.getElementById('autoRefreshToggle');
+    
+    function setupAutoRefresh() {
+        if (autoRefreshToggle.checked) {
+            refreshInterval = setInterval(refreshAppointments, 30000); // refresh every 30 seconds
+        } else {
+            clearInterval(refreshInterval);
+        }
+    }
+    
+    autoRefreshToggle.addEventListener('change', setupAutoRefresh);
+    
+    // Initial setup
+    setupAutoRefresh();
+    
+    function refreshAppointments() {
+        fetch('/User/UserDashboard?handler=RefreshAppointments', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateAppointmentsUI(data);
+            }
+        })
+        .catch(error => console.error('Error refreshing appointments:', error));
+    }
+    
+    function updateAppointmentsUI(data) {
+        // Update Today's Appointments
+        const todayContainer = document.getElementById('todayAppointments');
+        todayContainer.innerHTML = '';
+        
+        if (data.today.length === 0) {
+            todayContainer.innerHTML = '<p class="text-muted"><i class="fa-solid fa-circle-info me-1"></i>No appointments scheduled for today.</p>';
+        } else {
+            data.today.forEach(apt => {
+                const isDoctor = @Json.Serialize(Model.IsDoctor);
+                const nameDisplay = isDoctor ? apt.patientName : `Dr. ${apt.doctorName}`;
+                
+                todayContainer.innerHTML += `
+                    <div class="appointment-card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h6>${nameDisplay}</h6>
+                            <span class="badge bg-${apt.status.toLowerCase()}">${apt.status === 'Pending' ? 'On-Going' : apt.status}</span>
+                        </div>
+                        <p class="mb-1"><i class="fa-regular fa-clock me-1"></i>${apt.formattedTime}</p>
+                        ${apt.reasonForVisit ? `<p class="small text-muted mb-0"><i class="fa-solid fa-comment-medical me-1"></i>${apt.reasonForVisit}</p>` : ''}
+                    </div>
+                `;
+            });
+        }
+        
+        // Update Upcoming Appointments
+        const upcomingContainer = document.getElementById('upcomingAppointments');
+        upcomingContainer.innerHTML = '';
+        
+        if (data.upcoming.length === 0) {
+            upcomingContainer.innerHTML = '<p class="text-muted"><i class="fa-solid fa-circle-info me-1"></i>No upcoming appointments.</p>';
+        } else {
+            data.upcoming.forEach(apt => {
+                const isDoctor = @Json.Serialize(Model.IsDoctor);
+                const nameDisplay = isDoctor ? apt.patientName : `Dr. ${apt.doctorName}`;
+                
+                upcomingContainer.innerHTML += `
+                    <div class="appointment-card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h6>${nameDisplay}</h6>
+                            <span class="badge bg-${apt.status.toLowerCase()}">${apt.status === 'Pending' ? 'On-Going' : apt.status}</span>
+                        </div>
+                        <p class="mb-1"><i class="fa-regular fa-calendar-days me-1"></i>${apt.formattedDate} at ${apt.formattedTime}</p>
+                        ${apt.reasonForVisit ? `<p class="small text-muted mb-0"><i class="fa-solid fa-comment-medical me-1"></i>${apt.reasonForVisit}</p>` : ''}
+                    </div>
+                `;
+            });
+        }
+        
+        // Update Recent Appointments
+        const recentContainer = document.getElementById('recentAppointments');
+        recentContainer.innerHTML = '';
+        
+        if (data.recent.length === 0) {
+            recentContainer.innerHTML = '<p class="text-muted"><i class="fa-solid fa-circle-info me-1"></i>No past appointments.</p>';
+        } else {
+            data.recent.forEach(apt => {
+                const isDoctor = @Json.Serialize(Model.IsDoctor);
+                const nameDisplay = isDoctor ? apt.patientName : `Dr. ${apt.doctorName}`;
+                
+                recentContainer.innerHTML += `
+                    <div class="appointment-card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h6>${nameDisplay}</h6>
+                            <span class="badge bg-${apt.status.toLowerCase()}">${apt.status}</span>
+                        </div>
+                        <p class="mb-0"><i class="fa-regular fa-calendar-days me-1"></i>${apt.formattedDate}</p>
+                    </div>
+                `;
+            });
+            
+            recentContainer.innerHTML += `
+                <a href="/User/Appointments" class="btn btn-link btn-sm">
+                    <i class="fa-solid fa-up-right-from-square me-1"></i>Show more
+                </a>
+            `;
+        }
+    }
+    
+    // Function to download health report
+    function downloadReport(reportId) {
+        window.location.href = `/Health/DownloadReport?id=${reportId}`;
+    }
+</script>
+
+<!-- Hidden form for logout -->
+<form id="logoutForm" method="post" action="/Account/Logout" style="display:none">
+    @Html.AntiForgeryToken()
+</form>

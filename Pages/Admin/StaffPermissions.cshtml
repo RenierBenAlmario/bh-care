@@ -3,42 +3,71 @@
 @{
     ViewData["Title"] = "Staff Permissions";
     Layout = "_AdminLayout";
+    
+    string GetCategoryIcon(string category)
+    {
+        return category switch
+        {
+            "Appointments" => "fa-solid fa-calendar",
+            "Dashboard Access" => "fa-solid fa-gauge-high",
+            "Medical Records" => "fa-solid fa-file-medical",
+            "Prescriptions" => "fa-solid fa-prescription-bottle-medical",
+            "Patient Management" => "fa-solid fa-user-injured",
+            "User Management" => "fa-solid fa-users-gear",
+            "Vital Signs" => "fa-solid fa-heart-pulse",
+            "Reporting" => "fa-solid fa-chart-bar",
+            "Reports" => "fa-solid fa-file-lines",
+            _ => "fa-solid fa-gear"
+        };
+    }
 }
 
-<link rel="stylesheet" href="~/css/bhcare-staff-permissions.css" />
+<link rel="stylesheet" href="~/css/modern-permissions.css" />
 
-<div class="container-fluid py-4">
-    <div class="row">
+<div class="page-header">
+    <p class="text-muted">Configure access permissions for staff members in the Barangay Health Care System.</p>
+</div>
+
+<div class="mb-3">
+    <a href="/Admin/AdminDashboard" class="btn btn-outline-secondary">
+        <i class="fa-solid fa-arrow-left me-1"></i> Back to Dashboard
+    </a>
+    </div>
+
+
+<div class="container-fluid p-0">
+    <div class="row g-0">
         <!-- Staff List Sidebar -->
         <div class="col-md-4">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">
-                            <i class="fas fa-users me-2"></i>Staff Members
-                        </h5>
-                        <div class="input-group input-group-sm w-50">
-                            <span class="input-group-text bg-white">
-                                <i class="fas fa-search"></i>
-                            </span>
-                            <input type="text" class="form-control" id="staffSearch" placeholder="Search staff...">
-                        </div>
-                    </div>
+            <div class="card staff-list mb-4 h-100">
+                <div class="card-header navyn">
+                    <h5 class="mb-0">Staff Members</h5>
                 </div>
-                <div class="card-body p-0">
+                <div class="card-body p-0 standard-padding">
+                    <div class="search-box border-bottom">
+                        <input type="text" id="staffSearch" class="form-control border-0" placeholder="Search staff...">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
                     <div class="staff-list">
                         @foreach (var staff in Model.StaffMembers)
                         {
                             var isActive = Model.StaffId == staff.Id ? "active" : "";
                             <a href="/Admin/StaffPermissions?staffId=@staff.Id" 
                                class="staff-item @isActive">
-                                <div class="avatar">
-                                    @staff.Name.Substring(0, 1)
+                                <div class="avatar @staff.Role.ToLower()">
+                                    @(!string.IsNullOrEmpty(staff.Name) ? staff.Name.Substring(0, 1).ToLower() : "?")
                                 </div>
                                 <div class="staff-info">
                                     <div class="staff-name">@staff.Name</div>
-                                    <small class="text-muted">@staff.Role</small>
+                                    <div class="role-badge @staff.Role.ToLower()">@staff.Role</div>
+                                    <small class="text-muted">@(string.IsNullOrEmpty(staff.Position) ? "Staff Member" : staff.Position)</small>
                                 </div>
+                                @if (isActive == "active")
+                                {
+                                    <div class="selected-indicator">
+                                        <i class="fa-solid fa-circle-check"></i>
+                                    </div>
+                                }
                             </a>
                         }
                     </div>
@@ -48,91 +77,154 @@
 
         <!-- Permissions Configuration -->
         <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-shield-alt me-2"></i>
-                        Permissions for @(Model.SelectedStaff?.Name ?? "")
+            <div class="card permissions-panel">
+                <div class="card-header navyn d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Permissions for @(Model.SelectedStaff?.Name ?? "")
+                        @if (Model.SelectedStaff != null) {<span class="badge bg-secondary ms-2">@Model.SelectedStaff.Role</span>}
                     </h5>
-                    <div>
-                        <button class="btn btn-sm btn-light me-2" id="expandAllBtn">
-                            <i class="fas fa-expand-alt"></i> Expand All
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-info btn-sm" id="togglePreview">
+                            <i class="fa-solid fa-eye me-1"></i> Preview Dashboard
                         </button>
-                        <button class="btn btn-sm btn-light" id="collapseAllBtn">
-                            <i class="fas fa-compress-alt"></i> Collapse All
+                        <button class="btn btn-light btn-sm" id="toggleAllSections">
+                            <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
                         </button>
                     </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body standard-padding">
                     @if (Model.SelectedStaff == null)
                     {
                         <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i> Select a staff member to configure permissions.
+                            <i class="fa-solid fa-circle-info me-2"></i> Select a staff member to configure permissions.
                         </div>
                     }
                     else
                     {
-                        <div class="alert alert-info mb-3">
-                            <i class="fas fa-info-circle me-2"></i> Select permissions for this user. Each permission grants access to specific system features.
+                        <div class="information-text mb-3">
+                            <i class="fa-solid fa-circle-info me-2"></i> 
+                            Select permissions for this user. Each permission grants access to specific system features.
                         </div>
                         
                         <form method="post" id="permissionsForm">
                             <input type="hidden" asp-for="StaffId" value="@Model.SelectedStaff.Id" />
                             
-                            <div class="mb-3">
-                                <button type="button" class="btn btn-outline-primary btn-sm me-2" id="selectAllBtn">
-                                    <i class="fas fa-check-square me-1"></i> Select All
-                                </button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm" id="deselectAllBtn">
-                                    <i class="fas fa-square me-1"></i> Deselect All
-                                </button>
+                            <!-- Permission Categories -->
+                            <div class="permission-categories">
+                                @foreach (var category in Model.PermissionsByCategory)
+                                {
+                                    var categoryKey = category.Key;
+                                    var permissions = category.Value;
+                                    var categoryId = categoryKey.Replace(" ", "").Replace("&", "And");
+                                    var activePermissionCount = permissions.Count(p => Model.StaffPermissions.Any(sp => sp.PermissionId == p.Id));
+                                
+                                    <div class="permission-category">
+                                        <div class="category-header" data-bs-toggle="collapse" data-bs-target="#@categoryId-section">
+                                            <div class="category-icon">
+                                                <i class="@GetCategoryIcon(categoryKey)"></i>
+                                            </div>
+                                            <div class="category-title">@categoryKey</div>
+                                            <div class="category-badge">@activePermissionCount/@permissions.Count</div>
+                                            <div class="toggle-icon">
+                                                <i class="fa-solid fa-chevron-down"></i>
+                                            </div>
+                                        </div>
+                                        <div class="collapse @(categoryKey == "Appointments" ? "show" : "")" id="@categoryId-section">
+                                            <div class="permission-list">
+                                                @foreach (var perm in permissions)
+                                                {
+                                                    <div class="permission-item">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" 
+                                                                   name="SelectedPermissions" value="@perm.Id" 
+                                                                   id="perm-@perm.Id"
+                                                                   @(Model.StaffPermissions.Any(sp => sp.PermissionId == perm.Id) ? "checked" : "")>
+                                                            <label class="form-check-label" for="perm-@perm.Id">
+                                                                <div class="permission-name">@perm.Name</div>
+                                                                <div class="permission-description">@perm.Description</div>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
                             </div>
                             
-                            @foreach (var category in Model.PermissionsByCategory)
-                            {
-                                <div class="permission-category mb-3">
-                                    <div class="permission-category-header" data-bs-toggle="collapse" 
-                                         data-bs-target="#category-@category.Key.Replace(" ", "-").ToLower()">
-                                        <i class="fas fa-shield-alt me-2"></i>
-                                        @category.Key
-                                        <span class="badge bg-secondary ms-2">@category.Value.Count()</span>
-                                        <i class="fas fa-chevron-down ms-auto"></i>
-                                    </div>
-                                    <div class="collapse show permission-list" id="category-@category.Key.Replace(" ", "-").ToLower()">
-                                        @foreach (var permission in category.Value)
-                                        {
-                                            <div class="permission-item">
-                                                <div class="form-check">
-                                                    <input class="form-check-input permission-checkbox" type="checkbox" 
-                                                           name="SelectedPermissions" value="@permission.Id"
-                                                           id="permission-@permission.Id"
-                                                           @(Model.StaffPermissions.Any(p => p.PermissionId == permission.Id) ? "checked" : "") />
-                                                    <label class="form-check-label" for="permission-@permission.Id">
-                                                        <div class="permission-name">@permission.Name</div>
-                                                        <div class="permission-description">@permission.Description</div>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        }
-                                    </div>
-                                </div>
-                            }
-                            
-                            <div class="d-flex justify-content-between mt-4">
-                                <a href="/Admin/AdminDashboard" class="btn btn-secondary">
-                                    <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
-                                </a>
-                                <div>
-                                    <button type="button" class="btn btn-warning me-2" id="resetBtn">
-                                        <i class="fas fa-undo me-1"></i> Reset Changes
-                                    </button>
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-save me-1"></i> Save Changes
-                                    </button>
-                                </div>
+                            <div class="action-buttons mt-4 justify-content-end">
+                                <button type="button" class="btn btn-outline-secondary me-2" id="cancelBtn">
+                                    <i class="fa-solid fa-xmark me-1"></i> Cancel
+                                </button>
+                                <button type="submit" class="btn btn-primary me-2">
+                                    <i class="fa-solid fa-floppy-disk me-1"></i> Save Permissions
+                                </button>
+                                <button type="button" class="btn btn-success" id="grantEssentialBtn">
+                                    <i class="fa-solid fa-shield-halved me-1"></i> Grant Essential Permissions
+                                </button>
                             </div>
                         </form>
                     }
+                </div>
+            </div>
+            
+            <!-- Dashboard Preview Panel -->
+            <div class="card preview-panel mt-3" id="previewPanel" style="display: none;">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">
+                        <i class="fa-solid fa-eye me-2"></i> 
+                        Dashboard Preview for @(Model.SelectedStaff?.Name ?? "")
+                        <small class="ms-2">(Live preview based on current permissions)</small>
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6 class="text-muted mb-3">Sidebar Navigation</h6>
+                            <div class="preview-sidebar">
+                                <div class="preview-nav-item" data-permission="DoctorDashboard">
+                                    <i class="fa-solid fa-tachometer-alt me-2"></i>
+                                    Dashboard
+                                </div>
+                                <div class="preview-nav-item" data-permission="Consultation">
+                                    <i class="fa-solid fa-stethoscope me-2"></i>
+                                    Consultation
+                                </div>
+                                <div class="preview-nav-item" data-permission="PatientList">
+                                    <i class="fa-solid fa-user-injured me-2"></i>
+                                    Patient List
+                                </div>
+                                <div class="preview-nav-item" data-permission="Reports">
+                                    <i class="fa-solid fa-chart-bar me-2"></i>
+                                    Reports
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <h6 class="text-muted mb-3">Permission Status</h6>
+                            <div class="permission-status-list">
+                                <div class="status-item" data-permission="DoctorDashboard">
+                                    <span class="status-icon"></span>
+                                    <span class="status-text">Dashboard Access</span>
+                                    <span class="status-badge"></span>
+                                </div>
+                                <div class="status-item" data-permission="Consultation">
+                                    <span class="status-icon"></span>
+                                    <span class="status-text">Consultation Access</span>
+                                    <span class="status-badge"></span>
+                                </div>
+                                <div class="status-item" data-permission="PatientList">
+                                    <span class="status-icon"></span>
+                                    <span class="status-text">Patient List Access</span>
+                                    <span class="status-badge"></span>
+                                </div>
+                                <div class="status-item" data-permission="Reports">
+                                    <span class="status-icon"></span>
+                                    <span class="status-text">Reports Access</span>
+                                    <span class="status-badge"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -150,37 +242,37 @@
                 });
             });
 
-            // Expand/Collapse all functionality
-            $('#expandAllBtn').click(function() {
-                $('.permission-list').collapse('show');
-            });
-
-            $('#collapseAllBtn').click(function() {
-                $('.permission-list').collapse('hide');
-            });
-
-            // Select/Deselect all functionality
-            $('#selectAllBtn').click(function() {
-                $('.permission-checkbox').prop('checked', true);
-            });
-
-            $('#deselectAllBtn').click(function() {
-                $('.permission-checkbox').prop('checked', false);
-            });
-
-            // Store initial state for reset functionality
-            var initialState = {};
-            $('.permission-checkbox').each(function() {
-                initialState[$(this).attr('id')] = $(this).prop('checked');
-            });
-
-            // Reset button functionality
-            $('#resetBtn').click(function() {
-                if (confirm('Are you sure you want to reset all changes?')) {
-                    Object.keys(initialState).forEach(function(id) {
-                        $('#' + id).prop('checked', initialState[id]);
-                    });
+            // Toggle all sections open/closed
+            let sectionsOpen = true;
+            $('#toggleAllSections').click(function() {
+                if (sectionsOpen) {
+                    $('.collapse').collapse('hide');
+                    $(this).find('i').removeClass('fa-up-right-and-down-left-from-center').addClass('fa-down-left-and-up-right-to-center');
+                    sectionsOpen = false;
+                } else {
+                    $('.collapse').collapse('show');
+                    $(this).find('i').removeClass('fa-down-left-and-up-right-to-center').addClass('fa-up-right-and-down-left-from-center');
+                    sectionsOpen = true;
                 }
+            });
+            
+            // Cancel button returns to the dashboard
+            $('#cancelBtn').click(function() {
+                window.location.href = '/Admin/AdminDashboard';
+            });
+            
+            // Grant essential permissions button
+            $('#grantEssentialBtn').click(function() {
+                // Here we would grant some basic essential permissions
+                // For now let's just select some checkboxes
+                // $('input[value="1002"]').prop('checked', true); // ManageAppointments
+                $('input[value="1003"]').prop('checked', true); // View Appointments
+                
+                // Add a visual indicator that changes were made
+                $('.permission-item').has('input:checked').addClass('highlight-changed');
+                setTimeout(function() {
+                    $('.highlight-changed').removeClass('highlight-changed');
+                }, 1500);
             });
 
             // Form submission
@@ -188,108 +280,123 @@
                 // Show loading state
                 $(this).find('button[type="submit"]')
                     .prop('disabled', true)
-                    .html('<i class="fas fa-spinner fa-spin me-1"></i> Saving...');
+                    .html('<i class="fa-solid fa-spinner fa-spin me-1"></i> Saving...');
             });
+
+            // Preview functionality
+            let previewVisible = false;
+            $('#togglePreview').click(function() {
+                if (previewVisible) {
+                    $('#previewPanel').slideUp();
+                    $(this).html('<i class="fa-solid fa-eye me-1"></i> Preview Dashboard');
+                    previewVisible = false;
+                } else {
+                    $('#previewPanel').slideDown();
+                    $(this).html('<i class="fa-solid fa-eye-slash me-1"></i> Hide Preview');
+                    previewVisible = true;
+                    updatePreview(); // Initial update
+                }
+            });
+
+            // Permission mapping for preview - maps dashboard features to actual permission names
+            const permissionMapping = {
+                'DoctorDashboard': ['DoctorDashboard', 'Access Doctor Dashboard', 'Dashboard Access'],
+                'Consultation': ['Consultation', 'Manage Consultations'],
+                'PatientList': ['PatientList', 'View Patient Details', 'View Patients'],
+                'Reports': ['Reports', 'View Reports', 'Reporting']
+            };
+
+            // Update preview based on current checkbox states
+            function updatePreview() {
+                Object.keys(permissionMapping).forEach(permissionKey => {
+                    let hasPermission = false;
+                    
+                    // Check each permission name for this feature
+                    permissionMapping[permissionKey].forEach(permName => {
+                        // Find checkboxes that are checked and match this permission name
+                        $(`input[name="SelectedPermissions"]:checked`).each(function() {
+                            const permissionText = $(this).closest('.permission-item').find('.permission-name').text().trim();
+                            const permissionDesc = $(this).closest('.permission-item').find('.permission-description').text().trim();
+                            
+                            // Check if permission name or description matches
+                            if (permissionText.toLowerCase().includes(permName.toLowerCase()) || 
+                                permissionDesc.toLowerCase().includes(permName.toLowerCase())) {
+                                hasPermission = true;
+                                return false; // Break out of each loop
+                            }
+                        });
+                    });
+
+                    // Update navigation preview
+                    const navItem = $(`.preview-nav-item[data-permission="${permissionKey}"]`);
+                    const statusItem = $(`.status-item[data-permission="${permissionKey}"]`);
+                    
+                    // Add updating animation
+                    navItem.addClass('updating');
+                    statusItem.addClass('updating');
+                    
+                    setTimeout(() => {
+                        if (hasPermission) {
+                            navItem.removeClass('disabled').addClass('enabled');
+                            statusItem.find('.status-icon').removeClass('fa-times-circle text-danger').addClass('fa-check-circle text-success');
+                            statusItem.find('.status-badge').removeClass('badge-danger').addClass('badge-success').text('Enabled');
+                        } else {
+                            navItem.removeClass('enabled').addClass('disabled');
+                            statusItem.find('.status-icon').removeClass('fa-check-circle text-success').addClass('fa-times-circle text-danger');
+                            statusItem.find('.status-badge').removeClass('badge-success').addClass('badge-danger').text('Disabled');
+                        }
+                        
+                        // Remove updating animation
+                        navItem.removeClass('updating');
+                        statusItem.removeClass('updating');
+                    }, 150);
+                });
+            }
+
+            // Listen for checkbox changes
+            $('input[name="SelectedPermissions"]').change(function() {
+                if (previewVisible) {
+                    updatePreview();
+                }
+                
+                // Show change indicator
+                $(this).closest('.permission-item').addClass('permission-changed');
+                setTimeout(() => {
+                    $(this).closest('.permission-item').removeClass('permission-changed');
+                }, 1000);
+            });
+
+            // Initialize preview icons
+            $('.status-icon').addClass('fa-solid');
+            $('.status-badge').addClass('badge');
+            
+            // Add change tracking
+            let originalPermissions = new Set();
+            $('input[name="SelectedPermissions"]:checked').each(function() {
+                originalPermissions.add($(this).val());
+            });
+            
+            // Show unsaved changes indicator
+            function checkForChanges() {
+                let currentPermissions = new Set();
+                $('input[name="SelectedPermissions"]:checked').each(function() {
+                    currentPermissions.add($(this).val());
+                });
+                
+                const hasChanges = originalPermissions.size !== currentPermissions.size || 
+                                 [...originalPermissions].some(p => !currentPermissions.has(p));
+                
+                if (hasChanges) {
+                    $('.action-buttons').addClass('has-changes');
+                    $('button[type="submit"]').html('<i class="fa-solid fa-floppy-disk me-1"></i> Save Changes');
+                } else {
+                    $('.action-buttons').removeClass('has-changes');
+                    $('button[type="submit"]').html('<i class="fa-solid fa-floppy-disk me-1"></i> Save Permissions');
+                }
+            }
+            
+            // Check for changes on any checkbox change
+            $('input[name="SelectedPermissions"]').change(checkForChanges);
         });
     </script>
 }
-
-<style>
-    .staff-list {
-        max-height: 600px;
-        overflow-y: auto;
-    }
-    
-    .staff-item {
-        display: flex;
-        align-items: center;
-        padding: 10px 15px;
-        border-bottom: 1px solid #eee;
-        text-decoration: none;
-        color: #333;
-        transition: background-color 0.2s;
-    }
-    
-    .staff-item:hover {
-        background-color: #f8f9fa;
-        text-decoration: none;
-    }
-    
-    .staff-item.active {
-        background-color: #e9f0ff;
-        border-left: 4px solid #007bff;
-    }
-    
-    .avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background-color: #007bff;
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        margin-right: 15px;
-    }
-    
-    .staff-info {
-        flex: 1;
-    }
-    
-    .staff-name {
-        font-weight: 500;
-        margin-bottom: 2px;
-    }
-    
-    .permission-category-header {
-        display: flex;
-        align-items: center;
-        padding: 12px 15px;
-        background-color: #f8f9fa;
-        border-radius: 4px;
-        cursor: pointer;
-        font-weight: 500;
-        transition: background-color 0.2s;
-    }
-    
-    .permission-category-header:hover {
-        background-color: #e9ecef;
-    }
-    
-    .permission-list {
-        padding: 10px 15px;
-        border: 1px solid #eee;
-        border-top: none;
-        border-radius: 0 0 4px 4px;
-        background-color: #fff;
-    }
-    
-    .permission-item {
-        padding: 10px;
-        border-bottom: 1px solid #f0f0f0;
-        transition: background-color 0.2s;
-    }
-    
-    .permission-item:hover {
-        background-color: #f8f9fa;
-    }
-    
-    .permission-item:last-child {
-        border-bottom: none;
-    }
-    
-    .permission-name {
-        font-weight: 500;
-        margin-bottom: 2px;
-    }
-    
-    .permission-description {
-        font-size: 0.85rem;
-        color: #6c757d;
-    }
-    
-    .form-check-input:checked ~ .form-check-label .permission-name {
-        color: #007bff;
-    }
-</style> 

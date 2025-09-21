@@ -2,17 +2,24 @@
 @model Barangay.Pages.User.ProfileModel
 @{
     ViewData["Title"] = "User Profile";
+    Layout = "_UserLayout";
+    ViewData["ShowDashboardNav"] = true;
 }
 
-<div class="container mt-5 pt-3">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <a href="/User/UserDashboard" class="btn btn-outline-primary">
-            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
-        </a>
-        <h1 class="fw-bold mb-0">@ViewData["Title"]</h1>
-        <div style="width: 135px;"></div>
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="fa-solid fa-circle-user me-3 fs-4"></i>
+                    <div>
+                        <strong>@ViewData["Title"]</strong>
+                        <p class="mb-0">View and manage your personal information.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <hr class="mb-5" />
     <div class="row justify-content-center align-items-start g-4">
         <div class="col-lg-4 d-flex justify-content-center">
             <div class="card mb-4 shadow-lg border-0" style="min-width:320px;">
@@ -23,14 +30,14 @@
                     </div>
                     <h4 class="fw-semibold">@Model.CurrentUser.FullName</h4>
                     <p class="text-muted mb-3">@Model.CurrentUser.Email</p>
-                    <a class="btn btn-primary px-4" asp-page="/User/EditProfile"><i class="fas fa-edit me-2"></i>Edit Profile</a>
+                    <a class="btn btn-primary px-4" asp-page="/User/EditProfile"><i class="fa-solid fa-pen-to-square me-2"></i>Edit Profile</a>
                 </div>
             </div>
         </div>
         <div class="col-lg-8">
             <div class="card mb-4 shadow-sm border-0">
                 <div class="card-header bg-white border-0 pb-0">
-                    <h5 class="fw-bold mb-0"><i class="fas fa-user me-2 text-primary"></i>Personal Information</h5>
+                    <h5 class="fw-bold mb-0"><i class="fa-solid fa-user me-2 text-primary"></i>Personal Information</h5>
                 </div>
                 <div class="card-body pt-2">
                     <div class="row mb-3">
@@ -62,7 +69,7 @@
                             <h6 class="mb-0">Date of Birth</h6>
                         </div>
                         <div class="col-sm-9 text-secondary">
-                            @Model.CurrentUser.BirthDate.ToString("MM/dd/yyyy")
+                            @(DateTime.TryParse(Model.CurrentUser.BirthDate, out var birthDate) ? birthDate.ToString("MM/dd/yyyy") : "N/A")
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -110,7 +117,7 @@
             
             <div class="card shadow-sm border-0 mt-4">
                 <div class="card-header bg-white border-0 pb-0">
-                    <h5 class="fw-bold mb-0"><i class="fas fa-notes-medical me-2 text-success"></i>Medical Information</h5>
+                    <h5 class="fw-bold mb-0"><i class="fa-solid fa-notes-medical me-2 text-success"></i>Medical Information</h5>
                 </div>
                 <div class="card-body pt-2">
                     <div class="row mb-3">

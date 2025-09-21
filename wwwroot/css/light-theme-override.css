@@ -1,0 +1,42 @@
+/* Force light theme override */
+body {
+    background-color: #f8f9fa !important;
+}
+
+/* Target cards that don't have a specific background color class */
+.card:not([class*="bg-"]) {
+    background-color: #ffffff !important;
+    color: #212529 !important;
+}
+
+.card-header:not([class*="bg-"]) {
+    background-color: #f8f9fa !important;
+}
+
+.table,
+.table-dark {
+    background-color: #ffffff !important;
+    color: #212529 !important;
+    border-color: #dee2e6 !important;
+}
+
+.table th,
+.table td,
+.table thead th,
+.table-dark th,
+.table-dark td,
+.table-dark thead th {
+    background-color: #ffffff !important;
+    color: #212529 !important;
+    border-color: #dee2e6 !important;
+}
+
+.table thead th {
+    background-color: #e9ecef !important;
+}
+
+.form-control {
+    background-color: #ffffff !important;
+    color: #212529 !important;
+    border: 1px solid #ced4da !important;
+}

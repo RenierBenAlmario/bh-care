@@ -78,7 +78,7 @@
                         <td><span class="badge badge-@(user.Status.ToLower() == "active" ? "success" : user.Status.ToLower() == "pending" ? "warning" : "danger")">@user.Status</span></td>
                         <td>@user.PhilHealthId</td>
                         <td>@user.Age</td>
-                        <td>@user.BirthDate.ToString("MM/dd/yyyy")</td>
+                        <td>@(DateTime.TryParse(user.BirthDate, out var birthDate) ? birthDate.ToString("MM/dd/yyyy") : "N/A")</td>
                         <td>@(user.LastActive?.ToString("MM/dd/yyyy h:mm tt") ?? "Never")</td>
                         <td>
                             <div class="btn-group">

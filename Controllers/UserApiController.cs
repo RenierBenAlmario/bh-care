@@ -409,7 +409,7 @@ namespace Barangay.Controllers
                 existingAppointment.Description = model.Description;
                 existingAppointment.Status = Enum.Parse<AppointmentStatus>(model.Status);
                 existingAppointment.PatientName = model.IsForDependent ? model.DependentName : existingAppointment.PatientName;
-                existingAppointment.AgeValue = model.IsForDependent ? model.DependentAge.Value : existingAppointment.AgeValue;
+                                existingAppointment.AgeValue = model.IsForDependent ? (model.DependentAge ?? existingAppointment.AgeValue) : existingAppointment.AgeValue;
                 existingAppointment.RelationshipToDependent = model.IsForDependent ? model.RelationshipToDependent : null;
                 existingAppointment.UpdatedAt = DateTime.UtcNow;
 

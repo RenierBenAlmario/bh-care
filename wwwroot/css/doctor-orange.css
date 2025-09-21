@@ -1,0 +1,82 @@
+/* Doctor Orange+White Sidebar Theme (pairs with theme-orange.css) */
+:root{
+  --doctor-primary:#FF8C42;
+  --doctor-accent:#E76F2B;
+  --doctor-hover:#FFA75C;
+  --health-green:#2ECC71;
+  --doctor-white:#FFFFFF;
+  --doctor-shadow:rgba(231,111,43,.18);
+}
+
+/* Sidebar container */
+.sidebar{
+  background: linear-gradient(180deg, var(--doctor-primary) 0%, #ff7b2e 100%) !important;
+  box-shadow: 2px 0 16px var(--doctor-shadow);
+}
+
+/* Sidebar profile */
+.sidebar-profile{ color:#fff !important; }
+.sidebar-profile .user-name{ color:#fff; }
+
+/* Links: white by default, soft pill hover, active accent */
+.sidebar .nav-link{
+  color: rgba(255,255,255,.95) !important;
+  border-radius: 10px;
+  margin: 4px 8px;
+  padding: .75rem .85rem;
+  transition: background .2s ease, color .2s ease;
+}
+.sidebar .nav-link i{ color:#fff !important; }
+
+/* Hover pill */
+.sidebar .nav-link:hover,
+.sidebar .nav-link:focus{
+  background: rgba(255,255,255,.18) !important;
+  color:#fff !important;
+}
+
+/* Active: white pill with accent text/icon */
+.sidebar .nav-link.active{
+  background: #fff !important;
+  color: var(--doctor-accent) !important;
+}
+.sidebar .nav-link.active i{ color: var(--doctor-accent) !important; }
+
+/* Optional health accent for hover icons */
+.sidebar .nav-link:hover i{ color: var(--health-green) !important; }
+
+/* Toggle button */
+#sidebarToggle{
+  background: var(--doctor-primary) !important;
+  color:#fff !important;
+  border-radius: 0 6px 6px 0;
+}
+#sidebarToggle:hover{ background: var(--doctor-hover) !important; }
+
+/* Collapsed state */
+.sidebar.collapsed .nav-link{ justify-content:center; }
+.sidebar.collapsed .nav-link span{ display:none; }
+
+/* Content background */
+.main-content, .content-wrapper{ background:#fff !important; }
+
+/* Card/button rounding */
+.card, .alert, .table{ border-radius:12px; }
+.card-header{ background: var(--color-bg-soft) !important; }
+
+/* Replace legacy .bg-primary tones within doctor pages */
+.bg-primary{ background: var(--doctor-accent) !important; }
+
+/* Focus ring */
+.sidebar .nav-link:focus{ outline: 2px solid rgba(255,255,255,.5); outline-offset: 2px; }
+
+/* Fix global site.css offsets on doctor pages (remove top gap and extra left offset) */
+body.doctor .content-wrapper{
+  margin-top: 0 !important;
+  margin-left: 0 !important;
+}
+
+/* Force white page background for doctor pages (site.css sets peach by default) */
+html.doctor, body.doctor{
+  background: #fff !important;
+}

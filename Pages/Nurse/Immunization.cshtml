@@ -1,0 +1,123 @@
+@page
+@model Barangay.Pages.Nurse.ImmunizationModel
+@{
+    ViewData["Title"] = "Immunization";
+    Layout = "_NurseLayout";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="m-0">Immunization Program</h2>
+        <a href="/Nurse/NurseDashboard" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>
+            Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Quick Schedule Request Section -->
+    <div class="card mb-4">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">
+                <i class="fas fa-bolt me-2"></i>
+                Quick Schedule Request
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h6 class="mb-2">Need to schedule immunization quickly?</h6>
+                    <p class="text-muted mb-0">Use our shortcut form to collect basic information and send schedule notifications via email. Perfect for busy parents!</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="/Nurse/ImmunizationShortcut" class="btn btn-warning btn-lg">
+                        <i class="fas fa-calendar-plus me-2"></i>
+                        Quick Schedule Request
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Email Notification Section -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-envelope me-2"></i>
+                Send Reminder
+            </h5>
+        </div>
+        <div class="card-body">
+            <form method="post" asp-page-handler="SendReminder">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <label for="emailMessage" class="form-label">Email Message</label>
+                            <textarea class="form-control" id="emailMessage" name="EmailMessage" rows="4" 
+                                placeholder="Enter your immunization reminder message here...">Dear Parents/Guardians,
+
+This is a friendly reminder that immunization services are available at Baesa Health Center every Wednesday from 8:00 AM to 12:00 PM.
+
+Please bring your children for their scheduled vaccinations to ensure their health and protection against preventable diseases.
+
+For any questions or to schedule an appointment, please contact us.
+
+Thank you for prioritizing your child's health.
+
+Best regards,
+Baesa Health Center Team</textarea>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">Recipients</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="allPatients" name="SendToAllPatients" value="true" checked>
+                                <label class="form-check-label" for="allPatients">
+                                    All Patients (Parents/Guardians)
+                                </label>
+                            </div>
+                            <small class="text-muted">Excludes doctors, nurses, and admin staff</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-paper-plane me-1"></i>
+                            Send Reminder
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Immunization Schedule Card -->
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-calendar-alt me-2"></i>
+                Immunization Schedule
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="text-primary">Weekly Schedule</h6>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-clock text-success me-2"></i><strong>Every Wednesday</strong></li>
+                        <li><i class="fas fa-clock text-success me-2"></i><strong>Time:</strong> 8:00 AM - 12:00 PM</li>
+                        <li><i class="fas fa-map-marker-alt text-success me-2"></i><strong>Location:</strong> Baesa Health Center</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h6 class="text-primary">Services Available</h6>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-syringe text-info me-2"></i>BCG Vaccine</li>
+                        <li><i class="fas fa-syringe text-info me-2"></i>Hepatitis B Vaccine</li>
+                        <li><i class="fas fa-syringe text-info me-2"></i>Pentavalent Vaccine</li>
+                        <li><i class="fas fa-syringe text-info me-2"></i>Polio Vaccine (OPV/IPV)</li>
+                        <li><i class="fas fa-syringe text-info me-2"></i>Pneumococcal Vaccine</li>
+                        <li><i class="fas fa-syringe text-info me-2"></i>MMR Vaccine</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

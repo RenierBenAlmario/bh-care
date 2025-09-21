@@ -1,0 +1,403 @@
+/* User area theme (scoped). Safe overrides that won't affect other roles. */
+
+.user-theme *,
+.user-theme *::before,
+.user-theme *::after {
+  box-sizing: border-box;
+}
+
+/******************************
+ * Scope & Variables
+ ******************************/
+.user-theme {
+  /* Layout sizing tokens */
+  --sidebar-collapsed-width: 60px;
+  --sidebar-expanded-width: 220px;
+
+  --transition-speed: 0.28s;
+
+  /* Default state (collapsed) */
+  --sidebar-width: var(--sidebar-collapsed-width);
+
+  /* Brand tokens */
+  --primary: #f27a21;
+  --primary-hover: #e06e1e;
+  --primary-active: #d86512;
+
+  /* Surfaces (light) */
+  --surface: #ffffff;
+  --panel: #ffffff;
+  --panel-muted: #f7f8fa;
+  --border: #e5e7eb;
+  --border-strong: #dadee5;
+  --radius: 10px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md: 0 4px 10px rgba(0,0,0,.06);
+
+  /* Text */
+  --text: #111827;
+  --muted: #6b7280;
+
+  /* Sidebar */
+  --sidebar-bg: #ff8a33;
+  --sidebar-text: #ffffff;
+  --sidebar-hover: rgba(0,0,0,.08);
+  --sidebar-active: rgba(0,0,0,.16);
+  --sidebar-icon: #ffffff;
+  /* Redesign accents */
+  --orange-primary: #FF8C42;   /* primary orange */
+  --orange-soft:   #FFA75C;    /* soft orange */
+  --orange-accent: #E76F2B;    /* active/hover orange */
+  --health-green:  #2ECC71;    /* health accent */
+}
+
+/* Dark mode variant: add class="user-theme dark" on <body> to activate */
+.user-theme.dark {
+  --surface: #121417;  /* Page backgrounds */
+  --panel: #1a1d21;    /* cards */
+  --panel-muted: #121417;
+  --border: #2a2f36;
+  --border-strong: #353b44;
+  --text: #e5e7eb;
+  --font-base: 16px; /* base font size */
+  --font-lg: 18px; /* large font size */
+  --font-sm: 14px; /* small font size */
+  --muted: #b9c1cc;
+
+  --sidebar-bg: #ff8a33; /* keep orange */
+  --sidebar-text: #ffffff;
+  --sidebar-hover: rgba(255,255,255,.08);
+  --sidebar-active: rgba(255,255,255,.16);
+}
+
+/******************************
+ * Base mapping to Bootstrap utility classes (inside user scope)
+ ******************************/
+.user-theme .btn-primary,
+.user-theme .badge-primary,
+.user-theme .bg-primary,
+.user-theme .text-bg-primary {
+  background-color: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: #fff !important;
+}
+.user-theme .btn-primary:hover,
+.user-theme .btn-primary:focus {
+  background-color: var(--primary-hover) !important;
+  border-color: var(--primary-hover) !important;
+}
+.user-theme .btn-outline-primary {
+  color: var(--primary) !important;
+  border-color: var(--primary) !important;
+}
+.user-theme .btn-outline-primary:hover,
+.user-theme .btn-outline-primary:focus {
+  background-color: var(--primary) !important;
+  color: #fff !important;
+}
+
+/* Info banners (replace cyan/blue) */
+.user-theme .alert-info,
+.user-theme .bg-info,
+.user-theme .text-bg-info {
+  background-color: #f3f4f6 !important; /* neutral */
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+/* Cards & panels */
+.user-theme .card,
+.user-theme .panel,
+.user-theme .content-wrapper .card {
+  background-color: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+.user-theme .card .card-header,
+.user-theme .panel .panel-heading {
+  background: #fafafa;
+  border-bottom: 1px solid var(--border-strong);
+}
+.user-theme.dark .card .card-header,
+.user-theme.dark .panel .panel-heading {
+  background: #23272e;
+  border-bottom: 1px solid var(--border-strong);
+}
+
+/* Tables */
+.user-theme table thead th {
+  background: #fafafa;
+  color: var(--text);
+  border-bottom-color: var(--border-strong);
+}
+.user-theme.dark table thead th {
+  background: #23272e;
+  color: var(--text);
+}
+.user-theme table,
+.user-theme table td,
+.user-theme table th {
+  border-color: var(--border);
+}
+.user-theme table.table-striped tbody tr:nth-of-type(odd){
+  background-color: rgba(0,0,0,.015);
+}
+.user-theme.dark table.table-striped tbody tr:nth-of-type(odd){
+  background-color: rgba(255,255,255,.03);
+}
+
+/******************************
+ * Sidebar adjustments (contrast & expand)
+ ******************************/
+
+.user-theme.sidebar-expanded {
+  --sidebar-width: var(--sidebar-expanded-width);
+}
+
+.user-theme.sidebar-collapsed {
+  --sidebar-width: var(--sidebar-collapsed-width);
+}
+
+.user-theme #sidebar,
+.user-theme .sidebar,
+.user-theme .minimal-sidebar {
+  /* Subtle vertical gradient for depth */
+  background: linear-gradient(180deg, var(--orange-primary) 0%, #ff8f49 100%) !important;
+  color: var(--sidebar-text) !important;
+}
+.user-theme .dashboard-navbar,
+.user-theme .app-navbar {
+  left: 0 !important; /* navbar spans full width; sidebar sits below it via JS top offset */
+  right: 0 !important;
+  width: auto !important;
+  transition: left var(--transition-speed) ease !important;
+}
+/* Small breathing room so the sidebar active highlight doesn't visually touch navbar content */
+.user-theme .dashboard-navbar {
+  padding-left: 8px;
+}
+.user-theme #sidebar ul li a i,
+.user-theme .sidebar-menu-item i {
+  color: var(--sidebar-icon) !important;
+  opacity: 1 !important;
+}
+/* Ensure icons inside the circular .nav-icon inherit its color (so active state shows orange icon on white circle) */
+.user-theme .minimal-sidebar .nav-link .nav-icon i {
+  color: inherit !important;
+}
+.user-theme #sidebar ul li a:hover,
+.user-theme .sidebar-menu-item:hover {
+  background-color: var(--sidebar-hover) !important;
+  color: var(--sidebar-text) !important;
+}
+.user-theme #sidebar ul li a.active,
+.user-theme .sidebar-menu-item.active {
+  background-color: var(--sidebar-active) !important;
+  color: #fff !important;
+  border-left: 4px solid rgba(255,255,255,.9);
+}
+/* Tooltip-like label when collapsed using title attribute */
+.user-theme .minimal-sidebar:not(.expanded) .nav-link[title] {
+  position: relative;
+}
+.user-theme .minimal-sidebar:not(.expanded) .nav-link[title]:hover::after,
+.user-theme .minimal-sidebar:not(.expanded) .nav-link[title]:focus::after{
+  content: attr(title);
+  position: absolute;
+  left: 60px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,.85);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  z-index: 2000;
+}
+/* Labels visibility in collapsed state: ensure icons stay bright */
+.user-theme #sidebar.active ul li a i { opacity: 1; }
+
+/*
+ * Modern sidebar item redesign (icons + labels, hover/active white pill)
+ */
+.user-theme .minimal-sidebar .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: #fff;
+  transition: background-color .2s ease, color .2s ease;
+}
+.user-theme .minimal-sidebar .nav-link .nav-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,.18);
+  color: #fff;
+  transition: background-color .2s ease, color .2s ease, transform .15s ease;
+}
+.user-theme .minimal-sidebar .nav-link:hover .nav-icon {
+  background: rgba(255,255,255,.28);
+}
+.user-theme .minimal-sidebar .nav-link:hover { background: rgba(255,255,255,.10); }
+
+/* Active state: white pill + accent icon color */
+.user-theme .minimal-sidebar .nav-link.active {
+  background: rgba(255,255,255,.12);
+  color: #fff !important;
+}
+.user-theme .minimal-sidebar .nav-link.active .nav-icon {
+  background: #fff;
+  color: var(--orange-accent);
+}
+
+/* Ensure the icon glyph stays visible (orange on white pill) when active */
+.user-theme .minimal-sidebar .nav-link.active .nav-icon i {
+  color: var(--orange-accent) !important;
+}
+.user-theme .minimal-sidebar .nav-link.active:hover .nav-icon i {
+  color: var(--orange-accent) !important;
+}
+
+/* Optional health-accent icon (use class="health-accent" on icon) */
+.user-theme .minimal-sidebar .nav-link .nav-icon.health-accent { color: var(--health-green); }
+.user-theme .minimal-sidebar .nav-link.active .nav-icon.health-accent { color: var(--health-green); background: #fff; }
+
+/* Labels: visible when expanded; ensure readable contrast */
+.user-theme .minimal-sidebar.expanded .nav-link span { display: inline !important; color: #fff; font-weight: 500; }
+.user-theme .minimal-sidebar .nav-link span { color: #fff; opacity: .95; }
+
+/* Spacing between items */
+.user-theme .minimal-sidebar .nav > .nav-item + .nav-item { margin-top: 2px; }
+
+/* Collapse/expand button: match theme */
+.user-theme .sidebar-toggle-btn,
+.user-theme #sidebarToggle,
+.user-theme #sidebarCollapse {
+  background: #fff;
+  color: var(--orange-accent);
+  border: 1px solid rgba(0,0,0,.06);
+}
+.user-theme .sidebar-toggle-btn:hover,
+.user-theme #sidebarToggle:hover,
+.user-theme #sidebarCollapse:hover {
+  background: var(--orange-soft);
+  color: #fff;
+}
+
+/* Ensure consistent left spacing for content vs sidebar states */
+.user-theme #content { margin-left: var(--sidebar-width) !important; }
+
+/******************************
+ * Page backgrounds
+ ******************************/
+.user-theme body,
+.user-theme #content {
+  background: var(--panel-muted);
+  color: var(--text);
+}
+.user-theme.dark body,
+.user-theme.dark #content {
+  background: var(--surface);
+}
+
+/******************************
+ * Forms
+ ******************************/
+/* Content shifts with sidebar */
+.user-theme #content.app-content {
+  margin-left: var(--sidebar-width) !important;
+  width: auto;
+  transition: margin-left var(--transition-speed) ease;
+}
+.user-theme .form-control,
+.user-theme .form-select {
+  border-color: var(--border);
+  border-radius: var(--radius);
+}
+.user-theme .form-control:focus,
+.user-theme .form-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 0.2rem rgba(242,122,33,.25);
+}
+.user-theme.dark .form-control,
+.user-theme.dark .form-select {
+  background-color: #1f2329;
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+.user-theme.dark .form-control::placeholder { color: #9aa3ad; }
+
+/******************************
+ * Links & Secondary buttons
+ ******************************/
+.user-theme a,
+.user-theme .btn-link { color: var(--primary); }
+.user-theme a:hover,
+.user-theme .btn-link:hover { color: var(--primary-hover); }
+.user-theme .btn-secondary { border-color: var(--border); background:#fff; color: var(--text); }
+.user-theme .btn-secondary:hover { background:#f7f7f7; }
+.user-theme.dark .btn-secondary { background:#2a2f36; color:#fff; border-color: var(--border-strong); }
+.user-theme.dark .btn-secondary:hover { background:#313844; }
+
+/******************************
+ * User dashboard specific leftovers
+ ******************************/
+.user-theme .bg-primary-card { background-color: var(--primary) !important; }
+.user-theme .dashboard-heading { color: var(--text) !important; }
+.user-theme .dashboard-subheading { color: var(--muted) !important; }
+
+/******************************
+ * Accessibility
+ ******************************/
+.user-theme .btn,
+.user-theme a.nav-link,
+.user-theme #sidebar a {
+  outline-offset: 2px;
+}
+.user-theme .btn:focus-visible,
+.user-theme a:focus-visible,
+.user-theme #sidebar a:focus-visible {
+  outline: 2px solid #111827;
+}
+.user-theme.dark .btn:focus-visible,
+.user-theme.dark a:focus-visible,
+.user-theme.dark #sidebar a:focus-visible {
+  outline: 2px solid #e5e7eb;
+}
+
+/*
+ * User area: strong overrides to reconcile with global sidebar.css
+ * Ensures our minimal sidebar uses 60px collapsed and 220px expanded,
+ * and prevents #content width calc overrides from global CSS.
+ */
+.user-theme #sidebar {
+  min-width: 0 !important;
+  max-width: none !important;
+  width: 60px !important; /* collapsed */
+  transition: width 0.3s ease; /* keep smooth resize */
+}
+.user-theme #sidebar.expanded {
+  width: 220px !important; /* expanded */
+}
+
+/* Mobile: collapse sidebar fully by default */
+@media (max-width: 768px) {
+  .user-theme {
+    --sidebar-collapsed-width: 0px;
+    /* --sidebar-expanded-width remains 220px */
+  }
+  /* Ensure actual element width aligns with the variables on mobile */
+  .user-theme #sidebar {
+    width: 0 !important;
+  }
+  .user-theme #sidebar.expanded {
+    width: 220px !important;
+  }
+}

@@ -3,7 +3,7 @@
 /* General Admin Styles */
 .admin-content {
     padding: 2rem;
-    background-color: #f8f9fa;
+    background-color: var(--bg-surface);
     min-height: calc(100vh - 160px);
 }
 
@@ -26,13 +26,13 @@
 }
 
 .navbar .nav-link:hover {
-    background-color: #e6f2ff;
-    color: #0056b3;
+    background-color: var(--bg-hover);
+    color: var(--accent);
 }
 
 .navbar .nav-link.active {
     font-weight: 600;
-    border-bottom: 3px solid #0066cc;
+    border-bottom: 3px solid var(--primary);
     background-color: rgba(255, 255, 255, 0.1);
 }
 
@@ -42,14 +42,14 @@
 
 /* Breadcrumbs */
 .breadcrumb {
-    background-color: #ffffff;
+    background-color: var(--bg-surface);
     padding: 0.75rem 1rem;
     border-radius: 4px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .breadcrumb a {
-    color: #0066cc;
+    color: var(--primary);
     text-decoration: none;
 }
 
@@ -66,14 +66,14 @@
 }
 
 .card-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #e9ecef;
+    background-color: var(--bg-surface);
+    border-bottom: 1px solid var(--border-light);
     padding: 1rem;
     font-weight: 600;
 }
 
 .card-header i {
-    color: #0066cc;
+    color: var(--primary);
 }
 
 /* Table Styles */
@@ -82,18 +82,18 @@
 }
 
 .table thead th {
-    background-color: #f8f9fa;
-    border-bottom: 2px solid #dee2e6;
+    background-color: var(--bg-surface);
+    border-bottom: 2px solid var(--border-medium);
     font-weight: 600;
     color: #495057;
 }
 
 .table tbody tr:nth-of-type(odd) {
-    background-color: rgba(0, 0, 0, 0.02);
+    background-color: var(--bg-hover);
 }
 
 .table tbody tr:hover {
-    background-color: rgba(0, 102, 204, 0.05);
+    background-color: var(--bg-active);
 }
 
 /* Avatar Circle */
@@ -134,13 +134,13 @@
 }
 
 .btn-primary {
-    background-color: #0066cc;
-    border-color: #0066cc;
+    background-color: var(--primary);
+    border-color: var(--primary);
 }
 
 .btn-primary:hover {
-    background-color: #0056b3;
-    border-color: #0056b3;
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
 }
 
 .btn-sm {
@@ -157,13 +157,13 @@
 
 /* Pagination Styles */
 .pagination .page-link {
-    color: #0066cc;
+    color: var(--primary);
     border-color: #dee2e6;
 }
 
 .pagination .page-item.active .page-link {
-    background-color: #0066cc;
-    border-color: #0066cc;
+    background-color: var(--primary);
+    border-color: var(--primary);
 }
 
 .pagination .page-item.disabled .page-link {
@@ -181,7 +181,7 @@
 }
 
 .footer a:hover {
-    color: #0066cc;
+    color: var(--primary);
 }
 
 /* Responsive Styles */
@@ -192,7 +192,7 @@
     
     .navbar .nav-link.active {
         border-bottom: none;
-        border-left: 3px solid #0066cc;
+        border-left: 3px solid var(--primary);
     }
     
     .card-body {
@@ -214,9 +214,9 @@
 }
 
 .dropdown-header {
-    background-color: #f8f9fa;
+    background-color: var(--bg-surface);
     padding: 12px 15px;
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 1px solid var(--border-light);
     font-weight: 600;
 }
 
@@ -233,11 +233,11 @@
 }
 
 .notification-item:hover {
-    background-color: #f8f9fa;
+    background-color: var(--bg-surface);
 }
 
 .notification-item.unread {
-    background-color: #f8f9fa;
+    background-color: var(--bg-surface);
 }
 
 .notification-icon {
@@ -262,14 +262,14 @@
 }
 
 .dropdown-footer {
-    background-color: #f8f9fa;
+    background-color: var(--bg-surface);
     padding: 10px 15px;
     text-align: center;
-    border-top: 1px solid #e9ecef;
+    border-top: 1px solid var(--border-light);
 }
 
 .dropdown-footer a {
-    color: #0066cc;
+    color: var(--primary);
     font-size: 0.875rem;
 }
 
@@ -326,8 +326,8 @@
 }
 
 .logout-btn:hover {
-    background-color: #e6f2ff;
-    color: #0056b3;
+    background-color: var(--bg-hover);
+    color: var(--accent);
     transform: scale(1.05);
 }
 
@@ -503,12 +503,12 @@
 
 /* Enhanced Admin Dashboard Styles */
 .admin-dashboard-header {
-    background: linear-gradient(135deg, #0066cc 0%, #4da6ff 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
     padding: 2rem;
     border-radius: 10px;
     margin-bottom: 2rem;
     color: white;
-    box-shadow: 0 4px 15px rgba(0, 102, 204, 0.2);
+    box-shadow: 0 4px 15px rgba(231, 111, 43, 0.25);
 }
 
 .admin-dashboard-header h1 {
@@ -538,7 +538,7 @@
     padding: 1.5rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
-    border-left: 4px solid #0066cc;
+    border-left: 4px solid var(--primary);
 }
 
 .stat-card:hover {
@@ -546,7 +546,7 @@
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
 }
 
-.stat-card.primary { border-left-color: #0066cc; }
+.stat-card.primary { border-left-color: var(--primary); }
 .stat-card.success { border-left-color: #28a745; }
 .stat-card.warning { border-left-color: #ffc107; }
 .stat-card.danger { border-left-color: #dc3545; }
@@ -570,7 +570,7 @@
     right: 1.5rem;
     font-size: 2.5rem;
     opacity: 0.15;
-    color: #0066cc;
+    color: var(--primary);
 }
 
 /* Enhanced table styles */
@@ -678,8 +678,8 @@
 }
 
 .dashboard-search input:focus {
-    border-color: #4da6ff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
+    border-color: var(--primary-hover);
+    box-shadow: 0 0 0 0.2rem rgba(231, 111, 43, 0.25);
 }
 
 .dashboard-search i {
@@ -767,7 +767,7 @@
     font-weight: 600;
     font-size: 14px;
     color: white;
-    background: linear-gradient(135deg, #0066cc 0%, #4da6ff 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
 }
 
 /* Loading spinner */
@@ -801,8 +801,8 @@
 }
 
 .permission-selected {
-    background-color: rgba(0, 102, 204, 0.1);
-    border: 1px solid rgba(0, 102, 204, 0.2);
+    background-color: rgba(231, 111, 43, 0.08);
+    border: 1px solid rgba(231, 111, 43, 0.25);
 }
 
 .permission-check .form-check-input {
@@ -816,13 +816,13 @@
 }
 
 .permission-check .form-check-input:checked {
-    background-color: #0066cc;
-    border-color: #0066cc;
+    background-color: var(--primary);
+    border-color: var(--primary);
 }
 
 .list-group-flush .list-group-item.active {
-    background-color: #0066cc;
-    border-color: #0066cc;
+    background-color: var(--primary);
+    border-color: var(--primary);
 }
 
 .list-group-flush .list-group-item:first-child {
@@ -831,11 +831,11 @@
 }
 
 .list-group-flush .list-group-item:hover:not(.active) {
-    background-color: rgba(0, 102, 204, 0.05);
+    background-color: var(--bg-hover);
 }
 
 .card-header.bg-primary {
-    background: linear-gradient(135deg, #0066cc 0%, #4da6ff 100%) !important;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%) !important;
 }
 
 /* Role badges in permission page */

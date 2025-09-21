@@ -18,7 +18,8 @@ using System.Security.Claims;
 
 namespace Barangay.Pages.Nurse
 {
-    [Authorize(Roles = "Nurse")]
+    [Authorize(Roles = "Nurse,Head Nurse")]
+    [Authorize(Policy = "PatientQueue")]
     public class PatientQueueModel : PageModel
     {
         private readonly ILogger<PatientQueueModel> _logger;
@@ -117,10 +118,10 @@ namespace Barangay.Pages.Nurse
                     .Select(g => g.OrderByDescending(a => a.AppointmentDate).First())
                     .ToDictionary(a => a.PatientId ?? string.Empty, a => a.PatientName ?? string.Empty);
 
-                // Remove the date filter to show all appointments
+                // Add a date filter to the database query
                 QueuedAppointments = await _context.Appointments
-                    .OrderBy(a => a.AppointmentDate)
-                    .ThenBy(a => a.AppointmentTime)
+                    .Where(a => a.AppointmentDate.Date == DateTime.UtcNow.Date && (a.Status == AppointmentStatus.Pending || a.Status == AppointmentStatus.InProgress))
+                    .OrderBy(a => a.AppointmentTime)
                     .Select(a => new AppointmentViewModel
                     {
                         Id = a.Id,

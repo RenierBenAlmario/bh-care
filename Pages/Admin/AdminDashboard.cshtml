@@ -5,106 +5,34 @@
     Layout = "_AdminLayout";
 }
 
-<link rel="stylesheet" href="~/css/admin-dashboard-bhcare.css" />
-<link rel="stylesheet" href="~/css/custom-notification-enhancements.css" />
+<link rel="stylesheet" href="~/css/admin-dashboard-bhcare-new.css" />
 
-<!-- Hidden data element to store notification data for JavaScript -->
-<script id="notification-data" type="application/json">
-    @Html.Raw(Json.Serialize(new
-    {
-        count = ViewData["NotificationCount"] ?? 0,
-        notifications = ViewData["Notifications"] ?? new List<object>()
-    }))
-</script>
+
 
 <div class="admin-layout">
     <aside class="sidebar">
         <div class="sidebar-header">
             <div class="logo">
-                <i class="fas fa-clinic-medical"></i>
+                <i class="fa-solid fa-clinic-medical"></i>
                 <span class="sidebar-text">Barangay Health</span>
             </div>
             <button id="collapse-sidebar" class="collapse-btn" aria-label="Collapse sidebar">
-                <i class="fas fa-chevron-left"></i>
+                <i class="fa-solid fa-chevron-left"></i>
             </button>
         </div>
         
         <div class="sidebar-user-info">
             <div class="user-avatar">
-                <span>@(User.Identity.Name.Substring(0, 1).ToUpper())</span>
+                <span>@(User.Identity?.Name != null ? User.Identity.Name.Substring(0, 1).ToUpper() : "A")</span>
             </div>
             <div class="user-details">
                 <span class="user-welcome">Hello,</span>
-                <span class="user-name">@User.Identity.Name</span>
+                <span class="user-name">@(User.Identity?.Name ?? "Admin")</span>
                 <span class="user-role">System Administrator</span>
             </div>
         </div>
         
-        <!-- Notification area -->
-        <div class="notification-area">
-            <div class="notification-bell" data-tooltip="Notifications">
-                <button class="notification-button" aria-label="Show notifications">
-                    <i class="fas fa-bell"></i>
-                    <span class="notification-badge">3</span>
-                </button>
-                <div class="notification-dropdown">
-                    <div class="notification-header">
-                        <h3>Notifications</h3>
-                        <button class="mark-all-read">Mark all as read</button>
-                    </div>
-                    <div class="notification-tabs">
-                        <button class="notification-tab active" data-tab="all">All</button>
-                        <button class="notification-tab" data-tab="unread">Unread</button>
-                        <button class="notification-tab" data-tab="system">System</button>
-                    </div>
-                    <div class="notification-list">
-                        <a href="#" class="notification-item unread">
-                            <div class="notification-icon bg-primary">
-                                <i class="fas fa-user-plus"></i>
-                            </div>
-                            <div class="notification-content">
-                                <div class="notification-title">New Staff Request</div>
-                                <div class="notification-message">Dr. Smith has requested to join staff</div>
-                                <div class="notification-time">2 hours ago</div>
-                            </div>
-                            <button class="notification-action" data-tooltip="Mark as read">
-                                <i class="fas fa-circle"></i>
-                            </button>
-                        </a>
-                        <a href="#" class="notification-item unread">
-                            <div class="notification-icon bg-warning">
-                                <i class="fas fa-exclamation-triangle"></i>
-                            </div>
-                            <div class="notification-content">
-                                <div class="notification-title">Permission Change</div>
-                                <div class="notification-message">Role permissions were updated</div>
-                                <div class="notification-time">5 hours ago</div>
-                            </div>
-                            <button class="notification-action" data-tooltip="Mark as read">
-                                <i class="fas fa-circle"></i>
-                            </button>
-                        </a>
-                        <a href="#" class="notification-item unread">
-                            <div class="notification-icon bg-success">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                            <div class="notification-content">
-                                <div class="notification-title">Staff Activated</div>
-                                <div class="notification-message">Nurse Johnson activated</div>
-                                <div class="notification-time">Yesterday</div>
-                            </div>
-                            <button class="notification-action" data-tooltip="Mark as read">
-                                <i class="fas fa-circle"></i>
-                            </button>
-                        </a>
-                    </div>
-                    <div class="notification-footer">
-                        <a href="/Admin/Notifications">View All Notifications</a>
-                        <a href="#" class="notification-settings"><i class="fas fa-cog"></i> Settings</a>
-                    </div>
-                </div>
-            </div>
-        </div>
+        
         
         <div class="sidebar-menu">
             <!-- Main Group -->
@@ -113,7 +41,7 @@
                 <ul class="nav-list">
                     <li class="nav-item">
                         <a href="/Admin/AdminDashboard" class="nav-link active" data-tooltip="Dashboard">
-                            <i class="fas fa-th-large"></i>
+                            <i class="fa-solid fa-table-cells-large"></i>
                             <span class="sidebar-text">Dashboard</span>
                         </a>
                     </li>
@@ -126,44 +54,59 @@
                 <ul class="nav-list">
                     <li class="nav-item">
                         <a href="/Admin/UserManagement" class="nav-link" data-tooltip="User Management">
-                            <i class="fas fa-users"></i>
+                            <i class="fa-solid fa-users"></i>
                             <span class="sidebar-text">User Management</span>
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a href="/Admin/ImmunizationArchive" class="nav-link" data-tooltip="Archive">
+                            <i class="fa-solid fa-archive"></i>
+                            <span class="sidebar-text">Archive</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="/Admin/AddStaff" class="nav-link" data-tooltip="Add Staff">
-                            <i class="fas fa-user-plus"></i>
+                            <i class="fa-solid fa-user-plus"></i>
                             <span class="sidebar-text">Add Staff Member</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="/Admin/StaffPermissions" class="nav-link" data-tooltip="Staff Permissions">
-                            <i class="fas fa-shield-alt"></i>
+                            <i class="fa-solid fa-shield-halved"></i>
                             <span class="sidebar-text">Staff Permissions</span>
                         </a>
                     </li>
                 </ul>
             </div>
             
-            <!-- Reports Group -->
+            <!-- Tools Group -->
             <div class="nav-group">
-                <div class="nav-group-label">Reports</div>
+                <div class="nav-group-label">System Tools</div>
                 <ul class="nav-list">
                     <li class="nav-item">
-                        <a href="/Admin/Reports" class="nav-link" data-tooltip="Reports">
-                            <i class="fas fa-chart-pie"></i>
-                            <span class="sidebar-text">Reports</span>
+                        <a href="/Admin/NCDFormManagement" class="nav-link" data-tooltip="NCD Form Management">
+                            <i class="fa-solid fa-file-medical-alt"></i>
+                            <span class="sidebar-text">NCD Form Management</span>
+                            <span class="new-feature">Enhanced</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/Admin/HEEADSSSFormManagement" class="nav-link" data-tooltip="HEEADSSS Form Management">
+                            <i class="fa-solid fa-clipboard-list"></i>
+                            <span class="sidebar-text">HEEADSSS Form Management</span>
                             <span class="new-feature">New</span>
                         </a>
                     </li>
                 </ul>
             </div>
+            
+            
         </div>
         
         <div class="sidebar-footer">
             <form method="post" asp-page="/Account/Logout">
                 <button type="submit" class="logout-btn" data-tooltip="Logout">
-                    <i class="fas fa-sign-out-alt"></i>
+                    <i class="fa-solid fa-right-from-bracket"></i>
                     <span class="sidebar-text">Logout</span>
                 </button>
             </form>
@@ -175,40 +118,40 @@
         <a href="#main-content" class="skip-link">Skip to content</a>
         
         <div id="main-content">
-            <div class="content-top">
+            <div class="content-top" style="margin-bottom: 1rem;">
                 <div class="content-header">
-                    <h1 class="content-title">Dashboard</h1>
+                    <h1 class="content-title" style="font-weight:700; color:#202938;">Dashboard</h1>
                     <div class="breadcrumbs">
                         <a href="/Admin/AdminDashboard" class="breadcrumb-item">Dashboard</a>
-                        <span class="breadcrumb-item active">Overview as of @Model.CurrentPhilippineTime.ToString("dddd, MMMM dd, yyyy, h:mm tt")</span>
+                        <span class="breadcrumb-item active">Overview as of @Model.CurrentPhilippineTime.ToString("dddd, MMMM d, yyyy 'at' h:mm tt")</span>
                     </div>
                 </div>
                 <div class="content-actions">
                     <a href="/Admin/AddStaff" class="primary-action">
-                        <i class="fas fa-user-plus"></i>
+                        <i class="fa-solid fa-user-plus"></i>
                         <span>Add Staff Member</span>
                     </a>
                     <div class="secondary-actions">
                         <button class="action-btn refresh-btn" id="refreshDashboard" data-tooltip="Refresh Dashboard">
-                            <i class="fas fa-sync-alt"></i>
+                            <i class="fa-solid fa-rotate-right"></i>
                         </button>
                     </div>
                 </div>
             </div>
 
             <!-- Stats Overview -->
-            <div class="stats-overview">
+            <div class="stats-overview section-spacing">
                 <div class="row g-3">
                     <div class="col-md-4">
-                        <div class="stat-card bg-white shadow-sm">
-                            <div class="stat-card-body">
-                                <div class="stat-card-icon bg-primary">
-                                    <i class="fas fa-user-md"></i>
+                        <div class="stat-card dashboard-card" style="border:1px solid #eef0f3;">
+                            <div class="stat-card-body standard-padding">
+                                <div class="stat-card-icon" style="background:#fff0e6;color:#e86a17;">
+                                    <i class="fa-solid fa-user-doctor"></i>
                                 </div>
                                 <div class="stat-card-info">
-                                    <div class="stat-card-title">Total Staff</div>
-                                    <div class="stat-card-value">@(Model.TotalDoctors + Model.TotalNurses)</div>
-                                    <div class="stat-card-detail">
+                                    <div class="stat-card-title" style="color:#334155;font-weight:600;">Total Staff</div>
+                                    <div class="stat-card-value" style="color:#111827;font-weight:700;">@(Model.TotalDoctors + Model.TotalNurses)</div>
+                                    <div class="stat-card-detail" style="color:#6b7280;">
                                         @Model.TotalDoctors Doctors, @Model.TotalNurses Nurses
                                     </div>
                                 </div>
@@ -216,15 +159,15 @@
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="stat-card bg-white shadow-sm">
-                            <div class="stat-card-body">
-                                <div class="stat-card-icon bg-warning">
-                                    <i class="fas fa-clock"></i>
+                        <div class="stat-card dashboard-card" style="border:1px solid #eef0f3;">
+                            <div class="stat-card-body standard-padding">
+                                <div class="stat-card-icon" style="background:#fff0e6;color:#e86a17;">
+                                    <i class="fa-solid fa-clock"></i>
                                 </div>
                                 <div class="stat-card-info">
-                                    <div class="stat-card-title">Pending Requests</div>
-                                    <div class="stat-card-value">@Model.TotalAppointments</div>
-                                    <div class="stat-card-detail">
+                                    <div class="stat-card-title" style="color:#334155;font-weight:600;">Pending Requests</div>
+                                    <div class="stat-card-value" style="color:#111827;font-weight:700;">@Model.TotalAppointments</div>
+                                    <div class="stat-card-detail" style="color:#6b7280;">
                                         Appointments to review
                                     </div>
                                 </div>
@@ -232,15 +175,15 @@
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="stat-card bg-white shadow-sm">
-                            <div class="stat-card-body">
-                                <div class="stat-card-icon bg-success">
-                                    <i class="fas fa-user-check"></i>
+                        <div class="stat-card dashboard-card" style="border:1px solid #eef0f3;">
+                            <div class="stat-card-body standard-padding">
+                                <div class="stat-card-icon" style="background:#fff0e6;color:#e86a17;">
+                                    <i class="fa-solid fa-user-check"></i>
                                 </div>
                                 <div class="stat-card-info">
-                                    <div class="stat-card-title">Active Staff</div>
-                                    <div class="stat-card-value">@Model.ActiveStaffCount</div>
-                                    <div class="stat-card-detail">
+                                    <div class="stat-card-title" style="color:#334155;font-weight:600;">Active Staff</div>
+                                    <div class="stat-card-value" style="color:#111827;font-weight:700;">@Model.ActiveStaffCount</div>
+                                    <div class="stat-card-detail" style="color:#6b7280;">
                                         Currently active members
                                     </div>
                                 </div>
@@ -251,20 +194,28 @@
             </div>
 
             <!-- Staff Overview -->
-            <div class="row mt-4">
+            <div class="row mt-4 section-spacing">
                 <div class="col-12">
-                    <div class="card shadow-sm">
-                        <div class="card-header bg-white">
-                            <h5 class="card-title mb-0">Staff Overview</h5>
+                    <div class="card dashboard-card" style="border:1px solid #eef0f3;">
+                        <div class="card-header" style="background:#fff;border-bottom:1px solid #eef0f3;display:flex;align-items:center;justify-content:space-between;">
+                            <h5 class="card-title mb-0" style="font-weight:700;color:#202938;">Staff Overview</h5>
+                            <div class="staff-filters">
+                                <input type="text" id="staffSearch" class="form-control" placeholder="Search name or email" />
+                                <select id="roleFilter" class="form-select">
+                                    <option value="all">All Roles</option>
+                                    <option>Doctor</option>
+                                    <option>Nurse</option>
+                                    <option>Admin</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="card-body p-0">
+                        <div class="card-body p-0 standard-padding">
                             <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
+                                <table class="table table-hover align-middle mb-0 enhanced">
                                     <thead>
                                         <tr>
                                             <th>Name</th>
                                             <th>Role</th>
-                                            <th>Department</th>
                                             <th>Status</th>
                                             <th>Last Active</th>
                                             <th>Actions</th>
@@ -276,25 +227,28 @@
                                             <tr>
                                                 <td>
                                                     <div class="d-flex align-items-center">
-                                                        <div class="avatar me-2">@staff.Name.Substring(0, 1)</div>
-                                                        <div>@staff.Name</div>
+                                                        <div class="avatar me-2">@(string.IsNullOrEmpty(staff.Name) ? "?" : staff.Name.Substring(0, 1))</div>
+                                                        <div>
+                                                            <div style="font-weight:600;color:#111827;">@staff.Name</div>
+                                                        </div>
                                                     </div>
                                                 </td>
                                                 <td>@staff.Role</td>
-                                                <td>@staff.Department</td>
                                                 <td>
-                                                    <span class="badge bg-@(staff.IsActive ? "success" : "danger")">
+                                                    <span class="badge pill @(staff.IsActive ? "status-verified" : "status-warning")">
                                                         @(staff.IsActive ? "Active" : "Inactive")
                                                     </span>
                                                 </td>
-                                                <td>@staff.LastActive.ToString("MMM dd, yyyy HH:mm")</td>
                                                 <td>
-                                                    <div class="btn-group">
-                                                        <button class="btn btn-sm btn-outline-primary view-staff-btn" data-id="@staff.Id" data-tooltip="View Details">
-                                                            <i class="fas fa-eye"></i>
+                                                    <span data-ts="@staff.LastActive.ToString("o")" class="last-active">@(staff.LastActive != default(DateTime) ? staff.LastActive.ToString("MMM dd, yyyy HH:mm") : "Never")</span>
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group action-buttons">
+                                                        <button class="btn action action-secondary btn-sm view-staff-btn" data-id="@staff.Id" title="View Details">
+                                                            <i class="fa-solid fa-eye"></i>
                                                         </button>
-                                                        <a asp-page="./EditStaffMember" asp-route-id="@staff.Id" class="btn btn-sm btn-outline-secondary" data-tooltip="Edit">
-                                                            <i class="fas fa-edit"></i>
+                                                        <a asp-page="./EditStaffMember" asp-route-id="@staff.Id" class="btn action action-primary btn-sm" title="Edit">
+                                                            <i class="fa-solid fa-pen-to-square"></i>
                                                         </a>
                                                     </div>
                                                 </td>
@@ -327,6 +281,78 @@
                     showStaffDetailsModal(staffId);
                 });
             });
+            
+            // Update the timestamp every minute
+            function updateTimestamp() {
+                const now = new Date();
+                const options = {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                };
+                const timeString = now.toLocaleDateString('en-US', options)
+                    .replace(',', '')  // Remove the comma after the weekday
+                    .replace(/(\d+)(st|nd|rd|th)/, '$1')  // Remove ordinal suffix
+                    .replace(/,(\s\d{4})/, ' at$1');  // Replace comma before year with " at"
+                    
+                document.querySelector('.breadcrumb-item.active').textContent = 'Overview as of ' + timeString;
+            }
+            
+            // Update timestamp once when page loads
+            updateTimestamp();
+            
+            // Update timestamp every 60 seconds
+            setInterval(updateTimestamp, 60000);
+
+            // Friendly "x time ago" for Last Active
+            function timeAgo(dateIso) {
+                if (!dateIso) return 'Never';
+                const seconds = Math.floor((new Date() - new Date(dateIso)) / 1000);
+                const units = [
+                    { label: 'year', secs: 31536000 },
+                    { label: 'month', secs: 2592000 },
+                    { label: 'day', secs: 86400 },
+                    { label: 'hour', secs: 3600 },
+                    { label: 'minute', secs: 60 }
+                ];
+                for (const u of units) {
+                    const v = Math.floor(seconds / u.secs);
+                    if (v >= 1) return `${v} ${u.label}${v>1?'s':''} ago`;
+                }
+                return 'Just now';
+            }
+            document.querySelectorAll('.last-active').forEach(el => {
+                const iso = el.getAttribute('data-ts');
+                if (iso && iso !== '0001-01-01T00:00:00.0000000') {
+                    el.textContent = timeAgo(iso);
+                } else {
+                    el.textContent = 'Never';
+                }
+            });
+
+            // Simple client-side filter for staff table
+            const searchInput = document.getElementById('staffSearch');
+            const roleSelect = document.getElementById('roleFilter');
+            function applyStaffFilter() {
+                const q = (searchInput?.value || '').toLowerCase();
+                const role = (roleSelect?.value || 'all').toLowerCase();
+                document.querySelectorAll('table.enhanced tbody tr').forEach(row => {
+                    const nameCell = row.querySelector('td:nth-child(1)');
+                    const roleCell = row.querySelector('td:nth-child(2)');
+                    const nameText = (nameCell?.innerText || '').toLowerCase();
+                    const roleText = (roleCell?.innerText || '').toLowerCase();
+                    const matchesQuery = !q || nameText.includes(q);
+                    const matchesRole = role === 'all' || roleText === role;
+                    row.style.display = (matchesQuery && matchesRole) ? '' : 'none';
+                });
+            }
+            if (searchInput) searchInput.addEventListener('input', applyStaffFilter);
+            if (roleSelect) roleSelect.addEventListener('change', applyStaffFilter);
+            applyStaffFilter();
 
             // Function to show staff details modal
             function showStaffDetailsModal(staffId) {
@@ -384,9 +410,9 @@
                             <div class="staff-details">
                                 <div class="mb-3 text-center">
                                     <div class="avatar-lg mx-auto">
-                                        ${staff.name.substring(0, 1)}
+                                        ${staff.name ? staff.name.substring(0, 1) : '?'}
                                     </div>
-                                    <h4 class="mt-2">${staff.name}</h4>
+                                    <h4 class="mt-2">${staff.name || 'Unknown'}</h4>
                                     <span class="badge bg-${staff.isActive ? 'success' : 'danger'}">
                                         ${staff.isActive ? 'Active' : 'Inactive'}
                                     </span>
@@ -397,10 +423,7 @@
                                         <div class="col-4 fw-bold">Role:</div>
                                         <div class="col-8">${staff.role}</div>
                                     </div>
-                                    <div class="row mb-2">
-                                        <div class="col-4 fw-bold">Department:</div>
-                                        <div class="col-8">${staff.department}</div>
-                                    </div>
+
                                     <div class="row mb-2">
                                         <div class="col-4 fw-bold">Email:</div>
                                         <div class="col-8">${staff.email || 'N/A'}</div>
@@ -421,39 +444,13 @@
                         const modalBody = modal.querySelector('.modal-body');
                         modalBody.innerHTML = `
                             <div class="alert alert-danger">
-                                <i class="fas fa-exclamation-circle me-2"></i>
+                                <i class="fa-solid fa-circle-exclamation me-2"></i>
                                 Failed to load staff details. Please try again later.
                             </div>
                         `;
                         console.error('Error fetching staff details:', error);
                     });
             }
-
-            // Update time every minute
-            function updatePhilippineTime() {
-                const initialTime = new Date('@Model.CurrentPhilippineTime.ToString("o")');
-                const options = {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: 'numeric',
-                    minute: '2-digit',
-                    hour12: true
-                };
-
-                function updateTime() {
-                    const currentTime = new Date(initialTime.getTime() + (Date.now() - initialTime.getTime()));
-                    const timeString = currentTime.toLocaleString('en-US', options);
-                    document.querySelector('.breadcrumb-item.active').textContent = 'Overview as of ' + timeString;
-                }
-
-                // Update immediately and then every minute
-                updateTime();
-                setInterval(updateTime, 60000);
-            }
-
-            updatePhilippineTime();
         });
     </script>
 }

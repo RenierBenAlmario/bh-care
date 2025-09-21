@@ -1,0 +1,578 @@
+@model Barangay.Models.HEEADSSSAssessmentViewModel
+@{
+    ViewData["Title"] = "Edit HEEADSSS Assessment";
+    Layout = "_NurseLayout";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="m-0">
+            <i class="fas fa-edit text-primary me-2"></i>
+            Edit HEEADSSS Assessment
+        </h2>
+        <a href="/Nurse/AppointmentDetails?id=@Model.AppointmentId" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>
+            Back to Appointment
+        </a>
+    </div>
+
+    @if (!string.IsNullOrEmpty(TempData["StatusMessage"]?.ToString()))
+    {
+        <div class="alert @(TempData["StatusMessage"].ToString().Contains("Error") ? "alert-danger" : "alert-success") alert-dismissible fade show" role="alert">
+            @TempData["StatusMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <form asp-action="EditHEEADSSSAssessment" method="post" id="heeadsssAssessmentForm">
+        <input asp-for="AppointmentId" type="hidden" />
+        <input asp-for="UserId" type="hidden" />
+
+        <!-- Patient Information -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-user me-2"></i>
+                            Patient Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="FullName" class="form-label">Full Name</label>
+                                    <input asp-for="FullName" class="form-control" readonly />
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label asp-for="Age" class="form-label">Age</label>
+                                    <input asp-for="Age" type="number" class="form-control" readonly />
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label asp-for="Gender" class="form-label">Gender</label>
+                                    <input asp-for="Gender" class="form-control" readonly />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="ContactNumber" class="form-label">Contact Number</label>
+                                    <input asp-for="ContactNumber" class="form-control" readonly />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Address" class="form-label">Address</label>
+                                    <input asp-for="Address" class="form-control" readonly />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- H - Home Environment -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-home me-2"></i>
+                            H - Home Environment
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="HomeEnvironment" class="form-label">Home Environment</label>
+                                    <textarea asp-for="HomeEnvironment" class="form-control" rows="3"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="FamilyRelationship" class="form-label">Family Relationship</label>
+                                    <textarea asp-for="FamilyRelationship" class="form-control" rows="3"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="HomeFamilyProblems" class="form-label">Family Problems</label>
+                                    <textarea asp-for="HomeFamilyProblems" class="form-control" rows="3"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="HomeParentalListening" class="form-label">Parental Listening</label>
+                                    <textarea asp-for="HomeParentalListening" class="form-control" rows="3"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label asp-for="HomeFamilyChanges" class="form-label">Family Changes</label>
+                                    <textarea asp-for="HomeFamilyChanges" class="form-control" rows="2"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- E - Education -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">
+                            <i class="fas fa-graduation-cap me-2"></i>
+                            E - Education
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="SchoolPerformance" class="form-label">School Performance</label>
+                                    <select asp-for="SchoolPerformance" class="form-select">
+                                        <option value="">Select Performance</option>
+                                        <option value="Excellent">Excellent</option>
+                                        <option value="Good">Good</option>
+                                        <option value="Average">Average</option>
+                                        <option value="Below Average">Below Average</option>
+                                        <option value="Poor">Poor</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="EducationCurrentlyStudying" class="form-label">Currently Studying</label>
+                                    <input asp-for="EducationCurrentlyStudying" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="EducationWorking" class="form-label">Working</label>
+                                    <input asp-for="EducationWorking" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="EducationBullying" class="form-label">Bullying Experience</label>
+                                    <textarea asp-for="EducationBullying" class="form-control" rows="2"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label asp-for="CareerPlans" class="form-label">Career Plans</label>
+                                    <textarea asp-for="CareerPlans" class="form-control" rows="3"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- E - Eating Habits -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-utensils me-2"></i>
+                            E - Eating Habits
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input asp-for="WeightConcerns" class="form-check-input" type="checkbox" />
+                                        <label asp-for="WeightConcerns" class="form-check-label">Weight Concerns</label>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input asp-for="EatingDisorderSymptoms" class="form-check-input" type="checkbox" />
+                                        <label asp-for="EatingDisorderSymptoms" class="form-check-label">Eating Disorder Symptoms</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="EatingBodyImageSatisfaction" class="form-label">Body Image Satisfaction</label>
+                                    <textarea asp-for="EatingBodyImageSatisfaction" class="form-control" rows="2"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label asp-for="DietDescription" class="form-label">Diet Description</label>
+                                    <textarea asp-for="DietDescription" class="form-control" rows="3"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- A - Activities -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-running me-2"></i>
+                            A - Activities
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Hobbies" class="form-label">Hobbies</label>
+                                    <textarea asp-for="Hobbies" class="form-control" rows="3"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="PhysicalActivity" class="form-label">Physical Activity</label>
+                                    <textarea asp-for="PhysicalActivity" class="form-control" rows="3"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="ActivitiesParticipation" class="form-label">Activities Participation</label>
+                                    <textarea asp-for="ActivitiesParticipation" class="form-control" rows="2"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="ScreenTime" class="form-label">Screen Time</label>
+                                    <input asp-for="ScreenTime" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- D - Drugs/Substances -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            D - Drugs/Substances
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input asp-for="SubstanceUse" class="form-check-input" type="checkbox" />
+                                        <label asp-for="SubstanceUse" class="form-check-label">Substance Use</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="SubstanceType" class="form-label">Substance Type</label>
+                                    <input asp-for="SubstanceType" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="DrugsTobaccoUse" class="form-label">Tobacco Use</label>
+                                    <textarea asp-for="DrugsTobaccoUse" class="form-control" rows="2"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="DrugsAlcoholUse" class="form-label">Alcohol Use</label>
+                                    <textarea asp-for="DrugsAlcoholUse" class="form-control" rows="2"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="DrugsIllicitDrugUse" class="form-label">Illicit Drug Use</label>
+                                    <textarea asp-for="DrugsIllicitDrugUse" class="form-control" rows="2"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- S - Sexuality -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-heart me-2"></i>
+                            S - Sexuality
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input asp-for="SexualActivity" class="form-check-input" type="checkbox" />
+                                        <label asp-for="SexualActivity" class="form-check-label">Sexual Activity</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="SexualOrientation" class="form-label">Sexual Orientation</label>
+                                    <input asp-for="SexualOrientation" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label asp-for="DatingRelationships" class="form-label">Dating Relationships</label>
+                                    <textarea asp-for="DatingRelationships" class="form-control" rows="2"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- S - Suicide/Depression -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            S - Suicide/Depression
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input asp-for="MoodChanges" class="form-check-input" type="checkbox" />
+                                        <label asp-for="MoodChanges" class="form-check-label">Mood Changes</label>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input asp-for="SuicidalThoughts" class="form-check-input" type="checkbox" />
+                                        <label asp-for="SuicidalThoughts" class="form-check-label">Suicidal Thoughts</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input asp-for="SelfHarmBehavior" class="form-check-input" type="checkbox" />
+                                        <label asp-for="SelfHarmBehavior" class="form-check-label">Self-Harm Behavior</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label asp-for="SuicideDepressionFeelings" class="form-label">Depression Feelings</label>
+                                    <textarea asp-for="SuicideDepressionFeelings" class="form-control" rows="3"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- S - Safety -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-shield-alt me-2"></i>
+                            S - Safety
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input asp-for="FeelsSafeAtHome" class="form-check-input" type="checkbox" />
+                                        <label asp-for="FeelsSafeAtHome" class="form-check-label">Feels Safe at Home</label>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input asp-for="FeelsSafeAtSchool" class="form-check-input" type="checkbox" />
+                                        <label asp-for="FeelsSafeAtSchool" class="form-check-label">Feels Safe at School</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input asp-for="ExperiencedBullying" class="form-check-input" type="checkbox" />
+                                        <label asp-for="ExperiencedBullying" class="form-check-label">Experienced Bullying</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Strengths & Support -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">
+                            <i class="fas fa-hands-helping me-2"></i>
+                            Strengths & Support
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="PersonalStrengths" class="form-label">Personal Strengths</label>
+                                    <textarea asp-for="PersonalStrengths" class="form-control" rows="3"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="SupportSystems" class="form-label">Support Systems</label>
+                                    <textarea asp-for="SupportSystems" class="form-control" rows="3"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="CopingMechanisms" class="form-label">Coping Mechanisms</label>
+                                    <textarea asp-for="CopingMechanisms" class="form-control" rows="3"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assessment Summary -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-clipboard-list me-2"></i>
+                            Assessment Summary
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="AssessmentNotes" class="form-label">Assessment Notes</label>
+                                    <textarea asp-for="AssessmentNotes" class="form-control" rows="4"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="RecommendedActions" class="form-label">Recommended Actions</label>
+                                    <textarea asp-for="RecommendedActions" class="form-control" rows="4"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label asp-for="FollowUpPlan" class="form-label">Follow-up Plan</label>
+                                    <textarea asp-for="FollowUpPlan" class="form-control" rows="3"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between">
+                    <a href="/Nurse/AppointmentDetails?id=@Model.AppointmentId" class="btn btn-secondary">
+                        <i class="fas fa-times me-1"></i>
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>
+                        Update Assessment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Form validation
+            $('#heeadsssAssessmentForm').on('submit', function(e) {
+                var isValid = true;
+                
+                // Check required fields
+                $('input[required], select[required], textarea[required]').each(function() {
+                    if (!$(this).val()) {
+                        isValid = false;
+                        $(this).addClass('is-invalid');
+                    } else {
+                        $(this).removeClass('is-invalid');
+                    }
+                });
+
+                if (!isValid) {
+                    e.preventDefault();
+                    alert('Please fill in all required fields.');
+                }
+            });
+        });
+    </script>
+}

@@ -6,10 +6,11 @@
     <title>@ViewData["Title"] - Barangay Health Center</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/admin.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/admin-orange.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap5.min.css" />
 </head>
-<body>
+<body class="admin">
     <div class="d-flex" id="wrapper">
         <!-- Sidebar -->
         <div class="bg-white" id="sidebar-wrapper">
@@ -19,13 +20,13 @@
             </div>
             <div class="list-group list-group-flush">
                 <a href="@Url.Action("Dashboard", "Admin")" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["Action"].ToString() == "Dashboard" ? "active" : "")">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                    <i class="fa-solid fa-gauge"></i> Dashboard
                 </a>
                 <a href="@Url.Action("UserManagement", "Admin")" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["Action"].ToString() == "UserManagement" ? "active" : "")">
-                    <i class="fas fa-users"></i> User Management
+                    <i class="fa-solid fa-users"></i> User Management
                 </a>
                 <a href="@Url.Action("Reports", "Admin")" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["Action"].ToString() == "Reports" ? "active" : "")">
-                    <i class="fas fa-chart-bar"></i> Reports
+                    <i class="fa-solid fa-chart-bar"></i> Reports
                 </a>
             </div>
         </div>
@@ -35,7 +36,7 @@
             <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
                 <div class="container-fluid">
                     <button class="btn btn-primary" id="menu-toggle">
-                        <i class="fas fa-bars"></i>
+                        <i class="fa-solid fa-bars"></i>
                     </button>
 
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
@@ -46,7 +47,7 @@
                         <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-user-circle"></i> @User.Identity?.Name
+                                    <i class="fa-solid fa-circle-user"></i> @User.Identity?.Name
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li><a class="dropdown-item" href="@Url.Action("Profile", "Admin")">Profile</a></li>
@@ -74,6 +75,7 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap5.min.js"></script>
+    <script src="~/js/global-403-handler.js" asp-append-version="true"></script>
     <script src="~/js/admin.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 

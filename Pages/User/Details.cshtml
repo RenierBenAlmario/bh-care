@@ -1,0 +1,59 @@
+
+@page "{id:int}"
+@model Barangay.Pages.User.DetailsModel
+@{
+    ViewData["Title"] = "Prescription Details";
+    Layout = "_UserLayout";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Prescription Details</h4>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Prescription ID</dt>
+                        <dd class="col-sm-8">@Model.Prescription.Id</dd>
+
+                        <dt class="col-sm-4">Doctor</dt>
+                        <dd class="col-sm-8">@Model.Prescription.Doctor?.FullName</dd>
+
+                        <dt class="col-sm-4">Prescription Date</dt>
+                        <dd class="col-sm-8">@Model.Prescription.PrescriptionDate.ToShortDateString()</dd>
+
+                        <dt class="col-sm-4">Diagnosis</dt>
+                        <dd class="col-sm-8">@Model.Prescription.Diagnosis</dd>
+                    </dl>
+
+                    <h5>Medications</h5>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Medication</th>
+                                <th>Dosage</th>
+                                <th>Instructions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var med in Model.Prescription.PrescriptionMedicines)
+                            {
+                                <tr>
+                                    <td>@med.Medication.Name</td>
+                                    <td>@med.Dosage</td>
+                                    <td>@med.Instructions</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer">
+                    <a asp-page="./Prescriptions" class="btn btn-secondary">Back to List</a>
+                    <a asp-page="./Print" asp-route-id="@Model.Prescription.Id" class="btn btn-primary">Print</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

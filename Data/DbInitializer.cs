@@ -169,8 +169,8 @@ namespace Barangay.Data
                         WHERE r.Name = 'Admin';
                         
                         -- Grant all permissions to admin users
-                        INSERT INTO UserPermissions (UserId, PermissionId)
-                        SELECT au.UserId, p.Id
+                        INSERT INTO UserPermissions (UserId, PermissionId, CreatedAt, UpdatedAt)
+                        SELECT au.UserId, p.Id, GETUTCDATE(), GETUTCDATE()
                         FROM @AdminUsers au
                         CROSS JOIN Permissions p
                         WHERE NOT EXISTS (

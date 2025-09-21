@@ -36,7 +36,7 @@ namespace Barangay.Pages.Admin
             public string Name { get; set; }
             public string Email { get; set; }
             public string Role { get; set; }
-            public string Department { get; set; }
+            // Department field removed
             public string Position { get; set; }
             public bool IsActive { get; set; }
             public DateTime JoinDate { get; set; }
@@ -65,7 +65,7 @@ namespace Barangay.Pages.Admin
                         Name = staff.Name,
                         Email = staff.Email,
                         Role = staff.Role,
-                        Department = staff.Department ?? "N/A",
+                        // Department field removed
                         Position = staff.Position ?? "N/A",
                         IsActive = staff.IsActive,
                         JoinDate = staff.JoinDate

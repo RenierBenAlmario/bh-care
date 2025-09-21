@@ -1,0 +1,23 @@
+@model IEnumerable<Barangay.ViewComponents.DynamicNavMenuViewComponent.NavMenuItem>
+
+@if (Model.Any())
+{
+    @foreach (var item in Model)
+    {
+        <li class="nav-item">
+            <a class="nav-link @(item.IsActive ? "active" : "")" href="@item.Url">
+                <i class="fas fa-@item.Icon"></i>
+                <span>@item.Title</span>
+            </a>
+        </li>
+    }
+}
+else
+{
+    <li class="nav-item">
+        <div class="nav-link text-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>Access Denied</span>
+        </div>
+    </li>
+} 

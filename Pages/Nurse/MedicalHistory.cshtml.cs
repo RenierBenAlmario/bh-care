@@ -5,25 +5,35 @@ using System.Threading.Tasks;
 using Barangay.Data;
 using Barangay.Models;
 using Barangay.Extensions;
+using Barangay.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Data.SqlClient;
+using System.Security.Claims;
 
 namespace Barangay.Pages.Nurse
 {
-    [Authorize(Roles = "Admin,Nurse")]
+    [Authorize]
     public class MedicalHistoryModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
+        private readonly EncryptedDbContext _context;
         private readonly ILogger<MedicalHistoryModel> _logger;
+        private readonly IPermissionService _permissionService;
+        private readonly IDataEncryptionService _encryptionService;
 
-        public MedicalHistoryModel(ApplicationDbContext context, ILogger<MedicalHistoryModel> logger)
+        public MedicalHistoryModel(
+            EncryptedDbContext context, 
+            ILogger<MedicalHistoryModel> logger,
+            IPermissionService permissionService,
+            IDataEncryptionService encryptionService)
         {
             _context = context;
             _logger = logger;
+            _permissionService = permissionService;
+            _encryptionService = encryptionService;
         }
 
         // Use Appointment model for patient information
@@ -42,6 +52,12 @@ namespace Barangay.Pages.Nurse
         [BindProperty]
         public Models.MedicalHistory MedicalHistory { get; set; }
 
+        [BindProperty]
+        public string? Allergies { get; set; }
+
+        [BindProperty]
+        public string? CurrentMedications { get; set; }
+
         private int CalculateAge(DateTime birthDate)
         {
             var today = DateTime.Today;
@@ -54,6 +70,20 @@ namespace Barangay.Pages.Nurse
         {
             try
             {
+                // Check if user has permission to view patient history
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return RedirectToPage("/Account/Login");
+                }
+                
+                var hasPermission = await _permissionService.UserHasPermissionAsync(userId, "View Patient History");
+                
+                if (!hasPermission)
+                {
+                    return RedirectToPage("/Account/AccessDenied");
+                }
+
                 if (id.HasValue)
                 {
                     var appointment = await _context.Appointments
@@ -69,81 +99,87 @@ namespace Barangay.Pages.Nurse
                 var patients = await _context.Patients.ToListAsync();
 
                 // Join and transform the data in memory
-                var allAppointments = appointments.Join(
-                    patients,
-                    a => a.PatientId,
-                    p => p.UserId,
-                    (appointment, patient) => new Models.Appointment
-                    {
-                        Id = appointment.Id,
-                        PatientId = appointment.PatientId,
-                        PatientName = appointment.PatientName,
-                        Gender = patient.Gender,
-                        ContactNumber = appointment.ContactNumber,
-                        DateOfBirth = patient.BirthDate,
-                        Address = appointment.Address,
-                        EmergencyContact = appointment.EmergencyContact,
-                        EmergencyContactNumber = appointment.EmergencyContactNumber,
-                        Allergies = appointment.Allergies,
-                        MedicalHistory = appointment.MedicalHistory,
-                        CurrentMedications = appointment.CurrentMedications,
-                        AppointmentDate = appointment.AppointmentDate,
-                        AppointmentTime = SafeGetTimeSpan(appointment.AppointmentTime),
-                        AppointmentTimeInput = appointment.AppointmentTimeInput,
-                        DoctorId = appointment.DoctorId,
-                        ReasonForVisit = appointment.ReasonForVisit,
-                        Description = appointment.Description,
-                        Status = appointment.Status,
-                        AgeValue = patient.BirthDate != default ? CalculateAge(patient.BirthDate) : 0,
-                        CreatedAt = appointment.CreatedAt,
-                        UpdatedAt = appointment.UpdatedAt,
-                        Type = appointment.Type,
-                        AttachmentPath = appointment.AttachmentPath,
-                        Prescription = appointment.Prescription,
-                        Instructions = appointment.Instructions
-                    }).ToList();
+                var allAppointments = (from appointment in appointments
+                                     join p in patients on appointment.PatientId equals p.UserId into patientGroup
+                                     from patient in patientGroup.DefaultIfEmpty()
+                                     select new Models.Appointment
+                                     {
+                                         Id = appointment.Id,
+                                         PatientId = appointment.PatientId ?? string.Empty,
+                                         PatientName = appointment.PatientName ?? "Unknown",
+                                         Gender = patient?.Gender ?? string.Empty,
+                                         ContactNumber = appointment.ContactNumber ?? string.Empty,
+                                         DateOfBirth = patient?.BirthDate ?? default,
+                                         Address = appointment.Address ?? string.Empty,
+                                         EmergencyContact = appointment.EmergencyContact ?? string.Empty,
+                                         EmergencyContactNumber = appointment.EmergencyContactNumber ?? string.Empty,
+                                         Allergies = appointment.Allergies ?? string.Empty,
+                                         MedicalHistory = appointment.MedicalHistory ?? string.Empty,
+                                         CurrentMedications = appointment.CurrentMedications ?? string.Empty,
+                                         AppointmentDate = appointment.AppointmentDate,
+                                         AppointmentTime = SafeGetTimeSpan(appointment.AppointmentTime),
+                                         AppointmentTimeInput = appointment.AppointmentTimeInput,
+                                         DoctorId = appointment.DoctorId,
+                                         ReasonForVisit = appointment.ReasonForVisit ?? string.Empty,
+                                         Description = appointment.Description ?? string.Empty,
+                                         Status = appointment.Status,
+                                         AgeValue = (patient?.BirthDate ?? default) != default ? CalculateAge(patient.BirthDate) : 0,
+                                         CreatedAt = appointment.CreatedAt,
+                                         UpdatedAt = appointment.UpdatedAt,
+                                         Type = appointment.Type ?? string.Empty,
+                                         AttachmentPath = appointment.AttachmentPath ?? string.Empty,
+                                         Prescription = appointment.Prescription ?? string.Empty,
+                                         Instructions = appointment.Instructions ?? string.Empty
+                                     }).ToList();
 
                 Patients = allAppointments
+                    .Where(a => !string.IsNullOrEmpty(a.PatientId))
                     .GroupBy(a => a.PatientId)
                     .Select(g => g.OrderByDescending(a => a.AppointmentDate).First())
                     .OrderBy(a => a.PatientName)
                     .ToList();
 
                 if (!string.IsNullOrEmpty(patientId))
-                {
-                    SelectedPatient = allAppointments
-                        .Where(a => a.PatientId == patientId)
-                        .OrderByDescending(a => a.AppointmentDate)
-                        .FirstOrDefault();
+        {
+            // Fetch the patient directly from the database to ensure the data is current.
+            var patientFromDb = await _context.Patients.FindAsync(patientId);
 
-                    if (SelectedPatient != null)
-                    {
-                        HasSelectedPatient = true;
-                        PatientAppointments = allAppointments
-                            .Where(a => a.PatientId == patientId)
-                            .OrderByDescending(a => a.AppointmentDate)
-                            .ToList();
-                        
-                        try
-                        {
-                            // Use direct ADO.NET approach to avoid EF Core type casting issues
-                            PatientVitalSigns = await GetVitalSignsForPatient(patientId);
-                            
-                            _logger.LogInformation("Successfully retrieved {Count} vital signs for patient {PatientId}", 
-                                PatientVitalSigns.Count, patientId);
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogError(ex, "Error retrieving vital signs for patient {PatientId}", patientId);
-                            PatientVitalSigns = new List<VitalSign>();
-                            TempData["ErrorMessage"] = "Error loading vital signs data. Please try again.";
-                        }
-                    }
-                    else
-                    {
-                        HasSelectedPatient = false;
-                    }
+            if (patientFromDb != null)
+            {
+                SelectedPatient = allAppointments
+                    .FirstOrDefault(a => a.PatientId == patientId);
+
+                if (SelectedPatient != null)
+                {
+                    // Replace projected data with actual DB data for consistency
+                    SelectedPatient.MedicalHistory = patientFromDb.MedicalHistory;
+                    SelectedPatient.Allergies = patientFromDb.Allergies;
+                    SelectedPatient.CurrentMedications = patientFromDb.CurrentMedications;
                 }
+
+                HasSelectedPatient = true;
+                PatientAppointments = allAppointments
+                    .Where(a => a.PatientId == patientId)
+                    .OrderByDescending(a => a.AppointmentDate)
+                    .ToList();
+
+                try
+                {
+                    PatientVitalSigns = await GetVitalSignsForPatient(patientId);
+                    _logger.LogInformation("Successfully retrieved {Count} vital signs for patient {PatientId}", PatientVitalSigns.Count, patientId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error loading vital signs for patient {PatientId}", patientId);
+                    PatientVitalSigns = new List<VitalSign>();
+                    TempData["ErrorMessage"] = "Error loading vital signs data. Please try again.";
+                }
+            }
+            else
+            {
+                HasSelectedPatient = false;
+            }
+        }
                 else
                 {
                     HasSelectedPatient = false;
@@ -185,16 +221,16 @@ namespace Barangay.Pages.Nurse
                             {
                                 Id = reader.GetInt32(0),
                                 PatientId = reader.GetString(1),
-                                // Handle nullable decimal values
-                                Temperature = reader.IsDBNull(2) ? null : (decimal?)reader.GetDecimal(2),
+                                // Convert decimal values to strings
+                                Temperature = reader.IsDBNull(2) ? null : reader.GetDecimal(2).ToString(),
                                 BloodPressure = reader.IsDBNull(3) ? null : reader.GetString(3),
-                                // Handle nullable int values
-                                HeartRate = reader.IsDBNull(4) ? null : (int?)reader.GetInt32(4),
-                                RespiratoryRate = reader.IsDBNull(5) ? null : (int?)reader.GetInt32(5),
-                                // Handle nullable decimal values
-                                SpO2 = reader.IsDBNull(6) ? null : (decimal?)reader.GetDecimal(6),
-                                Weight = reader.IsDBNull(7) ? null : (decimal?)reader.GetDecimal(7),
-                                Height = reader.IsDBNull(8) ? null : (decimal?)reader.GetDecimal(8),
+                                // Convert int values to strings
+                                HeartRate = reader.IsDBNull(4) ? null : reader.GetInt32(4).ToString(),
+                                RespiratoryRate = reader.IsDBNull(5) ? null : reader.GetInt32(5).ToString(),
+                                // Convert decimal values to strings
+                                SpO2 = reader.IsDBNull(6) ? null : reader.GetDecimal(6).ToString(),
+                                Weight = reader.IsDBNull(7) ? null : reader.GetDecimal(7).ToString(),
+                                Height = reader.IsDBNull(8) ? null : reader.GetDecimal(8).ToString(),
                                 // DateTime is not nullable in the model
                                 RecordedAt = reader.GetDateTime(9),
                                 Notes = reader.IsDBNull(10) ? null : reader.GetString(10)
@@ -315,37 +351,55 @@ namespace Barangay.Pages.Nurse
             }
         }
 
-        public async Task<IActionResult> OnPostUpdateMedicalHistoryAsync(string patientId, string medicalHistory, string allergies, string currentMedications)
+        public async Task<IActionResult> OnPostUpdateMedicalHistoryAsync(string patientId)
         {
             if (string.IsNullOrEmpty(patientId))
             {
-                return new JsonResult(new { success = false, message = "Invalid patient ID." });
+                TempData["ErrorMessage"] = "Patient ID is required.";
+                return RedirectToPage();
             }
-            
+
+            var patient = await _context.Patients.FirstOrDefaultAsync(p => p.UserId == patientId);
+            if (patient == null)
+            {
+                TempData["ErrorMessage"] = "Patient not found.";
+                return RedirectToPage(new { patientId });
+            }
+
+            // Find existing medical history or create a new one
+            var medicalHistory = await _context.MedicalHistories.FirstOrDefaultAsync(m => m.PatientId == patientId);
+            if (medicalHistory == null)
+            {
+                medicalHistory = new Models.MedicalHistory { PatientId = patientId };
+                _context.MedicalHistories.Add(medicalHistory);
+            }
+
+            // Map form data to the medical history record
+            MapMedicalHistoryFromForm(Request.Form);
+            medicalHistory.ChiefComplaint = MedicalHistory.ChiefComplaint;
+            medicalHistory.HistoryOfPresentIllness = MedicalHistory.HistoryOfPresentIllness;
+            medicalHistory.PastMedicalHistory = MedicalHistory.PastMedicalHistory;
+            medicalHistory.FamilyHistory = MedicalHistory.FamilyHistory;
+            medicalHistory.PersonalSocialHistory = MedicalHistory.PersonalSocialHistory;
+            medicalHistory.ReviewOfSystems = MedicalHistory.ReviewOfSystems;
+            medicalHistory.PhysicalExamination = MedicalHistory.PhysicalExamination;
+
+            // Also update allergies and current medications on the Patient record
+            patient.Allergies = Allergies;
+            patient.CurrentMedications = CurrentMedications;
+
             try
             {
-                var patient = await _context.Patients
-                    .FirstOrDefaultAsync(p => p.UserId == patientId);
-                    
-                if (patient == null)
-                {
-                    return new JsonResult(new { success = false, message = "Patient not found." });
-                }
-
-                // Update the patient's medical information
-                patient.MedicalHistory = medicalHistory;
-                patient.Allergies = allergies;
-                patient.CurrentMedications = currentMedications;
-                patient.UpdatedAt = DateTime.Now;
-                
                 await _context.SaveChangesAsync();
-                return new JsonResult(new { success = true, message = "Medical information updated successfully." });
+                TempData["SuccessMessage"] = "Medical history updated successfully!";
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating medical history for patient {PatientId}", patientId);
-                return new JsonResult(new { success = false, message = "An error occurred while updating medical history." });
+                TempData["ErrorMessage"] = "An error occurred while updating the medical history.";
             }
+
+            return RedirectToPage(new { patientId });
         }
 
         public async Task<IActionResult> OnPostAddVitalSignsAsync(string patientId)
@@ -393,7 +447,7 @@ namespace Barangay.Pages.Nurse
                 }
 
                 // Make sure Temperature is set (required field)
-                if (!InputVitalSign.Temperature.HasValue)
+                if (string.IsNullOrEmpty(InputVitalSign.Temperature))
                 {
                     TempData["ErrorMessage"] = "Temperature is required.";
                     return RedirectToPage(new { patientId });
@@ -436,11 +490,11 @@ namespace Barangay.Pages.Nurse
                         patient = new Patient
                         {
                             UserId = patientId,
-                            Name = appointment.PatientName ?? "Unknown",
+                            FullName = appointment.PatientName ?? "Unknown",
+                            BirthDate = appointment.DateOfBirth ?? DateTime.MinValue,
                             Gender = appointment.Gender ?? string.Empty,
-                            Email = string.Empty,
-                            Status = "Active",
-                            CreatedAt = DateTime.Now
+                            Address = appointment.Address ?? string.Empty,
+                            ContactNumber = appointment.ContactNumber ?? string.Empty
                         };
                         
                         _context.Patients.Add(patient);
@@ -450,34 +504,24 @@ namespace Barangay.Pages.Nurse
                     }
                 }
 
-                // Add the new vital sign using direct SQL to avoid type casting issues
-                using (var connection = new SqlConnection(_context.Database.GetConnectionString()))
+                // Create a new vital sign record - EncryptedDbContext will handle encryption automatically
+                var vitalSign = new VitalSign
                 {
-                    await connection.OpenAsync();
-                    
-                    var commandText = @"
-                        INSERT INTO VitalSigns (PatientId, Temperature, BloodPressure, HeartRate, RespiratoryRate, 
-                                              SpO2, Weight, Height, RecordedAt, Notes)
-                        VALUES (@PatientId, @Temperature, @BloodPressure, @HeartRate, @RespiratoryRate, 
-                               @SpO2, @Weight, @Height, @RecordedAt, @Notes)";
-                    
-                    using (var command = new SqlCommand(commandText, connection))
-                    {
-                        // Add parameters with proper types
-                        command.Parameters.Add(new SqlParameter("@PatientId", patientId));
-                        command.Parameters.Add(new SqlParameter("@Temperature", (object)newVitalSign.Temperature ?? DBNull.Value));
-                        command.Parameters.Add(new SqlParameter("@BloodPressure", (object)newVitalSign.BloodPressure ?? DBNull.Value));
-                        command.Parameters.Add(new SqlParameter("@HeartRate", (object)newVitalSign.HeartRate ?? DBNull.Value));
-                        command.Parameters.Add(new SqlParameter("@RespiratoryRate", (object)newVitalSign.RespiratoryRate ?? DBNull.Value));
-                        command.Parameters.Add(new SqlParameter("@SpO2", (object)newVitalSign.SpO2 ?? DBNull.Value));
-                        command.Parameters.Add(new SqlParameter("@Weight", (object)newVitalSign.Weight ?? DBNull.Value));
-                        command.Parameters.Add(new SqlParameter("@Height", (object)newVitalSign.Height ?? DBNull.Value));
-                        command.Parameters.Add(new SqlParameter("@RecordedAt", newVitalSign.RecordedAt));
-                        command.Parameters.Add(new SqlParameter("@Notes", (object)newVitalSign.Notes ?? DBNull.Value));
-                        
-                        await command.ExecuteNonQueryAsync();
-                    }
-                }
+                    PatientId = patientId,
+                    Temperature = InputVitalSign.Temperature,
+                    BloodPressure = InputVitalSign.BloodPressure,
+                    HeartRate = InputVitalSign.HeartRate,
+                    RespiratoryRate = InputVitalSign.RespiratoryRate,
+                    SpO2 = InputVitalSign.SpO2,
+                    Weight = InputVitalSign.Weight,
+                    Height = InputVitalSign.Height,
+                    RecordedAt = InputVitalSign.RecordedAt,
+                    Notes = InputVitalSign.Notes
+                };
+
+                // Add to context - EncryptedDbContext will handle encryption automatically
+                _context.VitalSigns.Add(vitalSign);
+                await _context.SaveChangesAsync();
                 
                 _logger.LogInformation("Vital sign saved successfully for {PatientId}", patientId);
                 TempData["SuccessMessage"] = "Vital signs saved successfully!";

@@ -1,0 +1,27 @@
+@page
+@model Barangay.Pages.Admin.ListPermissionsModel
+@{
+    ViewData["Title"] = "List Permissions";
+}
+
+<h2>List Permissions</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Category</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var permission in Model.Permissions)
+        {
+            <tr>
+                <td>@permission.Id</td>
+                <td>@permission.Name</td>
+                <td>@permission.Category</td>
+            </tr>
+        }
+    </tbody>
+</table>

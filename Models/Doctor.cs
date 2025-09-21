@@ -5,6 +5,7 @@ namespace Barangay.Models
 {
     public class Doctor
     {
+        public string FullName { get; set; }
         [Key]
         public string Id { get; set; } = string.Empty;
         

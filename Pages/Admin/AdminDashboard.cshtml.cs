@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Barangay.Data;
 using Barangay.Models;
+using Barangay.Services;
+using Barangay.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,21 +15,24 @@ using System.Threading.Tasks;
 
 namespace Barangay.Pages.Admin
 {
-    [Authorize(Policy = "AccessAdminDashboard")]
+    [Authorize(Policy = "RequireAdminRole")]
     public class AdminDashboardModel : PageModel
     {
         private readonly ILogger<AdminDashboardModel> _logger;
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IDataEncryptionService _encryptionService;
 
         public AdminDashboardModel(
             ILogger<AdminDashboardModel> logger,
             ApplicationDbContext context,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IDataEncryptionService encryptionService)
         {
             _logger = logger;
             _context = context;
             _userManager = userManager;
+            _encryptionService = encryptionService;
         }
 
         public int TotalDoctors { get; set; }
@@ -39,61 +44,140 @@ namespace Barangay.Pages.Admin
 
         private DateTime GetPhilippineTime()
         {
-            // Convert current UTC time to Philippine Standard Time (UTC+8)
-            var utcNow = DateTime.UtcNow;
-            TimeZoneInfo philippineZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Manila");
-            return TimeZoneInfo.ConvertTimeFromUtc(utcNow, philippineZone);
+            try
+            {
+                // Get the current time in the system's local timezone
+                var currentDateTime = DateTime.Now;
+                
+                // For PST timezone (Pacific Standard Time)
+                // You can use either a TimeZoneInfo or just return the current DateTime
+                // since this is primarily for display purposes
+                
+                // Uncomment below if you need specific timezone conversion
+                /*
+                TimeZoneInfo pstZone = null;
+                try
+                {
+                    // Try Windows timezone ID first
+                    pstZone = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
+                }
+                catch
+                {
+                    try
+                    {
+                        // Try IANA timezone ID for Linux systems
+                        pstZone = TimeZoneInfo.FindSystemTimeZoneById("America/Los_Angeles");
+                    }
+                    catch
+                    {
+                        // Fallback - just return current time if timezone not found
+                        _logger.LogWarning("Could not find PST timezone, using system local time");
+                    }
+                }
+                
+                if (pstZone != null)
+                {
+                    return TimeZoneInfo.ConvertTime(DateTime.Now, pstZone);
+                }
+                */
+                
+                return currentDateTime;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting current time");
+                // Return current time as fallback
+                return DateTime.Now;
+            }
         }
 
         public async Task<IActionResult> OnGetAsync()
         {
             try
             {
-                // Set current Philippine time
+                // Set current time - this will update on each page load
                 CurrentPhilippineTime = GetPhilippineTime();
 
-                // Get total counts
-                var doctors = await _userManager.GetUsersInRoleAsync("Doctor");
-                var nurses = await _userManager.GetUsersInRoleAsync("Nurse");
-                
-                TotalDoctors = doctors.Count;
-                TotalNurses = nurses.Count;
-                TotalAppointments = await _context.Appointments.CountAsync();
-                
-                // Calculate active staff count
-                ActiveStaffCount = doctors.Count(d => d.IsActive) + nurses.Count(n => n.IsActive);
-
-                // Get all staff members (doctors, nurses, admins)
-                var staffRoles = new[] { "Doctor", "Nurse", "Admin", "Staff", "System Administrator" };
+                // Initialize collections
                 RecentStaff = new List<StaffOverviewModel>();
                 
-                // Get users with staff roles
-                foreach (var role in staffRoles)
+                try
                 {
-                    var usersInRole = await _userManager.GetUsersInRoleAsync(role);
-                    foreach (var user in usersInRole)
+                    // Get total counts - wrap in try/catch as SqlNullValueException is occurring here
+                    var doctors = await _userManager.GetUsersInRoleAsync("Doctor");
+                    var nurses = await _userManager.GetUsersInRoleAsync("Nurse");
+                    var headNurses = await _userManager.GetUsersInRoleAsync("Head Nurse");
+                    
+                    TotalDoctors = doctors.Count;
+                    TotalNurses = nurses.Count + headNurses.Count;
+                    
+                    // Calculate active staff count
+                    ActiveStaffCount = doctors.Count(d => d.IsActive) + nurses.Count(n => n.IsActive) + headNurses.Count(hn => hn.IsActive);
+
+                    // Get all staff members (doctors, nurses, admins)
+                    var staffRoles = new[] { "Doctor", "Nurse", "Head Nurse", "Admin", "Staff", "System Administrator" };
+                    
+                    // Get users with staff roles
+                    foreach (var role in staffRoles)
                     {
-                        // Skip if already added (user might have multiple roles)
-                        if (RecentStaff.Any(s => s.Id == user.Id))
-                            continue;
-                            
-                        RecentStaff.Add(new StaffOverviewModel
+                        var usersInRole = await _userManager.GetUsersInRoleAsync(role);
+                        foreach (var user in usersInRole)
                         {
-                            Id = user.Id,
-                            Name = $"{user.FirstName} {user.LastName}",
-                            Role = role,
-                            Department = "General", // Since Department is not in ApplicationUser model
-                            IsActive = user.IsActive,
-                            LastActive = user.LastActive
-                        });
+                            // Skip if already added (user might have multiple roles)
+                            if (RecentStaff.Any(s => s.Id == user.Id))
+                                continue;
+
+                            // Decrypt user data for authorized users
+                            var decryptedUser = user.DecryptSensitiveData(_encryptionService, User);
+                            
+                            // Manually decrypt PhoneNumber since it's not marked with [Encrypted] attribute
+                            if (!string.IsNullOrEmpty(decryptedUser.PhoneNumber) && _encryptionService.IsEncrypted(decryptedUser.PhoneNumber))
+                            {
+                                decryptedUser.PhoneNumber = decryptedUser.PhoneNumber.DecryptForUser(_encryptionService, User);
+                            }
+                                
+                            RecentStaff.Add(new StaffOverviewModel
+                            {
+                                Id = decryptedUser.Id,
+                                Name = !string.IsNullOrEmpty(decryptedUser.FirstName) 
+                                    ? (!string.IsNullOrEmpty(decryptedUser.LastName) 
+                                        ? $"{decryptedUser.FirstName} {decryptedUser.LastName}" 
+                                        : decryptedUser.FirstName)
+                                    : decryptedUser.UserName ?? "Unknown",
+                                Role = role,
+                                // Department field removed
+                                IsActive = decryptedUser.IsActive,
+                                LastActive = decryptedUser.LastActive
+                            });
+                        }
                     }
+                    
+                    // Sort by last active time
+                    RecentStaff = RecentStaff
+                        .OrderByDescending(s => s.LastActive)
+                        .Take(10)
+                        .ToList();
+                }
+                catch (System.Data.SqlTypes.SqlNullValueException ex)
+                {
+                    _logger.LogError(ex, "SQL null value exception when retrieving users from roles");
+                    TempData["ErrorMessage"] = "Some staff data could not be loaded due to database issues.";
+                    // Continue with whatever data we have
+                    TotalDoctors = 0;
+                    TotalNurses = 0;
+                    ActiveStaffCount = 0;
                 }
                 
-                // Sort by last active time
-                RecentStaff = RecentStaff
-                    .OrderByDescending(s => s.LastActive)
-                    .Take(10)
-                    .ToList();
+                // Get appointment count - place outside the inner try/catch so it still runs
+                try 
+                {
+                    TotalAppointments = await _context.Appointments.CountAsync();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error loading appointment count");
+                    TotalAppointments = 0;
+                }
 
                 _logger.LogInformation($"Admin dashboard loaded successfully by user {User.Identity?.Name}");
                 return Page();
@@ -112,7 +196,7 @@ namespace Barangay.Pages.Admin
         public string Id { get; set; }
         public string Name { get; set; }
         public string Role { get; set; }
-        public string Department { get; set; }
+        // Department field removed
         public bool IsActive { get; set; }
         public DateTime LastActive { get; set; }
     }

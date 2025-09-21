@@ -18,16 +18,20 @@ namespace Barangay.Data
         public DbSet<MedicalRecord> MedicalRecords { get; set; }
         public DbSet<Prescription> Prescriptions { get; set; }
         public DbSet<PrescriptionMedication> PrescriptionMedications { get; set; }
+        public DbSet<FamilyMember> FamilyMembers { get; set; }
         public DbSet<VitalSign> VitalSigns { get; set; }
+        public DbSet<MedicalHistory> MedicalHistories { get; set; }
+        public DbSet<LabResult> LabResults { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Feedback> Feedbacks { get; set; }
         public DbSet<Doctor> Doctors { get; set; }
         public DbSet<StaffMember> StaffMembers { get; set; }
         public DbSet<Medication> Medications { get; set; }
+        public DbSet<ImmunizationRecord> ImmunizationRecords { get; set; }
+        public DbSet<ImmunizationShortcutForm> ImmunizationShortcutForms { get; set; }
         public DbSet<AppointmentAttachment> AppointmentAttachments { get; set; }
         public DbSet<AppointmentFile> AppointmentFiles { get; set; }
-        public DbSet<FamilyMember> FamilyMembers { get; set; }
         public DbSet<UserDocument> UserDocuments { get; set; } = null!;
         
         // New models for appointment booking flow
@@ -38,7 +42,11 @@ namespace Barangay.Data
         // Assessment models
         public DbSet<HEEADSSSAssessment> HEEADSSSAssessments { get; set; }
         public DbSet<NCDRiskAssessment> NCDRiskAssessments { get; set; }
-        public Microsoft.EntityFrameworkCore.DbSet<Barangay.Models.IntegratedAssessment> IntegratedAssessments { get; set; }
+        public DbSet<IntegratedAssessment> IntegratedAssessments { get; set; }
+        public DbSet<FeedbackRating> FeedbackRatings { get; set; }
+        public DbSet<PatientHistory> PatientHistories { get; set; }
+        public DbSet<EmailVerification> EmailVerifications { get; set; }
+        public DbSet<PasswordResetOTP> PasswordResetOTPs { get; set; }
         
         // RBAC models
         public DbSet<Permission> Permissions { get; set; }
@@ -53,11 +61,55 @@ namespace Barangay.Data
 
         public DbSet<DoctorAvailability> DoctorAvailabilities { get; set; }
 
-        public DbSet<PrescriptionMedicine> PrescriptionMedicines { get; set; }
-
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            // Configure FullName as a computed column to prevent EF from trying to insert into it.
+            // This is a common cause for the "QUOTED_IDENTIFIER" error when a computed column is indexed.
+            builder.Entity<ApplicationUser>()
+                .Property(u => u.FullName)
+                .HasComputedColumnSql("TRIM(ISNULL(FirstName + ' ', '') + ISNULL(MiddleName + ' ', '') + ISNULL(LastName, ''))");
+
+            // Inform EF Core that the AspNetUsers table has triggers.
+            // This changes the save mechanism to be compatible with triggers by avoiding the OUTPUT clause.
+            builder.Entity<ApplicationUser>().ToTable(tb => tb.HasTrigger("trg_AspNetUsers"));
+            
+            // Check if UserNumber column exists in the database with a try-catch block
+            bool userNumberExists = false;
+            try
+            {
+                // Use safer approach for checking column existence using Database.GetConnectionString()
+                using (var connection = new Microsoft.Data.SqlClient.SqlConnection(Database.GetConnectionString()))
+                {
+                    connection.Open();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = "IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'AspNetUsers' AND COLUMN_NAME = 'UserNumber') SELECT 1 ELSE SELECT 0";
+                        var result = command.ExecuteScalar();
+                        userNumberExists = (result != null && Convert.ToBoolean(result));
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // If there's an error checking, default to not including the column in queries
+                userNumberExists = false;
+            }
+            
+            // Only include UserNumber in queries if the column exists
+            if (!userNumberExists)
+            {
+                // Exclude the non-existing column from queries using shadow properties
+                builder.Entity<ApplicationUser>().Ignore(u => u.UserNumber);
+                
+                // Log that we're ignoring the UserNumber property
+                Console.WriteLine("UserNumber column not found in database. Using fallback mechanism.");
+            }
+            else 
+            {
+                Console.WriteLine("UserNumber column exists in database.");
+            }
             
             // Configure User entity
             builder.Entity<User>(entity =>
@@ -71,17 +123,6 @@ namespace Barangay.Data
             });
             
             // Configure relationship between Prescription and PrescriptionMedication
-            builder.Entity<Prescription>()
-                .HasMany(p => p.PrescriptionMedicines)
-                .WithOne(pm => pm.Prescription)
-                .HasForeignKey(pm => pm.PrescriptionId)
-                .OnDelete(DeleteBehavior.Cascade);
-                
-            // Configure PrescriptionMedicine entity
-            builder.Entity<PrescriptionMedicine>()
-                .Property(pm => pm.Dosage)
-                .HasPrecision(10, 2);  // 10 digits total, 2 decimal places
-                
             // Configure Message entity relationships
             builder.Entity<Message>()
                 .HasOne(m => m.Sender)
@@ -184,7 +225,7 @@ namespace Barangay.Data
                 .WithMany(p => p.VitalSigns)
                 .HasForeignKey(vs => vs.PatientId)
                 .OnDelete(DeleteBehavior.NoAction)
-                .IsRequired();
+                .IsRequired(false);
                 
             // Configure Appointment relationships
             builder.Entity<Appointment>()
@@ -239,13 +280,12 @@ namespace Barangay.Data
                 .OnDelete(DeleteBehavior.NoAction)
                 .IsRequired();
 
-            // Configure PrescriptionMedication relationships
-            builder.Entity<PrescriptionMedication>()
-                .HasOne(pm => pm.Prescription)
-                .WithMany()
+            // Configure relationship between Prescription and PrescriptionMedication
+            builder.Entity<Prescription>()
+                .HasMany(p => p.PrescriptionMedicines)
+                .WithOne(pm => pm.Prescription)
                 .HasForeignKey(pm => pm.PrescriptionId)
-                .OnDelete(DeleteBehavior.NoAction)
-                .IsRequired();
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<PrescriptionMedication>()
                 .HasOne(pm => pm.MedicalRecord)
@@ -293,6 +333,9 @@ namespace Barangay.Data
                 .IsRequired();
 
             // Configure GuardianInformation relationships
+            builder.Entity<GuardianInformation>()
+                .HasKey(g => g.GuardianId);
+                
             builder.Entity<GuardianInformation>()
                 .HasOne(g => g.User)
                 .WithOne()
@@ -346,8 +389,8 @@ namespace Barangay.Data
                 .HasOne(n => n.Appointment)
                 .WithMany()
                 .HasForeignKey(n => n.AppointmentId)
-                .IsRequired(false)
-                .OnDelete(DeleteBehavior.NoAction);
+                .IsRequired(false)  // Make AppointmentId nullable
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

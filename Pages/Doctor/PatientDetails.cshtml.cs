@@ -5,6 +5,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authorization;
 using Barangay.Data;
 using Barangay.Models;
+using Barangay.Services;
+using Barangay.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,16 +20,19 @@ namespace Barangay.Pages.Doctor
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<PatientDetailsModel> _logger;
+        private readonly IDataEncryptionService _encryptionService;
 
-        public PatientDetailsModel(ApplicationDbContext context, ILogger<PatientDetailsModel> logger)
+        public PatientDetailsModel(ApplicationDbContext context, ILogger<PatientDetailsModel> logger, IDataEncryptionService encryptionService)
         {
             _context = context;
             _logger = logger;
+            _encryptionService = encryptionService;
         }
 
         public Patient? Patient { get; set; }
         public List<MedicalRecordViewModel> MedicalRecords { get; set; } = new();
         public List<PrescriptionMedicationViewModel> Medications { get; set; } = new();
+        public GuardianInformation? Guardian { get; set; }
 
         public async Task<IActionResult> OnGetAsync(string id)
         {
@@ -64,6 +69,30 @@ namespace Barangay.Pages.Doctor
                     return Page();
                 }
 
+                // Decrypt patient data for display
+                Patient.DecryptSensitiveData(_encryptionService, User);
+                
+                // Decrypt user data if available
+                if (Patient.User != null)
+                {
+                    Patient.User.DecryptSensitiveData(_encryptionService, User);
+                }
+
+                // Load Guardian Information separately
+                Guardian = await _context.GuardianInformation
+                    .FirstOrDefaultAsync(g => g.UserId == id);
+                
+                // Decrypt guardian data if available
+                if (Guardian != null)
+                {
+                    Guardian.DecryptSensitiveData(_encryptionService, User);
+                    _logger.LogInformation("Found guardian information for patient: {PatientId}", id);
+                }
+                else
+                {
+                    _logger.LogInformation("No guardian information found for patient: {PatientId}", id);
+                }
+
                 _logger.LogInformation("Successfully loaded patient: {PatientName} with ID: {PatientId}", 
                     Patient.FullName, id);
 
@@ -76,6 +105,12 @@ namespace Barangay.Pages.Doctor
                         .Where(r => r.PatientId == id)
                         .OrderByDescending(r => r.Date)
                         .ToListAsync();
+
+                    // Decrypt medical records before creating view model
+                    foreach (var record in medicalRecords)
+                    {
+                        record.DecryptSensitiveData(_encryptionService, User);
+                    }
 
                     MedicalRecords = medicalRecords.Select(r => new MedicalRecordViewModel
                     {
@@ -101,6 +136,7 @@ namespace Barangay.Pages.Doctor
                 {
                     // Get all medications/prescriptions for this patient
                     var medications = await _context.PrescriptionMedications
+                        .Include(m => m.Medication)
                         .Include(m => m.MedicalRecord)
                             .ThenInclude(mr => mr.Doctor)
                         .Where(m => m.MedicalRecord.PatientId == id)
@@ -110,7 +146,7 @@ namespace Barangay.Pages.Doctor
                     Medications = medications.Select(m => new PrescriptionMedicationViewModel
                     {
                         Id = m.Id,
-                        MedicationName = m.MedicationName,
+                        MedicationName = m.Medication?.Name ?? "Unknown",
                         Dosage = m.Dosage,
                         Instructions = m.Instructions,
                         CreatedAt = m.MedicalRecord?.Date,

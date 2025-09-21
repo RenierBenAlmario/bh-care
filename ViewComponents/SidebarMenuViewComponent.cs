@@ -1,7 +1,10 @@
 using Barangay.Models;
 using Barangay.Services;
+using Barangay.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -11,18 +14,24 @@ namespace Barangay.ViewComponents
 {
     public class SidebarMenuViewComponent : ViewComponent
     {
-        private readonly PermissionService _permissionService;
+        private readonly IPermissionService _permissionService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ILogger<SidebarMenuViewComponent> _logger;
+        private readonly ApplicationDbContext _context;
 
         public SidebarMenuViewComponent(
-            PermissionService permissionService,
+            IPermissionService permissionService,
             UserManager<ApplicationUser> userManager,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            ILogger<SidebarMenuViewComponent> logger,
+            ApplicationDbContext context)
         {
             _permissionService = permissionService;
             _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
+            _logger = logger;
+            _context = context;
         }
 
         public async Task<IViewComponentResult> InvokeAsync(string role)
@@ -41,6 +50,25 @@ namespace Barangay.ViewComponents
             // Get all permissions for the user
             var userPermissions = await _permissionService.GetUserPermissionsAsync(userId);
             
+            // Create a function to check if user has permission (handles both formats)
+            bool HasPermission(params string[] permissions)
+            {
+                foreach (var permissionName in permissions)
+                {
+                    if (userPermissions.Contains(permissionName, StringComparer.OrdinalIgnoreCase))
+                        return true;
+
+                    // Also check for Category:Name format
+                    foreach (var p in userPermissions)
+                    {
+                        if (p.EndsWith($":{permissionName}", StringComparison.OrdinalIgnoreCase) || 
+                            (p.Contains(":") && p.Split(':')[1].Equals(permissionName, StringComparison.OrdinalIgnoreCase)))
+                            return true;
+                    }
+                }
+                return false;
+            }
+            
             // Get current path to determine active item
             var currentPath = _httpContextAccessor.HttpContext?.Request.Path.Value?.ToLower() ?? "";
 
@@ -50,158 +78,191 @@ namespace Barangay.ViewComponents
             switch (role?.ToLower())
             {
                 case "nurse":
-                    // Dashboard is always accessible for a nurse role
-                    navItems.Add(new SidebarMenuItem { 
-                        Text = "Dashboard", 
-                        Icon = "tachometer-alt", 
-                        Url = "/Nurse/NurseDashboard", 
-                        Permission = "Access Nurse Dashboard",
-                        IsActive = currentPath.Contains("/nurse/nursedashboard")
-                    });
+                    // Only show dashboard if user has NurseDashboard permission
+                    if (HasPermission("NurseDashboard"))
+                    {
+                        navItems.Add(new SidebarMenuItem { 
+                            Text = "Dashboard", 
+                            Icon = "tachometer-alt", 
+                            Url = "/Nurse/NurseDashboard", 
+                            RequiredPermissions = new List<string> { "NurseDashboard" },
+                            IsActive = currentPath.Contains("/nurse/nursedashboard")
+                        });
+                    }
                     
-                    // Medical Records link
-                    navItems.Add(new SidebarMenuItem { 
-                        Text = "Medical Records", 
-                        Icon = "file-medical", 
-                        Url = "/Records/Index", 
-                        Permission = "Manage Medical Records",
-                        IsActive = currentPath.Contains("/records")
-                    });
+                    // Only show Manual Forms if user has simplified permission
+                    var canSeeManualForms = HasPermission("PatientList");
+                    _logger.LogInformation($"Nurse {userId}: Manual Forms visible = {canSeeManualForms}");
+                    if (canSeeManualForms)
+                    {
+                        navItems.Add(new SidebarMenuItem { 
+                            Text = "Manual Forms", 
+                            Icon = "file-medical", 
+                            Url = "/Nurse/ManualForms", 
+                            RequiredPermissions = new List<string> { "PatientList" },
+                            IsActive = currentPath.Contains("/nurse/manualforms")
+                        });
+                    }
                     
-                    if (userPermissions.Contains("ManageAppointments"))
+                    var canSeeAppointments = HasPermission("Appointments");
+                    _logger.LogInformation($"Nurse {userId}: Appointments visible = {canSeeAppointments}");
+                    if (canSeeAppointments)
+                    {
                         navItems.Add(new SidebarMenuItem { 
                             Text = "Appointments", 
                             Icon = "calendar-check", 
                             Url = "/Nurse/Appointments", 
-                            Permission = "ManageAppointments",
+                            RequiredPermissions = new List<string> { "Appointments" },
                             IsActive = currentPath.Contains("/nurse/appointments")
                         });
+                    }
                     
-                    if (userPermissions.Contains("Record Vital Signs"))
+                    var hasVitalSignsPermission = HasPermission("VitalSigns");
+                    _logger.LogInformation($"Nurse {userId}: Vitals visible = {hasVitalSignsPermission}");
+                    if (hasVitalSignsPermission)
+                    {
                         navItems.Add(new SidebarMenuItem { 
                             Text = "Vitals", 
                             Icon = "heartbeat", 
                             Url = "/Nurse/VitalSigns", 
-                            Permission = "Record Vital Signs",
+                            RequiredPermissions = new List<string> { "VitalSigns" },
                             IsActive = currentPath.Contains("/nurse/vitalsigns")
                         });
+                    }
                     
-                    if (userPermissions.Contains("View Patient History"))
-                        navItems.Add(new SidebarMenuItem { 
-                            Text = "Diagnosis", 
-                            Icon = "stethoscope", 
-                            Url = "/Nurse/Diagnosis", 
-                            Permission = "View Patient History",
-                            IsActive = currentPath.Contains("/nurse/diagnosis")
+                    // Removed separate 'Record Vitals' menu item; recording is handled within Vitals page
+
+                    // Removed 'Patient History' from nurse sidebar per requirement
+
+                    // Patient Queue (show if user has simplified permission)
+                    var canSeeQueue = HasPermission("PatientQueue");
+                    _logger.LogInformation($"Nurse {userId}: Patient Queue visible = {canSeeQueue}");
+                    if (canSeeQueue)
+                    {
+                        navItems.Add(new SidebarMenuItem {
+                            Text = "Patient Queue",
+                            Icon = "list",
+                            Url = "/Nurse/PatientQueue",
+                            RequiredPermissions = new List<string> { "PatientQueue" },
+                            IsActive = currentPath.Contains("/nurse/patientqueue")
                         });
+                    }
+
+                    // Only show Reports if user has View Reports permission
+                    if (HasPermission("View Reports", "Generate Reports"))
+                    {
+                        navItems.Add(new SidebarMenuItem { 
+                            Text = "Reports", 
+                            Icon = "chart-bar", 
+                            Url = "/Nurse/Reports", 
+                            RequiredPermissions = new List<string> { "View Reports", "Generate Reports" },
+                            IsActive = currentPath.Contains("/nurse/reports")
+                        });
+                    }
                     
-                    if (userPermissions.Contains("Access Nurse Dashboard"))
-                        navItems.Add(new SidebarMenuItem { 
-                            Text = "Queue", 
-                            Icon = "list-ol", 
-                            Url = "/Nurse/Queue", 
-                            Permission = "Access Nurse Dashboard",
-                            IsActive = currentPath.Contains("/nurse/queue")
-                        });
-                        
-                    // Notifications section
-                    if (userPermissions.Contains("View Notifications"))
+                    // Only show Notifications if user has View Notifications permission
+                    if (HasPermission("View Notifications"))
+                    {
                         navItems.Add(new SidebarMenuItem { 
                             Text = "Notifications", 
                             Icon = "bell", 
                             Url = "/Nurse/Notifications", 
-                            Permission = "View Notifications",
+                            RequiredPermissions = new List<string> { "View Notifications" },
                             IsActive = currentPath.Contains("/nurse/notifications")
                         });
-                        
-                    // Settings section
-                    if (userPermissions.Contains("Access Settings"))
-                        navItems.Add(new SidebarMenuItem { 
-                            Text = "Settings", 
-                            Icon = "cog", 
-                            Url = "/Nurse/Settings", 
-                            Permission = "Access Settings",
-                            IsActive = currentPath.Contains("/nurse/settings")
-                        });
+                    }
+                    
+                    // Removed 'Settings' from nurse sidebar per requirement
                     break;
 
                 case "doctor":
-                    // Dashboard is always accessible for a doctor role
-                    navItems.Add(new SidebarMenuItem { 
-                        Text = "Dashboard", 
-                        Icon = "tachometer-alt", 
-                        Url = "/Doctor/DoctorDashboard", 
-                        Permission = "Access Doctor Dashboard",
-                        IsActive = currentPath.Contains("/doctor/doctordashboard")
-                    });
-                    
-                    // Medical Records link
-                    navItems.Add(new SidebarMenuItem { 
-                        Text = "Medical Records", 
-                        Icon = "file-medical", 
-                        Url = "/Records/Index", 
-                        Permission = "Manage Medical Records",
-                        IsActive = currentPath.Contains("/records")
-                    });
-                    
-                    if (userPermissions.Contains("Manage Appointments"))
-                        navItems.Add(new SidebarMenuItem { 
-                            Text = "Appointments", 
-                            Icon = "calendar-alt", 
-                            Url = "/Doctor/Appointments", 
-                            Permission = "Manage Appointments",
-                            IsActive = currentPath.Contains("/doctor/appointments")
+                    // Doctor simplified permissions - Check multiple permission variations
+                    if (HasPermission("DoctorDashboard", "Access Doctor Dashboard", "Dashboard Access"))
+                    {
+                        navItems.Add(new SidebarMenuItem {
+                            Text = "Dashboard",
+                            Icon = "tachometer-alt",
+                            Url = "/Doctor/DoctorDashboard",
+                            RequiredPermissions = new List<string> { "DoctorDashboard", "Access Doctor Dashboard" },
+                            IsActive = currentPath.Contains("/doctor/doctordashboard")
                         });
-                    
-                    if (userPermissions.Contains("View Patient History"))
-                        navItems.Add(new SidebarMenuItem { 
-                            Text = "Patients", 
-                            Icon = "user-injured", 
-                            Url = "/Doctor/Patients", 
-                            Permission = "View Patient History",
-                            IsActive = currentPath.Contains("/doctor/patients")
+                    }
+
+                    if (HasPermission("Consultation", "Manage Consultations"))
+                    {
+                        navItems.Add(new SidebarMenuItem {
+                            Text = "Consultation",
+                            Icon = "stethoscope",
+                            Url = "/Doctor/Consultation",
+                            RequiredPermissions = new List<string> { "Consultation", "Manage Consultations" },
+                            IsActive = currentPath.Contains("/doctor/consultation")
                         });
-                    
-                    if (userPermissions.Contains("Create Prescriptions"))
-                        navItems.Add(new SidebarMenuItem { 
-                            Text = "Prescriptions", 
-                            Icon = "prescription-bottle-alt", 
-                            Url = "/Doctor/Prescriptions", 
-                            Permission = "Create Prescriptions",
-                            IsActive = currentPath.Contains("/doctor/prescriptions")
+                    }
+
+                    if (HasPermission("PatientList", "View Patient Details", "View Patients"))
+                    {
+                        navItems.Add(new SidebarMenuItem {
+                            Text = "Patient List",
+                            Icon = "user-injured",
+                            Url = "/Doctor/PatientList",
+                            RequiredPermissions = new List<string> { "PatientList", "View Patient Details", "View Patients" },
+                            IsActive = currentPath.Contains("/doctor/patientlist")
                         });
-                    
-                    if (userPermissions.Contains("View Reports"))
-                        navItems.Add(new SidebarMenuItem { 
-                            Text = "Reports", 
-                            Icon = "chart-bar", 
-                            Url = "/Doctor/Reports", 
-                            Permission = "View Reports",
+                    }
+
+                    if (HasPermission("Reports", "View Reports", "Reporting"))
+                    {
+                        navItems.Add(new SidebarMenuItem {
+                            Text = "Reports",
+                            Icon = "chart-bar",
+                            Url = "/Doctor/Reports",
+                            RequiredPermissions = new List<string> { "Reports", "View Reports", "Reporting" },
                             IsActive = currentPath.Contains("/doctor/reports")
                         });
-                        
-                    // Notifications section
-                    if (userPermissions.Contains("View Notifications"))
-                        navItems.Add(new SidebarMenuItem { 
-                            Text = "Notifications", 
-                            Icon = "bell", 
-                            Url = "/Doctor/Notifications", 
-                            Permission = "View Notifications",
-                            IsActive = currentPath.Contains("/doctor/notifications")
-                        });
-                        
-                    // Settings section
-                    if (userPermissions.Contains("Access Settings"))
-                        navItems.Add(new SidebarMenuItem { 
-                            Text = "Settings", 
-                            Icon = "cog", 
-                            Url = "/Doctor/Settings", 
-                            Permission = "Access Settings",
-                            IsActive = currentPath.Contains("/doctor/settings")
-                        });
+                    }
+                    break;
+
+                case "admin":
+                    // Admin dashboard
+                    navItems.Add(new SidebarMenuItem {
+                        Text = "Dashboard",
+                        Icon = "tachometer-alt",
+                        Url = "/Admin/AdminDashboard",
+                        RequiredPermissions = new List<string> { "AdminDashboard" },
+                        IsActive = currentPath.Contains("/admin/admindashboard")
+                    });
+
+                    // User Management
+                    navItems.Add(new SidebarMenuItem {
+                        Text = "User Management",
+                        Icon = "users",
+                        Url = "/Admin/UserManagement",
+                        RequiredPermissions = new List<string> { "UserManagement" },
+                        IsActive = currentPath.Contains("/admin/usermanagement")
+                    });
+
+                    // Immunization Archive (Admin only)
+                    navItems.Add(new SidebarMenuItem {
+                        Text = "Immunization Archive",
+                        Icon = "archive",
+                        Url = "/Admin/ImmunizationArchive",
+                        RequiredPermissions = new List<string> { "AdminAccess" },
+                        IsActive = currentPath.Contains("/admin/immunizationarchive")
+                    });
+
+                    // System Tools
+                    navItems.Add(new SidebarMenuItem {
+                        Text = "System Tools",
+                        Icon = "cogs",
+                        Url = "/Admin/SystemTools",
+                        RequiredPermissions = new List<string> { "SystemTools" },
+                        IsActive = currentPath.Contains("/admin/systemtools")
+                    });
                     break;
             }
 
+            // Add cache busting to ensure fresh data
+            ViewBag.CacheBuster = DateTime.UtcNow.Ticks;
             return View("Default", navItems);
         }
     }
@@ -211,7 +272,7 @@ namespace Barangay.ViewComponents
         public string Text { get; set; }
         public string Icon { get; set; }
         public string Url { get; set; }
-        public string Permission { get; set; }
+        public List<string> RequiredPermissions { get; set; } = new List<string>();
         public bool IsActive { get; set; }
     }
 } 

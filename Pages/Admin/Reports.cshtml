@@ -93,129 +93,68 @@
             </div>
             <div class="date-field">
                 <label for="endDate" class="filter-label">End Date</label>
-                <input type="date" id="endDate" class="filter-input" value="@DateTime.Now.ToString("yyyy-MM-dd")">
-            </div>
         </div>
-    </div>
-    <button id="applyFilters" class="primary-action">
-        <i class="fas fa-filter"></i>
-        <span>Apply Filters</span>
-    </button>
-</div>
-
-<!-- Reports Section -->
-<div class="charts-grid" id="reports-container">
-    <!-- Patient Registrations Chart -->
-    <div class="chart-card" id="patientRegistrationsCard">
-        <div class="chart-header">
-            <h3><i class="fas fa-user-plus"></i> Patient Registrations</h3>
-        </div>
-        <div class="chart-container">
-            <canvas id="patientRegistrationsChart"></canvas>
-        </div>
-        <div class="chart-footer">
-            <span class="chart-info">Total registrations: <strong>@Model.ReportData.TotalRegistrations</strong></span>
-        </div>
-    </div>
-    
-    <!-- Consultations by Type Chart -->
-    <div class="chart-card" id="consultationsByTypeCard">
-        <div class="chart-header">
-            <h3><i class="fas fa-stethoscope"></i> Consultations by Type</h3>
-        </div>
-        <div class="chart-container">
-            <canvas id="consultationsByTypeChart"></canvas>
-        </div>
-        <div class="chart-footer">
-            <span class="chart-info">Total consultations: <strong>@Model.ReportData.TotalConsultations</strong></span>
-        </div>
-    </div>
-    
-    <!-- Barangay Health Index Chart -->
-    <div class="chart-card" id="healthIndexCard">
-        <div class="chart-header">
-            <h3><i class="fas fa-heartbeat"></i> Barangay Health Index</h3>
-        </div>
-        <div class="chart-container">
-            <canvas id="healthIndexChart"></canvas>
-        </div>
-        <div class="chart-footer">
-            <span class="chart-info">Average index: <strong>@Model.ReportData.AverageHealthIndex%</strong></span>
-            <span class="chart-info">Trend: <strong>@Model.ReportData.HealthIndexTrend</strong></span>
+        <div class="card-footer small text-muted">
+            Report generated for @System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(Model.SelectedMonth), @Model.SelectedYear
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
     <script>
-        let charts = {};
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeCharts();
-        });
-
-        function initializeCharts() {
-            const reportData = @Html.Raw(Json.Serialize(Model.ReportData));
+        document.addEventListener("DOMContentLoaded", function() {
+            var sicknessData = @Html.Raw(Json.Serialize(Model.ReportData.MonthlySicknessSummary));
             
-            // Patient Registrations Chart
-            charts.patientRegistrations = new Chart(document.getElementById('patientRegistrationsChart'), {
-                type: 'line',
-                data: {
-                    labels: reportData.patientRegistrations.map(r => r.label),
-                    datasets: [{
-                        label: 'Registrations',
-                        data: reportData.patientRegistrations.map(r => r.count),
-                        borderColor: '#4e73df',
-                        tension: 0.1,
-                        fill: true,
-                        backgroundColor: 'rgba(78, 115, 223, 0.05)'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
+            if (sicknessData.length > 0) {
+                var labels = sicknessData.map(d => d.sickness);
+                var data = sicknessData.map(d => d.count);
+
+                var ctx = document.getElementById('sicknessChart').getContext('2d');
+                var sicknessChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Number of Cases',
+                            data: data,
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.5)',
+                                'rgba(54, 162, 235, 0.5)',
+                                'rgba(255, 206, 86, 0.5)',
+                                'rgba(75, 192, 192, 0.5)',
+                                'rgba(153, 102, 255, 0.5)',
+                                'rgba(255, 159, 64, 0.5)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
                         }
                     }
-                }
-            });
-
-            // Consultations by Type Chart
-            charts.consultationsByType = new Chart(document.getElementById('consultationsByTypeChart'), {
-                type: 'bar',
-                data: {
-                    labels: reportData.consultationsByType.map(c => c.type),
-                    datasets: [{
-                        label: 'Consultations',
-                        data: reportData.consultationsByType.map(c => c.count),
-                        backgroundColor: '#1cc88a'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-
-            // Health Index Chart
-            charts.healthIndex = new Chart(document.getElementById('healthIndexChart'), {
-                type: 'line',
-                data: {
-                    labels: reportData.healthIndexData.map(h => h.label),
-                    datasets: [{
-                        label: 'Health Index',
-                        data: reportData.healthIndexData.map(h => h.value),
-                        borderColor: '#36b9cc',
-                        tension: 0.1,
-                        fill: true,
-                        backgroundColor: 'rgba(54, 185, 204, 0.05)'
+                });
+            }
+        });
                     }]
                 },
                 options: {
@@ -356,14 +295,7 @@
             text-align: right;
         }
         
-        /* Dark mode adjustments */
-        .dark-mode .chart-card {
-            background: var(--bg-surface-dark);
-        }
-        
-        .dark-mode .action-btn:hover {
-            background: var(--primary-dark);
-        }
+        /* Dark mode functionality removed */
         
         /* Responsive adjustments */
         @@media (max-width: 768px) {

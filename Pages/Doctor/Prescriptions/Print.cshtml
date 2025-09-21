@@ -1,0 +1,253 @@
+@page "{id:int}"
+@model Barangay.Pages.Doctor.Prescriptions.PrintModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prescription #@Model.Prescription?.Id - Print</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+        }
+
+        .prescription-form {
+            width: 8.5in;
+            height: 11in;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0;
+            border: 1px solid #000;
+            box-sizing: border-box;
+            position: relative;
+            background-color: white;
+        }
+
+        .header {
+            position: relative;
+            text-align: center;
+            margin-bottom: 0;
+            background-color: #333;
+            color: white;
+            padding: 10px 5px;
+            overflow: hidden;
+        }
+
+        .header h1 {
+            font-size: 16pt;
+            font-weight: bold;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .header h2 {
+            font-size: 14pt;
+            font-weight: bold;
+            margin: 5px 0;
+            text-transform: uppercase;
+        }
+
+        .health-center-box {
+            position: relative;
+            text-align: center;
+            background-color: #333;
+            color: white;
+            padding: 5px;
+            margin: 0 auto;
+            width: 70%;
+            border: 2px solid white;
+        }
+
+        .health-center-box h3 {
+            font-size: 16pt;
+            font-weight: bold;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .health-center-box p {
+            font-size: 10pt;
+            margin: 0;
+        }
+
+        .medical-symbol {
+            position: absolute;
+            right: 30px;
+            top: 20px;
+            font-size: 24pt;
+            border: 2px solid white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+        }
+
+        .patient-info {
+            margin-top: 30px;
+            margin-bottom: 20px;
+            font-size: 12pt;
+            text-align: left;
+            line-height: 1.5;
+            padding: 0 20px;
+        }
+
+        .patient-info span {
+            display: inline-block;
+            margin-right: 20px;
+        }
+
+        .patient-info u {
+            display: inline-block;
+            min-width: 200px;
+        }
+
+        .rx-symbol {
+            font-size: 40pt;
+            font-weight: bold;
+            margin: 10px 0 20px 20px;
+        }
+
+        .medication-area {
+            margin: 0 20px;
+            min-height: 4in;
+        }
+
+        .signature {
+            position: absolute;
+            bottom: 1in;
+            right: 1in;
+            text-align: center;
+        }
+
+        .signature-line {
+            border-top: 1px solid #000;
+            width: 200px;
+            margin-bottom: 5px;
+        }
+
+        .print-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .print-button:hover {
+            background-color: #0056b3;
+        }
+
+        @@media print {
+            .print-button {
+                display: none;
+            }
+            .prescription-form {
+                border: 1px solid #000;
+            }
+            .header {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button onclick="window.print()" class="print-button">Print</button>
+
+    @if (Model.Prescription != null)
+    {
+        <div class="prescription-form">
+            <div class="header">
+                <h1>CITY GOVERNMENT OF CALOOCAN</h1>
+                <h2>CITY HEALTH DEPARTMENT</h2>
+                <div class="health-center-box">
+                    <h3>BAESA HEALTH CENTER</h3>
+                    <p>356 RCBC</p>
+                </div>
+                <div class="medical-symbol">✚</div>
+            </div>
+
+            <div class="patient-info">
+                PATIENT NAME: <u>@Model.Prescription.PatientName</u> AGE: <u>@(Model.Prescription.PatientAge?.ToString() ?? "_____")</u> DATE: <u>@Model.Prescription.PrescriptionDate.ToString("MM/dd/yyyy")</u>
+            </div>
+
+            <div class="rx-symbol">
+                R<sub>x</sub>
+            </div>
+
+            <div class="medication-area">
+                @if (Model.PrescriptionMedicines != null && Model.PrescriptionMedicines.Any())
+                {
+                    foreach (var med in Model.PrescriptionMedicines)
+                    {
+                        <div style="margin-bottom: 15px;">
+                            <strong>@med.Medication?.Name</strong><br />
+                            @if (!string.IsNullOrEmpty(med.Dosage))
+                            {
+                                <span>Dosage: @med.Dosage @(med.Unit ?? "")</span><br />
+                            }
+                            @if (!string.IsNullOrEmpty(med.Frequency))
+                            {
+                                <span>Frequency: @med.Frequency</span><br />
+                            }
+                            @if (!string.IsNullOrEmpty(med.Duration))
+                            {
+                                <span>Duration: @med.Duration</span><br />
+                            }
+                            @if (!string.IsNullOrEmpty(med.Instructions))
+                            {
+                                <span>Instructions: @med.Instructions</span><br />
+                            }
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div>
+                        No medications have been prescribed.
+                    </div>
+                }
+            </div>
+
+            <div class="signature">
+                <div class="signature-line"></div>
+                <div>PHYSICIAN-IN-CHARGE</div>
+                <div style="margin-top: 15px;">
+                    <div class="signature-line"></div>
+                    <div>LICENSE NO.</div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="container mt-5">
+            <div class="alert alert-danger">
+                Prescription not found or you don't have permission to view it.
+            </div>
+        </div>
+    }
+
+    <script>
+        // Auto-print when the page loads
+        window.onload = function() {
+            setTimeout(function() {
+                // Small delay to ensure the page is fully loaded
+                window.print();
+            }, 500);
+        };
+    </script>
+</body>
+</html> 

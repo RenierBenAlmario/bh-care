@@ -10,6 +10,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Barangay.Services;
+using Barangay.Extensions;
 
 namespace Barangay.Pages.Account
 {
@@ -18,15 +20,24 @@ namespace Barangay.Pages.Account
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<LoginModel> _logger;
+        private readonly IOTPService _otpService;
+        private readonly IEmailService _emailService;
+        private readonly IDataEncryptionService _encryptionService;
 
         public LoginModel(
             SignInManager<ApplicationUser> signInManager,
             UserManager<ApplicationUser> userManager,
-            ILogger<LoginModel> logger)
+            ILogger<LoginModel> logger,
+            IOTPService otpService,
+            IEmailService emailService,
+            IDataEncryptionService encryptionService)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _logger = logger;
+            _otpService = otpService;
+            _emailService = emailService;
+            _encryptionService = encryptionService;
         }
 
         [BindProperty]
@@ -42,6 +53,150 @@ namespace Barangay.Pages.Account
 
         [BindProperty]
         public bool RememberMe { get; set; }
+
+        [BindProperty]
+        [Display(Name = "OTP Code")]
+        public string? OTPCode { get; set; }
+
+        [BindProperty]
+        public bool ShowOTPField { get; set; } = false;
+
+        [BindProperty]
+        public bool OTPRequired { get; set; } = false;
+
+        [BindProperty]
+        public string? UserEmail { get; set; }
+
+        private async Task<ApplicationUser?> FindUserAsync(string emailOrUsername)
+        {
+            // First try the standard methods
+            var user = await _userManager.FindByEmailAsync(emailOrUsername);
+            if (user == null)
+            {
+                _logger.LogInformation($"User not found by email {emailOrUsername}, trying username lookup");
+                user = await _userManager.FindByNameAsync(emailOrUsername);
+            }
+            
+            // If still not found, try searching through all users for encrypted emails or direct username match
+            if (user == null)
+            {
+                _logger.LogInformation($"User not found by standard methods, searching through all users for: {emailOrUsername}");
+                
+                // Normalize the email for comparison
+                var normalizedEmail = emailOrUsername.ToUpperInvariant();
+                
+                // Get all users and check their encrypted emails
+                var allUsers = _userManager.Users.ToList();
+                foreach (var candidateUser in allUsers)
+                {
+                    try
+                    {
+                        // First try direct username match
+                        if (string.Equals(candidateUser.UserName, emailOrUsername, StringComparison.OrdinalIgnoreCase))
+                        {
+                            _logger.LogInformation($"Found user by direct username match: {candidateUser.Id}");
+                            user = candidateUser;
+                            break;
+                        }
+                        
+                        // If it looks like an email, check encrypted emails
+                        if (emailOrUsername.Contains("@"))
+                        {
+                            bool emailMatch = false;
+                            
+                            // Check Email field
+                            if (!string.IsNullOrEmpty(candidateUser.Email))
+                            {
+                                if (_encryptionService.IsEncrypted(candidateUser.Email))
+                                {
+                                    try
+                                    {
+                                        var decryptedEmail = _encryptionService.Decrypt(candidateUser.Email);
+                                        emailMatch = string.Equals(decryptedEmail, emailOrUsername, StringComparison.OrdinalIgnoreCase);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        _logger.LogWarning(ex, $"Error decrypting Email for user {candidateUser.Id}");
+                                    }
+                                }
+                                else
+                                {
+                                    // Email is not encrypted, compare directly
+                                    emailMatch = string.Equals(candidateUser.Email, emailOrUsername, StringComparison.OrdinalIgnoreCase);
+                                }
+                            }
+                            
+                            // Check NormalizedEmail field if Email didn't match
+                            if (!emailMatch && !string.IsNullOrEmpty(candidateUser.NormalizedEmail))
+                            {
+                                if (_encryptionService.IsEncrypted(candidateUser.NormalizedEmail))
+                                {
+                                    try
+                                    {
+                                        var decryptedNormalizedEmail = _encryptionService.Decrypt(candidateUser.NormalizedEmail);
+                                        emailMatch = string.Equals(decryptedNormalizedEmail, normalizedEmail, StringComparison.OrdinalIgnoreCase);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        _logger.LogWarning(ex, $"Error decrypting NormalizedEmail for user {candidateUser.Id}");
+                                    }
+                                }
+                                else
+                                {
+                                    // NormalizedEmail is not encrypted, compare directly
+                                    emailMatch = string.Equals(candidateUser.NormalizedEmail, normalizedEmail, StringComparison.OrdinalIgnoreCase);
+                                }
+                            }
+                            
+                            if (emailMatch)
+                            {
+                                _logger.LogInformation($"Found user by encrypted email match: {candidateUser.Id}");
+                                user = candidateUser;
+                                break;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, $"Error processing user {candidateUser.Id}");
+                        // Continue to next user
+                    }
+                }
+            }
+            
+            return user;
+        }
+
+        private IActionResult? GetDashboardRedirect(ApplicationUser user, IList<string> roles)
+        {
+            if (roles.Contains("Admin"))
+            {
+                return RedirectToPage("/Admin/AdminDashboard");
+            }
+            if (roles.Contains("Admin Staff"))
+            {
+                _logger.LogInformation("Redirecting Admin Staff user to dashboard");
+                return RedirectToPage("/AdminStaff/Dashboard");
+            }
+            if (roles.Contains("Doctor"))
+            {
+                return RedirectToPage("/Doctor/DoctorDashboard");
+            }
+            if (roles.Contains("Nurse") || roles.Contains("Head Nurse"))
+            {
+                _logger.LogInformation("Redirecting Nurse to Dashboard");
+                return RedirectToPage("/Nurse/NurseDashboard");
+            }
+            if (roles.Contains("User") || roles.Contains("Patient"))
+            {
+                if (user.Status == "Verified" && user.IsActive)
+                {
+                    return RedirectToPage("/User/UserDashboard");
+                }
+                return RedirectToPage("/Account/WaitingForApproval");
+            }
+            return null; // No role matched
+        }
 
         public async Task<IActionResult> OnPostAsync()
         {
@@ -59,15 +214,7 @@ namespace Barangay.Pages.Account
                     return Page();
                 }
 
-                // Try to find the user by email first
-                var user = await _userManager.FindByEmailAsync(EmailOrUsername);
-                
-                // If not found by email, try by username
-                if (user == null)
-                {
-                    _logger.LogInformation($"User not found by email {EmailOrUsername}, trying username lookup");
-                    user = await _userManager.FindByNameAsync(EmailOrUsername);
-                }
+                var user = await FindUserAsync(EmailOrUsername);
                 
                 if (user == null)
                 {
@@ -77,22 +224,25 @@ namespace Barangay.Pages.Account
                     return Page();
                 }
 
+                // Check if user is trying to use admin login on regular login page - CHECK IMMEDIATELY
+                var userRoles = await _userManager.GetRolesAsync(user);
+                if (userRoles.Contains("Admin") || userRoles.Contains("Admin Staff"))
+                {
+                    _logger.LogWarning($"Admin user {user.Email} attempted to use regular login page - ACCESS DENIED");
+                    ModelState.AddModelError(string.Empty, "❌ ACCESS DENIED: Admin users must use the Admin Login page. Please use the 'Admin Login Only' button below.");
+                    return Page();
+                }
+
                 // Enhanced logging to diagnose user account state
                 _logger.LogInformation(
-                    $"User found: ID={user.Id}, Email={user.Email}, UserName={user.UserName}, " +
+                    $"Regular user found: ID={user.Id}, Email={user.Email}, UserName={user.UserName}, " +
                     $"NormalizedEmail={user.NormalizedEmail}, NormalizedUserName={user.NormalizedUserName}, " +
                     $"Status={user.Status}, EncryptedStatus={user.EncryptedStatus}, " +
                     $"EmailConfirmed={user.EmailConfirmed}, LockoutEnabled={user.LockoutEnabled}, " +
                     $"LockoutEnd={user.LockoutEnd}, AccessFailedCount={user.AccessFailedCount}");
 
                 // Check if user account is approved - check both Status and EncryptedStatus
-                // First check if user is admin
-                if (await _userManager.IsInRoleAsync(user, "Admin"))
-                {
-                    // Admin users bypass approval check
-                    _logger.LogInformation($"Admin user {user.Email} bypassing approval check");
-                }
-                else if (user.Status == "Pending" || user.EncryptedStatus == "Pending")
+                if (user.Status == "Pending" || user.EncryptedStatus == "Pending")
                 {
                     ModelState.AddModelError(string.Empty, "Your account is pending approval by an administrator. Please check back later.");
                     return Page();
@@ -107,6 +257,39 @@ namespace Barangay.Pages.Account
                     _logger.LogWarning($"Password verification failed for user {user.Email}");
                     ModelState.AddModelError(string.Empty, "Invalid email or password.");
                     return Page();
+                }
+
+                // Check if OTP is required for this user
+                // Use EmailOrUsername (the decrypted email from login form) for OTP check
+                var userEmail = EmailOrUsername;
+                var isOTPRequired = await _otpService.IsOTPRequiredAsync(userEmail);
+                
+                if (isOTPRequired)
+                {
+                    // If OTP is required but not provided, show OTP field
+                    if (string.IsNullOrEmpty(OTPCode))
+                    {
+                        _logger.LogInformation($"OTP required for Gmail user: {userEmail}");
+                        
+                        // Generate and send OTP
+                        var otp = await _otpService.GenerateOTPAsync(userEmail);
+                        var emailSent = await _emailService.SendOTPEmailAsync(userEmail, otp);
+                        
+                    if (emailSent)
+                    {
+                        // Redirect to OTP verification page
+                        return RedirectToPage("/Account/OTPVerification", new { 
+                            email = userEmail, 
+                            password = Password, 
+                            rememberMe = RememberMe 
+                        });
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, "Failed to send OTP. Please try again later.");
+                        return Page();
+                    }
+                    }
                 }
 
                 // Since password is correct, ensure the user can log in
@@ -144,8 +327,7 @@ namespace Barangay.Pages.Account
                     
                     var roles = await _userManager.GetRolesAsync(user);
                     _logger.LogInformation($"User roles: {string.Join(", ", roles)}");
-                    
-                    // Add claims for user status and verification
+
                     var claims = new List<Claim>
                     {
                         new Claim("UserId", user.Id),
@@ -153,48 +335,19 @@ namespace Barangay.Pages.Account
                         new Claim("IsActive", user.IsActive.ToString())
                     };
 
-                    // Remove existing claims first
                     var existingClaims = await _userManager.GetClaimsAsync(user);
                     await _userManager.RemoveClaimsAsync(user, existingClaims);
-
-                    // Add new claims
                     await _userManager.AddClaimsAsync(user, claims);
-                    
-                    if (roles.Contains("Admin"))
+
+                    var redirectResult = GetDashboardRedirect(user, roles);
+                    if (redirectResult != null)
                     {
-                        return RedirectToPage("/Admin/AdminDashboard");
+                        return redirectResult;
                     }
-                    else if (roles.Contains("Admin Staff"))
-                    {
-                        _logger.LogInformation("Redirecting Admin Staff user to dashboard");
-                        return RedirectToPage("/AdminStaff/Dashboard");
-                    }
-                    else if (roles.Contains("Doctor"))
-                    {
-                        return RedirectToPage("/Doctor/DoctorDashboard");
-                    }
-                    else if (roles.Contains("Nurse"))
-                    {
-                        _logger.LogInformation("Redirecting Nurse to Dashboard");
-                        return RedirectToPage("/Nurse/NurseDashboard");
-                    }
-                    else if (roles.Contains("User"))
-                    {
-                        if (user.Status == "Verified" && user.IsActive)
-                    {
-                        return RedirectToPage("/User/UserDashboard");
-                        }
-                        else
-                        {
-                            return RedirectToPage("/Account/WaitingForApproval");
-                        }
-                    }
-                    else
-                    {
-                        await _signInManager.SignOutAsync();
-                        ModelState.AddModelError(string.Empty, "The account does not have any assigned roles.");
-                        return Page();
-                    }
+
+                    await _signInManager.SignOutAsync();
+                    ModelState.AddModelError(string.Empty, "The account does not have any assigned roles.");
+                    return Page();
                 }
                 
                 if (result.RequiresTwoFactor)
@@ -222,3 +375,5 @@ namespace Barangay.Pages.Account
         }
     }
 }
+
+

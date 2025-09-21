@@ -8,12 +8,12 @@
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0">
-            <i class="fas fa-users text-primary me-2"></i>
+            <i class="fa-solid fa-users text-primary me-2"></i>
             Staff List
         </h1>
         <div>
             <a asp-page="./AddStaffMember" class="btn btn-primary">
-                <i class="fas fa-user-plus"></i> Add Staff Member
+                <i class="fa-solid fa-user-plus"></i> Add Staff Member
             </a>
         </div>
     </div>
@@ -21,7 +21,7 @@
     @if (TempData["ErrorMessage"] != null)
     {
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-circle me-2"></i> @TempData["ErrorMessage"]
+            <i class="fa-solid fa-circle-exclamation me-2"></i> @TempData["ErrorMessage"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
@@ -29,7 +29,7 @@
     @if (!Model.StaffMembers.Any())
     {
         <div class="alert alert-info" role="alert">
-            <i class="fas fa-info-circle me-2"></i> No staff members found.
+            <i class="fa-solid fa-circle-info me-2"></i> No staff members found.
         </div>
     }
     else
@@ -48,19 +48,16 @@
                         <div class="card-body">
                             <div class="mb-3">
                                 <small class="text-muted d-block">Email</small>
-                                <div><i class="fas fa-envelope me-2"></i>@staff.Email</div>
+                                <div><i class="fa-solid fa-envelope me-2"></i>@staff.Email</div>
                             </div>
                             <div class="mb-3">
                                 <small class="text-muted d-block">Role & Position</small>
-                                <div><i class="fas fa-user-tag me-2"></i>@staff.Role - @staff.Position</div>
+                                <div><i class="fa-solid fa-user-tag me-2"></i>@staff.Role - @staff.Position</div>
                             </div>
-                            <div class="mb-3">
-                                <small class="text-muted d-block">Department</small>
-                                <div><i class="fas fa-hospital me-2"></i>@staff.Department</div>
-                            </div>
+
                             <div class="mb-3">
                                 <small class="text-muted d-block">Join Date</small>
-                                <div><i class="fas fa-calendar me-2"></i>@staff.JoinDate.ToString("MMM dd, yyyy")</div>
+                                <div><i class="fa-solid fa-calendar me-2"></i>@staff.JoinDate.ToString("MMM dd, yyyy")</div>
                             </div>
 
                             <div class="mt-4">
@@ -84,7 +81,7 @@
                                                         @foreach (var permission in category.Value)
                                                         {
                                                             <li class="mb-2">
-                                                                <i class="fas fa-check text-success me-2"></i>
+                                                                <i class="fa-solid fa-check text-success me-2"></i>
                                                                 @permission
                                                             </li>
                                                         }
@@ -100,15 +97,15 @@
                             <div class="btn-group w-100">
                                 <a asp-page="./EditStaffMember" asp-route-id="@staff.Id" 
                                    class="btn btn-outline-primary">
-                                    <i class="fas fa-edit"></i> Edit
+                                    <i class="fa-solid fa-pen-to-square"></i> Edit
                                 </a>
-                                <a asp-page="./ManagePermissions" asp-route-selectedUserId="@staff.Id" 
+                                <a asp-page="./StaffPermissions" asp-route-selectedUserId="@staff.Id" 
                                    class="btn btn-outline-primary">
-                                    <i class="fas fa-key"></i> Permissions
+                                    <i class="fa-solid fa-key"></i> Permissions
                                 </a>
                                 <a asp-page="./DeleteStaffMember" asp-route-id="@staff.Id" 
                                    class="btn btn-outline-danger">
-                                    <i class="fas fa-trash"></i> Delete
+                                    <i class="fa-solid fa-trash"></i> Delete
                                 </a>
                             </div>
                         </div>

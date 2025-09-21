@@ -1,17 +1,87 @@
 @page
 @model Barangay.Pages.Nurse.VitalSignsModel
 @{
-    ViewData["Title"] = "Patient Vital Signs";
+    ViewData["Title"] = "Vital Signs";
     Layout = "_NurseLayout";
 }
 
-<h2>Patient Vital Signs</h2>
-<p>Record and monitor patient vital signs.</p>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="m-0">Vital Signs</h2>
+        <div>
+            <a href="/Nurse/NurseDashboard" class="btn btn-outline-secondary me-2">
+            <i class="fas fa-arrow-left me-1"></i>
+                Dashboard
+        </a>
+            <a href="/Nurse/Appointments" class="btn btn-outline-primary">
+                <i class="fas fa-calendar-check me-1"></i>
+                Appointments
+            </a>
+        </div>
+    </div>
 
-<div class="d-flex justify-content-end mb-3">
-    <a href="/Nurse/PatientQueue" class="btn btn-secondary">
-        <i class="bi bi-arrow-left"></i> Back to Queue
-    </a>
+    @if (Model.HasTodayAppointments)
+    {
+        <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Today's Appointments - @Model.Today.ToString("MMMM dd, yyyy")</h5>
+                    <span class="badge bg-light text-dark">@Model.TodayAppointments.Count appointment(s)</span>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Time</th>
+                                <th>Patient</th>
+                                <th>Doctor</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var appointment in Model.TodayAppointments)
+                            {
+                                <tr>
+                                    <td>@appointment.AppointmentTime.ToString(@"hh\:mm")</td>
+                                    <td>@appointment.PatientName</td>
+                                    <td>@appointment.DoctorName</td>
+                                    <td>@appointment.Type</td>
+                                    <td>
+                                        <span class="badge @(appointment.Status == AppointmentStatus.Pending ? "bg-warning" : 
+                                            appointment.Status == AppointmentStatus.Confirmed ? "bg-info" :
+                                            appointment.Status == AppointmentStatus.InProgress ? "bg-primary" : 
+                                            appointment.Status == AppointmentStatus.Completed ? "bg-success" : 
+                                            appointment.Status == AppointmentStatus.Cancelled ? "bg-danger" : 
+                                            appointment.Status == AppointmentStatus.Urgent ? "bg-danger" : 
+                                            appointment.Status == AppointmentStatus.NoShow ? "bg-secondary" : "bg-secondary")">
+                                            @appointment.Status.ToString()
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="?patientId=@appointment.PatientId" class="btn btn-sm btn-primary">
+                                            <i class="bi bi-clipboard-plus"></i>
+                                            Record Vitals
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info mb-4">
+            <i class="bi bi-info-circle me-2"></i>
+            No appointments scheduled for today (@Model.Today.ToString("MMMM dd, yyyy")).
+        </div>
+    }
 </div>
 
 @if (TempData["SuccessMessage"] != null)
@@ -42,81 +112,220 @@
     </div>
 }
 
+<div class="container">
+    <div class="row mt-4">
+        <div class="col-md-6">
 <div class="card mb-4">
-    <div class="card-header">
-        <h2>Record Vital Signs</h2>
+                <div class="card-header d-flex justify-content-between align-items-center bg-primary text-white">
+                    <h5 class="mb-0">Record Vital Signs</h5>
     </div>
     <div class="card-body">
-        <form method="post" asp-page-handler="AddVitalSign">
+                    <form method="post" id="vitalSignsForm" onsubmit="return submitVitalSigns(event)">
             <div class="row mb-3">
                 <div class="col-md-12">
-                    <label for="Patient">Patient</label>
-                    <select asp-for="NewVitalSign.PatientId" asp-items="Model.PatientSelectList" class="form-select">
+                                <label for="Patient" class="form-label">Patient <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <select asp-for="NewVitalSign.PatientId" asp-items="Model.PatientSelectList" class="form-select" id="patientSelect" required>
                         <option value="">-- Select Patient --</option>
                     </select>
+                                    <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#patientSearchModal">
+                                        <i class="bi bi-search"></i>
+                                    </button>
+                                </div>
+                                <div class="invalid-feedback">
+                                    Please select a patient.
+                                </div>
                 </div>
             </div>
 
             <div class="row mb-3">
                 <div class="col-md-6">
-                    <label>Blood Pressure (mmHg)</label>
-                    <input asp-for="NewVitalSign.BloodPressure" class="form-control" placeholder="e.g. 120/80" />
+                                <label class="form-label">Blood Pressure (mmHg)</label>
+                    <input asp-for="NewVitalSign.BloodPressure" class="form-control" placeholder="e.g. 120/80" pattern="[0-9\/]+" title="Only numbers and forward slash allowed" />
                 </div>
                 <div class="col-md-6">
-                    <label>Heart Rate (bpm)</label>
+                                <label class="form-label">Heart Rate (bpm)</label>
                     <input asp-for="NewVitalSign.HeartRate" class="form-control" type="number" />
                 </div>
             </div>
 
             <div class="row mb-3">
                 <div class="col-md-6">
-                    <label>Temperature (°C)</label>
-                    <input asp-for="NewVitalSign.Temperature" class="form-control" type="number" step="0.1" />
+                                <label class="form-label">Temperature (°C) <span class="text-danger">*</span></label>
+                                <input asp-for="NewVitalSign.Temperature" class="form-control" type="number" step="0.1" required />
                 </div>
                 <div class="col-md-6">
-                    <label>Respiratory Rate (breaths/min)</label>
-                    <input asp-for="NewVitalSign.RespiratoryRate" class="form-control" type="number" />
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label>Oxygen Saturation (%)</label>
-                    <input asp-for="NewVitalSign.SpO2" class="form-control" type="number" />
-                </div>
-                <div class="col-md-6">
-                    <label>Weight (kg)</label>
-                    <input asp-for="NewVitalSign.Weight" class="form-control" type="number" step="0.1" />
+                                <label class="form-label">Respiratory Rate (breaths/min) <span class="text-danger">*</span></label>
+                                <input asp-for="NewVitalSign.RespiratoryRate" class="form-control" type="number" required />
                 </div>
             </div>
 
             <div class="row mb-3">
                 <div class="col-md-6">
-                    <label>Height (cm)</label>
-                    <input asp-for="NewVitalSign.Height" class="form-control" type="number" step="0.1" />
+                                <label class="form-label">Oxygen Saturation (%) <span class="text-danger">*</span></label>
+                                <input asp-for="NewVitalSign.SpO2" class="form-control" type="number" required />
+                </div>
+                <div class="col-md-6">
+                                <label class="form-label">Weight (kg) <span class="text-danger">*</span></label>
+                                <input asp-for="NewVitalSign.Weight" class="form-control" type="number" step="0.1" required />
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                                <label class="form-label">Height (cm) <span class="text-danger">*</span></label>
+                                <input asp-for="NewVitalSign.Height" class="form-control" type="number" step="0.1" required />
+                            </div>
+                            <div class="col-md-6 d-flex align-items-end">
+                                <button type="button" class="btn btn-outline-info" id="calculateBMI">
+                                    <i class="bi bi-calculator"></i> Calculate BMI
+                                </button>
+                                <span id="bmiResult" class="ms-2 text-info"></span>
                 </div>
             </div>
 
             <div class="form-group mb-3">
-                <label>Notes</label>
+                            <label class="form-label">Notes</label>
                 <textarea asp-for="NewVitalSign.Notes" class="form-control" rows="3"></textarea>
             </div>
 
-            <button type="submit" class="btn btn-primary">Save Vital Signs</button>
+            <div class="mb-3">
+                <label for="assignedDoctorId" class="form-label">Assign to Doctor <span class="text-danger">*</span></label>
+                <select name="AssignedDoctorId" class="form-select" required>
+                    <option value="" selected disabled>Select a doctor to assign</option>
+                    @if (Model.Doctors != null)
+                    {
+                        @foreach (var doctor in Model.Doctors)
+                        {
+                            <option value="@doctor.Id">@doctor.FullName</option>
+                        }
+                    }
+                </select>
+            </div>
+
+                        <button type="submit" class="btn btn-primary" id="saveVitalSigns" disabled>
+                            <i class="bi bi-save"></i> Save Vital Signs
+                        </button>
         </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Patient Information</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (Model.SelectedPatient != null)
+                    {
+                        <div class="d-flex align-items-center mb-3">
+                            <div>
+                                <h5 class="mb-0">@Model.SelectedPatient.FullName</h5>
+                                <p class="text-muted mb-0">ID: @Model.SelectedPatient.UserId</p>
+                            </div>
+                            <div class="ms-auto">
+                                <span class="badge bg-primary">@Model.SelectedPatient.Age years</span>
+                                <span class="badge bg-secondary">@Model.SelectedPatient.Gender</span>
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">Patient Details</h6>
+                            </div>
+                            <div class="card-body">
+                                <dl class="row mb-0">
+                                    <dt class="col-sm-4">Date of Birth:</dt>
+                                    <dd class="col-sm-8">@Model.SelectedPatient.BirthDate.ToString("MMMM dd, yyyy")</dd>
+                                    
+                                    <dt class="col-sm-4">Contact:</dt>
+                                    <dd class="col-sm-8">@Model.SelectedPatient.ContactNumber</dd>
+                                    
+                                    <dt class="col-sm-4">Address:</dt>
+                                    <dd class="col-sm-8">@Model.SelectedPatient.Address</dd>
+                                    
+                                    <dt class="col-sm-4">Barangay:</dt>
+                                    <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.SelectedPatientBarangay) ? "-" : Model.SelectedPatientBarangay)</dd>
+                                    
+                                    @if (!string.IsNullOrEmpty(Model.SelectedPatient.BloodType))
+                                    {
+                                        <dt class="col-sm-4">Blood Type:</dt>
+                                        <dd class="col-sm-8">@Model.SelectedPatient.BloodType</dd>
+                                    }
+                                    
+                                    @if (!string.IsNullOrEmpty(Model.SelectedPatient.Allergies))
+                                    {
+                                        <dt class="col-sm-4">Allergies:</dt>
+                                        <dd class="col-sm-8">@Model.SelectedPatient.Allergies</dd>
+                                    }
+                                </dl>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">Assessment Form</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-2">
+                                    <div class="col-sm-4 fw-semibold">Form Type:</div>
+                                    <div class="col-sm-8">@Model.FilledFormType</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-sm-4 fw-semibold">Status:</div>
+                                    <div class="col-sm-8">
+                                        @if (Model.IsFormFilled)
+                                        {
+                                            <span class="badge bg-success">Completed</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">Not yet completed</span>
+                                        }
+                                    </div>
+                                </div>
+                                @if (!string.IsNullOrEmpty(Model.SelectedPatientId))
+                                {
+                                    var targetUrl = Model.SelectedPatientAge >= 20
+                                        ? $"/Nurse/CreateNCDAssessment?patientId={Model.SelectedPatientId}"
+                                        : $"/Nurse/CreateHEEADSSSAssessment?patientId={Model.SelectedPatientId}";
+                                    <a class="btn btn-primary" href="@targetUrl">
+                                        @(Model.IsFormFilled ? "Update Assessment" : "Fill Out Assessment")
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <div class="mb-3">
+                                <i class="bi bi-person-badge" style="font-size: 3rem;"></i>
+                            </div>
+                            <h6>Select a patient to view information</h6>
+                            <p class="text-muted">Patient details will appear here once you select a patient from the dropdown.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-<div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h3>Vital Sign Records</h3>
-        <button class="btn btn-outline-secondary" onclick="refreshTable()">
+<div class="container">
+    <div class="card mt-4">
+        <div class="card-header d-flex justify-content-between align-items-center bg-primary text-white">
+            <h5 class="mb-0">Vital Sign Records</h5>
+            <button class="btn btn-sm btn-light" onclick="refreshTable()">
             <i class="bi bi-arrow-clockwise"></i> Refresh
         </button>
     </div>
-    <div class="card-body">
+        <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-striped">
+                <table class="table table-striped mb-0">
                 <thead>
                     <tr>
                         <th>Patient Name</th>
@@ -138,10 +347,10 @@
                                 <td>@record.PatientName</td>
                                 <td>@record.RecordedAt.ToString("MMM dd, yyyy h:mm tt")</td>
                                 <td>@record.BloodPressure</td>
-                                <td>@(record.HeartRate.HasValue ? $"{record.HeartRate} bpm" : "N/A")</td>
-                                <td>@(record.Temperature.HasValue ? $"{record.Temperature:F1} °C" : "N/A")</td>
-                                <td>@(record.Weight.HasValue ? $"{record.Weight:F1} kg" : "N/A")</td>
-                                <td>@(record.Height.HasValue ? $"{record.Height:F1} cm" : "N/A")</td>
+                                <td>@(!string.IsNullOrEmpty(record.HeartRate) ? $"{record.HeartRate} bpm" : "N/A")</td>
+                                <td>@(!string.IsNullOrEmpty(record.Temperature) ? $"{record.Temperature} °C" : "N/A")</td>
+                                <td>@(!string.IsNullOrEmpty(record.Weight) ? $"{record.Weight} kg" : "N/A")</td>
+                                <td>@(!string.IsNullOrEmpty(record.Height) ? $"{record.Height} cm" : "N/A")</td>
                                 <td>
                                     <button type="button" class="btn btn-sm btn-info" onclick='showVitalSignDetails(@Json.Serialize(new
                                     {
@@ -168,6 +377,7 @@
                     }
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 </div>
@@ -258,14 +468,101 @@
     </div>
 </div>
 
+<!-- Appointment Details Modal -->
+<div class="modal fade" id="appointmentDetailsModal" tabindex="-1" aria-labelledby="appointmentDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="appointmentDetailsModalLabel">Appointment Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="appointmentDetailsBody">
+                <!-- Appointment details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     
     <script>
+        // Form validation function - moved to global scope
+        function validateForm() {
+            var isValid = true;
+            
+            // Check if patient is selected
+            if (!$('#patientSelect').val()) {
+                isValid = false;
+                $('#patientSelect').addClass('is-invalid');
+                alert('Please select a patient');
+                return false;
+            } else {
+                $('#patientSelect').removeClass('is-invalid');
+            }
+            
+            // Check required fields
+            $('#vitalSignsForm input[required]').each(function() {
+                if (!$(this).val()) {
+                    isValid = false;
+                    $(this).addClass('is-invalid');
+                } else {
+                    $(this).removeClass('is-invalid');
+                }
+            });
+            
+            if (!isValid) {
+                alert('Please fill in all required fields');
+                return false;
+            }
+            
+            return true;
+        }
+        
         $(document).ready(function() {
+            // Debug form submission
+            $('#vitalSignsForm').on('submit', function(e) {
+                console.log('Form submission attempted');
+            });
+            
+            // Check form validity on input change
+            $('#vitalSignsForm input[required]').on('input', function() {
+                checkFormValidity();
+            });
+            
+            function checkFormValidity() {
+                var allFilled = true;
+                
+                // Check if patient is selected
+                if (!$('#patientSelect').val()) {
+                    allFilled = false;
+                }
+                
+                // Check if all required fields are filled
+                $('#vitalSignsForm input[required]').each(function() {
+                    if (!$(this).val()) {
+                        allFilled = false;
+                        $(this).addClass('is-invalid');
+                    } else {
+                        $(this).removeClass('is-invalid');
+                    }
+                });
+                
+                // Enable/disable save button based on form validity
+                $('#saveVitalSigns').prop('disabled', !allFilled);
+                
+                return allFilled;
+            }
+            
+            // Run initial form validation
+            checkFormValidity();
+            
             // Initialize select2 on patient dropdown
-            $('.patient-select').select2({
+            $('#patientSelect').select2({
                 placeholder: "Search for a patient...",
                 allowClear: true,
                 width: '100%'
@@ -275,27 +572,309 @@
             @if (!string.IsNullOrEmpty(Model.SelectedPatientId))
             {
                 <text>
-                $('.patient-select').val('@Model.SelectedPatientId').trigger('change');
+                $('#patientSelect').val('@Model.SelectedPatientId').trigger('change');
+                $('#viewAllAppointmentsBtn').show();
                 </text>
             }
+            
+            // Enable form submission only when a patient is selected
+            $('#patientSelect').on('change', function() {
+                if ($(this).val()) {
+                    // Only redirect if not already viewing this patient's data
+                    var currentPatientId = '@Model.SelectedPatientId';
+                    if ($(this).val() !== currentPatientId) {
+                        window.location.href = '?patientId=' + $(this).val();
+                    }
+                    
+                    // Check if other required fields are filled
+                    checkFormValidity();
+                } else {
+                    $('#saveVitalSigns').prop('disabled', true);
+                }
+            });
+            
+            // BMI Calculator
+            $('#calculateBMI').on('click', function() {
+                const weight = parseFloat($('#NewVitalSign_Weight').val());
+                const height = parseFloat($('#NewVitalSign_Height').val());
+                
+                if (weight && height) {
+                    // Convert height from cm to meters
+                    const heightInMeters = height / 100;
+                    const bmi = (weight / (heightInMeters * heightInMeters)).toFixed(2);
+                    let bmiCategory = '';
+                    
+                    // BMI categories
+                    if (bmi < 18.5) {
+                        bmiCategory = 'Underweight';
+                    } else if (bmi >= 18.5 && bmi < 25) {
+                        bmiCategory = 'Normal weight';
+                    } else if (bmi >= 25 && bmi < 30) {
+                        bmiCategory = 'Overweight';
+                    } else {
+                        bmiCategory = 'Obese';
+                    }
+                    
+                    $('#bmiResult').html(`BMI: <strong>${bmi}</strong> (${bmiCategory})`);
+                } else {
+                    $('#bmiResult').text('Please enter both weight and height');
+                }
+            });
+            
+            // View all appointments button
+            $('#viewAllAppointmentsBtn').on('click', function() {
+                const patientId = $('#patientSelect').val();
+                if (patientId) {
+                    loadAllAppointments(patientId);
+                }
+            });
+            
+            // Load today's appointments from API
+            function loadTodayAppointments() {
+                fetch('/api/AppointmentsApi/appointments/today')
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Today\'s appointments:', data);
+                        
+                        // Update the UI with today's appointments
+                        if (data && data.length > 0) {
+                            // Update appointment count badge
+                            $('.badge.bg-light.text-dark').text(data.length + ' appointment(s)');
+                            
+                            // Update table body
+                            const tableBody = document.querySelector('.table-hover tbody');
+                            if (tableBody) {
+                                tableBody.innerHTML = '';
+                                
+                                data.forEach(appointment => {
+                                    const row = document.createElement('tr');
+                                    
+                                    // Determine status badge class
+                                    const statusClass = getStatusBadgeClass(appointment.status);
+                                    
+                                    row.innerHTML = `
+                                        <td>${appointment.appointmentTime}</td>
+                                        <td>${appointment.patientName}</td>
+                                        <td>${appointment.doctor}</td>
+                                        <td>${appointment.type}</td>
+                                        <td>
+                                            <span class="badge ${statusClass}">${appointment.status}</span>
+                                        </td>
+                                        <td>
+                                            <a href="?patientId=${appointment.patientId}" class="btn btn-sm btn-primary">
+                                                <i class="bi bi-clipboard-plus"></i>
+                                                Record Vitals
+                                            </a>
+                                        </td>
+                                    `;
+                                    
+                                    tableBody.appendChild(row);
+                                });
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading today\'s appointments:', error);
+                    });
+            }
+            
+            function getStatusBadgeClass(status) {
+                switch(status) {
+                    case 'Pending': return 'bg-warning';
+                    case 'Confirmed': return 'bg-info';
+                    case 'InProgress': return 'bg-primary';
+                    case 'Completed': return 'bg-success';
+                    case 'Cancelled': return 'bg-danger';
+                    case 'Urgent': return 'bg-danger';
+                    case 'NoShow': return 'bg-secondary';
+                    default: return 'bg-secondary';
+                }
+            }
+            
+            // Call this when page loads to sync with the backend
+            loadTodayAppointments();
         });
         
         function refreshTable() {
+            const patientId = document.getElementById('patientSelect').value;
+            
+            if (patientId) {
+                // Show loading indicator
+                const tableBody = document.querySelector('.table-striped tbody');
+                if (tableBody) {
+                    tableBody.innerHTML = '<tr><td colspan="8" class="text-center"><div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>Loading vital signs...</td></tr>';
+                }
+                
+                // Fetch vital signs for the selected patient
+                fetch(`/api/VitalsApi/patient/${patientId}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error fetching vital signs');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        updateVitalSignsTable(data);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching vital signs:', error);
+                        
+                        const tableBody = document.querySelector('.table-striped tbody');
+                        if (tableBody) {
+                            tableBody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Failed to load vital signs. Please try again.</td></tr>';
+                        }
+                    });
+            } else {
+                // If no patient is selected, just reload the page
             location.reload();
+            }
+        }
+        
+        function updateVitalSignsTable(vitalSigns) {
+            const tableBody = document.querySelector('.table-striped tbody');
+            
+            if (!tableBody) {
+                console.error('Vital signs table not found');
+                return;
+            }
+            
+            if (vitalSigns.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="8" class="text-center">No vital sign records found</td></tr>';
+                return;
+            }
+            
+            // Clear existing rows
+            tableBody.innerHTML = '';
+            
+            // Add new rows
+            vitalSigns.forEach(record => {
+                const row = document.createElement('tr');
+                
+                // Format the date and time
+                const recordedAt = new Date(record.recordedAt);
+                const formattedDateTime = recordedAt.toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    hour12: true
+                });
+                
+                const patientSelect = document.getElementById('patientSelect');
+                const patientName = patientSelect.options[patientSelect.selectedIndex].text;
+                
+                row.innerHTML = `
+                    <td>${patientName}</td>
+                    <td>${formattedDateTime}</td>
+                    <td>${record.bloodPressure || 'N/A'}</td>
+                    <td>${record.heartRate ? record.heartRate + ' bpm' : 'N/A'}</td>
+                    <td>${record.temperature ? record.temperature + ' °C' : 'N/A'}</td>
+                    <td>${record.weight ? record.weight + ' kg' : 'N/A'}</td>
+                    <td>${record.height ? record.height + ' cm' : 'N/A'}</td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-info" onclick='showVitalSignDetails(${JSON.stringify({
+                            patientName: patientName,
+                            recordedAt: formattedDateTime,
+                            bloodPressure: record.bloodPressure,
+                            heartRate: record.heartRate,
+                            temperature: record.temperature,
+                            weight: record.weight,
+                            height: record.height,
+                            notes: record.notes
+                        })})'>
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
         }
 
         function showVitalSignDetails(vitalSign) {
             document.getElementById('modalPatientName').textContent = vitalSign.patientName;
             document.getElementById('modalDateTime').textContent = vitalSign.recordedAt;
-            document.getElementById('modalBloodPressure').textContent = vitalSign.bloodPressure;
-            document.getElementById('modalHeartRate').textContent = vitalSign.heartRate + ' bpm';
-            document.getElementById('modalTemperature').textContent = vitalSign.temperature + ' °C';
-            document.getElementById('modalWeight').textContent = vitalSign.weight + ' kg';
-            document.getElementById('modalHeight').textContent = vitalSign.height + ' cm';
+            document.getElementById('modalBloodPressure').textContent = vitalSign.bloodPressure || 'N/A';
+            document.getElementById('modalHeartRate').textContent = vitalSign.heartRate ? vitalSign.heartRate + ' bpm' : 'N/A';
+            document.getElementById('modalTemperature').textContent = vitalSign.temperature ? vitalSign.temperature + ' °C' : 'N/A';
+            document.getElementById('modalWeight').textContent = vitalSign.weight ? vitalSign.weight + ' kg' : 'N/A';
+            document.getElementById('modalHeight').textContent = vitalSign.height ? vitalSign.height + ' cm' : 'N/A';
             document.getElementById('modalNotes').textContent = vitalSign.notes || 'No notes';
             
             var modal = new bootstrap.Modal(document.getElementById('vitalSignDetailsModal'));
             modal.show();
+        }
+
+        function loadAllAppointments(patientId) {
+            fetch(`/api/AppointmentsApi/patient/${patientId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch appointments');
+                    }
+                    return response.json();
+                })
+                .then(appointments => {
+                    const modal = new bootstrap.Modal(document.getElementById('appointmentDetailsModal'));
+                    
+                    if (appointments.length === 0) {
+                        document.getElementById('appointmentDetailsBody').innerHTML = 
+                            '<div class="alert alert-info">No appointment records found for this patient.</div>';
+                        modal.show();
+                        return;
+                    }
+                    
+                    let html = `
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        <th>Doctor</th>
+                                        <th>Type</th>
+                                        <th>Status</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
+                    
+                    appointments.forEach(apt => {
+                        const statusClass = 
+                            apt.status === 'Pending' ? 'bg-warning' :
+                            apt.status === 'Confirmed' ? 'bg-info' :
+                            apt.status === 'InProgress' ? 'bg-primary' :
+                            apt.status === 'Completed' ? 'bg-success' :
+                            apt.status === 'Cancelled' ? 'bg-danger' :
+                            apt.status === 'Urgent' ? 'bg-danger' :
+                            apt.status === 'NoShow' ? 'bg-secondary' : 'bg-secondary';
+                        
+                        html += `
+                            <tr>
+                                <td>${new Date(apt.appointmentDate).toLocaleDateString('en-US', {year: 'numeric', month: 'short', day: 'numeric'})}</td>
+                                <td>${apt.appointmentTime}</td>
+                                <td>${apt.doctor}</td>
+                                <td>${apt.type}</td>
+                                <td><span class="badge ${statusClass}">${apt.status}</span></td>
+                                <td>${apt.description || 'N/A'}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                    
+                    document.getElementById('appointmentDetailsBody').innerHTML = html;
+                    modal.show();
+                })
+                .catch(error => {
+                    console.error('Error loading appointments:', error);
+                    alert('Failed to load appointment data. Please try again.');
+                });
         }
 
         // Patient search functionality
@@ -342,6 +921,9 @@
                             // Close the modal
                             var modal = bootstrap.Modal.getInstance(document.getElementById('patientSearchModal'));
                             modal.hide();
+                            
+                            // Redirect to reload page with patient data
+                            window.location.href = '?patientId=' + patient.id;
                         };
                         actionCell.appendChild(selectBtn);
                     });
@@ -357,6 +939,138 @@
             if (e.key === 'Enter') {
                 e.preventDefault();
                 document.getElementById('patientSearchButton').click();
+            }
+        });
+        
+        // Global function for submitting vital signs
+        function submitVitalSigns(event) {
+            event.preventDefault();
+            console.log("submitVitalSigns called");
+            
+            // Validate form
+            if (!validateForm()) {
+                return false;
+            }
+            
+            // Show loading state
+            const saveButton = document.getElementById('saveVitalSigns');
+            saveButton.disabled = true;
+            saveButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
+            
+            // Get form data
+            const vitalSignsData = {
+                patientId: document.getElementById('patientSelect').value,
+                temperature: parseFloat(document.getElementById('NewVitalSign_Temperature').value),
+                bloodPressure: document.getElementById('NewVitalSign_BloodPressure').value,
+                heartRate: parseInt(document.getElementById('NewVitalSign_HeartRate').value) || null,
+                respiratoryRate: parseInt(document.getElementById('NewVitalSign_RespiratoryRate').value),
+                spO2: parseInt(document.getElementById('NewVitalSign_SpO2').value),
+                weight: parseFloat(document.getElementById('NewVitalSign_Weight').value),
+                height: parseFloat(document.getElementById('NewVitalSign_Height').value),
+                notes: document.getElementById('NewVitalSign_Notes').value
+            };
+            
+            console.log("Submitting data:", vitalSignsData);
+            
+            // Send data to API
+            fetch('/api/VitalsApi', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(vitalSignsData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw new Error(errorData.message || 'Server returned ' + response.status);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Success response:", data);
+                // Show success message
+                const alertHtml = `
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <strong>Success!</strong> ${data.message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+                
+                // Insert alert before the form
+                document.getElementById('vitalSignsForm').insertAdjacentHTML('beforebegin', alertHtml);
+                
+                // Reset form
+                document.getElementById('vitalSignsForm').reset();
+                
+                // Refresh vital signs table
+                refreshTable();
+                
+                // Reset button state
+                saveButton.disabled = true;
+                saveButton.innerHTML = '<i class="bi bi-save"></i> Save Vital Signs';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                
+                // Show error message
+                const alertHtml = `
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>Error!</strong> ${error.message || 'Failed to save vital signs. Please try again.'}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+                
+                // Insert alert before the form
+                document.getElementById('vitalSignsForm').insertAdjacentHTML('beforebegin', alertHtml);
+                
+                // Reset button state
+                saveButton.disabled = false;
+                saveButton.innerHTML = '<i class="bi bi-save"></i> Save Vital Signs';
+            });
+            
+            return false;
+        }
+
+        // Blood pressure validation
+        function validateBloodPressure(input) {
+            const value = input.value;
+            const pattern = /^[0-9\/]*$/;
+            
+            if (!pattern.test(value)) {
+                input.setCustomValidity('Only numbers and forward slash (/) are allowed');
+                input.reportValidity();
+                return false;
+            } else {
+                input.setCustomValidity('');
+                return true;
+            }
+        }
+
+        // Add event listener for blood pressure input
+        document.addEventListener('DOMContentLoaded', function() {
+            const bloodPressureInput = document.getElementById('NewVitalSign_BloodPressure');
+            if (bloodPressureInput) {
+                bloodPressureInput.addEventListener('input', function() {
+                    validateBloodPressure(this);
+                });
+                
+                bloodPressureInput.addEventListener('keypress', function(e) {
+                    // Allow: backspace, delete, tab, escape, enter
+                    if ([8, 9, 27, 13, 46].indexOf(e.keyCode) !== -1 ||
+                        // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+                        (e.keyCode === 65 && e.ctrlKey === true) ||
+                        (e.keyCode === 67 && e.ctrlKey === true) ||
+                        (e.keyCode === 86 && e.ctrlKey === true) ||
+                        (e.keyCode === 88 && e.ctrlKey === true)) {
+                        return;
+                    }
+                    // Ensure that it is a number or forward slash
+                    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && e.keyCode !== 191) {
+                        e.preventDefault();
+                    }
+                });
             }
         });
     </script>

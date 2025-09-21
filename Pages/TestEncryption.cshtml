@@ -1,0 +1,61 @@
+@page
+@model TestEncryptionModel
+@{
+    ViewData["Title"] = "Test Encryption";
+}
+
+<div class="container mt-4">
+    <h2>Encryption Test</h2>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <h4>Test Encryption/Decryption</h4>
+            <form method="post">
+                <div class="form-group">
+                    <label for="testText">Test Text:</label>
+                    <input type="text" class="form-control" id="testText" name="TestText" value="renierbenalma@gmail.com" />
+                </div>
+                <button type="submit" class="btn btn-primary">Test Encryption</button>
+            </form>
+            
+            @if (!string.IsNullOrEmpty(Model.EncryptedResult))
+            {
+                <div class="mt-3">
+                    <h5>Results:</h5>
+                    <p><strong>Original:</strong> @Model.TestText</p>
+                    <p><strong>Encrypted:</strong> @Model.EncryptedResult</p>
+                    <p><strong>Decrypted:</strong> @Model.DecryptedResult</p>
+                    <p><strong>Is Encrypted:</strong> @Model.IsEncrypted</p>
+                </div>
+            }
+        </div>
+        
+        <div class="col-md-6">
+            <h4>Database Users</h4>
+            @if (Model.Users != null && Model.Users.Any())
+            {
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email (Raw)</th>
+                            <th>Email (Decrypted)</th>
+                            <th>Is Encrypted</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model.Users)
+                        {
+                            <tr>
+                                <td>@user.UserName</td>
+                                <td>@(user.Email?.Substring(0, Math.Min(20, user.Email.Length)) + "...")</td>
+                                <td>@user.DecryptedEmail</td>
+                                <td>@user.IsEmailEncrypted</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>

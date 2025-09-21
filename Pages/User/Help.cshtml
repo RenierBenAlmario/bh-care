@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Help & Support";
     Layout = "_UserLayout";
+    ViewData["ShowDashboardNav"] = true;
 }
 
 <div class="container-fluid">
@@ -10,7 +11,7 @@
         <div class="col-12">
             <div class="alert alert-info" role="alert">
                 <div class="d-flex align-items-center">
-                    <i class="fas fa-question-circle me-3 fs-4"></i>
+                    <i class="fa-solid fa-circle-question me-3 fs-4"></i>
                     <div>
                         <strong>Help & Support</strong>
                         <p class="mb-0">Get help with using the Barangay Health Center system and common health questions.</p>
@@ -29,19 +30,13 @@
                 <div class="card-body">
                     <div class="list-group">
                         <a href="#bookingHelp" class="list-group-item list-group-item-action">
-                            <i class="fas fa-calendar-plus me-2 text-primary"></i> How to book an appointment
+                            <i class="fa-solid fa-calendar-plus me-2 text-primary"></i> How to book an appointment
                         </a>
                         <a href="#medicationHelp" class="list-group-item list-group-item-action">
-                            <i class="fas fa-pills me-2 text-primary"></i> Managing medications
+                            <i class="fa-solid fa-pills me-2 text-primary"></i> Managing medications
                         </a>
                         <a href="#recordsHelp" class="list-group-item list-group-item-action">
-                            <i class="fas fa-file-medical me-2 text-primary"></i> Accessing medical records
-                        </a>
-                        <a href="#accountHelp" class="list-group-item list-group-item-action">
-                            <i class="fas fa-user-cog me-2 text-primary"></i> Managing your account
-                        </a>
-                        <a href="#emergencyHelp" class="list-group-item list-group-item-action">
-                            <i class="fas fa-ambulance me-2 text-danger"></i> Emergency services
+                            <i class="fa-solid fa-file-medical me-2 text-primary"></i> Accessing medical records
                         </a>
                     </div>
                 </div>
@@ -125,47 +120,6 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Contact Support</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h6><i class="fas fa-phone-alt me-2 text-primary"></i> Phone Support</h6>
-                            <p>For immediate assistance, call our helpline:</p>
-                            <p class="lead">(02) 8123-4567</p>
-                            <p class="text-muted">Available Monday to Friday, 8:00 AM - 5:00 PM</p>
-
-                            <h6 class="mt-4"><i class="fas fa-envelope me-2 text-primary"></i> Email Support</h6>
-                            <p>Send your inquiries to:</p>
-                            <p class="lead">support@barangayhealthcenter.gov.ph</p>
-                            <p class="text-muted">We typically respond within 24-48 hours</p>
-                        </div>
-
-                        <div class="col-md-6">
-                            <h6><i class="fas fa-paper-plane me-2 text-primary"></i> Send a Message</h6>
-                            <form>
-                                <div class="mb-3">
-                                    <label for="supportSubject" class="form-label">Subject</label>
-                                    <input type="text" class="form-control" id="supportSubject" placeholder="What is your question about?">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="supportMessage" class="form-label">Message</label>
-                                    <textarea class="form-control" id="supportMessage" rows="4" placeholder="Describe your issue or question"></textarea>
-                                </div>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-paper-plane me-2"></i> Send Message
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 
 @section Scripts {

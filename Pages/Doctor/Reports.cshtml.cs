@@ -13,254 +13,188 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Barangay.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using Barangay.Services;
+using System.Globalization;
 
 namespace Barangay.Pages.Doctor
 {
+    [Authorize(Roles = "Doctor,Head Doctor")]
+    [Authorize(Policy = "DoctorReports")]
     public class ReportsModel : PageModel
     {
         private readonly IConfiguration _configuration;
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IPermissionService _permissionService;
+        private readonly IDataEncryptionService _encryptionService;
         
-        public StatisticsInfo Statistics { get; set; } = new StatisticsInfo();
-        public List<DetailedStatInfo> DetailedStats { get; set; } = new List<DetailedStatInfo>();
-        public List<StaffStatistics> StaffStats { get; set; } = new List<StaffStatistics>();
-        public Dictionary<string, int> PatientDemographics { get; set; } = new Dictionary<string, int>();
-        public List<TopCondition> TopConditions { get; set; } = new List<TopCondition>();
+        // Simplified view model properties
+        public List<string> MonthOptions { get; set; } = new List<string>();
+        public string SelectedMonthLabel { get; set; } = string.Empty;
+        public List<TopConditionRow> TopConditionStats { get; set; } = new List<TopConditionRow>();
+        public List<string> TrendLabels { get; set; } = new List<string>();
+        public List<int> TrendValues { get; set; } = new List<int>();
         
-        [BindProperty(SupportsGet = true)]
-        public string ReportType { get; set; } = "all";
+        // Selected month label (e.g., "August 2025") bound from query `month`
+        [BindProperty(SupportsGet = true, Name = "month")]
+        public string? SelectedMonthQuery { get; set; }
         
-        [BindProperty(SupportsGet = true)]
-        public DateTime? StartDate { get; set; }
-        
-        [BindProperty(SupportsGet = true)]
-        public DateTime? EndDate { get; set; }
+        public bool CanAccessReports { get; set; }
 
         public ReportsModel(
             IConfiguration configuration, 
             ApplicationDbContext context,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IPermissionService permissionService,
+            IDataEncryptionService encryptionService)
         {
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            _permissionService = permissionService ?? throw new ArgumentNullException(nameof(permissionService));
+            _encryptionService = encryptionService ?? throw new ArgumentNullException(nameof(encryptionService));
         }
 
-        public async Task OnGetAsync()
+        public async Task<IActionResult> OnGetAsync()
         {
-            // Set default dates if not provided
-            StartDate ??= DateTime.Now.AddDays(-30);
-            EndDate ??= DateTime.Now;
+            // Policy already enforces access; keep flag for view condition
+            CanAccessReports = await _permissionService.UserHasPermissionAsync(User, "Reports") ||
+                               User.IsInRole("Admin") ||
+                               User.IsInRole("Doctor") || User.IsInRole("Head Doctor");
+            if (!CanAccessReports)
+                return Forbid();
 
-            await LoadOverallStatisticsAsync();
-            await LoadDetailedStatisticsAsync();
-            await LoadStaffStatisticsAsync();
-            await LoadPatientDemographicsAsync();
-            await LoadTopConditionsAsync();
+            // Build month options (last 12 months including current)
+            var now = DateTime.Now;
+            var culture = CultureInfo.GetCultureInfo("en-US");
+            MonthOptions = Enumerable.Range(0, 12)
+                .Select(i => now.AddMonths(-i).ToString("MMMM yyyy", culture))
+                .ToList();
+
+            // Parse selected month
+            var fallbackLabel = MonthOptions.FirstOrDefault() ?? now.ToString("MMMM yyyy", culture);
+            var label = string.IsNullOrWhiteSpace(SelectedMonthQuery) ? fallbackLabel : SelectedMonthQuery!;
+            if (!DateTime.TryParseExact(label, "MMMM yyyy", culture, DateTimeStyles.None, out var selectedMonth))
+            {
+                selectedMonth = new DateTime(now.Year, now.Month, 1);
+                label = selectedMonth.ToString("MMMM yyyy", culture);
+            }
+            SelectedMonthLabel = label;
+
+            // Calculate month ranges
+            var monthStart = new DateTime(selectedMonth.Year, selectedMonth.Month, 1);
+            var nextMonth = monthStart.AddMonths(1);
+            var lastMonthStart = monthStart.AddMonths(-1);
+            var lastMonthEnd = monthStart;
+
+            // Query: get medical records for selected month and decrypt diagnosis data
+            var monthRecords = await _context.MedicalRecords
+                .Where(m => m.Date >= monthStart && m.Date < nextMonth && !string.IsNullOrEmpty(m.Diagnosis))
+                .ToListAsync();
+
+            var lastMonthRecords = await _context.MedicalRecords
+                .Where(m => m.Date >= lastMonthStart && m.Date < lastMonthEnd && !string.IsNullOrEmpty(m.Diagnosis))
+                .ToListAsync();
+
+            // Decrypt diagnosis data for current month
+            foreach (var record in monthRecords)
+            {
+                record.DecryptSensitiveData(_encryptionService, User);
+            }
+
+            // Decrypt diagnosis data for last month
+            foreach (var record in lastMonthRecords)
+            {
+                record.DecryptSensitiveData(_encryptionService, User);
+            }
+
+            // Group by decrypted diagnosis
+            var monthGroups = monthRecords
+                .GroupBy(m => m.Diagnosis)
+                .Select(g => new { Condition = g.Key, Count = g.Count() })
+                .OrderByDescending(x => x.Count)
+                .Take(10)
+                .ToList();
+
+            var lastMonthGroups = lastMonthRecords
+                .GroupBy(m => m.Diagnosis)
+                .Select(g => new { Condition = g.Key, Count = g.Count() })
+                .ToList();
+
+            var lastMonthDict = lastMonthGroups.ToDictionary(x => x.Condition, x => x.Count);
+            var totalThisMonth = monthGroups.Sum(x => x.Count);
+            TopConditionStats = monthGroups.Select(x =>
+            {
+                lastMonthDict.TryGetValue(x.Condition, out var lastCount);
+                var trend = x.Count == lastCount ? "flat" : (x.Count > lastCount ? "up" : "down");
+                var percent = totalThisMonth > 0 ? (double)x.Count / totalThisMonth * 100.0 : 0.0;
+                return new TopConditionRow
+                {
+                    Condition = x.Condition,
+                    CasesThisMonth = x.Count,
+                    PercentOfTotal = percent,
+                    LastMonthCases = lastCount,
+                    TrendDirection = trend
+                };
+            }).ToList();
+
+            // Trend over past 6 months (including selected)
+            TrendLabels.Clear();
+            TrendValues.Clear();
+            for (int i = 5; i >= 0; i--)
+            {
+                var month = monthStart.AddMonths(-i);
+                var monthEnd = month.AddMonths(1);
+                var labelItem = month.ToString("MMM yyyy", culture);
+                
+                // Get records for this month and decrypt to count properly
+                var monthTrendRecords = await _context.MedicalRecords
+                    .Where(m => m.Date >= month && m.Date < monthEnd && !string.IsNullOrEmpty(m.Diagnosis))
+                    .ToListAsync();
+                
+                // Decrypt diagnosis data
+                foreach (var record in monthTrendRecords)
+                {
+                    record.DecryptSensitiveData(_encryptionService, User);
+                }
+                
+                var total = monthTrendRecords.Count;
+                TrendLabels.Add(labelItem);
+                TrendValues.Add(total);
+            }
+
+            return Page();
         }
 
         private async Task LoadOverallStatisticsAsync()
         {
-            try
-            {
-                Statistics.TotalConsultations = await _context.MedicalRecords
-                    .Where(m => m.Date >= StartDate && m.Date <= EndDate)
-                    .CountAsync();
-
-                Statistics.TotalPrescriptions = await _context.Prescriptions
-                    .Where(p => p.CreatedAt >= StartDate && p.CreatedAt <= EndDate)
-                    .CountAsync();
-
-                Statistics.NewPatients = await _context.Patients
-                    .Where(p => p.CreatedAt >= StartDate && p.CreatedAt <= EndDate)
-                    .CountAsync();
-
-                Statistics.TotalAppointments = await _context.Appointments
-                    .Where(a => DateTimeHelper.IsDateGreaterThanOrEqual(a.AppointmentDate, StartDate ?? DateTime.MinValue) && 
-                               DateTimeHelper.IsDateLessThanOrEqual(a.AppointmentDate, EndDate ?? DateTime.MaxValue))
-                    .CountAsync();
-
-                // Get Duration values first, then process them in memory
-                var durationRecords = await _context.MedicalRecords
-                    .Where(m => m.Date >= StartDate && m.Date <= EndDate)
-                    .Select(m => new { m.Duration, m.Date })
-                    .ToListAsync();
-
-                // Process the Duration values in memory
-                var validDurations = durationRecords
-                    .Where(r => int.TryParse(r.Duration?.ToString(), out int duration) && duration > 0)
-                    .Select(r => r.Duration)
-                    .ToList();
-
-                var avgDuration = validDurations.Any()
-                    ? validDurations.Average(d => Convert.ToDouble(d))
-                    : 0;
-                Statistics.AverageConsultationTime = (int)Math.Round(avgDuration);
-
-                Statistics.TotalDoctors = (await _userManager.GetUsersInRoleAsync("Doctor")).Count;
-                Statistics.TotalNurses = (await _userManager.GetUsersInRoleAsync("Nurse")).Count;
-
-                var feedbacks = await _context.Feedbacks
-                    .Where(f => f.CreatedAt >= StartDate && f.CreatedAt <= EndDate)
-                    .ToListAsync();
-                Statistics.SatisfactionRate = feedbacks.Any()
-                    ? (int)Math.Round(feedbacks.Average(f => f.Rating) * 20) // Convert 1-5 scale to percentage
-                    : 0;
-            }
-            catch (Exception ex)
-            {
-                // Log the error but continue with other data loading
-                Console.WriteLine($"Error loading overall statistics: {ex.Message}");
-            }
+            // Legacy method no longer used in simplified report
+            await Task.CompletedTask;
         }
 
         private async Task LoadDetailedStatisticsAsync()
         {
-            try
-            {
-                var dates = Enumerable.Range(0, 7)
-                    .Select(i => DateTime.Now.AddDays(-i).Date)
-                    .ToList();
-
-                foreach (var date in dates)
-                {
-                    var stat = new DetailedStatInfo { Date = date };
-
-                    stat.Consultations = await _context.MedicalRecords
-                        .CountAsync(m => m.Date.Date == date);
-
-                    stat.NewPatients = await _context.Patients
-                        .CountAsync(p => p.CreatedAt.Date == date);
-
-                    stat.Prescriptions = await _context.Prescriptions
-                        .CountAsync(p => p.CreatedAt.Date == date);
-
-                    stat.Appointments = await _context.Appointments
-                        .CountAsync(a => DateTimeHelper.ParseDate(a.AppointmentDate.ToString()).Date == date.Date);
-
-                    // Get Duration values first, then process them in memory
-                    var dateDurationRecords = await _context.MedicalRecords
-                        .Where(m => m.Date.Date == date)
-                        .Select(m => new { m.Duration, m.Date })
-                        .ToListAsync();
-
-                    // Process the Duration values in memory
-                    var dateValidDurations = dateDurationRecords
-                        .Where(r => int.TryParse(r.Duration?.ToString(), out int duration) && duration > 0)
-                        .Select(r => r.Duration)
-                        .ToList();
-
-                    var avgDuration = dateValidDurations.Any()
-                        ? dateValidDurations.Average(d => Convert.ToDouble(d))
-                        : 0;
-                    stat.AverageDuration = (int)Math.Round(avgDuration);
-
-                    var feedbacks = await _context.Feedbacks
-                        .Where(f => f.CreatedAt.Date == date)
-                        .ToListAsync();
-                    stat.SatisfactionRate = feedbacks.Any()
-                        ? (int)Math.Round(feedbacks.Average(f => f.Rating) * 20)
-                        : 0;
-
-                    DetailedStats.Add(stat);
-                }
-
-                DetailedStats = DetailedStats.OrderBy(s => s.Date).ToList();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error loading detailed statistics: {ex.Message}");
-            }
+            // Legacy method no longer used in simplified report
+            await Task.CompletedTask;
         }
 
         private async Task LoadStaffStatisticsAsync()
         {
-            try
-            {
-                var doctors = await _userManager.GetUsersInRoleAsync("Doctor");
-                foreach (var doctor in doctors)
-                {
-                    var stat = new StaffStatistics
-                    {
-                        StaffId = doctor.Id,
-                        Name = doctor.FullName ?? doctor.UserName ?? "Unknown",
-                        Role = "Doctor"
-                    };
-
-                    stat.Consultations = await _context.MedicalRecords
-                        .CountAsync(m => m.DoctorId == doctor.Id && m.Date >= StartDate && m.Date <= EndDate);
-
-                    stat.Prescriptions = await _context.Prescriptions
-                        .CountAsync(p => p.DoctorId == doctor.Id && p.CreatedAt >= StartDate && p.CreatedAt <= EndDate);
-
-                    stat.Appointments = await _context.Appointments
-                        .CountAsync(a => a.DoctorId == doctor.Id && 
-                                   DateTimeHelper.IsDateGreaterThanOrEqual(a.AppointmentDate, StartDate ?? DateTime.MinValue) && 
-                                   DateTimeHelper.IsDateLessThanOrEqual(a.AppointmentDate, EndDate ?? DateTime.MaxValue));
-
-                    StaffStats.Add(stat);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error loading staff statistics: {ex.Message}");
-            }
+            // Legacy method no longer used in simplified report
+            await Task.CompletedTask;
         }
 
         private async Task LoadPatientDemographicsAsync()
         {
-            try
-            {
-                var demographics = await _context.Patients
-                    .Where(p => p.Gender != null)
-                    .GroupBy(p => p.Gender)
-                    .Select(g => new { gender = g.Key, count = g.Count() })
-                    .ToDictionaryAsync(g => g.gender ?? "Other", g => g.count);
-
-                // Ensure all gender categories exist
-                foreach (var gender in new[] { "Male", "Female", "Other" })
-                {
-                    if (!demographics.ContainsKey(gender))
-                    {
-                        demographics[gender] = 0;
-                    }
-                }
-
-                PatientDemographics = demographics;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error loading patient demographics: {ex.Message}");
-                PatientDemographics = new Dictionary<string, int>
-                {
-                    { "Male", 0 },
-                    { "Female", 0 },
-                    { "Other", 0 }
-                };
-            }
+            // Legacy method no longer used in simplified report
+            await Task.CompletedTask;
         }
 
         private async Task LoadTopConditionsAsync()
         {
-            try
-            {
-                TopConditions = await _context.MedicalRecords
-                    .Where(m => m.Date >= StartDate && m.Date <= EndDate && !string.IsNullOrEmpty(m.Diagnosis))
-                    .GroupBy(m => m.Diagnosis)
-                    .Select(g => new TopCondition
-                    {
-                        Condition = g.Key,
-                        Count = g.Count()
-                    })
-                    .OrderByDescending(c => c.Count)
-                    .Take(10)
-                    .ToListAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error loading top conditions: {ex.Message}");
-            }
+            // Legacy method no longer used in simplified report
+            await Task.CompletedTask;
         }
 
         public class StatisticsInfo
@@ -273,6 +207,16 @@ namespace Barangay.Pages.Doctor
             public int TotalNurses { get; set; }
             public int AverageConsultationTime { get; set; }
             public int SatisfactionRate { get; set; }
+        }
+
+        // Simplified table row for the redesigned report
+        public class TopConditionRow
+        {
+            public string Condition { get; set; } = string.Empty;
+            public int CasesThisMonth { get; set; }
+            public double PercentOfTotal { get; set; }
+            public int LastMonthCases { get; set; }
+            public string TrendDirection { get; set; } = "flat"; // up | down | flat
         }
 
         public class DetailedStatInfo

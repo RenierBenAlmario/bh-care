@@ -122,7 +122,7 @@ body {
 
 /* Minimal Sidebar */
 .minimal-sidebar {
-    position: fixed;
+    position: relative;
     left: 0;
     top: 0;
     height: 100vh;
@@ -2085,245 +2085,11 @@ input:focus, select:focus, textarea:focus, button:focus, a:focus {
     }
 }
 
-/* Global Dark Mode Toggle Button */
-.global-theme-toggle {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background-color: var(--white, #ffffff);
-    color: #333;
-    border: none;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    cursor: pointer;
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-}
-
-.global-theme-toggle:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.global-theme-toggle i {
-    font-size: 1.4rem;
-    transition: transform 0.3s ease, color 0.3s ease;
-}
-
-.dark-mode .global-theme-toggle {
-    background-color: #333;
-    color: #ffbb33;
-}
-
-.dark-mode .global-theme-toggle i {
-    transform: rotate(45deg);
-}
-
-.dark-mode .global-theme-toggle:hover {
-    color: #ffcc44;
-}
-
-/* Dark Mode Styles for All Pages */
-.dark-mode {
-    --bg-main: #121212;
-    --bg-surface: #1e1e1e;
-    --bg-elevated: #2c2c2c;
-    --bg-input: #2a2a2a;
-    --bg-hover: rgba(255, 255, 255, 0.08);
-    --bg-active: rgba(255, 255, 255, 0.15);
-    
-    --border-light: #333333;
-    --border-medium: #444444;
-    
-    --text-primary: #f5f5f5;
-    --text-secondary: #b3b3b3;
-    --text-muted: #9e9e9e;
-    --text-disabled: #6c6c6c;
-    
-    /* Shadows for dark mode */
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
-    --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.5), 0 1px 2px 0 rgba(0, 0, 0, 0.4);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
-}
-
-/* Global dark mode styles for all pages */
-.dark-mode body {
-    background-color: var(--bg-main);
-    color: var(--text-primary);
-}
-
-.dark-mode .bg-light,
-.dark-mode .bg-white {
-    background-color: var(--bg-surface) !important;
-}
-
-.dark-mode .bg-dark {
-    background-color: #000 !important;
-}
-
-.dark-mode .card {
-    background-color: var(--bg-surface);
-    border-color: var(--border-light);
-}
-
-.dark-mode .border,
-.dark-mode .border-top,
-.dark-mode .border-right,
-.dark-mode .border-bottom,
-.dark-mode .border-left {
-    border-color: var(--border-light) !important;
-}
-
-.dark-mode .text-dark {
-    color: var(--text-primary) !important;
-}
-
-.dark-mode .text-muted {
-    color: var(--text-muted) !important;
-}
-
-.dark-mode a:not(.btn) {
-    color: #64B5F6;
-}
-
-.dark-mode a:hover:not(.btn) {
-    color: #90CAF9;
-}
-
-.dark-mode .form-control,
-.dark-mode .custom-select,
-.dark-mode .input-group-text {
-    background-color: var(--bg-input);
-    border-color: var(--border-medium);
-    color: var(--text-primary);
-}
-
-.dark-mode .form-control:focus,
-.dark-mode .custom-select:focus {
-    background-color: var(--bg-input);
-    border-color: #4d90fe;
-    color: var(--text-primary);
-}
-
-.dark-mode .modal-content {
-    background-color: var(--bg-surface);
-    border-color: var(--border-medium);
-}
-
-.dark-mode .modal-header,
-.dark-mode .modal-footer {
-    border-color: var(--border-medium);
-}
-
-.dark-mode .table {
-    color: var(--text-primary);
-}
-
-.dark-mode .table td,
-.dark-mode .table th {
-    border-color: var(--border-light);
-}
-
-.dark-mode .table-striped tbody tr:nth-of-type(odd) {
-    background-color: rgba(255, 255, 255, 0.03);
-}
-
-.dark-mode .table-hover tbody tr:hover {
-    background-color: rgba(255, 255, 255, 0.08);
-}
-
-.dark-mode .navbar-light {
-    background-color: var(--bg-surface) !important;
-}
-
-.dark-mode .navbar-light .navbar-brand,
-.dark-mode .navbar-light .navbar-nav .nav-link {
-    color: var(--text-primary);
-}
-
-.dark-mode .dropdown-menu {
-    background-color: var(--bg-elevated);
-    border-color: var(--border-medium);
-}
-
-.dark-mode .dropdown-item {
-    color: var(--text-primary);
-}
-
-.dark-mode .dropdown-item:hover,
-.dark-mode .dropdown-item:focus {
-    background-color: var(--bg-hover);
-    color: var(--text-primary);
-}
-
-.dark-mode .alert-light {
-    background-color: var(--bg-elevated);
-    color: var(--text-primary);
-    border-color: var(--border-medium);
-}
-
-.dark-mode .list-group-item {
-    background-color: var(--bg-surface);
-    border-color: var(--border-light);
-    color: var(--text-primary);
-}
-
-.dark-mode .breadcrumb {
-    background-color: var(--bg-elevated);
-}
-
-.dark-mode .pagination .page-link {
-    background-color: var(--bg-surface);
-    border-color: var(--border-medium);
-    color: var(--text-primary);
-}
-
-.dark-mode .pagination .page-item.active .page-link {
-    background-color: #1976D2;
-    border-color: #1976D2;
-    color: #fff;
-}
-
-.dark-mode .page-link:hover {
-    background-color: var(--bg-hover);
-    border-color: var(--border-medium);
-}
-
-.dark-mode input::placeholder,
-.dark-mode textarea::placeholder {
-    color: var(--text-muted);
-    opacity: 1;
-}
-
-.dark-mode .btn-light {
-    background-color: var(--bg-surface);
-    border-color: var(--border-light);
-    color: var(--text-primary);
-}
-
-.dark-mode .btn-light:hover {
-    background-color: var(--bg-elevated);
-    border-color: var(--border-medium);
-    color: var(--text-primary);
-}
-
-.dark-mode footer.footer.bg-dark {
-    background-color: #000 !important;
-}
-
-/* Smooth transition for all elements when switching themes */
-body, .card, .modal-content, .navbar, .dropdown-menu, .form-control, 
-.btn, .table, .list-group-item, .pagination, .breadcrumb, 
-input, select, textarea, a, footer, header, .alert, 
-.border, .border-top, .border-bottom, .border-left, .border-right {
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-}
+/* Global Dark Mode Toggle Button - disabled */
+.global-theme-toggle { display: none !important; }
+.global-theme-toggle:hover { box-shadow: none; transform: none; }
+.global-theme-toggle i { display: none; }
+/* Dark mode styles removed */
 
 /* Global styles */
 html {
@@ -2363,7 +2129,7 @@ body {
 .sidebar {
     height: 100vh;
     width: 250px;
-    position: fixed;
+    position: relative;
     top: 0;
     left: 0;
     z-index: 1000;
@@ -2373,7 +2139,7 @@ body {
 }
 
 .sidebar-sticky {
-    position: sticky;
+    position: relative;
     top: 0;
     height: calc(100vh - 48px);
     padding-top: .5rem;

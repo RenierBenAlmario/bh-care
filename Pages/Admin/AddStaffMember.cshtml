@@ -8,12 +8,12 @@
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0">
-            <i class="fas fa-user-plus text-primary me-2"></i>
+            <i class="fa-solid fa-user-plus text-primary me-2"></i>
             Add Staff Member
         </h1>
         <div>
             <a asp-page="./AdminDashboard" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back to Staff List
+                <i class="fa-solid fa-arrow-left"></i> Back to Staff List
             </a>
         </div>
     </div>
@@ -21,7 +21,7 @@
     @if (!string.IsNullOrEmpty(Model.ErrorMessage))
     {
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-circle me-2"></i> @Model.ErrorMessage
+            <i class="fa-solid fa-circle-exclamation me-2"></i> @Model.ErrorMessage
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
@@ -36,15 +36,17 @@
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-primary text-white">
                         <h5 class="mb-0">
-                            <i class="fas fa-user me-2"></i>Personal Information
+                            <i class="fa-solid fa-user me-2"></i>Personal Information
                         </h5>
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-3">
                             <label asp-for="StaffMember.Name" class="form-label">Full Name <span class="text-danger">*</span></label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                <input asp-for="StaffMember.Name" class="form-control" placeholder="Enter full name" required />
+                                <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+                                <input asp-for="StaffMember.Name" class="form-control" placeholder="Enter full name" required
+                                       pattern="^[A-Za-zÀ-ÖØ-öø-ÿ'\-\s]+$"
+                                       title="Only letters, spaces, hyphen (-), and apostrophe ('). No numbers or symbols. No 3+ repeated letters." />
                             </div>
                             <span asp-validation-for="StaffMember.Name" class="text-danger"></span>
                         </div>
@@ -52,7 +54,7 @@
                         <div class="form-group mb-3">
                             <label asp-for="StaffMember.Email" class="form-label">Email Address <span class="text-danger">*</span></label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
                                 <input asp-for="StaffMember.Email" class="form-control" type="email" placeholder="Enter email address" required />
                             </div>
                             <span asp-validation-for="StaffMember.Email" class="text-danger"></span>
@@ -61,8 +63,11 @@
                         <div class="form-group mb-3">
                             <label asp-for="StaffMember.ContactNumber" class="form-label">Contact Number <span class="text-danger">*</span></label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                                <input asp-for="StaffMember.ContactNumber" class="form-control" placeholder="Enter contact number" required />
+                                <span class="input-group-text"><i class="fa-solid fa-phone"></i></span>
+                                <input asp-for="StaffMember.ContactNumber" class="form-control" placeholder="e.g. +639123456789" required
+                                       type="tel" inputmode="numeric" maxlength="13"
+                                       pattern="^\+639\d{9}$"
+                                       title="Use Philippine format: +639 followed by 9 digits (total 13 characters)." />
                             </div>
                             <span asp-validation-for="StaffMember.ContactNumber" class="text-danger"></span>
                         </div>
@@ -73,14 +78,14 @@
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-primary text-white">
                         <h5 class="mb-0">
-                            <i class="fas fa-id-badge me-2"></i>Role Details
+                            <i class="fa-solid fa-id-badge me-2"></i>Role Details
                         </h5>
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-3">
                             <label asp-for="StaffMember.Role" class="form-label">Role <span class="text-danger">*</span></label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-user-tag"></i></span>
+                                <span class="input-group-text"><i class="fa-solid fa-user-tag"></i></span>
                                 <select asp-for="StaffMember.Role" class="form-select" required>
                                     <option value="">-- Select Role --</option>
                                     <option value="Doctor">Doctor</option>
@@ -91,28 +96,12 @@
                             <span asp-validation-for="StaffMember.Role" class="text-danger"></span>
                         </div>
 
-                        <div class="form-group mb-3">
-                            <label asp-for="StaffMember.Department" class="form-label">Department <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-hospital"></i></span>
-                                <select asp-for="StaffMember.Department" class="form-select" required>
-                                    <option value="">-- Select Department --</option>
-                                    <option value="General Medicine">General Medicine</option>
-                                    <option value="Pediatrics">Pediatrics</option>
-                                    <option value="Obstetrics">Obstetrics</option>
-                                    <option value="Surgery">Surgery</option>
-                                    <option value="Dental">Dental</option>
-                                    <option value="Emergency">Emergency</option>
-                                    <option value="Administration">Administration</option>
-                                </select>
-                            </div>
-                            <span asp-validation-for="StaffMember.Department" class="text-danger"></span>
-                        </div>
+
 
                         <div class="form-group mb-3">
                             <label asp-for="StaffMember.Position" class="form-label">Position <span class="text-danger">*</span></label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-briefcase"></i></span>
+                                <span class="input-group-text"><i class="fa-solid fa-briefcase"></i></span>
                                 <select asp-for="StaffMember.Position" class="form-select" id="positionSelect" required>
                                     <option value="">-- Select Position --</option>
                                     <option value="Admin Staff">Admin Staff</option>
@@ -130,14 +119,13 @@
                         <div class="form-group mb-3">
                             <label asp-for="StaffMember.Specialization" class="form-label">Specialization</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-stethoscope"></i></span>
+                                <span class="input-group-text"><i class="fa-solid fa-stethoscope"></i></span>
                                 <select asp-for="StaffMember.Specialization" class="form-select">
                                     <option value="">-- Select Specialization (Optional) --</option>
                                     <option value="General Practitioner">General Practitioner</option>
                                     <option value="Pediatrician">Pediatrician</option>
                                     <option value="Obstetrician">Obstetrician</option>
                                     <option value="Surgeon">Surgeon</option>
-                                    <option value="Dentist">Dentist</option>
                                     <option value="Emergency Medicine">Emergency Medicine</option>
                                     <option value="None">None</option>
                                 </select>
@@ -148,7 +136,7 @@
                         <div class="form-group mb-3">
                             <label asp-for="StaffMember.LicenseNumber" class="form-label">License Number</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                                <span class="input-group-text"><i class="fa-solid fa-id-card"></i></span>
                                 <input asp-for="StaffMember.LicenseNumber" class="form-control" placeholder="Enter license number (if applicable)" />
                             </div>
                             <span asp-validation-for="StaffMember.LicenseNumber" class="text-danger"></span>
@@ -163,7 +151,7 @@
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-primary text-white">
                         <h5 class="mb-0">
-                            <i class="fas fa-calendar-alt me-2"></i>Work Schedule
+                            <i class="fa-solid fa-calendar-days me-2"></i>Work Schedule
                         </h5>
                     </div>
                     <div class="card-body">
@@ -176,7 +164,7 @@
                                     <label class="btn btn-outline-primary m-1" for="day_@day">@day</label>
                                 }
                             </div>
-                            <input type="hidden" asp-for="StaffMember.WorkingDays" id="workingDaysInput" />
+                            <input type="hidden" asp-for="StaffMember.WorkingDays" id="workingDaysInput" required />
                             <div class="invalid-feedback">Please select at least one working day.</div>
                             <span asp-validation-for="StaffMember.WorkingDays" class="text-danger"></span>
                         </div>
@@ -186,18 +174,11 @@
                             <div class="row">
                                 <div class="col-md-5">
                                     <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-clock"></i></span>
-                                        <select id="startTime" class="form-select" required>
+                                        <span class="input-group-text"><i class="fa-solid fa-clock"></i></span>
+                                        <select id="startTime" class="form-select">
                                             @foreach (var time in Model.TimeSlots)
                                             {
-                                                if (time == "8:00 AM")
-                                                {
-                                                    <option value="@time" selected>@time</option>
-                                                }
-                                                else
-                                                {
-                                                    <option value="@time">@time</option>
-                                                }
+                                                <option value="@time">@time</option>
                                             }
                                         </select>
                                     </div>
@@ -207,26 +188,19 @@
                                 </div>
                                 <div class="col-md-5">
                                     <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-clock"></i></span>
-                                        <select id="endTime" class="form-select" required>
+                                        <span class="input-group-text"><i class="fa-solid fa-clock"></i></span>
+                                        <select id="endTime" class="form-select">
                                             @foreach (var time in Model.TimeSlots)
                                             {
-                                                if (time == "4:00 PM")
-                                                {
-                                                    <option value="@time" selected>@time</option>
-                                                }
-                                                else
-                                                {
-                                                    <option value="@time">@time</option>
-                                                }
+                                                <option value="@time">@time</option>
                                             }
                                         </select>
                                     </div>
                                 </div>
                             </div>
-                            <input type="hidden" asp-for="StaffMember.WorkingHours" id="workingHoursInput" value="8:00 AM-4:00 PM" />
+                            <input type="hidden" asp-for="StaffMember.WorkingHours" id="workingHoursInput" required />
+                            <div class="invalid-feedback">Please select both start and end working hours.</div>
                             <span asp-validation-for="StaffMember.WorkingHours" class="text-danger"></span>
-                            <small class="form-text text-muted mt-2">Standard working hours are 8:00 AM to 4:00 PM</small>
                         </div>
                     </div>
                 </div>
@@ -235,20 +209,20 @@
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-primary text-white">
                         <h5 class="mb-0">
-                            <i class="fas fa-user-lock me-2"></i>Account Details
+                            <i class="fa-solid fa-user-lock me-2"></i>Account Details
                         </h5>
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-3">
                             <label asp-for="Password" class="form-label">Password <span class="text-danger">*</span></label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
                                 <input asp-for="Password" type="password" class="form-control" id="password" required />
                                 <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-                                    <i class="fas fa-eye"></i>
+                                    <i class="fa-solid fa-eye"></i>
                                 </button>
                             </div>
-                            <small class="form-text text-muted">Password must be at least 8 characters long with letters and numbers.</small>
+                            <small class="form-text text-muted">Password must be at least 6 characters long.</small>
                             <span asp-validation-for="Password" class="text-danger"></span>
                         </div>
 
@@ -263,107 +237,502 @@
                 </div>
 
                 <!-- Permissions Section -->
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-primary text-white">
+                <div class="card shadow-sm mb-4" id="permissionsSection" style="display: none;">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">
-                            <i class="fas fa-key me-2"></i>Permissions
+                            <i class="fa-solid fa-key me-2"></i>Permissions
                         </h5>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-light btn-sm" id="selectAllPermissions">
+                                <i class="fa-solid fa-square-check me-1"></i> Select All
+                            </button>
+                            <button type="button" class="btn btn-light btn-sm" id="deselectAllPermissions">
+                                <i class="fa-solid fa-square me-1"></i> Deselect All
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body">
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
+                        <div class="alert alert-info mb-3">
+                            <i class="fa-solid fa-circle-info me-2"></i>
                             Select permissions for this staff member. These permissions determine what features they can access.
                         </div>
 
-                        <div class="mb-3">
-                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectAllPermissions()">
-                                <i class="fas fa-check-square me-1"></i> Select All
-                            </button>
-                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="deselectAllPermissions()">
-                                <i class="fas fa-square me-1"></i> Deselect All
-                            </button>
+                        <div class="permissions-list">
+                            <!-- Nurse (Simplified Group) -->
+                            @if(Model.CategorizedPermissions.ContainsKey("Nurse") && Model.CategorizedPermissions["Nurse"].Count > 0)
+                            {
+                                var categoryId = "Nurse";
+                                <div class="permission-category mb-3">
+                                    <div class="d-flex align-items-center justify-content-between bg-light p-2 rounded mb-2">
+                                        <div class="d-flex align-items-center">
+                                            <button class="btn btn-link text-dark text-decoration-none p-0 me-2 category-toggle" 
+                                                    type="button" 
+                                                    data-bs-toggle="collapse" 
+                                                    data-bs-target="#category_@categoryId">
+                                                <i class="fa-solid fa-chevron-down"></i>
+                                                <span class="ms-2">Nurse</span>
+                                                <span class="badge bg-secondary ms-2 permission-count">0/@Model.CategorizedPermissions["Nurse"].Count</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="collapse show" id="category_@categoryId">
+                                        <div class="ps-4">
+                                            @foreach (var permission in Model.CategorizedPermissions["Nurse"]) 
+                                            {
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" 
+                                                           class="form-check-input permission-checkbox" 
+                                                           id="permission_@permission.Id" 
+                                                           name="SelectedPermissions" 
+                                                           value="@permission.Id"
+                                                           data-category="Nurse" />
+                                                    <label class="form-check-label" for="permission_@permission.Id">
+                                                        <span class="fw-medium">@permission.Name</span>
+                                                        <small class="text-muted d-block">@permission.Description</small>
+                                                    </label>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Doctor (Simplified Group) -->
+                            @if(Model.CategorizedPermissions.ContainsKey("Doctor") && Model.CategorizedPermissions["Doctor"].Count > 0)
+                            {
+                                var categoryId = "Doctor";
+                                <div class="permission-category mb-3">
+                                    <div class="d-flex align-items-center justify-content-between bg-light p-2 rounded mb-2">
+                                        <div class="d-flex align-items-center">
+                                            <button class="btn btn-link text-dark text-decoration-none p-0 me-2 category-toggle" 
+                                                    type="button" 
+                                                    data-bs-toggle="collapse" 
+                                                    data-bs-target="#category_@categoryId">
+                                                <i class="fa-solid fa-chevron-down"></i>
+                                                <span class="ms-2">Doctor</span>
+                                                <span class="badge bg-secondary ms-2 permission-count">0/@Model.CategorizedPermissions["Doctor"].Count</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="collapse show" id="category_@categoryId">
+                                        <div class="ps-4">
+                                            @foreach (var permission in Model.CategorizedPermissions["Doctor"]) 
+                                            {
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" 
+                                                           class="form-check-input permission-checkbox" 
+                                                           id="permission_@permission.Id" 
+                                                           name="SelectedPermissions" 
+                                                           value="@permission.Id"
+                                                           data-category="Doctor" />
+                                                    <label class="form-check-label" for="permission_@permission.Id">
+                                                        <span class="fw-medium">@permission.Name</span>
+                                                        <small class="text-muted d-block">@permission.Description</small>
+                                                    </label>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            <!-- Appointments -->
+                            @if(Model.CategorizedPermissions.ContainsKey("Appointments") && Model.CategorizedPermissions["Appointments"].Count > 0)
+                            {
+                                <div class="permission-category mb-3">
+                                    <div class="d-flex align-items-center justify-content-between bg-light p-2 rounded mb-2">
+                                        <div class="d-flex align-items-center">
+                                            <button class="btn btn-link text-dark text-decoration-none p-0 me-2 category-toggle" 
+                                                    type="button" 
+                                                    data-bs-toggle="collapse" 
+                                                    data-bs-target="#category_Appointments">
+                                                <i class="fa-solid fa-chevron-down"></i>
+                                                <span class="ms-2">Appointments</span>
+                                                <span class="badge bg-secondary ms-2 permission-count">0/@Model.CategorizedPermissions["Appointments"].Count</span>
+                                            </button>
+                                        </div>
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-outline-primary select-category" data-category="Appointments">
+                                                <i class="fa-solid fa-square-check"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary deselect-category" data-category="Appointments">
+                                                <i class="fa-solid fa-square"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="collapse show" id="category_Appointments">
+                                        <div class="ps-4">
+                                            @foreach (var permission in Model.CategorizedPermissions["Appointments"])
+                                            {
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" 
+                                                           class="form-check-input permission-checkbox" 
+                                                           id="permission_@permission.Id" 
+                                                           name="SelectedPermissions" 
+                                                           value="@permission.Id"
+                                                           data-category="Appointments" />
+                                                    <label class="form-check-label" for="permission_@permission.Id">
+                                                        <span class="fw-medium">@permission.Name</span>
+                                                        <small class="text-muted d-block">@permission.Description</small>
+                                                    </label>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            
+                            <!-- Dashboard Access -->
+                            @if(Model.CategorizedPermissions.ContainsKey("Dashboard Access") && Model.CategorizedPermissions["Dashboard Access"].Count > 0)
+                            {
+                                <div class="permission-category mb-3">
+                                    <div class="d-flex align-items-center justify-content-between bg-light p-2 rounded mb-2">
+                                        <div class="d-flex align-items-center">
+                                            <button class="btn btn-link text-dark text-decoration-none p-0 me-2 category-toggle" 
+                                                    type="button" 
+                                                    data-bs-toggle="collapse" 
+                                                    data-bs-target="#category_DashboardAccess">
+                                                <i class="fa-solid fa-chevron-down"></i>
+                                                <span class="ms-2">Dashboard Access</span>
+                                                <span class="badge bg-secondary ms-2 permission-count">0/@Model.CategorizedPermissions["Dashboard Access"].Count</span>
+                                            </button>
+                                        </div>
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-outline-primary select-category" data-category="Dashboard Access">
+                                                <i class="fa-solid fa-square-check"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary deselect-category" data-category="Dashboard Access">
+                                                <i class="fa-solid fa-square"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="collapse show" id="category_DashboardAccess">
+                                        <div class="ps-4">
+                                            @foreach (var permission in Model.CategorizedPermissions["Dashboard Access"])
+                                            {
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" 
+                                                           class="form-check-input permission-checkbox" 
+                                                           id="permission_@permission.Id" 
+                                                           name="SelectedPermissions" 
+                                                           value="@permission.Id"
+                                                           data-category="Dashboard Access" />
+                                                    <label class="form-check-label" for="permission_@permission.Id">
+                                                        <span class="fw-medium">@permission.Name</span>
+                                                        <small class="text-muted d-block">@permission.Description</small>
+                                                    </label>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            
+                            <!-- Medical Records -->
+                            @if(Model.CategorizedPermissions.ContainsKey("Medical Records") && Model.CategorizedPermissions["Medical Records"].Count > 0)
+                            {
+                                <div class="permission-category mb-3">
+                                    <div class="d-flex align-items-center justify-content-between bg-light p-2 rounded mb-2">
+                                        <div class="d-flex align-items-center">
+                                            <button class="btn btn-link text-dark text-decoration-none p-0 me-2 category-toggle" 
+                                                    type="button" 
+                                                    data-bs-toggle="collapse" 
+                                                    data-bs-target="#category_MedicalRecords">
+                                                <i class="fa-solid fa-chevron-down"></i>
+                                                <span class="ms-2">Medical Records</span>
+                                                <span class="badge bg-secondary ms-2 permission-count">0/@Model.CategorizedPermissions["Medical Records"].Count</span>
+                                            </button>
+                                        </div>
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-outline-primary select-category" data-category="Medical Records">
+                                                <i class="fa-solid fa-square-check"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary deselect-category" data-category="Medical Records">
+                                                <i class="fa-solid fa-square"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="collapse show" id="category_MedicalRecords">
+                                        <div class="ps-4">
+                                            @foreach (var permission in Model.CategorizedPermissions["Medical Records"])
+                                            {
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" 
+                                                           class="form-check-input permission-checkbox" 
+                                                           id="permission_@permission.Id" 
+                                                           name="SelectedPermissions" 
+                                                           value="@permission.Id"
+                                                           data-category="Medical Records" />
+                                                    <label class="form-check-label" for="permission_@permission.Id">
+                                                        <span class="fw-medium">@permission.Name</span>
+                                                        <small class="text-muted d-block">@permission.Description</small>
+                                                    </label>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Prescriptions -->
+                            @if(Model.CategorizedPermissions.ContainsKey("Prescriptions") && Model.CategorizedPermissions["Prescriptions"].Count > 0)
+                            {
+                                <div class="permission-category mb-3">
+                                    <div class="d-flex align-items-center justify-content-between bg-light p-2 rounded mb-2">
+                                        <div class="d-flex align-items-center">
+                                            <button class="btn btn-link text-dark text-decoration-none p-0 me-2 category-toggle" 
+                                                    type="button" 
+                                                    data-bs-toggle="collapse" 
+                                                    data-bs-target="#category_Prescriptions">
+                                                <i class="fa-solid fa-chevron-down"></i>
+                                                <span class="ms-2">Prescriptions</span>
+                                                <span class="badge bg-secondary ms-2 permission-count">0/@Model.CategorizedPermissions["Prescriptions"].Count</span>
+                                            </button>
+                                        </div>
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-outline-primary select-category" data-category="Prescriptions">
+                                                <i class="fa-solid fa-square-check"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary deselect-category" data-category="Prescriptions">
+                                                <i class="fa-solid fa-square"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="collapse show" id="category_Prescriptions">
+                                        <div class="ps-4">
+                                            @foreach (var permission in Model.CategorizedPermissions["Prescriptions"])
+                                            {
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" 
+                                                           class="form-check-input permission-checkbox" 
+                                                           id="permission_@permission.Id" 
+                                                           name="SelectedPermissions" 
+                                                           value="@permission.Id"
+                                                           data-category="Prescriptions" />
+                                                    <label class="form-check-label" for="permission_@permission.Id">
+                                                        <span class="fw-medium">@permission.Name</span>
+                                                        <small class="text-muted d-block">@permission.Description</small>
+                                                    </label>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Patient Management -->
+                            @if(Model.CategorizedPermissions.ContainsKey("Patient Management") && Model.CategorizedPermissions["Patient Management"].Count > 0)
+                            {
+                                <div class="permission-category mb-3">
+                                    <div class="d-flex align-items-center justify-content-between bg-light p-2 rounded mb-2">
+                                        <div class="d-flex align-items-center">
+                                            <button class="btn btn-link text-dark text-decoration-none p-0 me-2 category-toggle" 
+                                                    type="button" 
+                                                    data-bs-toggle="collapse" 
+                                                    data-bs-target="#category_PatientManagement">
+                                                <i class="fa-solid fa-chevron-down"></i>
+                                                <span class="ms-2">Patient Management</span>
+                                                <span class="badge bg-secondary ms-2 permission-count">0/@Model.CategorizedPermissions["Patient Management"].Count</span>
+                                            </button>
+                                        </div>
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-outline-primary select-category" data-category="Patient Management">
+                                                <i class="fa-solid fa-square-check"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary deselect-category" data-category="Patient Management">
+                                                <i class="fa-solid fa-square"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="collapse show" id="category_PatientManagement">
+                                        <div class="ps-4">
+                                            @foreach (var permission in Model.CategorizedPermissions["Patient Management"])
+                                            {
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" 
+                                                           class="form-check-input permission-checkbox" 
+                                                           id="permission_@permission.Id" 
+                                                           name="SelectedPermissions" 
+                                                           value="@permission.Id"
+                                                           data-category="Patient Management" />
+                                                    <label class="form-check-label" for="permission_@permission.Id">
+                                                        <span class="fw-medium">@permission.Name</span>
+                                                        <small class="text-muted d-block">@permission.Description</small>
+                                                    </label>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- User Management -->
+                            @if(Model.CategorizedPermissions.ContainsKey("User Management") && Model.CategorizedPermissions["User Management"].Count > 0)
+                            {
+                                <div class="permission-category mb-3">
+                                    <div class="d-flex align-items-center justify-content-between bg-light p-2 rounded mb-2">
+                                        <div class="d-flex align-items-center">
+                                            <button class="btn btn-link text-dark text-decoration-none p-0 me-2 category-toggle" 
+                                                    type="button" 
+                                                    data-bs-toggle="collapse" 
+                                                    data-bs-target="#category_UserManagement">
+                                                <i class="fa-solid fa-chevron-down"></i>
+                                                <span class="ms-2">User Management</span>
+                                                <span class="badge bg-secondary ms-2 permission-count">0/@Model.CategorizedPermissions["User Management"].Count</span>
+                                            </button>
+                                        </div>
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-outline-primary select-category" data-category="User Management">
+                                                <i class="fa-solid fa-square-check"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary deselect-category" data-category="User Management">
+                                                <i class="fa-solid fa-square"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="collapse show" id="category_UserManagement">
+                                        <div class="ps-4">
+                                            @foreach (var permission in Model.CategorizedPermissions["User Management"])
+                                            {
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" 
+                                                           class="form-check-input permission-checkbox" 
+                                                           id="permission_@permission.Id" 
+                                                           name="SelectedPermissions" 
+                                                           value="@permission.Id"
+                                                           data-category="User Management" />
+                                                    <label class="form-check-label" for="permission_@permission.Id">
+                                                        <span class="fw-medium">@permission.Name</span>
+                                                        <small class="text-muted d-block">@permission.Description</small>
+                                                    </label>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Vital Signs -->
+                            @if(Model.CategorizedPermissions.ContainsKey("Vital Signs") && Model.CategorizedPermissions["Vital Signs"].Count > 0)
+                            {
+                                <div class="permission-category mb-3">
+                                    <div class="d-flex align-items-center justify-content-between bg-light p-2 rounded mb-2">
+                                        <div class="d-flex align-items-center">
+                                            <button class="btn btn-link text-dark text-decoration-none p-0 me-2 category-toggle" 
+                                                    type="button" 
+                                                    data-bs-toggle="collapse" 
+                                                    data-bs-target="#category_VitalSigns">
+                                                <i class="fa-solid fa-chevron-down"></i>
+                                                <span class="ms-2">Vital Signs</span>
+                                                <span class="badge bg-secondary ms-2 permission-count">0/@Model.CategorizedPermissions["Vital Signs"].Count</span>
+                                            </button>
+                                        </div>
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-outline-primary select-category" data-category="Vital Signs">
+                                                <i class="fa-solid fa-square-check"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary deselect-category" data-category="Vital Signs">
+                                                <i class="fa-solid fa-square"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="collapse show" id="category_VitalSigns">
+                                        <div class="ps-4">
+                                            @foreach (var permission in Model.CategorizedPermissions["Vital Signs"])
+                                            {
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" 
+                                                           class="form-check-input permission-checkbox" 
+                                                           id="permission_@permission.Id" 
+                                                           name="SelectedPermissions" 
+                                                           value="@permission.Id"
+                                                           data-category="Vital Signs" />
+                                                    <label class="form-check-label" for="permission_@permission.Id">
+                                                        <span class="fw-medium">@permission.Name</span>
+                                                        <small class="text-muted d-block">@permission.Description</small>
+                                                    </label>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Any other categories that might exist in the database -->
+                            @foreach (var category in Model.CategorizedPermissions.Where(c => 
+                                c.Key != "Appointments" && 
+                                c.Key != "Dashboard Access" && 
+                                c.Key != "Medical Records" && 
+                                c.Key != "Prescriptions" && 
+                                c.Key != "Patient Management" && 
+                                c.Key != "User Management" && 
+                                c.Key != "Vital Signs" &&
+                                c.Key != "Doctor" &&
+                                c.Key != "Nurse" &&
+                                c.Value.Count > 0))
+                            {
+                                var categoryId = category.Key.Replace(" ", "");
+                                <div class="permission-category mb-3">
+                                    <div class="d-flex align-items-center justify-content-between bg-light p-2 rounded mb-2">
+                                        <div class="d-flex align-items-center">
+                                            <button class="btn btn-link text-dark text-decoration-none p-0 me-2 category-toggle" 
+                                                    type="button" 
+                                                    data-bs-toggle="collapse" 
+                                                    data-bs-target="#category_@categoryId">
+                                                <i class="fa-solid fa-chevron-down"></i>
+                                                <span class="ms-2">@category.Key</span>
+                                                <span class="badge bg-secondary ms-2 permission-count">0/@category.Value.Count</span>
+                                            </button>
+                                        </div>
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-outline-primary select-category" data-category="@category.Key">
+                                                <i class="fa-solid fa-square-check"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary deselect-category" data-category="@category.Key">
+                                                <i class="fa-solid fa-square"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="collapse show" id="category_@categoryId">
+                                        <div class="ps-4">
+                                            @foreach (var permission in category.Value)
+                                            {
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" 
+                                                           class="form-check-input permission-checkbox" 
+                                                           id="permission_@permission.Id" 
+                                                           name="SelectedPermissions" 
+                                                           value="@permission.Id"
+                                                           data-category="@category.Key" />
+                                                    <label class="form-check-label" for="permission_@permission.Id">
+                                                        <span class="fw-medium">@permission.Name</span>
+                                                        <small class="text-muted d-block">@permission.Description</small>
+                                                    </label>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
                         </div>
 
-                        @foreach (var category in Model.PermissionsByCategory)
-                        {
-                            <div class="permission-category mb-3">
-                                <h6 class="mb-2">@category.Key</h6>
-                                <div class="row">
-                                    @foreach (var permission in category.Value)
-                                    {
-                                        <div class="col-md-6 mb-2">
-                                            <div class="form-check">
-                                                <input type="checkbox" 
-                                                       class="form-check-input permission-checkbox" 
-                                                       name="SelectedPermissions" 
-                                                       value="@permission.Id" 
-                                                       id="permission_@permission.Id" />
-                                                <label class="form-check-label" for="permission_@permission.Id">
-                                                    @permission.Name
-                                                </label>
-                                            </div>
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-                        }
+                        
                     </div>
                 </div>
 
-                <div class="card-footer bg-light d-flex justify-content-between align-items-center">
-                    <button type="button" class="btn btn-secondary" onclick="history.back()">
-                        <i class="fas fa-times me-1"></i> Cancel
+                <div class="card-footer bg-light d-flex justify-content-end align-items-center gap-2">
+                    <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
+                        <i class="fa-solid fa-xmark me-1"></i> Cancel
                     </button>
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save me-1"></i> Create Staff Member
+                        <i class="fa-solid fa-floppy-disk me-1"></i> Create Staff Member
+                    </button>
+                    <button type="button" class="btn btn-success" id="grantEssentialPermissions">
+                        <i class="fa-solid fa-shield-halved me-1"></i> Grant Essential Permissions
                     </button>
                 </div>
             </div>
         </div>
     </form>
-</div>
-
-<!-- Guardian Consent Modal -->
-<div class="modal fade" id="guardianConsentModal" tabindex="-1" aria-labelledby="guardianConsentModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="guardianConsentModalLabel">
-                    <i class="fas fa-user-shield me-2"></i>Guardian Consent Required
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p class="text-muted mb-4">Since you are under 18 years old, we need your guardian's consent to proceed with the registration.</p>
-                
-                <div class="form-group mb-3">
-                    <label for="guardianFirstName" class="form-label">Guardian's First Name <span class="required">*</span></label>
-                    <input type="text" class="form-control" id="guardianFirstName" name="Input.GuardianFirstName" required>
-                    <div class="invalid-feedback">Guardian's first name is required</div>
-                </div>
-
-                <div class="form-group mb-3">
-                    <label for="guardianLastName" class="form-label">Guardian's Last Name <span class="required">*</span></label>
-                    <input type="text" class="form-control" id="guardianLastName" name="Input.GuardianLastName" required>
-                    <div class="invalid-feedback">Guardian's last name is required</div>
-                </div>
-
-                <div class="form-group mb-3">
-                    <label for="guardianResidencyProof" class="form-label">Residency Proof <span class="required">*</span></label>
-                    <input type="file" class="form-control" id="guardianResidencyProof" name="Input.GuardianResidencyProof" 
-                           accept=".jpg,.jpeg,.png,.pdf" required>
-                    <div class="invalid-feedback">Please upload a valid residency proof document</div>
-                    <small class="form-text text-muted">Accepted formats: JPG, JPEG, PNG, PDF</small>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="submitGuardianConsent">
-                    <i class="fas fa-check me-2"></i>Submit Guardian Information
-                </button>
-            </div>
-        </div>
-    </div>
 </div>
 
 <style>
@@ -404,259 +773,328 @@
             const startTimeSelect = document.getElementById('startTime');
             const endTimeSelect = document.getElementById('endTime');
             const workingDaysCheckboxes = document.querySelectorAll('.working-days-checkbox');
+            const nameInput = document.getElementById('StaffMember_Name');
+            const phoneInput = document.getElementById('StaffMember_ContactNumber');
 
-            // Update working days input when checkboxes change
-            workingDaysCheckboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    const selectedDays = Array.from(workingDaysCheckboxes)
-                        .filter(cb => cb.checked)
-                        .map(cb => cb.value)
-                        .join(',');
-                    workingDaysInput.value = selectedDays;
-                });
-            });
-
-            // Update working hours input when time selections change
-            function updateWorkingHours() {
-                if (startTimeSelect.value && endTimeSelect.value) {
-                    workingHoursInput.value = `${startTimeSelect.value}-${endTimeSelect.value}`;
+            // Role-specific fields
+            const specializationGroup = document.getElementById('StaffMember_Specialization')?.closest('.form-group');
+            const licenseGroup = document.getElementById('StaffMember_LicenseNumber')?.closest('.form-group');
+            function updateRoleSpecificFields() {
+                const roleValue = roleSelect?.value || '';
+                const positionValue = document.getElementById('positionSelect')?.value || '';
+                
+                // Use position if available, otherwise fall back to role
+                const selectedRole = positionValue || roleValue;
+                const val = selectedRole.toLowerCase();
+                
+                const isDoctor = val === 'doctor' || val === 'head doctor';
+                if (specializationGroup) specializationGroup.style.display = isDoctor ? '' : 'none';
+                if (licenseGroup) {
+                    licenseGroup.style.display = isDoctor ? '' : 'none';
+                    if (!isDoctor) {
+                        const licenseInput = licenseGroup.querySelector('input');
+                        if (licenseInput) licenseInput.value = '';
+                    }
                 }
             }
 
+            // Helper to toggle invalid UI on groups
+            function setInvalid(el, invalid) {
+                if (!el) return;
+                el.classList.toggle('is-invalid', invalid);
+            }
+
+            // Update working days hidden input and validity
+            function updateWorkingDays() {
+                const selected = Array.from(workingDaysCheckboxes)
+                    .filter(cb => cb.checked)
+                    .map(cb => cb.value);
+                workingDaysInput.value = selected.join(',');
+                const group = workingDaysInput.closest('.form-group');
+                setInvalid(group, selected.length === 0);
+                workingDaysInput.classList.toggle('is-invalid', selected.length === 0);
+            }
+            workingDaysCheckboxes.forEach(cb => cb.addEventListener('change', updateWorkingDays));
+
+            // Update working hours hidden input and validity
+            function updateWorkingHours() {
+                const hasBoth = !!startTimeSelect.value && !!endTimeSelect.value;
+                if (hasBoth) {
+                    workingHoursInput.value = `${startTimeSelect.value}-${endTimeSelect.value}`;
+                } else {
+                    workingHoursInput.value = '';
+                }
+                const group = workingHoursInput.closest('.form-group');
+                setInvalid(group, !hasBoth);
+                workingHoursInput.classList.toggle('is-invalid', !hasBoth);
+            }
             startTimeSelect.addEventListener('change', updateWorkingHours);
             endTimeSelect.addEventListener('change', updateWorkingHours);
 
-            // Show permissions section when role is selected
-            roleSelect.addEventListener('change', function() {
-                if (this.value) {
+            // Show/hide permissions section based on role/position
+            function updatePermissionsVisibility() {
+                const roleValue = roleSelect?.value || '';
+                const positionValue = document.getElementById('positionSelect')?.value || '';
+                
+                // Use position if available, otherwise fall back to role
+                const selectedRole = positionValue || roleValue;
+                
+                if (selectedRole) {
                     permissionsSection.style.display = 'block';
                 } else {
                     permissionsSection.style.display = 'none';
                 }
-            });
 
-            // Update permission counts
-            function updatePermissionCounts() {
-                document.querySelectorAll('.permission-category').forEach(category => {
-                    const total = category.querySelectorAll('.permission-checkbox').length;
-                    const checked = category.querySelectorAll('.permission-checkbox:checked').length;
-                    const countBadge = category.querySelector('.permission-count');
-                    if (countBadge) {
-                        countBadge.textContent = `${checked}/${total}`;
+                // Define allowed categories for each position/role
+                const allowedByPosition = {
+                    // Doctor positions
+                    'doctor': new Set(['doctor', 'dashboard access']),
+                    'head doctor': new Set(['doctor', 'dashboard access']),
+                    
+                    // Nurse positions
+                    'nurse': new Set(['nurse', 'dashboard access']),
+                    'head nurse': new Set(['nurse', 'dashboard access']),
+                    
+                    // Admin positions
+                    'admin': new Set(['user management', 'reports', 'reporting', 'dashboard access']),
+                    'admin staff': new Set(['user management', 'reports', 'reporting', 'dashboard access']),
+                    
+                    // Other positions
+                    'receptionist': new Set(['appointments', 'dashboard access']),
+                    'it': new Set(['user management', 'dashboard access'])
+                };
+                
+                const allowed = allowedByPosition[selectedRole.toLowerCase()] || null;
+                
+                document.querySelectorAll('#permissionsSection .permission-category').forEach(cat => {
+                    const btn = cat.querySelector('.category-toggle');
+                    const text = (btn?.innerText || '').trim().toLowerCase();
+                    const catName = text.split('\n')[0]; // remove counts
+                    
+                    if (!allowed) {
+                        cat.style.display = '';
+                    } else if (allowed.has(catName)) {
+                        cat.style.display = '';
+                    } else {
+                        cat.style.display = 'none';
+                        // Uncheck hidden permissions
+                        const checkboxes = cat.querySelectorAll('.permission-checkbox');
+                        checkboxes.forEach(cb => cb.checked = false);
                     }
+                });
+
+                updateRoleSpecificFields();
+            }
+            roleSelect.addEventListener('change', function(){
+                updatePermissionsVisibility();
+                updatePermissionCounts();
+            });
+            
+            // Add event listener for position select
+            const positionSelect = document.getElementById('positionSelect');
+            if (positionSelect) {
+                positionSelect.addEventListener('change', function(){
+                    updatePermissionsVisibility();
+                    updatePermissionCounts();
                 });
             }
 
-            // Add event listeners for permission checkboxes
-            document.querySelectorAll('.permission-checkbox').forEach(checkbox => {
-                checkbox.addEventListener('change', updatePermissionCounts);
-            });
+            // Permission counts
+            function updatePermissionCounts() {
+                document.querySelectorAll('.permission-category').forEach(category => {
+                    const checkboxes = Array.from(category.querySelectorAll('.permission-checkbox'));
+                    const visibleCheckboxes = checkboxes.filter(cb => {
+                        const wrapper = cb.closest('.form-check');
+                        return wrapper && wrapper.style.display !== 'none';
+                    });
+                    const total = visibleCheckboxes.length;
+                    const checked = visibleCheckboxes.filter(cb => cb.checked).length;
+                    const badge = category.querySelector('.permission-count');
+                    if (badge) badge.textContent = `${checked}/${total}`;
+                });
+            }
+            document.querySelectorAll('.permission-checkbox').forEach(cb => cb.addEventListener('change', updatePermissionCounts));
 
-            // Select all permissions in a category
+            // Category select/deselect
             document.querySelectorAll('.select-category').forEach(button => {
-                button.addEventListener('click', function(e) {
+                button.addEventListener('click', function (e) {
                     e.preventDefault();
                     const category = this.dataset.category;
-                    document.querySelectorAll(`.permission-checkbox[data-category="${category}"]`)
-                        .forEach(cb => cb.checked = true);
+                    document.querySelectorAll(`.permission-checkbox[data-category="${category}"]`).forEach(cb => cb.checked = true);
                     updatePermissionCounts();
                 });
             });
-
-            // Deselect all permissions in a category
             document.querySelectorAll('.deselect-category').forEach(button => {
-                button.addEventListener('click', function(e) {
+                button.addEventListener('click', function (e) {
                     e.preventDefault();
                     const category = this.dataset.category;
-                    document.querySelectorAll(`.permission-checkbox[data-category="${category}"]`)
-                        .forEach(cb => cb.checked = false);
+                    document.querySelectorAll(`.permission-checkbox[data-category="${category}"]`).forEach(cb => cb.checked = false);
                     updatePermissionCounts();
                 });
             });
 
-            // Select all permissions
-            document.getElementById('selectAllPermissions').addEventListener('click', function() {
+            // Global select/deselect
+            document.getElementById('selectAllPermissions').addEventListener('click', function () {
                 document.querySelectorAll('.permission-checkbox').forEach(cb => cb.checked = true);
                 updatePermissionCounts();
             });
-
-            // Deselect all permissions
-            document.getElementById('deselectAllPermissions').addEventListener('click', function() {
+            document.getElementById('deselectAllPermissions').addEventListener('click', function () {
                 document.querySelectorAll('.permission-checkbox').forEach(cb => cb.checked = false);
                 updatePermissionCounts();
             });
 
             // Grant essential permissions
-            document.getElementById('grantEssentialPermissions').addEventListener('click', async function() {
-                const role = roleSelect.value;
-                if (!role) {
-                    alert('Please select a role first.');
+            document.getElementById('grantEssentialPermissions').addEventListener('click', async function () {
+                const roleValue = roleSelect.value;
+                const positionValue = document.getElementById('positionSelect')?.value || '';
+                
+                // Use position if available, otherwise fall back to role
+                const selectedRole = positionValue || roleValue;
+                
+                if (!selectedRole) {
+                    // Inline hint instead of alert
+                    if (positionValue) {
+                        document.getElementById('positionSelect').focus();
+                        document.getElementById('positionSelect').classList.add('is-invalid');
+                    } else {
+                        roleSelect.focus();
+                        roleSelect.classList.add('is-invalid');
+                    }
                     return;
                 }
+                
+                // Remove invalid styling
+                roleSelect.classList.remove('is-invalid');
+                const positionSelect = document.getElementById('positionSelect');
+                if (positionSelect) positionSelect.classList.remove('is-invalid');
 
                 try {
                     const response = await fetch('?handler=GrantEssentialPermissions', {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json',
+                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
                             'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
                         },
-                        body: JSON.stringify({ role })
+                        body: new URLSearchParams({ 'StaffMember.Role': selectedRole })
                     });
-
                     const data = await response.json();
                     if (data.success) {
-                        // Uncheck all permissions first
                         document.querySelectorAll('.permission-checkbox').forEach(cb => cb.checked = false);
-                        
-                        // Check essential permissions
-                        data.permissions.forEach(permissionId => {
-                            const checkbox = document.getElementById(`permission_${permissionId}`);
-                            if (checkbox) {
-                                checkbox.checked = true;
-                            }
+                        data.permissions.forEach(pid => {
+                            const cb = document.getElementById(`permission_${pid}`);
+                            if (cb) cb.checked = true;
                         });
+                        updatePermissionCounts();
                     } else {
-                        alert(data.message || 'Error granting essential permissions.');
+                        console.error(data.message || 'Error granting essential permissions.');
                     }
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert('Error granting essential permissions.');
+                } catch (err) {
+                    console.error('Error granting essential permissions:', err);
                 }
             });
 
-            // Form validation
-            form.addEventListener('submit', function(event) {
-                let isValid = true;
+            // Bootstrap-style validation on submit
+            form.addEventListener('submit', function (event) {
+                // Recompute derived values
+                updateWorkingDays();
+                updateWorkingHours();
 
-                // Validate working days
-                const selectedDays = Array.from(workingDaysCheckboxes).filter(cb => cb.checked);
-                if (selectedDays.length === 0) {
-                    isValid = false;
+                // Run field-level validations
+                validateNameRepeats();
+                sanitizeAndValidatePhone();
+
+                // Validate permissions if role/position selected
+                const roleValue = roleSelect.value;
+                const positionValue = document.getElementById('positionSelect')?.value || '';
+                const selectedRole = positionValue || roleValue;
+                
+                if (selectedRole) {
+                    const selectedPermissions = document.querySelectorAll('.permission-checkbox:checked');
+                    const permBody = document.querySelector('#permissionsSection .card-body');
+                    setInvalid(permBody, selectedPermissions.length === 0);
+                }
+
+                form.classList.add('was-validated');
+
+                // If any invalid elements exist, prevent submit and scroll to first
+                const firstInvalid = form.querySelector('.is-invalid');
+                if (!form.checkValidity() || firstInvalid) {
                     event.preventDefault();
-                    alert('Please select at least one working day.');
-                    return;
+                    event.stopPropagation();
+                    (firstInvalid || form.querySelector(':invalid'))?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
+            }, false);
 
-                // Validate working hours
-                if (!startTimeSelect.value || !endTimeSelect.value) {
-                    isValid = false;
-                    event.preventDefault();
-                    alert('Please select both start and end working hours.');
-                    return;
-                }
-
-                // Update hidden inputs one final time before submission
-                workingDaysInput.value = selectedDays.map(cb => cb.value).join(',');
-                workingHoursInput.value = `${startTimeSelect.value}-${endTimeSelect.value}`;
-
-                // Validate role and permissions
-                if (roleSelect.value) {
-                    const permissionCheckboxes = document.querySelectorAll('.permission-checkbox');
-                    const selectedPermissions = Array.from(permissionCheckboxes).filter(cb => cb.checked);
-                    if (selectedPermissions.length === 0) {
-                        isValid = false;
-                        event.preventDefault();
-                        alert('Please select at least one permission for the staff member.');
-                        return;
-                    }
-                }
-
-                if (!isValid) {
-                    event.preventDefault();
-                }
-            });
+            // Initialize visibility on load
+            updatePermissionsVisibility();
+            updatePermissionCounts();
 
             // Password visibility toggle
             const togglePassword = document.getElementById('togglePassword');
             const password = document.getElementById('password');
-            
             togglePassword.addEventListener('click', function () {
                 const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
                 password.setAttribute('type', type);
                 this.querySelector('i').classList.toggle('fa-eye');
                 this.querySelector('i').classList.toggle('fa-eye-slash');
             });
-        });
-    </script>
 
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+            // Initial state
+            updatePermissionsVisibility();
+            updatePermissionCounts();
+            updateWorkingDays();
+            updateWorkingHours();
 
-    <!-- zxcvbn password strength library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.4.2/zxcvbn.js" integrity="sha512-TZlMGFY9xKj38t/5m2FzJ+RM/aD5alMHDe26p0mYUMoCF5G7ibfHUQILq0qQPV3wlsnCwL+TPRNK4vIWGLOkUQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="~/js/signup.js" asp-append-version="true"></script>
-    <script src="~/js/password-validation.js" asp-append-version="true"></script>
-    <script src="~/js/form-validation.js" asp-append-version="true"></script>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const birthDateInput = document.getElementById('birthDate');
-            const guardianConsentModal = new bootstrap.Modal(document.getElementById('guardianConsentModal'));
-            let guardianInfoSubmitted = false;
-
-            function calculateAge(birthDate) {
-                const today = new Date(); // Use current date instead of hardcoded date
-                const birth = new Date(birthDate);
-                let age = today.getFullYear() - birth.getFullYear();
-                const monthDiff = today.getMonth() - birth.getMonth();
-                
-                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-                    age--;
+            // Name: disallow 3+ repeated letters
+            function validateNameRepeats() {
+                if (!nameInput) return;
+                const v = (nameInput.value || '').trim();
+                const repeats = /([A-Za-z])\1{2,}/;
+                if (repeats.test(v)) {
+                    nameInput.setCustomValidity('Full name cannot contain 3 or more repeated letters in a row.');
+                    nameInput.classList.add('is-invalid');
+                } else {
+                    nameInput.setCustomValidity('');
+                    nameInput.classList.remove('is-invalid');
                 }
-                return age;
+            }
+            if (nameInput) {
+                nameInput.addEventListener('input', validateNameRepeats);
+                nameInput.addEventListener('blur', validateNameRepeats);
             }
 
-            birthDateInput.addEventListener('change', function() {
-                const age = calculateAge(this.value);
-                if (age < 18) {
-                    guardianConsentModal.show();
+            // Phone: enforce +639 prefix and numeric remainder (max 9 digits)
+            function sanitizeAndValidatePhone() {
+                if (!phoneInput) return;
+                let v = phoneInput.value || '';
+                // Strip everything but digits and plus
+                v = v.replace(/[^\d+]/g, '');
+                // Remove any leading pluses beyond the first
+                v = v.replace(/^\++/, '+');
+                // Ensure prefix
+                if (!v.startsWith('+639')) {
+                    // Remove any existing leading +639 occurrence to avoid duplication
+                    v = v.replace(/^\+?639?/, '');
+                    // Keep only digits
+                    v = v.replace(/\D/g, '');
+                    v = '+639' + v;
                 }
-            });
-
-            document.getElementById('submitGuardianConsent').addEventListener('click', function() {
-                const firstName = document.getElementById('guardianFirstName').value;
-                const lastName = document.getElementById('guardianLastName').value;
-                const residencyProof = document.getElementById('guardianResidencyProof').files[0];
-
-                if (!firstName || !lastName || !residencyProof) {
-                    alert('Please fill in all required guardian information');
-                    return;
-                }
-
-                // Create hidden inputs to store guardian information
-                const form = document.getElementById('signupForm');
-                
-                let firstNameInput = document.querySelector('input[name="Input.GuardianFirstName"]');
-                if (!firstNameInput) {
-                    firstNameInput = document.createElement('input');
-                    firstNameInput.type = 'hidden';
-                    firstNameInput.name = 'Input.GuardianFirstName';
-                    form.appendChild(firstNameInput);
-                }
-                firstNameInput.value = firstName;
-
-                let lastNameInput = document.querySelector('input[name="Input.GuardianLastName"]');
-                if (!lastNameInput) {
-                    lastNameInput = document.createElement('input');
-                    lastNameInput.type = 'hidden';
-                    lastNameInput.name = 'Input.GuardianLastName';
-                    form.appendChild(lastNameInput);
-                }
-                lastNameInput.value = lastName;
-
-                guardianInfoSubmitted = true;
-                guardianConsentModal.hide();
-            });
-
-            // Validate guardian information before form submission
-            form.addEventListener('submit', function(e) {
-                const age = calculateAge(birthDateInput.value);
-                if (age < 18 && !guardianInfoSubmitted) {
-                    e.preventDefault();
-                    alert('Guardian consent is required for users under 18 years old');
-                    guardianConsentModal.show();
-                }
-            });
+                // Keep only first 9 digits after +639
+                const rest = v.slice(4).replace(/\D/g, '').slice(0, 9);
+                phoneInput.value = '+639' + rest;
+                // Validity
+                const valid = /^\+639\d{9}$/.test(phoneInput.value);
+                phoneInput.setCustomValidity(valid ? '' : 'Contact number must be in the format +639XXXXXXXXX.');
+                phoneInput.classList.toggle('is-invalid', !valid);
+            }
+            if (phoneInput) {
+                phoneInput.addEventListener('focus', function () {
+                    if (!phoneInput.value) phoneInput.value = '+639';
+                });
+                phoneInput.addEventListener('input', sanitizeAndValidatePhone);
+                phoneInput.addEventListener('blur', sanitizeAndValidatePhone);
+            }
         });
     </script>
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }

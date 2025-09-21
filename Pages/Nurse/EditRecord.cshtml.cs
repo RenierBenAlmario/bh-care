@@ -121,13 +121,13 @@ namespace Barangay.Pages.Nurse
             var vitalSign = new Barangay.Models.VitalSign  // Fix model name
             {
                 PatientId = patient.UserId,  // Use UserId instead of Id
-                Temperature = decimal.TryParse(VitalSigns.Temperature, out var temp) ? temp : 0m,
+                Temperature = VitalSigns.Temperature ?? string.Empty,
                 BloodPressure = VitalSigns.BloodPressure ?? string.Empty,
-                HeartRate = int.TryParse(VitalSigns.HeartRate, out var hr) ? hr : 0,
-                RespiratoryRate = int.TryParse(VitalSigns.RespiratoryRate, out var rr) ? rr : 0,
-                SpO2 = int.TryParse(VitalSigns.SpO2, out var spo2) ? spo2 : 0,
-                Weight = decimal.TryParse(VitalSigns.Weight, out var weight) ? weight : 0m,
-                Height = decimal.TryParse(VitalSigns.Height, out var height) ? height : 0m,
+                HeartRate = VitalSigns.HeartRate ?? string.Empty,
+                RespiratoryRate = VitalSigns.RespiratoryRate ?? string.Empty,
+                SpO2 = VitalSigns.SpO2 ?? string.Empty,
+                Weight = VitalSigns.Weight ?? string.Empty,
+                Height = VitalSigns.Height ?? string.Empty,
                 RecordedAt = DateTime.Now,
                 Notes = Request.Form["Notes"].ToString() ?? string.Empty
             };

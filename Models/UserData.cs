@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Barangay.Models
@@ -14,9 +14,10 @@ namespace Barangay.Models
         public bool IsActive { get; set; }
         public string PhilHealthId { get; set; } = string.Empty;
         public string Gender { get; set; } = string.Empty;
-        public DateTime BirthDate { get; set; }
+        public string BirthDate { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
         public List<UserDocument> Documents { get; set; } = new();
+
         public string ContactNumber { get; set; } = string.Empty;
         
         // Guardian consent properties
@@ -29,15 +30,19 @@ namespace Barangay.Models
         public bool HasResidencyProof { get; set; }
         
         // Helper property to calculate age based on current date
-        public int Age 
+        public int Age
         {
             get 
             {
                 var today = DateTime.Today;
-                var age = today.Year - BirthDate.Year;
-                if (BirthDate.Date > today.AddYears(-age)) age--;
+                var birthDate = DateTime.TryParse(BirthDate, out var parsedBirthDate) ? parsedBirthDate : DateTime.MinValue;
+                var age = today.Year - birthDate.Year;
+                if (birthDate.Date > today.AddYears(-age)) age--;
                 return age;
             }
         }
+
     }
 } 
+
+

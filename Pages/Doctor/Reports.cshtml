@@ -1,667 +1,432 @@
 @page
 @model Barangay.Pages.Doctor.ReportsModel
 @{
-    ViewData["Title"] = "Medical Reports";
+    ViewData["Title"] = "Monthly Sickness Tracker";
 }
 
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Medical Reports</h2>
-        <div class="btn-group">
-            <button class="btn btn-primary" onclick="generateReport()">
-                <i class="bi bi-file-earmark-pdf"></i> Generate Report
-            </button>
-            <button class="btn btn-outline-secondary" onclick="exportData()">
-                <i class="bi bi-download"></i> Export Data
-            </button>
+@if (!Model.CanAccessReports)
+{
+    <div class="container mt-5">
+        <div class="alert alert-danger shadow-sm">
+            <h4 class="alert-heading">Access Denied</h4>
+            <p>You do not have permission to access the Reports feature.</p>
+        </div>
+    </div>
+}
+else
+{
+    <style>
+        :root {
+            --primary: #ff7a00; /* orange */
+            --green: #2e7d32;
+            --red: #c62828;
+            --gray-100: #f8f9fa;
+            --gray-200: #eef0f2;
+            --gray-400: #cfd4da;
+            --text: #2b2f33;
+        }
+        .report-wrapper { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .toolbar { display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; margin-bottom:16px; }
+        .title { font-weight:700; color: var(--text); margin:0; }
+        .select { min-width: 220px; padding:10px 12px; border:1px solid var(--gray-400); border-radius:8px; background:#fff; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
+        .btn {
+            border: none; border-radius: 8px; padding: 10px 14px; cursor: pointer;
+            background: var(--gray-200); color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,.06);
+        }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-outline { background: #fff; border:1px solid var(--gray-400); }
+        .grid { display:grid; grid-template-columns: 1fr; gap:16px; }
+        @@media (min-width: 992px) { .grid { grid-template-columns: 1fr 1fr; } }
+        .card { background:#fff; border:1px solid var(--gray-200); border-radius:16px; padding:16px; box-shadow: 0 6px 18px rgba(0,0,0,.06); }
+        .card h5 { margin-bottom:12px; font-weight:600; color:var(--text); }
+        table { width:100%; border-collapse:separate; border-spacing:0 8px; }
+        thead th { font-weight:600; color:#6b7280; text-transform:uppercase; font-size:12px; letter-spacing:.04em; }
+        tbody tr { background:#fff; box-shadow: 0 1px 6px rgba(0,0,0,.04); }
+        tbody td { padding:12px 14px; border-top:1px solid var(--gray-200); border-bottom:1px solid var(--gray-200); }
+        tbody tr td:first-child { border-left:1px solid var(--gray-200); border-radius:12px 0 0 12px; }
+        tbody tr td:last-child { border-right:1px solid var(--gray-200); border-radius:0 12px 12px 0; }
+        .trend-up { color: var(--green); font-weight:600; }
+        .trend-down { color: var(--red); font-weight:600; }
+        .muted { color:#6b7280; }
+    </style>
+
+    <div class="report-wrapper" id="report-root">
+        <div class="toolbar">
+            <h2 class="title">Monthly Sickness Tracker</h2>
+            <div style="display:flex; gap:8px; align-items:center;">
+                <form method="get" id="monthForm">
+                    <select name="month" class="select" onchange="document.getElementById('monthForm').submit();">
+                        @foreach (var m in Model.MonthOptions)
+                        {
+                            <option value="@m" selected="@(m == Model.SelectedMonthLabel ? "selected" : null)">@m</option>
+                        }
+                    </select>
+                </form>
+                <button class="btn btn-primary" id="btnExportPdf">Export PDF</button>
+                <button class="btn btn-outline" id="btnExportExcel">Export Excel</button>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h5>Top Diagnosed Conditions (@Model.SelectedMonthLabel)</h5>
+                <canvas id="topConditionsChart" height="220"></canvas>
+            </div>
+            <div class="card">
+                <h5>Sickness Trend (Past Months)</h5>
+                <canvas id="trendChart" height="220"></canvas>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top:16px;">
+            <h5>Monthly Breakdown</h5>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Condition</th>
+                            <th>Cases this Month</th>
+                            <th>% of Total</th>
+                            <th>Last Month Cases</th>
+                            <th>Trend</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.TopConditionStats.Count == 0)
+                        {
+                            <tr><td colspan="5" class="muted">No records for @Model.SelectedMonthLabel</td></tr>
+                        }
+                        else
+                        {
+                            foreach (var row in Model.TopConditionStats)
+                            {
+                                var cls = row.TrendDirection == "up" ? "trend-up" : (row.TrendDirection == "down" ? "trend-down" : "muted");
+                                var icon = row.TrendDirection == "up" ? "▲" : (row.TrendDirection == "down" ? "▼" : "—");
+                                <tr>
+                                    <td>@row.Condition</td>
+                                    <td>@row.CasesThisMonth</td>
+                                    <td>@row.PercentOfTotal.ToString("0.0")%</td>
+                                    <td>@row.LastMonthCases</td>
+                                    <td class="@cls">@icon</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
-    <div class="row g-4">
-        <!-- Statistics Cards -->
-        <div class="col-md-3">
-            <div class="card bg-primary text-white">
-                <div class="card-body">
-                    <h6 class="card-subtitle mb-2">Total Consultations</h6>
-                    <h2 class="card-title mb-0" data-statistic="consultations">@Model.Statistics.TotalConsultations</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-success text-white">
-                <div class="card-body">
-                    <h6 class="card-subtitle mb-2">New Patients</h6>
-                    <h2 class="card-title mb-0" data-statistic="newPatients">@Model.Statistics.NewPatients</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-info text-white">
-                <div class="card-body">
-                    <h6 class="card-subtitle mb-2">Prescriptions</h6>
-                    <h2 class="card-title mb-0" data-statistic="prescriptions">@Model.Statistics.TotalPrescriptions</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-warning text-white">
-                <div class="card-body">
-                    <h6 class="card-subtitle mb-2">Appointments</h6>
-                    <h2 class="card-title mb-0" data-statistic="appointments">@Model.Statistics.TotalAppointments</h2>
-                </div>
-            </div>
-        </div>
-
-        <!-- Staff Statistics -->
-        <div class="col-md-3">
-            <div class="card bg-secondary text-white">
-                <div class="card-body">
-                    <h6 class="card-subtitle mb-2">Doctors</h6>
-                    <h2 class="card-title mb-0" data-statistic="doctors">@Model.Statistics.TotalDoctors</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-dark text-white">
-                <div class="card-body">
-                    <h6 class="card-subtitle mb-2">Nurses</h6>
-                    <h2 class="card-title mb-0" data-statistic="nurses">@Model.Statistics.TotalNurses</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-danger text-white">
-                <div class="card-body">
-                    <h6 class="card-subtitle mb-2">Avg. Consultation Time</h6>
-                    <h2 class="card-title mb-0" data-statistic="avgTime">@Model.Statistics.AverageConsultationTime min</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-success text-white">
-                <div class="card-body">
-                    <h6 class="card-subtitle mb-2">Satisfaction Rate</h6>
-                    <h2 class="card-title mb-0" data-statistic="satisfaction">@Model.Statistics.SatisfactionRate%</h2>
-                </div>
-            </div>
-        </div>
-
-        <!-- Filters -->
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <form method="get">
-                        <div class="row g-3">
-                            <div class="col-md-3">
-                                <label class="form-label">Report Type</label>
-                                <select class="form-select" id="reportType" name="ReportType" asp-for="ReportType">
-                                    <option value="all">All Reports</option>
-                                    <option value="consultations">Consultations</option>
-                                    <option value="patients">Patient Demographics</option>
-                                    <option value="prescriptions">Prescriptions</option>
-                                    <option value="appointments">Appointments</option>
-                                    <option value="staff">Staff Performance</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Start Date</label>
-                                <input type="date" class="form-control" id="startDate" name="StartDate" asp-for="StartDate">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">End Date</label>
-                                <input type="date" class="form-control" id="endDate" name="EndDate" asp-for="EndDate">
-                            </div>
-                            <div class="col-md-3 d-flex align-items-end">
-                                <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Charts -->
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Consultation Trends</h5>
-                    <canvas id="consultationTrends"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Patient Demographics</h5>
-                    <canvas id="patientDemographics"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Top Conditions -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Top Diagnosed Conditions</h5>
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Condition</th>
-                                    <th>Count</th>
-                                    <th>Percentage</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @{
-                                    int totalConditions = Model.TopConditions.Sum(c => c.Count);
-                                }
-                                @foreach (var condition in Model.TopConditions)
-                                {
-                                    <tr>
-                                        <td>@condition.Condition</td>
-                                        <td>@condition.Count</td>
-                                        <td>
-                                            @if (totalConditions > 0)
-                                            {
-                                                @($"{(int)((double)condition.Count / totalConditions * 100)}%")
-                                            }
-                                            else
-                                            {
-                                                @("0%")
-                                            }
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Staff Performance -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Staff Performance</h5>
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Role</th>
-                                    <th>Consultations</th>
-                                    <th>Prescriptions</th>
-                                    <th>Appointments</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var staff in Model.StaffStats)
-                                {
-                                    <tr>
-                                        <td>@staff.Name</td>
-                                        <td>@staff.Role</td>
-                                        <td>@staff.Consultations</td>
-                                        <td>@staff.Prescriptions</td>
-                                        <td>@staff.Appointments</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Detailed Statistics -->
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Detailed Statistics</h5>
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Consultations</th>
-                                    <th>New Patients</th>
-                                    <th>Prescriptions</th>
-                                    <th>Appointments</th>
-                                    <th>Avg. Duration</th>
-                                    <th>Satisfaction</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var stat in Model.DetailedStats)
-                                {
-                                    <tr>
-                                        <td>@stat.Date.ToString("MMM dd, yyyy")</td>
-                                        <td>@stat.Consultations</td>
-                                        <td>@stat.NewPatients</td>
-                                        <td>@stat.Prescriptions</td>
-                                        <td>@stat.Appointments</td>
-                                        <td>@stat.AverageDuration min</td>
-                                        <td>
-                                            @if (stat.SatisfactionRate > 0)
-                                            {
-                                                @($"{stat.SatisfactionRate}%")
-                                            }
-                                            else
-                                            {
-                                                <span>No data</span>
-                                            }
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-@section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script>
-        let consultationTrendsChart = null;
-        let demographicsChart = null;
+        const topLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TopConditionStats.Select(s => s.Condition)));
+        const topValues = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TopConditionStats.Select(s => s.CasesThisMonth)));
+        const trendLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TrendLabels));
+        const trendValues = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TrendValues));
 
-        // Initialize charts when the document is ready
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeCharts();
-            // Set default dates if not set
-            if (!document.getElementById('startDate').value) {
-                const thirtyDaysAgo = new Date();
-                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-                document.getElementById('startDate').value = thirtyDaysAgo.toISOString().split('T')[0];
-            }
-            if (!document.getElementById('endDate').value) {
-                document.getElementById('endDate').value = new Date().toISOString().split('T')[0];
+        const primary = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+        const gray200 = getComputedStyle(document.documentElement).getPropertyValue('--gray-200').trim();
+
+        // Top conditions (pie if <=5 otherwise bar)
+        const isPie = topLabels.length <= 5;
+        const palette = [primary, '#ff9e42', '#ffd1a3', '#a0aec0', '#93c5fd', '#86efac'];
+        const ctx1 = document.getElementById('topConditionsChart');
+        new Chart(ctx1, {
+            type: isPie ? 'pie' : 'bar',
+            data: {
+                labels: topLabels,
+                datasets: [{
+                    label: 'Cases',
+                    data: topValues,
+                    backgroundColor: isPie ? palette.slice(0, Math.max(topLabels.length,1)) : palette[0],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                plugins: { legend: { display: isPie } },
+                scales: isPie ? {} : { y: { beginAtZero: true, grid: { color: gray200 } }, x: { grid: { display:false } } }
             }
         });
 
-        async function generateReport() {
-            try {
-            const reportType = document.getElementById('reportType').value;
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
+        // Trend (line)
+        const ctx2 = document.getElementById('trendChart');
+        new Chart(ctx2, {
+            type: 'line',
+            data: { labels: trendLabels, datasets: [{ label: 'Total Cases', data: trendValues, borderColor: primary, backgroundColor: 'rgba(255,122,0,.15)', tension: .3, fill: true, pointRadius: 3 }] },
+            options: { scales: { y: { beginAtZero: true, grid: { color: gray200 } }, x: { grid: { display:false } } } }
+        });
 
-                if (!startDate || !endDate) {
-                    throw new Error('Please select both start and end dates');
-                }
-
-                if (new Date(startDate) > new Date(endDate)) {
-                    throw new Error('Start date must be before end date');
-                }
-
-                showAlert('Generating report...', 'info');
-
-                const response = await fetch(`/api/ReportsApi/data?reportType=${reportType}&startDate=${startDate}&endDate=${endDate}`, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    credentials: 'include'
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || errorData.details || 'Failed to generate report');
-                }
-
-                const data = await response.json();
-
-                // Update statistics cards
-                document.querySelector('[data-statistic="consultations"]').textContent = data.statistics.consultations;
-                document.querySelector('[data-statistic="newPatients"]').textContent = data.statistics.newPatients;
-                document.querySelector('[data-statistic="prescriptions"]').textContent = data.statistics.prescriptions;
-                document.querySelector('[data-statistic="appointments"]').textContent = data.statistics.appointments;
-                document.querySelector('[data-statistic="doctors"]').textContent = data.statistics.doctors;
-                document.querySelector('[data-statistic="nurses"]').textContent = data.statistics.nurses;
-                document.querySelector('[data-statistic="avgTime"]').textContent = data.statistics.avgConsultationTime + ' min';
-                document.querySelector('[data-statistic="satisfaction"]').textContent = data.statistics.satisfactionRate + '%';
-
-                // Update charts
-                updateCharts(data);
-
-                // Generate PDF
-                generatePDF(data);
-
-                showAlert('Report generated successfully', 'success');
-            } catch (error) {
-                console.error('Error generating report:', error);
-                showAlert(error.message || 'Failed to generate report. Please try again.', 'danger');
-            }
-        }
-
-        function updateCharts(data) {
-            try {
-                // Update Consultation Trends Chart
-                const ctxTrends = document.getElementById('consultationTrends').getContext('2d');
-                if (consultationTrendsChart) {
-                    consultationTrendsChart.destroy();
-                }
-                consultationTrendsChart = new Chart(ctxTrends, {
-                type: 'line',
-                data: {
-                        labels: data.chartData.consultationData.map(d => d.label),
-                    datasets: [{
-                        label: 'Consultations',
-                            data: data.chartData.consultationData.map(d => d.value),
-                        borderColor: 'rgb(75, 192, 192)',
-                        tension: 0.1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-
-                // Update Patient Demographics Chart
-                const ctxDemo = document.getElementById('patientDemographics').getContext('2d');
-                if (demographicsChart) {
-                    demographicsChart.destroy();
-                }
-                demographicsChart = new Chart(ctxDemo, {
-                type: 'pie',
-                data: {
-                        labels: Object.keys(data.chartData.demographicsData),
-                    datasets: [{
-                            data: Object.values(data.chartData.demographicsData),
-                        backgroundColor: [
-                                'rgb(54, 162, 235)',
-                            'rgb(255, 99, 132)',
-                                'rgb(255, 205, 86)'
-                        ]
-                    }]
-                },
-                options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                position: 'bottom'
-                            }
-                        }
-                    }
-                });
-
-                // Update tables
-                updateTables(data);
-            } catch (error) {
-                console.error('Error updating charts:', error);
-                showAlert('Error updating charts: ' + error.message, 'warning');
-            }
-        }
-
-        function updateTables(data) {
-            // Update Top Conditions table
-            const topConditionsBody = document.querySelector('table tbody');
-            if (topConditionsBody && data.topConditions) {
-                const totalConditions = data.topConditions.reduce((sum, condition) => sum + condition.count, 0);
-                topConditionsBody.innerHTML = data.topConditions.map(condition => `
-                    <tr>
-                        <td>${condition.condition}</td>
-                        <td>${condition.count}</td>
-                        <td>${totalConditions > 0 ? Math.round((condition.count / totalConditions) * 100) + '%' : '0%'}</td>
-                    </tr>
-                `).join('');
-            }
-
-            // Update Staff Performance table
-            const staffTableBody = document.querySelector('table:nth-of-type(2) tbody');
-            if (staffTableBody && data.staffPerformance) {
-                staffTableBody.innerHTML = data.staffPerformance.map(staff => `
-                    <tr>
-                        <td>${staff.name}</td>
-                        <td>${staff.role}</td>
-                        <td>${staff.consultations}</td>
-                        <td>${staff.prescriptions}</td>
-                        <td>${staff.appointments}</td>
-                    </tr>
-                `).join('');
-            }
-        }
-
-        async function exportData() {
-            try {
-                const reportType = document.getElementById('reportType').value;
-                const startDate = document.getElementById('startDate').value;
-                const endDate = document.getElementById('endDate').value;
-
-                if (!startDate || !endDate) {
-                    throw new Error('Please select both start and end dates');
-                }
-
-                if (new Date(startDate) > new Date(endDate)) {
-                    throw new Error('Start date must be before end date');
-                }
-
-                const response = await fetch(`/api/ReportsApi/data?reportType=${reportType}&startDate=${startDate}&endDate=${endDate}`, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    credentials: 'include'
-                });
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || errorData.details || 'Failed to export data');
-                }
-
-                const data = await response.json();
-                
-                // Generate PDF
-                generatePDF(data);
-
-                // Show success message
-                showAlert('Report generated successfully', 'success');
-            } catch (error) {
-                console.error('Error exporting data:', error);
-                showAlert(error.message || 'Failed to generate report. Please try again.', 'danger');
-            }
-        }
-
-        function generatePDF(data) {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'mm', 'a4');
-            const pageWidth = doc.internal.pageSize.width;
-            const pageHeight = doc.internal.pageSize.height;
-            const margin = 20;
-            let y = margin;
-
-            // Helper function to add text with proper margins
-            function addText(text, size = 12, isBold = false, align = 'left') {
-                doc.setFontSize(size);
-                doc.setFont(undefined, isBold ? 'bold' : 'normal');
-                doc.text(text, align === 'center' ? pageWidth / 2 : margin, y, { align });
-                y += size / 2;
-            }
-
-            // Helper function to add space
-            function addSpace(space = 10) {
-                y += space;
-            }
-
-            // Helper function to check if new page is needed
-            function checkNewPage(neededSpace) {
-                if (y + neededSpace > pageHeight - margin) {
-                    doc.addPage();
-                    y = margin;
-                    return true;
-                }
-                return false;
-            }
-
-            // Header
-            addText('BARANGAY HEALTH CENTER', 16, true, 'center');
-            addText('MEDICAL REPORT', 14, true, 'center');
-            addSpace();
-
-            // Report Details
-            addText('Report Details', 12, true);
-            doc.setFontSize(10);
-            doc.text([
-                `Generated Date: ${new Date().toLocaleDateString()}`,
-                `Report Period: ${document.getElementById('startDate').value} to ${document.getElementById('endDate').value}`,
-                `Report Type: ${document.getElementById('reportType').options[document.getElementById('reportType').selectedIndex].text}`
-            ], margin, y);
-            y += 20;
-
-            // Executive Summary
-            checkNewPage(40);
-            addText('EXECUTIVE SUMMARY', 12, true);
-            doc.setFontSize(10);
-            doc.text('This report provides a comprehensive overview of medical services and healthcare metrics for the specified period.', margin, y, {
-                maxWidth: pageWidth - (margin * 2)
-            });
-            addSpace(15);
-
-            // Key Performance Indicators
-            checkNewPage(60);
-            addText('KEY PERFORMANCE INDICATORS', 12, true);
-            doc.autoTable({
-                startY: y,
-                head: [['Metric', 'Value', 'Notes']],
-                body: [
-                    ['Total Consultations', data.statistics.consultations.toString(), 'Total patient consultations'],
-                    ['New Patients', data.statistics.newPatients.toString(), 'First-time patients'],
-                    ['Active Prescriptions', data.statistics.prescriptions.toString(), 'Total prescriptions issued'],
-                    ['Scheduled Appointments', data.statistics.appointments.toString(), 'Total appointments'],
-                    ['Average Consultation Duration', data.statistics.avgConsultationTime + ' minutes', 'Average time per patient'],
-                    ['Patient Satisfaction Rate', data.statistics.satisfactionRate + '%', 'Based on feedback']
-                ],
-                margin: { left: margin },
-                theme: 'grid'
-            });
-            y = doc.lastAutoTable.finalY + 10;
-
-            // Staff Overview
-            checkNewPage(50);
-            addText('STAFFING OVERVIEW', 12, true);
-            doc.autoTable({
-                startY: y,
-                head: [['Category', 'Count', 'Status']],
-                body: [
-                    ['Doctors', data.statistics.doctors.toString(), 'Active medical practitioners'],
-                    ['Nurses', data.statistics.nurses.toString(), 'Supporting medical staff'],
-                    ['Total Medical Staff', (data.statistics.doctors + data.statistics.nurses).toString(), 'Combined healthcare providers']
-                ],
-                margin: { left: margin },
-                theme: 'grid'
-            });
-            y = doc.lastAutoTable.finalY + 10;
-
-            // Patient Demographics
-            checkNewPage(60);
-            addText('PATIENT DEMOGRAPHICS', 12, true);
-            const demographicsData = [];
-            const totalPatients = Object.values(data.chartData.demographicsData).reduce((a, b) => a + b, 0);
-            Object.entries(data.chartData.demographicsData).forEach(([gender, count]) => {
-                const percentage = totalPatients > 0 ? ((count / totalPatients) * 100).toFixed(1) + '%' : '0%';
-                demographicsData.push([gender, count.toString(), percentage]);
-            });
-            doc.autoTable({
-                startY: y,
-                head: [['Gender', 'Count', 'Percentage']],
-                body: demographicsData,
-                margin: { left: margin },
-                theme: 'grid'
-            });
-            y = doc.lastAutoTable.finalY + 10;
-
-            // Staff Performance
-            if (checkNewPage(60)) {
-                addText('STAFF PERFORMANCE DETAILS', 12, true);
-            }
-            const staffData = data.staffPerformance.map(staff => {
-                const efficiencyRate = staff.consultations > 0 ? 
-                    ((staff.prescriptions / staff.consultations) * 100).toFixed(1) + '%' : 'N/A';
-                return [
-                    staff.name,
-                    staff.role,
-                    staff.consultations.toString(),
-                    staff.prescriptions.toString(),
-                    efficiencyRate
-                ];
-            });
-            doc.autoTable({
-                startY: y,
-                head: [['Healthcare Provider', 'Role', 'Consultations', 'Prescriptions', 'Efficiency']],
-                body: staffData,
-                margin: { left: margin },
-                theme: 'grid'
-            });
-            y = doc.lastAutoTable.finalY + 10;
-
-            // Recommendations
-            checkNewPage(50);
-            addText('RECOMMENDATIONS', 12, true);
-            const recommendations = [];
-            if (data.statistics.satisfactionRate < 80) {
-                recommendations.push('• Implement patient satisfaction improvement measures');
-            }
-            if (data.statistics.avgConsultationTime > 30) {
-                recommendations.push('• Review consultation efficiency protocols');
-            }
-            if (data.statistics.appointments === 0) {
-                recommendations.push('• Promote appointment scheduling system');
-            }
-            if (recommendations.length === 0) {
-                recommendations.push('• Maintain current performance levels');
-            }
-            doc.setFontSize(10);
-            doc.text(recommendations, margin, y);
-            y += recommendations.length * 7 + 10;
-
-            // Footer
-            checkNewPage(40);
-            const footerText = [
-                'REPORT AUTHENTICATION',
-                `Document ID: MR-${new Date().getTime()}`,
-                `Generated by: Barangay Health Center Management System`,
-                `Date and Time: ${new Date().toLocaleString()}`,
-                '',
-                'CONFIDENTIALITY NOTICE',
-                'This medical report contains confidential health information protected by law.',
-                'Unauthorized disclosure or misuse of this information is strictly prohibited.'
-            ];
-            doc.setFontSize(8);
-            doc.text(footerText, margin, pageHeight - 40);
-
-            // Save the PDF
-            doc.save(`medical_report_${new Date().toISOString().split('T')[0]}.pdf`);
-        }
-
-        function showAlert(message, type) {
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-            alertDiv.role = 'alert';
-            alertDiv.innerHTML = `
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            `;
+        // Export Excel with enhanced formatting
+        document.getElementById('btnExportExcel').addEventListener('click', () => {
+            // Create a more comprehensive Excel-compatible CSV
+            const reportTitle = 'Monthly Sickness Tracker - @Model.SelectedMonthLabel';
+            const generatedDate = new Date().toLocaleDateString();
             
-            // Insert the alert at the top of the content
-            const container = document.querySelector('.container-fluid');
-            container.insertBefore(alertDiv, container.firstChild);
+            const csvContent = [
+                // Header section
+                [reportTitle],
+                [`Generated on: ${generatedDate}`],
+                [''],
+                ['TOP DIAGNOSED CONDITIONS'],
+                ['Condition', 'Cases This Month', '% of Total', 'Last Month Cases', 'Trend'],
+                // Data rows
+                @foreach (var r in Model.TopConditionStats)
+                {
+                    <text>["@r.Condition", "@r.CasesThisMonth", "@r.PercentOfTotal.ToString("0.0")%", "@r.LastMonthCases", "@r.TrendDirection"],</text>
+                }
+                [''],
+                ['SICKNESS TREND (PAST MONTHS)'],
+                ['Month', 'Total Cases'],
+                @for (int i = 0; i < Model.TrendLabels.Count; i++)
+                {
+                    <text>["@Model.TrendLabels[i]", "@Model.TrendValues[i]"],</text>
+                }
+                [''],
+                ['SUMMARY STATISTICS'],
+                ['Metric', 'Value'],
+                ['Total Conditions Tracked', '@Model.TopConditionStats.Count'],
+                ['Total Cases This Month', '@Model.TopConditionStats.Sum(c => c.CasesThisMonth)'],
+                ['Average Cases per Condition', '@(Model.TopConditionStats.Count > 0 ? (Model.TopConditionStats.Sum(c => c.CasesThisMonth) / (double)Model.TopConditionStats.Count).ToString("0.0") : "0")'],
+                [''],
+                ['NOTES'],
+                ['This report contains sickness tracking data for @Model.SelectedMonthLabel.'],
+                ['Trend indicators: up = increasing, down = decreasing, flat = no change.'],
+                ['Generated by Barangay Health Care System.']
+            ];
+            
+            // Convert to CSV format with proper escaping
+            const csv = csvContent.map(row => 
+                row.map(cell => {
+                    const cellStr = String(cell || '');
+                    // Escape quotes and wrap in quotes if contains comma, quote, or newline
+                    if (cellStr.includes('"') || cellStr.includes(',') || cellStr.includes('\n')) {
+                        return '"' + cellStr.replace(/"/g, '""') + '"';
+                    }
+                    return cellStr;
+                }).join(',')
+            ).join('\n');
+            
+            // Create and download the file
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `SicknessReport-@Model.SelectedMonthLabel`.replace(/\s+/g,'_') + '.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
 
-            // Auto-dismiss after 5 seconds
-            setTimeout(() => {
-                alertDiv.remove();
-            }, 5000);
-        }
+        // Export PDF with professional layout
+        document.getElementById('btnExportPdf').addEventListener('click', async () => {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            
+            // Set up fonts and colors
+            pdf.setFont('helvetica');
+            const primaryColor = [255, 122, 0]; // Orange
+            const darkGray = [43, 47, 51];
+            const lightGray = [107, 114, 128];
+            
+            // Header
+            pdf.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+            pdf.rect(0, 0, 210, 25, 'F');
+            
+            pdf.setTextColor(255, 255, 255);
+            pdf.setFontSize(18);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text('Monthly Sickness Tracker', 15, 17);
+            
+            pdf.setFontSize(10);
+            pdf.setFont('helvetica', 'normal');
+            pdf.text('@Model.SelectedMonthLabel', 15, 22);
+            
+            // Reset text color
+            pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+            
+            // Report date
+            pdf.setFontSize(8);
+            pdf.text(`Generated on: ${new Date().toLocaleDateString()}`, 150, 22);
+            
+            let yPosition = 35;
+            
+            // Top Diagnosed Conditions Section
+            pdf.setFontSize(14);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text('Top Diagnosed Conditions', 15, yPosition);
+            
+            yPosition += 10;
+            
+            // Create pie chart data
+            const conditions = @Html.Raw(Json.Serialize(Model.TopConditionStats.Take(5).Select(c => new { 
+                name = c.Condition, 
+                value = c.CasesThisMonth,
+                percentage = c.PercentOfTotal
+            })));
+            
+            if (conditions.length > 0) {
+                // Draw simple pie chart representation
+                const centerX = 50;
+                const centerY = yPosition + 20;
+                const radius = 25;
+                
+                let currentAngle = 0;
+                const colors = [
+                    [255, 122, 0], [46, 125, 50], [198, 40, 40], [156, 39, 176], [33, 150, 243]
+                ];
+                
+                conditions.forEach((condition, index) => {
+                    const sliceAngle = (condition.value / conditions.reduce((sum, c) => sum + c.value, 0)) * 360;
+                    
+                    pdf.setFillColor(colors[index % colors.length][0], colors[index % colors.length][1], colors[index % colors.length][2]);
+                    pdf.circle(centerX, centerY, radius, 'F');
+                    
+                    // Add legend
+                    const legendY = yPosition + (index * 8);
+                    pdf.setFillColor(colors[index % colors.length][0], colors[index % colors.length][1], colors[index % colors.length][2]);
+                    pdf.rect(120, legendY - 2, 4, 4, 'F');
+                    pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+                    pdf.setFontSize(9);
+                    pdf.setFont('helvetica', 'normal');
+                    pdf.text(`${condition.name}: ${condition.value} cases (${condition.percentage.toFixed(1)}%)`, 128, legendY);
+                    
+                    currentAngle += sliceAngle;
+                });
+                
+                yPosition += 60;
+            } else {
+                pdf.setFontSize(10);
+                pdf.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+                pdf.text('No data available for this month', 15, yPosition + 20);
+                yPosition += 40;
+            }
+            
+            // Sickness Trend Section
+            pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+            pdf.setFontSize(14);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text('Sickness Trend (Past Months)', 15, yPosition);
+            
+            yPosition += 10;
+            
+            // Draw trend chart
+            const trendData = @Html.Raw(Json.Serialize(Model.TrendValues));
+            const trendLabels = @Html.Raw(Json.Serialize(Model.TrendLabels));
+            
+            if (trendData.length > 0) {
+                const chartWidth = 100;
+                const chartHeight = 40;
+                const chartX = 15;
+                const chartY = yPosition;
+                
+                // Draw axes
+                pdf.setDrawColor(200, 200, 200);
+                pdf.line(chartX, chartY, chartX + chartWidth, chartY); // X-axis
+                pdf.line(chartX, chartY, chartX, chartY - chartHeight); // Y-axis
+                
+                // Draw trend line
+                const maxValue = Math.max(...trendData);
+                const minValue = Math.min(...trendData);
+                const valueRange = maxValue - minValue || 1;
+                
+                pdf.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+                pdf.setLineWidth(2);
+                
+                for (let i = 0; i < trendData.length - 1; i++) {
+                    const x1 = chartX + (i / (trendData.length - 1)) * chartWidth;
+                    const y1 = chartY - ((trendData[i] - minValue) / valueRange) * chartHeight;
+                    const x2 = chartX + ((i + 1) / (trendData.length - 1)) * chartWidth;
+                    const y2 = chartY - ((trendData[i + 1] - minValue) / valueRange) * chartHeight;
+                    
+                    pdf.line(x1, y1, x2, y2);
+                }
+                
+                // Add labels
+                pdf.setFontSize(8);
+                pdf.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+                for (let i = 0; i < trendLabels.length; i++) {
+                    const x = chartX + (i / (trendLabels.length - 1)) * chartWidth;
+                    pdf.text(trendLabels[i], x - 10, chartY + 8);
+                }
+                
+                yPosition += 60;
+            } else {
+                pdf.setFontSize(10);
+                pdf.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+                pdf.text('No trend data available', 15, yPosition + 20);
+                yPosition += 40;
+            }
+            
+            // Monthly Breakdown Table
+            pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+            pdf.setFontSize(14);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text('Monthly Breakdown', 15, yPosition);
+            
+            yPosition += 15;
+            
+            // Table headers
+            pdf.setFillColor(248, 249, 250);
+            pdf.rect(15, yPosition - 5, 180, 8, 'F');
+            
+            pdf.setFontSize(9);
+            pdf.setFont('helvetica', 'bold');
+            pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+            
+            const headers = ['Condition', 'Cases This Month', '% of Total', 'Last Month Cases', 'Trend'];
+            const colWidths = [60, 30, 25, 30, 20];
+            let xPos = 15;
+            
+            headers.forEach((header, index) => {
+                pdf.text(header, xPos + 2, yPosition);
+                xPos += colWidths[index];
+            });
+            
+            yPosition += 8;
+            
+            // Table data
+            pdf.setFont('helvetica', 'normal');
+            pdf.setFontSize(8);
+            
+            @foreach (var row in Model.TopConditionStats)
+            {
+                <text>
+                pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+                pdf.text('@row.Condition', 17, yPosition);
+                pdf.text('@row.CasesThisMonth', 77, yPosition);
+                pdf.text('@row.PercentOfTotal.ToString("0.0")%', 107, yPosition);
+                pdf.text('@row.LastMonthCases', 135, yPosition);
+                
+                // Trend indicator
+                pdf.setFontSize(10);
+                if ('@row.TrendDirection' === 'up') {
+                    pdf.setTextColor(46, 125, 50);
+                    pdf.text('↗', 165, yPosition);
+                } else if ('@row.TrendDirection' === 'down') {
+                    pdf.setTextColor(198, 40, 40);
+                    pdf.text('↘', 165, yPosition);
+                } else {
+                    pdf.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+                    pdf.text('→', 165, yPosition);
+                }
+                pdf.setFontSize(8);
+                
+                yPosition += 6;
+                </text>
+            }
+            
+            // Footer
+            pdf.setFontSize(8);
+            pdf.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+            pdf.text('This report was generated automatically by the Barangay Health Care System.', 15, 280);
+            pdf.text('For questions or concerns, please contact the system administrator.', 15, 285);
+            
+            // Save the PDF
+            pdf.save(`SicknessReport-@Model.SelectedMonthLabel`.replace(/\s+/g,'_') + '.pdf');
+        });
     </script>
 }
+    

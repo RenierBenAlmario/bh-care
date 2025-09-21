@@ -1,0 +1,82 @@
+@page
+@model Barangay.Pages.Admin.AssignRolesModel
+@{
+    ViewData["Title"] = "Assign User Roles";
+    Layout = "_Layout";
+}
+
+<div class="container mt-4">
+    <h2>Assign User Roles</h2>
+    
+    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+    {
+        <div class="alert alert-info">
+            @Model.StatusMessage
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Users and Their Roles</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.Users != null && Model.Users.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Email</th>
+                                        <th>Full Name</th>
+                                        <th>Current Roles</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var user in Model.Users)
+                                    {
+                                        <tr>
+                                            <td>@user.Email</td>
+                                            <td>@user.FullName</td>
+                                            <td>
+                                                @if (user.Roles.Any())
+                                                {
+                                                    @string.Join(", ", user.Roles)
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">No roles assigned</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <form method="post" class="d-inline">
+                                                    <input type="hidden" name="userId" value="@user.Id" />
+                                                    <select name="roleName" class="form-select form-select-sm d-inline-block" style="width: auto;">
+                                                        <option value="">Select Role</option>
+                                                        <option value="Admin">Admin</option>
+                                                        <option value="Doctor">Doctor</option>
+                                                        <option value="Nurse">Nurse</option>
+                                                        <option value="Staff">Staff</option>
+                                                        <option value="Patient">Patient</option>
+                                                        <option value="User">User</option>
+                                                    </select>
+                                                    <button type="submit" asp-page-handler="AssignRole" class="btn btn-primary btn-sm">Assign</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p>No users found.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

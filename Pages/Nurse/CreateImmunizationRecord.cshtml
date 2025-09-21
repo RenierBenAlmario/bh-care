@@ -1,0 +1,303 @@
+@page
+@model Barangay.Pages.Nurse.CreateImmunizationRecordModel
+@{
+    ViewData["Title"] = "Create Immunization Record";
+    Layout = "_NurseLayout";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="m-0">Create Immunization Record</h2>
+        <a href="/Nurse/Immunization" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>
+            Back to Immunization
+        </a>
+    </div>
+
+    <form method="post">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-baby me-2"></i>
+                    Child Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="Record.ChildName" class="form-label">Child's Name *</label>
+                            <input asp-for="Record.ChildName" class="form-control" required />
+                            <span asp-validation-for="Record.ChildName" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Record.DateOfBirth" class="form-label">Date of Birth *</label>
+                            <input asp-for="Record.DateOfBirth" type="date" class="form-control" required />
+                            <span asp-validation-for="Record.DateOfBirth" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Record.PlaceOfBirth" class="form-label">Place of Birth</label>
+                            <input asp-for="Record.PlaceOfBirth" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Record.Address" class="form-label">Address</label>
+                            <textarea asp-for="Record.Address" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="Record.MotherName" class="form-label">Mother's Name *</label>
+                            <input asp-for="Record.MotherName" class="form-control" required />
+                            <span asp-validation-for="Record.MotherName" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Record.FatherName" class="form-label">Father's Name</label>
+                            <input asp-for="Record.FatherName" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Record.Sex" class="form-label">Sex *</label>
+                            <select asp-for="Record.Sex" class="form-control" required>
+                                <option value="">Select Sex</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                            <span asp-validation-for="Record.Sex" class="text-danger"></span>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Record.BirthHeight" class="form-label">Birth Height</label>
+                                    <input asp-for="Record.BirthHeight" class="form-control" placeholder="e.g., 50 cm" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Record.BirthWeight" class="form-label">Birth Weight</label>
+                                    <input asp-for="Record.BirthWeight" class="form-control" placeholder="e.g., 3.2 kg" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Record.HealthCenter" class="form-label">Health Center</label>
+                            <input asp-for="Record.HealthCenter" class="form-control" value="Baesa Health Center" readonly />
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Record.Barangay" class="form-label">Barangay</label>
+                            <input asp-for="Record.Barangay" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Record.FamilyNumber" class="form-label">Family Number</label>
+                            <input asp-for="Record.FamilyNumber" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Record.Email" class="form-label">Email Address *</label>
+                            <input asp-for="Record.Email" type="email" class="form-control" required placeholder="parent@email.com" />
+                            <small class="form-text text-muted">Email will be sent to confirm immunization record creation</small>
+                            <span asp-validation-for="Record.Email" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Record.ContactNumber" class="form-label">Contact Number</label>
+                            <input asp-for="Record.ContactNumber" class="form-control" placeholder="09XX-XXX-XXXX" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vaccination Records -->
+        <div class="card mt-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-syringe me-2"></i>
+                    Vaccination Records
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Vaccine</th>
+                                <th>Dose</th>
+                                <th>Date Given</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- BCG Vaccine -->
+                            <tr>
+                                <td rowspan="1"><strong>BCG Vaccine</strong><br><small class="text-muted">At Birth</small></td>
+                                <td>①</td>
+                                <td>
+                                    <input asp-for="Record.BCGVaccineDate" type="date" class="form-control form-control-sm" />
+                                </td>
+                                <td>
+                                    <input asp-for="Record.BCGVaccineRemarks" class="form-control form-control-sm" placeholder="Return date or notes" />
+                                </td>
+                            </tr>
+
+                            <!-- Hepatitis B Vaccine -->
+                            <tr>
+                                <td rowspan="1"><strong>Hepatitis B Vaccine</strong><br><small class="text-muted">At Birth</small></td>
+                                <td>①</td>
+                                <td>
+                                    <input asp-for="Record.HepatitisBVaccineDate" type="date" class="form-control form-control-sm" />
+                                </td>
+                                <td>
+                                    <input asp-for="Record.HepatitisBVaccineRemarks" class="form-control form-control-sm" placeholder="Return date or notes" />
+                                </td>
+                            </tr>
+
+                            <!-- Pentavalent Vaccine -->
+                            <tr>
+                                <td rowspan="3"><strong>Pentavalent Vaccine</strong><br><small class="text-muted">DPT-Hep B-HIB</small><br><small class="text-muted">1, 2, 3 months</small></td>
+                                <td>①</td>
+                                <td>
+                                    <input asp-for="Record.Pentavalent1Date" type="date" class="form-control form-control-sm" />
+                                </td>
+                                <td>
+                                    <input asp-for="Record.Pentavalent1Remarks" class="form-control form-control-sm" placeholder="Return date or notes" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>②</td>
+                                <td>
+                                    <input asp-for="Record.Pentavalent2Date" type="date" class="form-control form-control-sm" />
+                                </td>
+                                <td>
+                                    <input asp-for="Record.Pentavalent2Remarks" class="form-control form-control-sm" placeholder="Return date or notes" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>③</td>
+                                <td>
+                                    <input asp-for="Record.Pentavalent3Date" type="date" class="form-control form-control-sm" />
+                                </td>
+                                <td>
+                                    <input asp-for="Record.Pentavalent3Remarks" class="form-control form-control-sm" placeholder="Return date or notes" />
+                                </td>
+                            </tr>
+
+                            <!-- Oral Polio Vaccine -->
+                            <tr>
+                                <td rowspan="3"><strong>Oral Polio Vaccine (OPV)</strong><br><small class="text-muted">1, 2, 3 months</small></td>
+                                <td>①</td>
+                                <td>
+                                    <input asp-for="Record.OPV1Date" type="date" class="form-control form-control-sm" />
+                                </td>
+                                <td>
+                                    <input asp-for="Record.OPV1Remarks" class="form-control form-control-sm" placeholder="Return date or notes" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>②</td>
+                                <td>
+                                    <input asp-for="Record.OPV2Date" type="date" class="form-control form-control-sm" />
+                                </td>
+                                <td>
+                                    <input asp-for="Record.OPV2Remarks" class="form-control form-control-sm" placeholder="Return date or notes" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>③</td>
+                                <td>
+                                    <input asp-for="Record.OPV3Date" type="date" class="form-control form-control-sm" />
+                                </td>
+                                <td>
+                                    <input asp-for="Record.OPV3Remarks" class="form-control form-control-sm" placeholder="Return date or notes" />
+                                </td>
+                            </tr>
+
+                            <!-- Inactivated Polio Vaccine -->
+                            <tr>
+                                <td rowspan="2"><strong>Inactivated Polio Vaccine (IPV)</strong><br><small class="text-muted">3 & 9 months</small></td>
+                                <td>①</td>
+                                <td>
+                                    <input asp-for="Record.IPV1Date" type="date" class="form-control form-control-sm" />
+                                </td>
+                                <td>
+                                    <input asp-for="Record.IPV1Remarks" class="form-control form-control-sm" placeholder="Return date or notes" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>②</td>
+                                <td>
+                                    <input asp-for="Record.IPV2Date" type="date" class="form-control form-control-sm" />
+                                </td>
+                                <td>
+                                    <input asp-for="Record.IPV2Remarks" class="form-control form-control-sm" placeholder="Return date or notes" />
+                                </td>
+                            </tr>
+
+                            <!-- Pneumococcal Conjugate Vaccine -->
+                            <tr>
+                                <td rowspan="3"><strong>Pneumococcal Conjugate Vaccine (PCV)</strong><br><small class="text-muted">1, 2, 3 months</small></td>
+                                <td>①</td>
+                                <td>
+                                    <input asp-for="Record.PCV1Date" type="date" class="form-control form-control-sm" />
+                                </td>
+                                <td>
+                                    <input asp-for="Record.PCV1Remarks" class="form-control form-control-sm" placeholder="Return date or notes" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>②</td>
+                                <td>
+                                    <input asp-for="Record.PCV2Date" type="date" class="form-control form-control-sm" />
+                                </td>
+                                <td>
+                                    <input asp-for="Record.PCV2Remarks" class="form-control form-control-sm" placeholder="Return date or notes" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>③</td>
+                                <td>
+                                    <input asp-for="Record.PCV3Date" type="date" class="form-control form-control-sm" />
+                                </td>
+                                <td>
+                                    <input asp-for="Record.PCV3Remarks" class="form-control form-control-sm" placeholder="Return date or notes" />
+                                </td>
+                            </tr>
+
+                            <!-- MMR Vaccine -->
+                            <tr>
+                                <td rowspan="2"><strong>Measles, Mumps, Rubella Vaccine (MMR)</strong><br><small class="text-muted">9 months & 1 year</small></td>
+                                <td>①</td>
+                                <td>
+                                    <input asp-for="Record.MMR1Date" type="date" class="form-control form-control-sm" />
+                                </td>
+                                <td>
+                                    <input asp-for="Record.MMR1Remarks" class="form-control form-control-sm" placeholder="Return date or notes" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>②</td>
+                                <td>
+                                    <input asp-for="Record.MMR2Date" type="date" class="form-control form-control-sm" />
+                                </td>
+                                <td>
+                                    <input asp-for="Record.MMR2Remarks" class="form-control form-control-sm" placeholder="Return date or notes" />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 text-center">
+            <button type="submit" class="btn btn-primary btn-lg me-3">
+                <i class="fas fa-save me-2"></i>
+                Save Immunization Record
+            </button>
+            <a href="/Nurse/Immunization" class="btn btn-secondary btn-lg">
+                <i class="fas fa-times me-2"></i>
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

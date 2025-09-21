@@ -20,6 +20,12 @@ namespace Barangay.Models
         [Display(Name = "Is Booked")]
         public bool IsBooked { get; set; } = false;
         
+        [Display(Name = "Booked By")]
+        public string BookedById { get; set; }
+        
+        [Display(Name = "Booked At")]
+        public DateTime? BookedAt { get; set; }
+        
         [Display(Name = "Created At")]
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }

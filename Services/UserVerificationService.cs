@@ -69,28 +69,36 @@ namespace Barangay.Services
                     return false;
                 }
 
-                // Ensure 'User' role exists
-                if (!await _roleManager.RoleExistsAsync("User"))
-                {
-                    await _roleManager.CreateAsync(new IdentityRole("User"));
-                    _logger.LogInformation("Created 'User' role");
-                }
-
-                // Remove any existing roles and assign 'User' role
+                // Preserve existing staff roles; only assign 'User' role to non-staff users without roles
                 var currentRoles = await _userManager.GetRolesAsync(user);
-                if (currentRoles.Any())
-                {
-                    await _userManager.RemoveFromRolesAsync(user, currentRoles);
-                }
+                var staffRoles = new[] { "Doctor", "Nurse", "Admin", "Admin Staff", "System Administrator" };
 
-                    result = await _userManager.AddToRoleAsync(user, "User");
-                    if (!result.Succeeded)
+                if (!currentRoles.Any(r => staffRoles.Contains(r)))
+                {
+                    // Ensure 'User' role exists
+                    if (!await _roleManager.RoleExistsAsync("User"))
                     {
-                        _logger.LogError($"Failed to assign User role: {string.Join(", ", result.Errors)}");
-                    await transaction.RollbackAsync();
-                        return false;
+                        await _roleManager.CreateAsync(new IdentityRole("User"));
+                        _logger.LogInformation("Created 'User' role");
                     }
-                    _logger.LogInformation($"Assigned 'User' role to {user.Email}");
+
+                    // Assign 'User' role if not already present
+                    if (!currentRoles.Contains("User"))
+                    {
+                        var roleAddResult = await _userManager.AddToRoleAsync(user, "User");
+                        if (!roleAddResult.Succeeded)
+                        {
+                            _logger.LogError($"Failed to assign User role: {string.Join(", ", roleAddResult.Errors)}");
+                            await transaction.RollbackAsync();
+                            return false;
+                        }
+                        _logger.LogInformation($"Assigned 'User' role to {user.Email}");
+                    }
+                }
+                else
+                {
+                    _logger.LogInformation($"Preserved existing staff roles for {user.Email}: {string.Join(", ", currentRoles)}");
+                }
 
                 // Update any associated documents
                 var documents = await _context.UserDocuments
@@ -229,4 +237,4 @@ namespace Barangay.Services
             }
         }
     }
-} 
+}

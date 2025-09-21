@@ -1,36 +1,30 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
+// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
 // for details on configuring this project to bundle and minify static web assets.
 
 // Write your JavaScript code.
 
-// Initialize dark mode on page load
-(function() {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark' || (savedTheme === null && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.classList.add('dark-mode');
-        document.body.classList.add('dark-mode');
-    }
-})();
+// Dark mode functionality removed
 
 $(document).ready(function () {
-    // Initialize dark mode toggle
-    initializeDarkMode();
+    // Dark mode functionality removed
     
-    // Sidebar toggle
-    $('#sidebarCollapse').on('click', function () {
-        $('#sidebar').toggleClass('active');
-        $('#content').toggleClass('active');
-    });
+    // Sidebar toggle (non-User layouts only)
+    if (!document.body.classList.contains('user-theme')) {
+        $('#sidebarCollapse').on('click', function () {
+            $('#sidebar').toggleClass('active');
+            $('#content').toggleClass('active');
+        });
 
-    // Close sidebar on mobile when clicking outside
-    $(document).on('click', function (e) {
-        if ($(window).width() <= 768) {
-            if (!$(e.target).closest('#sidebar').length && !$(e.target).closest('#sidebarCollapse').length) {
-                $('#sidebar').addClass('active');
-                $('#content').addClass('active');
+        // Close sidebar on mobile when clicking outside
+        $(document).on('click', function (e) {
+            if ($(window).width() <= 768) {
+                if (!$(e.target).closest('#sidebar').length && !$(e.target).closest('#sidebarCollapse').length) {
+                    $('#sidebar').addClass('active');
+                    $('#content').addClass('active');
+                }
             }
-        }
-    });
+        });
+    }
 
     // Initialize tooltips
     $('[data-toggle="tooltip"]').tooltip();
@@ -492,91 +486,7 @@ $(document).ready(function () {
         });
     });
 
-    // Global dark mode function for all pages
-    function initializeDarkMode() {
-        // Check for existing toggle or create one if on a page without it
-        let themeToggle = document.getElementById('theme-toggle');
-        
-        // If we're not on a page with a theme-toggle already (like admin dashboard)
-        if (!themeToggle && !document.querySelector('.theme-toggle')) {
-            // Create a floating theme toggle button for all pages
-            const toggleBtn = document.createElement('button');
-            toggleBtn.id = 'global-theme-toggle';
-            toggleBtn.className = 'global-theme-toggle';
-            toggleBtn.innerHTML = '<i class="fas fa-moon"></i>';
-            toggleBtn.setAttribute('aria-label', 'Toggle dark mode');
-            toggleBtn.setAttribute('title', 'Toggle dark mode');
-            document.body.appendChild(toggleBtn);
-            
-            themeToggle = toggleBtn;
-        }
-        
-        // Use either the existing toggle or our new global one
-        const toggleElement = themeToggle || document.querySelector('.theme-toggle');
-        
-        if (toggleElement) {
-            // Get icon element within the toggle
-            const icon = toggleElement.querySelector('i');
-            
-            // Update the icon based on current theme
-            const isDarkMode = document.documentElement.classList.contains('dark-mode');
-            if (icon) {
-                if (isDarkMode) {
-                    icon.className = 'fas fa-sun';
-                } else {
-                    icon.className = 'fas fa-moon';
-                }
-            }
-            
-            // Add click event listener
-            toggleElement.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                // Toggle dark mode class on both document element and body
-                document.documentElement.classList.toggle('dark-mode');
-                document.body.classList.toggle('dark-mode');
-                
-                // Get current state
-                const isDarkMode = document.documentElement.classList.contains('dark-mode');
-                
-                // Update toggle button icon
-                if (icon) {
-                    if (isDarkMode) {
-                        icon.className = 'fas fa-sun';
-                    } else {
-                        icon.className = 'fas fa-moon';
-                    }
-                }
-                
-                // Save preference
-                localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-                
-                // Update charts if they exist (for dashboard pages)
-                if (window.updateChartsTheme) {
-                    window.updateChartsTheme(isDarkMode);
-                }
-            });
-        }
-        
-        // Listen for system theme changes
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
-            // Only apply system preference if user hasn't manually chosen a theme
-            if (localStorage.getItem('theme') === null) {
-                const isDarkMode = event.matches;
-                document.documentElement.classList.toggle('dark-mode', isDarkMode);
-                document.body.classList.toggle('dark-mode', isDarkMode);
-                
-                // Update toggle button icon if it exists
-                const icon = toggleElement ? toggleElement.querySelector('i') : null;
-                if (icon) {
-                    icon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
-                }
-                
-                // Update charts if they exist
-                if (window.updateChartsTheme) {
-                    window.updateChartsTheme(isDarkMode);
-                }
-            }
-        });
-    }
+    // Dark mode functionality removed
+
+    // User area: Sidebar functionality is managed inline in `Pages/Shared/_UserLayout.cshtml`.
 });

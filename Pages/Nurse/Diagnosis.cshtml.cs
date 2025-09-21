@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Barangay.Pages.Nurse
 {
-    [Authorize(Roles = "Nurse")]
+    [Authorize(Roles = "Nurse,Head Nurse")]
     public class DiagnosisModel : PageModel
     {
         private readonly ApplicationDbContext _context;

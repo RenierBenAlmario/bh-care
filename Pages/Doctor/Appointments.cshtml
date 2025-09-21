@@ -1,35 +1,86 @@
 @page
+
+<style>
+    .filter-btn {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .filter-btn:hover {
+        background-color: #0056b3;
+    }
+
+    .filter-btn.active {
+        background-color: #0056b3;
+        font-weight: bold;
+    }
+</style>
 @using Barangay.Models
 @model Barangay.Pages.Doctor.AppointmentsModel
+
+<style>
+    .nav-pills .nav-link.active {
+        color: #ffffff !important; /* White text */
+        background-color: #007bff !important; /* A darker blue */
+    }
+</style>
 @{
     ViewData["Title"] = "Appointments";
+    Layout = "_DoctorLayout";
 }
 
 <div class="container mt-4">
     <h2>My Appointments</h2>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success d-flex justify-content-between align-items-center shadow-sm" role="alert">
+            <div>
+                <strong>Success:</strong> @TempData["SuccessMessage"]
+            </div>
+            @if (TempData["AfterConsultation"] != null && Model.CanAccessReports)
+            {
+                <a class="btn btn-sm btn-outline-success" href="/Doctor/Reports">
+                    View Monthly Sickness Tracker
+                </a>
+            }
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">
+            <strong>Error:</strong> @Model.ErrorMessage
+        </div>
+    }
 
     <div class="row mb-4">
         <div class="col-md-4">
             <div class="card bg-primary text-white">
                 <div class="card-body">
                     <h5 class="card-title">Today's Appointments</h5>
-                    <h3 class="card-text">@Model.TodayAppointments.Count()</h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-success text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Upcoming Appointments</h5>
-                    <h3 class="card-text">@Model.UpcomingAppointments.Count()</h3>
+                    <h3 class="card-text">@Model.TodayAppointments.Count</h3>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
             <div class="card bg-info text-white">
                 <div class="card-body">
+                    <h5 class="card-title">Upcoming Appointments</h5>
+                    <h3 class="card-text">@Model.UpcomingAppointments.Count</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-secondary text-white">
+                <div class="card-body">
                     <h5 class="card-title">Total Appointments</h5>
-                    <h3 class="card-text">@Model.AllAppointments.Count()</h3>
+                    <h3 class="card-text">@Model.AllAppointments.Count</h3>
                 </div>
             </div>
         </div>
@@ -48,6 +99,7 @@
     </ul>
 
     <div class="tab-content" id="appointmentTabsContent">
+        <!-- Today's Appointments -->
         <div class="tab-pane fade show active" id="today" role="tabpanel" aria-labelledby="today-tab">
             @if (!Model.TodayAppointments.Any())
             {
@@ -66,19 +118,13 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var appointment in Model.TodayAppointments.OrderBy(a => a.AppointmentTime))
+                            @foreach (var appointment in Model.TodayAppointments)
                             {
                                 <tr>
-                                    <td>@appointment.GetFormattedTime()</td>
-                                    <td>@appointment.PatientName</td>
-                                    <td>
-                                        <span class="badge @GetStatusBadgeClass(appointment.Status)">
-                                            @appointment.Status
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <a asp-page="./Consultation" asp-route-id="@appointment.Id" class="btn btn-sm btn-primary">View</a>
-                                    </td>
+                                    <td>@appointment.AppointmentTime.ToString(@"hh\:mm")</td>
+                                    <td>@appointment.Patient.FullName</td>
+                                    <td><span class="badge @GetStatusBadgeClass(appointment.Status)">@(appointment.Status == AppointmentStatus.Pending ? "On-Going" : appointment.Status.ToString())</span></td>
+                                    <td><a asp-page="./Consultation" asp-route-id="@appointment.Id" class="btn btn-sm btn-primary">View</a></td>
                                 </tr>
                             }
                         </tbody>
@@ -87,6 +133,7 @@
             }
         </div>
 
+        <!-- Upcoming Appointments -->
         <div class="tab-pane fade" id="upcoming" role="tabpanel" aria-labelledby="upcoming-tab">
             @if (!Model.UpcomingAppointments.Any())
             {
@@ -106,20 +153,14 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var appointment in Model.UpcomingAppointments.OrderBy(a => a.AppointmentDate).ThenBy(a => a.AppointmentTime))
+                            @foreach (var appointment in Model.UpcomingAppointments)
                             {
                                 <tr>
-                                    <td>@appointment.AppointmentDate.ToDateString()</td>
-                                    <td>@appointment.GetFormattedTime()</td>
-                                    <td>@appointment.PatientName</td>
-                                    <td>
-                                        <span class="badge @GetStatusBadgeClass(appointment.Status)">
-                                            @appointment.Status
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <a asp-page="./Consultation" asp-route-id="@appointment.Id" class="btn btn-sm btn-primary">View</a>
-                                    </td>
+                                    <td>@appointment.AppointmentDate.ToString("MMMM dd, yyyy")</td>
+                                    <td>@appointment.AppointmentTime.ToString(@"hh\:mm")</td>
+                                    <td>@appointment.Patient.FullName</td>
+                                    <td><span class="badge @GetStatusBadgeClass(appointment.Status)">@(appointment.Status == AppointmentStatus.Pending ? "On-Going" : appointment.Status.ToString())</span></td>
+                                    <td><a asp-page="./Consultation" asp-route-id="@appointment.Id" class="btn btn-sm btn-primary">View</a></td>
                                 </tr>
                             }
                         </tbody>
@@ -128,10 +169,11 @@
             }
         </div>
 
+        <!-- All Appointments -->
         <div class="tab-pane fade" id="all" role="tabpanel" aria-labelledby="all-tab">
             @if (!Model.AllAppointments.Any())
             {
-                <div class="alert alert-info">No appointments found.</div>
+                <div class="alert alert-info">No appointment history found.</div>
             }
             else
             {
@@ -147,20 +189,14 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var appointment in Model.AllAppointments.OrderByDescending(a => a.AppointmentDate).ThenBy(a => a.AppointmentTime))
+                            @foreach (var appointment in Model.AllAppointments)
                             {
                                 <tr>
-                                    <td>@appointment.AppointmentDate.ToDateString()</td>
-                                    <td>@appointment.GetFormattedTime()</td>
-                                    <td>@appointment.PatientName</td>
-                                    <td>
-                                        <span class="badge @GetStatusBadgeClass(appointment.Status)">
-                                            @appointment.Status
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <a asp-page="./Consultation" asp-route-id="@appointment.Id" class="btn btn-sm btn-primary">View</a>
-                                    </td>
+                                    <td>@appointment.AppointmentDate.ToString("MMMM dd, yyyy")</td>
+                                    <td>@appointment.AppointmentTime.ToString(@"hh\:mm")</td>
+                                    <td>@appointment.Patient.FullName</td>
+                                    <td><span class="badge @GetStatusBadgeClass(appointment.Status)">@(appointment.Status == AppointmentStatus.Pending ? "On-Going" : appointment.Status.ToString())</span></td>
+                                    <td><a asp-page="./Consultation" asp-route-id="@appointment.Id" class="btn btn-sm btn-primary">View</a></td>
                                 </tr>
                             }
                         </tbody>
@@ -176,11 +212,13 @@
     {
         return status switch
         {
-            AppointmentStatus.Pending => "bg-warning",
+            AppointmentStatus.Pending => "bg-warning text-dark",
             AppointmentStatus.Confirmed => "bg-success",
+            AppointmentStatus.InProgress => "bg-primary",
+            AppointmentStatus.Completed => "bg-info text-dark",
             AppointmentStatus.Cancelled => "bg-danger",
-            AppointmentStatus.Completed => "bg-info",
-            _ => "bg-secondary"
+            AppointmentStatus.NoShow => "bg-secondary",
+            _ => "bg-light text-dark"
         };
     }
 }

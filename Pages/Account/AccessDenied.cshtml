@@ -25,5 +25,30 @@
                 </div>
             </div>
         </div>
-    </div>
-</div> 
+    </div> 
+</div>
+<script>
+    (function () {
+        try {
+            var msg = 'Access denied. You do not have permission to perform this action.';
+            if (typeof window.showToast === 'function') {
+                window.showToast('error', msg);
+            } else if (typeof window.toastr !== 'undefined') {
+                toastr.error(msg);
+            } else if (window.bootstrap) {
+                // lightweight bootstrap toast fallback via global handler if present
+                console && console.warn && console.warn('Access denied');
+            } else {
+                alert(msg);
+            }
+            // Prefer going back to previous page; if no history, go home
+            setTimeout(function(){
+                if (window.history.length > 1) {
+                    window.history.back();
+                } else {
+                    window.location.href = '/';
+                }
+            }, 1200);
+        } catch (_) { /* ignore */ }
+    })();
+</script>

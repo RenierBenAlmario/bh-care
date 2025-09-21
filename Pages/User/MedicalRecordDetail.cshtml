@@ -1,0 +1,120 @@
+@page "{id:int}"
+@model Barangay.Pages.User.MedicalRecordDetailModel
+@{
+    ViewData["Title"] = "Medical Record Details";
+    Layout = "_UserLayout";
+}
+
+<div class="container-fluid">
+    @if (Model.MedicalRecord != null)
+    {
+        <!-- Printable Consultation Summary -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Consultation Summary</h4>
+                <button onclick="printConsultationSummary()" class="btn btn-outline-primary">
+                    <i class="fas fa-print me-1"></i> Print
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="consultationSummary" style="max-width: 800px; margin: 0 auto; font-family: Arial, sans-serif;">
+                    <!-- Header -->
+                    <div style="background-color: #333; color: white; padding: 20px; text-align: center; margin-bottom: 20px;">
+                        <h1 style="font-size: 18px; font-weight: bold; margin: 0; text-transform: uppercase;">CITY GOVERNMENT OF CALOOCAN</h1>
+                        <h2 style="font-size: 16px; font-weight: bold; margin: 5px 0 0 0; text-transform: uppercase;">CITY HEALTH DEPARTMENT</h2>
+                        <div style="background-color: #333; color: white; padding: 8px; margin: 10px auto 0 auto; width: 80%; border: 1px solid white; text-align: center;">
+                            <h3 style="font-size: 14px; font-weight: bold; margin: 0; text-transform: uppercase;">BAESA HEALTH CENTER</h3>
+                            <p style="font-size: 10px; margin: 0;">356 RCBC</p>
+                        </div>
+                        <div style="position: absolute; right: 20px; top: 20px; font-size: 16px; border: 1px solid white; border-radius: 50%; width: 24px; height: 24px; line-height: 24px; text-align: center;">✚</div>
+                    </div>
+
+                    <!-- Patient Information -->
+                    <div style="margin: 20px 0; font-size: 12px; text-align: left; line-height: 1.4; padding: 0 10px;">
+                        <div>PATIENT NAME: <u style="display: inline-block; min-width: 200px; text-decoration: underline;">@Model.MedicalRecord.Patient?.User?.FirstName @Model.MedicalRecord.Patient?.User?.LastName</u></div>
+                        <div>CONSULTATION DATE: <u style="display: inline-block; min-width: 150px; text-decoration: underline;">@Model.MedicalRecord.Date.ToString("MMMM dd, yyyy 'at' h:mm tt")</u></div>
+                        <div>DOCTOR: <u style="display: inline-block; min-width: 200px; text-decoration: underline;">@Model.MedicalRecord.Doctor?.FullName</u></div>
+                    </div>
+
+                    <!-- Rx Symbol -->
+                    <div style="margin: 20px 0; padding: 0 10px;">
+                        <div style="font-size: 24px; font-weight: bold; margin: 10px 0;">R<sub>x</sub></div>
+                    </div>
+
+                    <!-- Consultation Details -->
+                    <div style="margin: 20px 0; padding: 0 10px;">
+                        <div style="margin-bottom: 15px;">
+                            <div style="font-weight: bold; margin-bottom: 5px;">Chief Complaint:</div>
+                            <div style="margin-left: 10px; padding: 5px; background-color: #f8f9fa; border-left: 3px solid #007bff;">@(Model.MedicalRecord.ChiefComplaint ?? "Not specified")</div>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <div style="font-weight: bold; margin-bottom: 5px;">Diagnosis:</div>
+                            <div style="margin-left: 10px; padding: 5px; background-color: #f8f9fa; border-left: 3px solid #007bff;">@(Model.MedicalRecord.Diagnosis ?? "Not specified")</div>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <div style="font-weight: bold; margin-bottom: 5px;">Treatment Plan:</div>
+                            <div style="margin-left: 10px; padding: 5px; background-color: #f8f9fa; border-left: 3px solid #007bff;">@(Model.MedicalRecord.Treatment ?? "Not specified")</div>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <div style="font-weight: bold; margin-bottom: 5px;">Additional Notes:</div>
+                            <div style="margin-left: 10px; padding: 5px; background-color: #f8f9fa; border-left: 3px solid #007bff;">@(Model.MedicalRecord.Notes ?? "None")</div>
+                        </div>
+                    </div>
+
+                    <!-- Signature Section -->
+                    <div style="margin-top: 30px; text-align: center; font-size: 10px;">
+                        <div style="border-top: 1px solid #000; width: 120px; margin: 0 auto 5px auto;"></div>
+                        <div>PHYSICIAN-IN-CHARGE</div>
+                        <div style="margin-top: 15px;">
+                            <div style="border-top: 1px solid #000; width: 120px; margin: 0 auto 5px auto;"></div>
+                            <div>LICENSE NO.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a asp-page="./Records" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Records
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning">Medical record not found.</div>
+    }
+</div>
+
+<script>
+function printConsultationSummary() {
+    const printContent = document.getElementById('consultationSummary').innerHTML;
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Consultation Summary</title>
+            <style>
+                body { 
+                    font-family: Arial, sans-serif; 
+                    margin: 0; 
+                    padding: 20px; 
+                    background-color: white;
+                }
+                @@media print {
+                    body { margin: 0; padding: 0; }
+                }
+            </style>
+        </head>
+        <body>
+            ${printContent}
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+}
+</script>

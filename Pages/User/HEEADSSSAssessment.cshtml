@@ -2,13 +2,48 @@
 @model Barangay.Pages.User.HEEADSSSAssessmentModel
 @{
     ViewData["Title"] = "HEEADSSS Health Assessment";
+    Layout = "~/Pages/Shared/_UserLayout.cshtml";
+    ViewData["ShowDashboardNav"] = true;
 }
 
 @section Styles {
     <style>
-        .form-control:disabled, .form-control[readonly] {
-            background-color: #f8f9fa;
-            opacity: 1;
+        /* Scoped variables for this page */
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --background-color: #f8f9fa;
+            --form-bg-color: #ffffff;
+            --text-color: #333;
+            --border-color: #dee2e6;
+            --danger-color: #dc3545;
+        }
+
+        /* Page-scoped container styles */
+        .heeadsss-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--form-bg-color);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+
+        .heeadsss-container h1,
+        .heeadsss-container h2,
+        .heeadsss-container h3 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .heeadsss-container .form-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background: #fff;
         }
         
         .form-label.required::after {
@@ -16,295 +51,351 @@
             color: red;
         }
         
-        .form-step {
-            display: none;
-        }
-        
-        .form-step.active {
-            display: block;
-        }
-        
-        .step-indicator {
-            display: flex;
-            justify-content: space-between;
+        .age-indicator {
+            background: #007bff;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
             margin-bottom: 20px;
-            position: relative;
-            padding: 0;
-            list-style: none;
-        }
-        
-        .step-indicator::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: #e0e0e0;
-            z-index: 1;
-        }
-        
-        .step-indicator li {
-            position: relative;
-            z-index: 2;
-            background: white;
-            padding: 0 10px;
-        }
-        
-        .step-indicator li.active {
-            color: #007bff;
             font-weight: bold;
-        }
-        
-        .step-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-        
-        .guardian-consent {
-            display: none;
-            background-color: #fff3cd;
-            border: 1px solid #ffeeba;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-        }
-
-        .status-bar {
-            background-color: #E0F7FA;
-            padding: 10px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-        }
-
-        .health-tip {
-            border: 1px solid #007BFF;
-            padding: 10px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-        }
-
-        .conditional-field {
-            display: none;
         }
     </style>
 }
 
-<div class="container mt-5">
-    <!-- Status Bar -->
-    <div class="status-bar">
-        <div class="row">
-            <div class="col-md-6">
-                <strong>Current Queue:</strong> 5 patients waiting (Est. wait time: 15 mins)
-            </div>
-            <div class="col-md-6 text-end">
-                <strong>Health Tip:</strong> Stay hydrated and bring your ID to appointments.
-            </div>
-        </div>
-    </div>
+<div class="container heeadsss-container">
+    <h1>HEEADSSS Health Assessment Form</h1>
 
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <a href="/User/UserDashboard" class="btn btn-outline-primary">
-                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
-                </a>
-                <h2 class="mb-0">HEEADSSS Assessment Form</h2>
-                <div style="width: 135px;"></div>
-            </div>
-        </div>
+    <div class="age-indicator">
+        For 10 - 19 years old
     </div>
 
     <form method="post" id="heeadsssForm">
         @Html.AntiForgeryToken()
-        <input type="hidden" asp-for="Assessment.AppointmentId" />
+        
+        <!-- Hidden fields -->
         <input type="hidden" asp-for="Assessment.UserId" />
+        <input type="hidden" asp-for="Assessment.HealthFacility" />
+        <input type="hidden" asp-for="Assessment.FamilyNo" />
+        <input type="hidden" asp-for="Assessment.AppointmentId" />
+        <input type="hidden" asp-for="Assessment.Age" />
+        <input type="hidden" asp-for="Assessment.Birthday" />
 
-        <!-- Patient Information -->
-        <div class="card mb-4">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">Patient Information</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="mb-3">
-                            <label class="form-label">Patient Name</label>
-                            <input type="text" class="form-control" value="@ViewData["PatientName"]" readonly />
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="mb-3">
-                            <label class="form-label">Age</label>
-                            <input type="text" class="form-control" value="@ViewData["PatientAge"]" readonly />
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="mb-3">
-                            <label class="form-label">Phone</label>
-                            <input type="text" class="form-control" value="@ViewData["PatientPhone"]" readonly />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Basic Information -->
-        <div class="card mb-4">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">Basic Information</h5>
-            </div>
-            <div class="card-body">
+        <!-- Profile Section -->
+        <div class="form-section">
+            <h3>1. Profile</h3>
+            
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label asp-for="Assessment.HealthFacility" class="form-label required">Health Facility</label>
-                            <input asp-for="Assessment.HealthFacility" class="form-control" readonly />
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label asp-for="Assessment.FamilyNo" class="form-label">Family No</label>
-                            <input asp-for="Assessment.FamilyNo" class="form-control" />
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="mb-3">
-                            <label asp-for="Assessment.Address" class="form-label required">Address</label>
-                            <input asp-for="Assessment.Address" class="form-control" required />
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="mb-3">
-                            <label asp-for="Assessment.Birthday" class="form-label required">Birthday</label>
-                            <input asp-for="Assessment.Birthday" class="form-control" type="date" required />
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="mb-3">
-                            <label asp-for="Assessment.Gender" class="form-label required">Gender</label>
-                            <select asp-for="Assessment.Gender" class="form-select" required>
-                                <option value="">Select Gender</option>
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
+                            <label class="form-label">Health Facility</label>
+                            <select class="form-control" asp-for="HealthFacility">
+                                <option value="Baesa Health Center" selected>Baesa Health Center</option>
                             </select>
                         </div>
-                    </div>
-                    <div class="col-md-4">
+                    
                         <div class="mb-3">
-                            <label asp-for="Assessment.Religion" class="form-label">Religion</label>
-                            <input asp-for="Assessment.Religion" class="form-control" />
+                            <label class="form-label">Date of Assessment</label>
+                        <input type="text" class="form-control" value="@DateTime.Now.ToString("MM/dd/yyyy")" readonly />
+                    </div>
+                    
+                        <div class="mb-3">
+                            <label class="form-label required">Birthday</label>
+                        <input type="date" class="form-control" asp-for="Assessment.Birthday" value="@ViewData["PatientBirthdate"]" />
+                    </div>
+                </div>
+                
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Patient Name</label>
+                            <input type="text" class="form-control" asp-for="Assessment.FullName" value="@ViewData["PatientName"]" />
                         </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Family No.</label>
+                        <div class="d-flex">
+                            <input type="text" class="form-control" asp-for="FamilyNo" id="family-no" />
+                            <button type="button" id="generate-family-no" class="btn btn-secondary ms-2">Generate</button>
+                        </div>
+                        <small class="form-text text-muted">If you have a family number, enter it or click Generate to create a new one.</small>
+                    </div>
+                
+                <div class="mb-3">
+                        <label class="form-label">Contact Number</label>
+                        <input type="text" class="form-control" asp-for="Assessment.ContactNumber" value="@ViewData["PatientPhone"]" />
+                        <small class="form-text text-muted">11 digits only, Philippine format (e.g. 09123456789)</small>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Navigation Buttons -->
-        <div class="d-flex justify-content-between mt-4">
-            <a href="/User/UserDashboard" class="btn btn-secondary">Back to Dashboard</a>
-            <button type="submit" class="btn btn-primary" id="submitButton">Save & Continue to NCD Assessment</button>
+        <!-- HOME Section -->
+        <div class="form-section">
+            <h3>2. HOME</h3>
+            
+                <div class="mb-3">
+                    <label class="form-label">Meron bang problema sa inyong pamilya na kung saan ikaw ay maaaring maapektuhan?</label>
+                    <textarea class="form-control" asp-for="Assessment.HomeFamilyProblems" rows="3"></textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Pinakikinggan ka ba ng iyong magulang o guardian sa tuwing ikaw ay may problema?</label>
+                    <textarea class="form-control" asp-for="Assessment.HomeParentalListening" rows="3"></textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">May pagkakataon bang nasisi iyong magulang?</label>
+                    <textarea class="form-control" asp-for="Assessment.HomeParentalBlame" rows="3"></textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Sa nakaraang taon, meron bang pagbabagong naganap sa loob ng iyong pamilya?</label>
+                    <textarea class="form-control" asp-for="Assessment.HomeFamilyChanges" rows="3"></textarea>
+                </div>
+            </div>
+
+        <!-- EDUCATION Section -->
+        <div class="form-section">
+            <h3>3. EDUCATION</h3>
+            
+                <div class="mb-3">
+                    <label class="form-label">Ikaw ba ay kasalukuyang nag-aaral?</label>
+                    <textarea class="form-control" asp-for="Assessment.EducationCurrentlyStudying" rows="3"></textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Ikaw ba ay nagtatrabaho? Kung oo, ano ang iyong trabaho?</label>
+                    <textarea class="form-control" asp-for="Assessment.EducationWorking" rows="3"></textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">May problema ka ba sa iskwela o sa trabaho?</label>
+                    <textarea class="form-control" asp-for="Assessment.EducationSchoolWorkProblems" rows="3"></textarea>
+            </div>
+        </div>
+        
+        <!-- EATING Section -->
+        <div class="form-section">
+            <h3>4. EATING</h3>
+                
+            <div class="mb-3">
+                <label class="form-label">Kuntento ka ba sa iyong itsura, anyo, o sa iyong kasalukuyang timbang?</label>
+                <textarea class="form-control" asp-for="Assessment.EatingBodyImageSatisfaction" rows="3"></textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Sinubukan mo na bang magbawas ng timbang sa pamamagitan ng pagsuka ng kinain (vomiting), uminom ng diet pills o pampadumi (laxatives), o kaya ang sadyang hindi pagkain (starvation)?</label>
+                <textarea class="form-control" asp-for="Assessment.EatingDisorderedEatingBehaviors" rows="3"></textarea>
+            </div>
+        </div>
+        
+        <!-- ACTIVITIES Section -->
+        <div class="form-section">
+            <h3>5. ACTIVITIES</h3>
+                
+            <div class="mb-3">
+                <label class="form-label">Mayroon ka bang mga sinasalihang sports/ aktibidad sa iskwela, trabaho o bahay?</label>
+                <textarea class="form-control" asp-for="Assessment.ActivitiesParticipation" rows="3"></textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Regular ka bang nag-eehersisyo?</label>
+                <textarea class="form-control" asp-for="Assessment.ActivitiesRegularExercise" rows="3"></textarea>
+            </div>
+        </div>
+        
+        <!-- DRUGS Section -->
+        <div class="form-section">
+            <h3>6. DRUGS</h3>
+                
+            <div class="mb-3">
+                <label class="form-label">Naranasan mo na bang gumamit ng mga sumusunod: Tobacco (Sigarilyo)?</label>
+                <textarea class="form-control" asp-for="Assessment.DrugsTobaccoUse" rows="3"></textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Naranasan mo na bang gumamit ng mga sumusunod: Alcohol (Alak)?</label>
+                <textarea class="form-control" asp-for="Assessment.DrugsAlcoholUse" rows="3"></textarea>
+            </div>
+        </div>
+        
+        <!-- SEXUALITY Section -->
+        <div class="form-section">
+            <h3>7. SEXUALITY</h3>
+                
+            <div class="mb-3">
+                <label class="form-label">Ikaw ba ay may karanasan na sa pakikipagtalik?</label>
+                <textarea class="form-control" asp-for="Assessment.SexualityIntimateRelationships" rows="3"></textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">May ginagamit ka bang proteksiyon kapag sa tuwing nakikipagtalik?</label>
+                <textarea class="form-control" asp-for="Assessment.SexualityProtection" rows="3"></textarea>
+            </div>
+        </div>
+        
+        <!-- SAFETY Section -->
+        <div class="form-section">
+            <h3>8. SAFETY</h3>
+                
+            <div class="mb-3">
+                <label class="form-label">Ikaw ba ay nakakaranas mahipuan/masuntok/masampal/matulak ng kahit sino?</label>
+                <textarea class="form-control" asp-for="Assessment.SafetyPhysicalAbuse" rows="3"></textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Nakaranas ka na bang masaktan o takutin ng iyong karelasyon?</label>
+                <textarea class="form-control" asp-for="Assessment.SafetyRelationshipViolence" rows="3"></textarea>
+            </div>
+        </div>
+        
+        <!-- SUICIDE Section -->
+        <div class="form-section">
+            <h3>9. SUICIDE</h3>
+                
+            <div class="mb-3">
+                <label class="form-label">Ikaw ba ay nakakaranas na ng pagkalisa o pagkamalungkutin?</label>
+                <textarea class="form-control" asp-for="Assessment.SuicideDepressionFeelings" rows="3"></textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Naisip mo na bang saktan ang iyong sarili o wakasan ang iyong buhay?</label>
+                <textarea class="form-control" asp-for="Assessment.SuicideSelfHarmThoughts" rows="3"></textarea>
+            </div>
+        </div>
+        
+        <!-- Review Section -->
+        <div class="form-section">
+            <h3>10. Review & Submit</h3>
+            
+                <div class="mb-3">
+                <label class="form-label required">Assessed by:</label>
+                <input type="text" class="form-control" asp-for="Assessment.AssessedBy" required />
+        </div>
+
+            <div class="alert alert-info">
+                <strong>HOPE line</strong> for suicide prevention and emotional crisis<br>
+                804-4673 (HOPE) / 0917-558-4673 (HOPE)
+            </div>
+        </div>
+        
+        <!-- Submit Button -->
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-save me-2"></i>
+                Submit Assessment
+            </button>
         </div>
     </form>
 </div>
 
 @section Scripts {
+    <!-- SweetAlert2 for notifications -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).ready(function() {
-            console.log('[HEEADSSS] Page loaded');
-            const form = $('#heeadsssForm');
-            
-            // Debug: Log initial appointmentId
-            const initialAppointmentId = $('input[name="Assessment.AppointmentId"]').val();
-            console.log('[HEEADSSS] Initial appointmentId:', initialAppointmentId);
-            
-            // Handle form submission
-            form.on('submit', function(e) {
-                e.preventDefault();
-                console.log('[HEEADSSS] Form submission started');
+            // Generate Family Number functionality
+            document.getElementById('generate-family-no').addEventListener('click', async function() {
+                console.log("Generate button clicked"); // Debug logging
                 
-                // Show loading state
-                $('#submitButton').prop('disabled', true).html('Saving...');
-                console.log('[HEEADSSS] Submit button disabled');
-                
-                // Get form data
-                const formData = new FormData(this);
-                
-                // Debug: Log form data
-                console.log('[HEEADSSS] Form data:');
-                for (let pair of formData.entries()) {
-                    console.log(pair[0] + ': ' + pair[1]);
+                const lastName = '@ViewData["PatientName"]'.split(' ').pop(); // Get last name from patient name
+                if (!lastName || lastName.length === 0) {
+                    alert('Please enter your last name first to generate a family number.');
+                    return;
                 }
                 
-                // Get appointmentId from hidden field
-                const appointmentId = $('input[name="Assessment.AppointmentId"]').val();
-                console.log('[HEEADSSS] AppointmentId for submission:', appointmentId);
+                try {
+                    console.log("Sending request to generate family number for:", lastName);
+                    const response = await fetch('/User/NCDRiskAssessment?handler=GenerateFamilyNumber', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        body: JSON.stringify({ lastName: lastName })
+                    });
+                    
+                    const result = await response.json();
+                    console.log("Generate family number response:", result);
+                    
+                    if (result.success) {
+                        console.log("Generated family number:", result.familyNo);
+                        document.getElementById('family-no').value = result.familyNo;
+                        if (result.isPreexisting) {
+                            alert('Using existing family number: ' + result.familyNo);
+                        } else {
+                            alert('New family number generated: ' + result.familyNo);
+                        }
+                    } else {
+                        alert('Error generating family number: ' + (result.error || 'Unknown error'));
+                    }
+                } catch (error) {
+                    console.error('Error generating family number:', error);
+                    alert('Error generating family number. Please try again.');
+                }
+            });
+            
+            // Form submission
+            $('#heeadsssForm').on('submit', function(e) {
+                e.preventDefault();
                 
-                // Submit form data via AJAX
-                console.log('[HEEADSSS] Sending AJAX request...');
+                // Show loading
+                Swal.fire({
+                    title: 'Submitting...',
+                    text: 'Please wait while we save your assessment.',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    willOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                // Submit form
+                var formData = $(this).serialize();
+                console.log('Form data being sent:', formData);
+                
                 $.ajax({
-                    url: form.attr('action'),
+                    url: window.location.pathname,
                     type: 'POST',
                     data: formData,
-                    processData: false,
-                    contentType: false,
                     success: function(response) {
-                        console.log('[HEEADSSS] AJAX response:', response);
-                        if (response.success) {
-                            console.log('[HEEADSSS] Submission successful');
-                            alert('HEEADSSS Assessment saved successfully!');
-                            
-                            // Debug: Log redirect URL
-                            const redirectUrl = `/User/NCDRiskAssessment?appointmentId=${appointmentId}`;
-                            console.log('[HEEADSSS] Redirecting to:', redirectUrl);
-                            
-                            // Redirect to NCDRiskAssessment with appointmentId
-                            window.location.href = redirectUrl;
+                        console.log('Success response:', response);
+                        
+                        // Check if the response indicates success
+                        if (response && response.success === true) {
+                            Swal.fire({
+                                title: 'Success!',
+                                text: 'Your HEEADSSS assessment has been submitted successfully.',
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                window.location.href = '/User/Appointments';
+                            });
                         } else {
-                            console.error('[HEEADSSS] Submission failed:', response.error || response.errors);
-                            $('#submitButton').prop('disabled', false).html('Save & Continue to NCD Assessment');
-                            if (response.errors) {
-                                alert('Please fix the following errors:\n' + response.errors.join('\n'));
-                            } else {
-                                alert(response.error || 'Error saving assessment. Please try again.');
-                            }
+                            // Handle backend error response
+                            const errorMessage = response && response.error ? response.error : 'An error occurred while saving the assessment.';
+                            console.error('Backend error:', errorMessage);
+                            Swal.fire({
+                                title: 'Error',
+                                text: errorMessage,
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
                         }
                     },
-                    error: function(xhr, status, error) {
-                        console.error('[HEEADSSS] AJAX error:', {
-                            status: status,
-                            error: error,
-                            response: xhr.responseText
+                    error: function(xhr) {
+                        console.error('Error response:', xhr);
+                        console.error('Error status:', xhr.status);
+                        console.error('Error text:', xhr.responseText);
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'An error occurred while submitting your assessment. Please try again.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
                         });
-                        $('#submitButton').prop('disabled', false).html('Save & Continue to NCD Assessment');
-                        alert('Error saving assessment. Please try again.');
                     }
                 });
             });
-
-            // Calculate age based on birthday
-            $('input[name="Assessment.Birthday"]').on('change', function() {
-                console.log('[HEEADSSS] Birthday changed:', $(this).val());
-                const birthDate = new Date($(this).val());
-                const today = new Date();
-                
-                let age = today.getFullYear() - birthDate.getFullYear();
-                const monthDiff = today.getMonth() - birthDate.getMonth();
-                
-                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-                    age--;
-                }
-                
-                console.log('[HEEADSSS] Calculated age:', age);
-                $('input[name="Assessment.Age"]').val(age);
-            });
         });
     </script>
-} 
+}

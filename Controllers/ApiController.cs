@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using System.IO;
 using Barangay.Data;
 using Barangay.Models;
+using Barangay.Services;
+using Barangay.Extensions;
 using System.Linq;
 using System;
 using Microsoft.AspNetCore.Hosting;
@@ -18,12 +20,14 @@ namespace Barangay.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _environment;
+        private readonly IDataEncryptionService _encryptionService;
         
-        public ApiController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IWebHostEnvironment environment)
+        public ApiController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IWebHostEnvironment environment, IDataEncryptionService encryptionService)
         {
             _context = context;
             _userManager = userManager;
             _environment = environment;
+            _encryptionService = encryptionService;
         }
         
         [HttpGet("{id}/download")]
@@ -72,6 +76,15 @@ namespace Barangay.Controllers
                 if (user == null)
                 {
                     return NotFound(new { message = "Staff member not found" });
+                }
+
+                // Decrypt user data for authorized users
+                user = user.DecryptSensitiveData(_encryptionService, User);
+                
+                // Manually decrypt PhoneNumber since it's not marked with [Encrypted] attribute
+                if (!string.IsNullOrEmpty(user.PhoneNumber) && _encryptionService.IsEncrypted(user.PhoneNumber))
+                {
+                    user.PhoneNumber = user.PhoneNumber.DecryptForUser(_encryptionService, User);
                 }
 
                 // Get user roles

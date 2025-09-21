@@ -76,12 +76,13 @@ namespace Barangay.Pages.Doctor
                 // Get any medications associated with this medical record
                 var medications = await _context.PrescriptionMedications
                     .Where(m => m.MedicalRecordId == id)
+                    .Include(m => m.Medication)
                     .ToListAsync();
 
                 Medications = medications.Select(m => new PatientDetailsModel.PrescriptionMedicationViewModel
                 {
                     Id = m.Id,
-                    MedicationName = m.MedicationName,
+                    MedicationName = m.Medication?.Name ?? "Unknown",
                     Dosage = m.Dosage,
                     Instructions = m.Instructions,
                     CreatedAt = medicalRecord.Date,

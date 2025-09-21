@@ -9,6 +9,7 @@ using Barangay.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Barangay.Services;
+using Barangay.Extensions;
 using System.Collections.Generic;
 using Barangay.Helpers;
 
@@ -19,16 +20,16 @@ namespace Barangay.Controllers
     [Authorize(Roles = "Nurse")]
     public class NurseApiController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly EncryptedDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<NurseApiController> _logger;
-        private readonly IEncryptionService _encryptionService;
+        private readonly IDataEncryptionService _encryptionService;
 
         public NurseApiController(
-            ApplicationDbContext context,
+            EncryptedDbContext context,
             UserManager<ApplicationUser> userManager,
             ILogger<NurseApiController> logger,
-            IEncryptionService encryptionService)
+            IDataEncryptionService encryptionService)
         {
             _context = context;
             _userManager = userManager;
@@ -162,16 +163,17 @@ namespace Barangay.Controllers
                 {
                     PatientId = model.PatientId,
                     BloodPressure = model.BloodPressure,
-                    HeartRate = !string.IsNullOrEmpty(model.HeartRate) ? int.Parse(model.HeartRate) : null,
-                    Temperature = !string.IsNullOrEmpty(model.Temperature) ? decimal.Parse(model.Temperature) : null,
-                    RespiratoryRate = model.RespiratoryRate.HasValue ? model.RespiratoryRate : null,
-                    SpO2 = model.SpO2.HasValue ? model.SpO2 : null,
-                    Weight = model.Weight.HasValue ? model.Weight : null,
-                    Height = model.Height.HasValue ? model.Height : null,
+                    HeartRate = model.HeartRate,
+                    Temperature = model.Temperature,
+                    RespiratoryRate = model.RespiratoryRate,
+                    SpO2 = model.SpO2,
+                    Weight = model.Weight,
+                    Height = model.Height,
                     Notes = model.Notes,
                     RecordedAt = DateTime.Now
                 };
 
+                // EncryptedDbContext will handle encryption automatically
                 _context.VitalSigns.Add(vitalSign);
                 await _context.SaveChangesAsync();
 
@@ -306,10 +308,10 @@ namespace Barangay.Controllers
         public string? BloodPressure { get; set; }
         public string? HeartRate { get; set; }
         public string? Temperature { get; set; }
-        public int? RespiratoryRate { get; set; }
-        public int? SpO2 { get; set; }
-        public decimal? Weight { get; set; }
-        public decimal? Height { get; set; }
+        public string? RespiratoryRate { get; set; }
+        public string? SpO2 { get; set; }
+        public string? Weight { get; set; }
+        public string? Height { get; set; }
         public string? Notes { get; set; }
     }
 }

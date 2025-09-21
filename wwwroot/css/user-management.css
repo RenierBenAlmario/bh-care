@@ -15,18 +15,18 @@
 .batch-operations .card {
     border: none;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-    border-left: 4px solid #1E88E5;
-    background-color: #F8FBFF;
+    border-left: 4px solid var(--primary);
+    background-color: var(--bg-surface-variant);
 }
 
 .batch-count {
     font-weight: 500;
-    color: #495057;
+    color: var(--text-secondary);
 }
 
 #selectedCount {
     font-weight: 600;
-    color: #1E88E5;
+    color: var(--primary);
 }
 
 .user-select-checkbox {
@@ -34,8 +34,8 @@
 }
 
 .user-card.selected {
-    border: 2px solid #1E88E5;
-    box-shadow: 0 5px 15px rgba(30, 136, 229, 0.2);
+    border: 2px solid var(--primary);
+    box-shadow: 0 5px 15px rgba(231, 111, 43, 0.2);
 }
 
 #toggleBatchMode {
@@ -43,9 +43,9 @@
 }
 
 #toggleBatchMode.active {
-    background-color: #1E88E5;
+    background-color: var(--primary);
     color: white;
-    border-color: #1E88E5;
+    border-color: var(--primary);
 }
 
 /* User Card Styling */
@@ -61,7 +61,7 @@
 }
 
 .user-card .card-header {
-    background-color: #f8f9fa;
+    background-color: var(--bg-surface-variant);
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
     padding: 0.75rem 1rem;
 }
@@ -71,7 +71,7 @@
 }
 
 .user-card .card-footer {
-    background-color: #f8f9fa;
+    background-color: var(--bg-surface-variant);
     border-top: 1px solid rgba(0, 0, 0, 0.08);
     padding: 0.75rem 1rem;
 }
@@ -94,7 +94,7 @@
 }
 
 .document-container {
-    background-color: #f8f9fa;
+    background-color: var(--bg-surface-variant);
     border-radius: 6px;
     padding: 0.75rem;
     margin-top: 0.25rem;
@@ -224,7 +224,7 @@
 }
 
 .action-btn.approve {
-    background-color: #28C76F;
+    background-color: var(--status-success);
     color: white;
 }
 
@@ -233,7 +233,7 @@
 }
 
 .action-btn.reject {
-    background-color: #EA5455;
+    background-color: var(--status-danger);
     color: white;
 }
 
@@ -301,7 +301,7 @@
 }
 
 .document-preview-btn:hover {
-    background-color: rgba(25, 118, 210, 0.05);
+    background-color: var(--bg-hover);
 }
 
 .document-preview-btn i {
@@ -481,7 +481,7 @@
 .spinner-container p {
     margin-top: 1rem;
     font-weight: 500;
-    color: #1E88E5;
+    color: var(--primary);
 }
 
 /* Card animation */
@@ -514,12 +514,12 @@
 }
 
 .pagination .page-link {
-    color: #1E88E5;
+    color: var(--primary);
 }
 
 .pagination .active .page-link {
-    background-color: #1E88E5;
-    border-color: #1E88E5;
+    background-color: var(--primary);
+    border-color: var(--primary);
 }
 
 /* Notification badge */
@@ -531,7 +531,7 @@
     position: absolute;
     top: -8px;
     right: -8px;
-    background-color: #ff5252;
+    background-color: var(--status-danger);
     color: white;
     border-radius: 50%;
     width: 22px;
@@ -572,7 +572,7 @@
 
 .notification-header {
     padding: 12px 15px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-light);
     font-weight: 600;
 }
 
@@ -586,29 +586,29 @@
 
 .notification-item {
     padding: 10px 15px;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--border-light);
     position: relative;
     transition: background-color 0.2s;
 }
 
 .notification-item:hover {
-    background-color: #f8f9fa;
+    background-color: var(--bg-hover);
 }
 
 .notification-item.notification-info {
-    border-left: 3px solid #17a2b8;
+    border-left: 3px solid var(--primary);
 }
 
 .notification-item.notification-success {
-    border-left: 3px solid #28a745;
+    border-left: 3px solid var(--status-success);
 }
 
 .notification-item.notification-warning {
-    border-left: 3px solid #ffc107;
+    border-left: 3px solid var(--status-warning);
 }
 
 .notification-item.notification-danger {
-    border-left: 3px solid #dc3545;
+    border-left: 3px solid var(--status-danger);
 }
 
 .notification-content p {
@@ -623,13 +623,13 @@
 .notification-footer {
     padding: 10px 15px;
     text-align: center;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--border-light);
 }
 
 .notification-item.empty {
     padding: 20px;
     text-align: center;
-    color: #6c757d;
+    color: var(--text-muted);
 }
 
 /* Document preview modal styling */
@@ -649,10 +649,10 @@
     width: 100%;
     min-height: 400px;
     margin-bottom: 1rem;
-    border: 1px solid #dee2e6;
+    border: 1px solid var(--border-light);
     border-radius: 4px;
     overflow: hidden;
-    background-color: #f8f9fa;
+    background-color: var(--bg-surface-variant);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -671,7 +671,7 @@
 }
 
 .view-file-btn {
-    background: linear-gradient(135deg, #1E88E5 0%, #42A5F5 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
     border: none;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
@@ -808,7 +808,7 @@
     
     .user-table tr {
         margin-bottom: 1rem;
-        border: 1px solid #dee2e6;
+        border: 1px solid var(--border-light);
         border-radius: 6px;
         overflow: hidden;
     }
@@ -817,7 +817,7 @@
         text-align: right;
         padding-left: 50%;
         position: relative;
-        border-bottom: 1px solid #f0f0f0;
+        border-bottom: 1px solid var(--border-light);
     }
     
     .user-table td:before {
@@ -869,4 +869,128 @@
         width: 100%;
         justify-content: flex-start;
     }
-} 
+}
+
+/* ==========================
+   UserManagement page tweaks
+   (migrated from inline styles)
+   ========================== */
+
+/* Ensure action buttons wrap nicely in narrow cells */
+.action-buttons {
+    flex-wrap: wrap;
+}
+
+/* Alias for legacy JS class `.btn-action` to match `.action-btn` styling */
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.btn-action i {
+    margin-right: 4px;
+}
+
+.btn-action.approve { background-color: var(--status-success); color: #fff; }
+.btn-action.approve:hover { background-color: #24B263; }
+
+.btn-action.reject { background-color: var(--status-danger); color: #fff; }
+
+/* Action button styles */
+.action-danger {
+    background-color: #dc3545 !important;
+    color: white !important;
+    border-color: #dc3545 !important;
+}
+
+.action-danger:hover {
+    background-color: #c82333 !important;
+    border-color: #bd2130 !important;
+    color: white !important;
+}
+
+.action-danger:focus {
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+}
+.btn-action.reject:hover { background-color: #D94A4B; }
+
+.btn-action.view { background-color: var(--primary); color: #fff; }
+.btn-action.view:hover { background-color: var(--primary-dark); }
+
+.btn-action.disabled {
+    background-color: var(--border-medium);
+    color: var(--text-muted);
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+/* Small primary buttons subtle elevation */
+.btn-primary.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0.2rem;
+    margin: 2px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.2s;
+}
+
+.btn-primary.btn-sm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.btn-primary.btn-sm:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Back button hover refinement */
+.btn.btn-secondary:hover {
+    background-color: var(--text-muted);
+    transform: translateX(-3px);
+}
+
+/* Guardian consent column and badges */
+.guardian-consent-column { min-width: 160px; }
+
+.guardian-badge {
+    display: block;
+    margin-bottom: 5px;
+    text-align: center;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.guardian-age-info {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.guardian-view-btn {
+    padding: 2px 8px;
+    font-size: 0.8rem;
+}
+
+/* Document preview modal sizing */
+#documentPreviewContainer {
+    max-height: 500px;
+    overflow: auto;
+}
+
+#residencyProofImage {
+    max-height: 300px;
+}
+
+#proofPlaceholder {
+    height: 200px;
+}

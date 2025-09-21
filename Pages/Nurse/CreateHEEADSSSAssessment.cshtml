@@ -1,0 +1,491 @@
+@page
+@model Barangay.Pages.Nurse.CreateHEEADSSSAssessmentModel
+@{
+    ViewData["Title"] = "Create HEEADSSS Assessment";
+    Layout = "_NurseLayout";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="m-0">Create HEEADSSS Assessment</h2>
+        <a href="javascript:history.back()" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>
+            Back
+        </a>
+    </div>
+    
+    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+    {
+        <div class="alert @(Model.StatusMessage.Contains("Error") ? "alert-danger" : "alert-success") alert-dismissible fade show" role="alert">
+            @Model.StatusMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card mb-3">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Patient: @Model.PatientName</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Age:</strong> @Model.PatientAge years</p>
+                    <p><strong>Health Facility:</strong> @Model.HealthFacility</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Family No:</strong> @Model.FamilyNo</p>
+                    @if (Model.PatientAge < 10 || Model.PatientAge > 19)
+                    {
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Patient's age (@Model.PatientAge) is outside the recommended range (10-19) for HEEADSSS assessment.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form method="post" id="heeadsssForm">
+        <input type="hidden" asp-for="Assessment.AppointmentId" />
+        <input type="hidden" asp-for="Assessment.UserId" />
+        <input type="hidden" asp-for="Assessment.HealthFacility" value="@Model.HealthFacility" />
+        <input type="hidden" asp-for="Assessment.FamilyNo" value="@Model.FamilyNo" />
+        <input type="hidden" asp-for="Assessment.FullName" value="@Model.PatientName" />
+        <input type="hidden" asp-for="Assessment.Age" value="@Model.PatientAge" />
+        <input type="hidden" asp-for="Assessment.Address" value="@Model.PatientAddress" />
+        <input type="hidden" asp-for="Assessment.ContactNumber" value="@Model.PatientPhone" />
+
+        <ul class="nav nav-tabs mb-3" id="assessmentTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home-content" 
+                        type="button" role="tab" aria-controls="home-content" aria-selected="true">
+                    Home
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="education-tab" data-bs-toggle="tab" data-bs-target="#education-content" 
+                        type="button" role="tab" aria-controls="education-content" aria-selected="false">
+                    Education
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="eating-tab" data-bs-toggle="tab" data-bs-target="#eating-content" 
+                        type="button" role="tab" aria-controls="eating-content" aria-selected="false">
+                    Eating
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="activities-tab" data-bs-toggle="tab" data-bs-target="#activities-content" 
+                        type="button" role="tab" aria-controls="activities-content" aria-selected="false">
+                    Activities
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="drugs-tab" data-bs-toggle="tab" data-bs-target="#drugs-content" 
+                        type="button" role="tab" aria-controls="drugs-content" aria-selected="false">
+                    Drugs
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="sexuality-tab" data-bs-toggle="tab" data-bs-target="#sexuality-content" 
+                        type="button" role="tab" aria-controls="sexuality-content" aria-selected="false">
+                    Sexuality
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="safety-tab" data-bs-toggle="tab" data-bs-target="#safety-content" 
+                        type="button" role="tab" aria-controls="safety-content" aria-selected="false">
+                    Safety
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="suicide-tab" data-bs-toggle="tab" data-bs-target="#suicide-content" 
+                        type="button" role="tab" aria-controls="suicide-content" aria-selected="false">
+                    Suicide
+                </button>
+            </li>
+        </ul>
+        
+        <div class="tab-content p-3 border border-top-0 rounded-bottom mb-4">
+            <!-- HOME Section -->
+            <div class="tab-pane fade show active" id="home-content" role="tabpanel" aria-labelledby="home-tab">
+                <h5 class="border-bottom pb-2">Home Environment</h5>
+                <div class="mb-3">
+                    <label class="form-label">Family Problems</label>
+                    <textarea asp-for="Assessment.HomeFamilyProblems" class="form-control" rows="2" 
+                              placeholder="Describe any family problems"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Parental Listening</label>
+                    <select asp-for="Assessment.HomeParentalListening" class="form-select">
+                        <option value="">-- Select --</option>
+                        <option value="Good">Good</option>
+                        <option value="Average">Average</option>
+                        <option value="Poor">Poor</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Parental Blame</label>
+                    <select asp-for="Assessment.HomeParentalBlame" class="form-select">
+                        <option value="">-- Select --</option>
+                        <option value="Never">Never</option>
+                        <option value="Sometimes">Sometimes</option>
+                        <option value="Often">Often</option>
+                        <option value="Always">Always</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Family Changes</label>
+                    <textarea asp-for="Assessment.HomeFamilyChanges" class="form-control" rows="2" 
+                              placeholder="Recent changes in family structure or dynamics"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Home Environment Description</label>
+                    <textarea asp-for="Assessment.HomeEnvironment" class="form-control" rows="2" 
+                              placeholder="Describe the home environment"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Family Relationship Description</label>
+                    <textarea asp-for="Assessment.FamilyRelationship" class="form-control" rows="2" 
+                              placeholder="Describe family relationships"></textarea>
+                </div>
+            </div>
+            
+            <!-- EDUCATION Section -->
+            <div class="tab-pane fade" id="education-content" role="tabpanel" aria-labelledby="education-tab">
+                <h5 class="border-bottom pb-2">Education</h5>
+                <div class="mb-3">
+                    <label class="form-label">Currently Studying</label>
+                    <select asp-for="Assessment.EducationCurrentlyStudying" class="form-select">
+                        <option value="">-- Select --</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Working</label>
+                    <select asp-for="Assessment.EducationWorking" class="form-select">
+                        <option value="">-- Select --</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                        <option value="Part-time">Part-time</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">School/Work Problems</label>
+                    <textarea asp-for="Assessment.EducationSchoolWorkProblems" class="form-control" rows="2" 
+                              placeholder="Describe any school or work problems"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Experience of Bullying</label>
+                    <textarea asp-for="Assessment.EducationBullying" class="form-control" rows="2" 
+                              placeholder="Describe any experiences with bullying"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">School Performance</label>
+                    <select asp-for="Assessment.SchoolPerformance" class="form-select">
+                        <option value="">-- Select --</option>
+                        <option value="Excellent">Excellent</option>
+                        <option value="Good">Good</option>
+                        <option value="Average">Average</option>
+                        <option value="Below Average">Below Average</option>
+                        <option value="Poor">Poor</option>
+                    </select>
+                </div>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" asp-for="Assessment.AttendanceIssues" />
+                    <label class="form-check-label">Attendance Issues</label>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Career Plans</label>
+                    <textarea asp-for="Assessment.CareerPlans" class="form-control" rows="2" 
+                              placeholder="Describe career plans or ambitions"></textarea>
+                </div>
+            </div>
+            
+            <!-- EATING Section -->
+            <div class="tab-pane fade" id="eating-content" role="tabpanel" aria-labelledby="eating-tab">
+                <h5 class="border-bottom pb-2">Eating Habits & Body Image</h5>
+                <div class="mb-3">
+                    <label class="form-label">Diet Description</label>
+                    <textarea asp-for="Assessment.DietDescription" class="form-control" rows="2" 
+                              placeholder="Describe typical diet and eating patterns"></textarea>
+                </div>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" asp-for="Assessment.WeightConcerns" />
+                    <label class="form-check-label">Weight Concerns</label>
+                </div>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" asp-for="Assessment.EatingDisorderSymptoms" />
+                    <label class="form-check-label">Eating Disorder Symptoms</label>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Body Image Satisfaction</label>
+                    <select asp-for="Assessment.EatingBodyImageSatisfaction" class="form-select">
+                        <option value="">-- Select --</option>
+                        <option value="Very Satisfied">Very Satisfied</option>
+                        <option value="Satisfied">Satisfied</option>
+                        <option value="Neutral">Neutral</option>
+                        <option value="Dissatisfied">Dissatisfied</option>
+                        <option value="Very Dissatisfied">Very Dissatisfied</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Disordered Eating Behaviors</label>
+                    <textarea asp-for="Assessment.EatingDisorderedEatingBehaviors" class="form-control" rows="2" 
+                              placeholder="Describe any disordered eating behaviors"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Weight Comments</label>
+                    <textarea asp-for="Assessment.EatingWeightComments" class="form-control" rows="2" 
+                              placeholder="Additional comments about weight or eating habits"></textarea>
+                </div>
+            </div>
+            
+            <!-- ACTIVITIES Section -->
+            <div class="tab-pane fade" id="activities-content" role="tabpanel" aria-labelledby="activities-tab">
+                <h5 class="border-bottom pb-2">Activities</h5>
+                <div class="mb-3">
+                    <label class="form-label">Hobbies</label>
+                    <textarea asp-for="Assessment.Hobbies" class="form-control" rows="2" 
+                              placeholder="List hobbies and interests"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Physical Activity</label>
+                    <select asp-for="Assessment.PhysicalActivity" class="form-select">
+                        <option value="">-- Select --</option>
+                        <option value="None">None</option>
+                        <option value="Light">Light</option>
+                        <option value="Moderate">Moderate</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Intense">Intense</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Screen Time (hours per day)</label>
+                    <select asp-for="Assessment.ScreenTime" class="form-select">
+                        <option value="">-- Select --</option>
+                        <option value="Less than 1 hour">Less than 1 hour</option>
+                        <option value="1-2 hours">1-2 hours</option>
+                        <option value="3-4 hours">3-4 hours</option>
+                        <option value="5-6 hours">5-6 hours</option>
+                        <option value="More than 6 hours">More than 6 hours</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Activities Participation</label>
+                    <textarea asp-for="Assessment.ActivitiesParticipation" class="form-control" rows="2" 
+                              placeholder="Group activities, sports, clubs, etc."></textarea>
+                </div>
+            </div>
+            
+            <!-- DRUGS Section -->
+            <div class="tab-pane fade" id="drugs-content" role="tabpanel" aria-labelledby="drugs-tab">
+                <h5 class="border-bottom pb-2">Substance Use</h5>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" asp-for="Assessment.SubstanceUse" id="substanceUse" />
+                    <label class="form-check-label">Any Substance Use</label>
+                </div>
+                <div id="substanceTypeDiv" class="mb-3 d-none">
+                    <label class="form-label">Substance Types</label>
+                    <textarea asp-for="Assessment.SubstanceType" class="form-control" rows="2" 
+                              placeholder="Describe substances used"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Tobacco Use</label>
+                    <select asp-for="Assessment.DrugsTobaccoUse" class="form-select">
+                        <option value="">-- Select --</option>
+                        <option value="Never">Never</option>
+                        <option value="Tried">Tried</option>
+                        <option value="Occasional">Occasional</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Heavy">Heavy</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Alcohol Use</label>
+                    <select asp-for="Assessment.DrugsAlcoholUse" class="form-select">
+                        <option value="">-- Select --</option>
+                        <option value="Never">Never</option>
+                        <option value="Tried">Tried</option>
+                        <option value="Occasional">Occasional</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Heavy">Heavy</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Illicit Drug Use</label>
+                    <select asp-for="Assessment.DrugsIllicitDrugUse" class="form-select">
+                        <option value="">-- Select --</option>
+                        <option value="Never">Never</option>
+                        <option value="Tried">Tried</option>
+                        <option value="Occasional">Occasional</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Heavy">Heavy</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- SEXUALITY Section -->
+            <div class="tab-pane fade" id="sexuality-content" role="tabpanel" aria-labelledby="sexuality-tab">
+                <h5 class="border-bottom pb-2">Sexuality</h5>
+                <div class="mb-3">
+                    <label class="form-label">Dating Relationships</label>
+                    <select asp-for="Assessment.DatingRelationships" class="form-select">
+                        <option value="">-- Select --</option>
+                        <option value="Not dating">Not dating</option>
+                        <option value="Casual dating">Casual dating</option>
+                        <option value="In a relationship">In a relationship</option>
+                    </select>
+                </div>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" asp-for="Assessment.SexualActivity" />
+                    <label class="form-check-label">Sexually Active</label>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Sexual Orientation</label>
+                    <select asp-for="Assessment.SexualOrientation" class="form-select">
+                        <option value="">-- Select --</option>
+                        <option value="Prefers not to disclose">Prefers not to disclose</option>
+                        <option value="Heterosexual">Heterosexual</option>
+                        <option value="Homosexual">Homosexual</option>
+                        <option value="Bisexual">Bisexual</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Protection Methods</label>
+                    <textarea asp-for="Assessment.SexualityProtection" class="form-control" rows="2" 
+                              placeholder="Describe protection methods used if sexually active"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">STI Awareness/History</label>
+                    <textarea asp-for="Assessment.SexualitySTI" class="form-control" rows="2" 
+                              placeholder="STI awareness and history"></textarea>
+                </div>
+            </div>
+            
+            <!-- SAFETY Section -->
+            <div class="tab-pane fade" id="safety-content" role="tabpanel" aria-labelledby="safety-tab">
+                <h5 class="border-bottom pb-2">Safety</h5>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" asp-for="Assessment.FeelsSafeAtHome" />
+                    <label class="form-check-label">Feels Safe at Home</label>
+                </div>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" asp-for="Assessment.FeelsSafeAtSchool" />
+                    <label class="form-check-label">Feels Safe at School</label>
+                </div>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" asp-for="Assessment.ExperiencedBullying" />
+                    <label class="form-check-label">Has Experienced Bullying</label>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Physical Abuse</label>
+                    <textarea asp-for="Assessment.SafetyPhysicalAbuse" class="form-control" rows="2" 
+                              placeholder="Any experience of physical abuse"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Relationship Violence</label>
+                    <textarea asp-for="Assessment.SafetyRelationshipViolence" class="form-control" rows="2" 
+                              placeholder="Any experience of relationship violence"></textarea>
+                </div>
+            </div>
+            
+            <!-- SUICIDE Section -->
+            <div class="tab-pane fade" id="suicide-content" role="tabpanel" aria-labelledby="suicide-tab">
+                <h5 class="border-bottom pb-2">Mental Health</h5>
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    This section deals with sensitive mental health topics. Positive responses may require immediate action.
+                </div>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" asp-for="Assessment.MoodChanges" />
+                    <label class="form-check-label">Significant Mood Changes</label>
+                </div>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" asp-for="Assessment.SuicidalThoughts" />
+                    <label class="form-check-label">Suicidal Thoughts</label>
+                </div>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" asp-for="Assessment.SelfHarmBehavior" />
+                    <label class="form-check-label">Self-Harm Behavior</label>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Depression Feelings</label>
+                    <textarea asp-for="Assessment.SuicideDepressionFeelings" class="form-control" rows="2" 
+                              placeholder="Describe feelings of depression if any"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Self-Harm Thoughts</label>
+                    <textarea asp-for="Assessment.SuicideSelfHarmThoughts" class="form-control" rows="2" 
+                              placeholder="Describe self-harm thoughts if any"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Family History of Mental Health Issues</label>
+                    <textarea asp-for="Assessment.SuicideFamilyHistory" class="form-control" rows="2" 
+                              placeholder="Family history of mental health issues or suicide"></textarea>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Assessment Notes</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Assessment Notes</label>
+                    <textarea asp-for="Assessment.AssessmentNotes" class="form-control" rows="3" 
+                              placeholder="Professional observations and assessment notes"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Recommended Actions</label>
+                    <textarea asp-for="Assessment.RecommendedActions" class="form-control" rows="2" 
+                              placeholder="Recommended actions or interventions"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Follow-up Plan</label>
+                    <textarea asp-for="Assessment.FollowUpPlan" class="form-control" rows="2" 
+                              placeholder="Follow-up plan and timeline"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Assessed By</label>
+                    <input type="text" asp-for="Assessment.AssessedBy" class="form-control" placeholder="Name of healthcare professional" />
+                </div>
+            </div>
+        </div>
+        
+        <div class="d-flex justify-content-between mb-4">
+            <button type="button" class="btn btn-secondary" onclick="history.back()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Assessment</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Initialize tabs
+            var triggerTabList = [].slice.call(document.querySelectorAll('#assessmentTabs button'));
+            triggerTabList.forEach(function (triggerEl) {
+                var tabTrigger = new bootstrap.Tab(triggerEl);
+                triggerEl.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    tabTrigger.show();
+                });
+            });
+            
+            // Toggle substance type input visibility
+            $('#substanceUse').change(function() {
+                if($(this).is(':checked')) {
+                    $('#substanceTypeDiv').removeClass('d-none');
+                } else {
+                    $('#substanceTypeDiv').addClass('d-none');
+                    $('#Assessment_SubstanceType').val('');
+                }
+            });
+        });
+    </script>
+} 

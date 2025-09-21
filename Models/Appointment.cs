@@ -2,8 +2,10 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
+using System.Text.Json.Serialization;
 using Barangay.Extensions;
 using Barangay.Helpers;
+using Barangay.Attributes;
 
 namespace Barangay.Models
 {
@@ -20,37 +22,54 @@ namespace Barangay.Models
         public string? DoctorId { get; set; }
         
         [Required]
-        [StringLength(100)]
+        [StringLength(1000)] // Increased for encrypted data
+        [Encrypted]
         public string PatientName { get; set; } = string.Empty;
         
         // Dependent-related properties
-        [StringLength(100)]
+        [StringLength(1000)] // Increased for encrypted data
+        [Encrypted]
         public string? DependentFullName { get; set; }
         public int? DependentAge { get; set; }
         [StringLength(50)]
         public string? RelationshipToDependent { get; set; }
         
+        // Booking for someone else properties
+        [NotMapped]
+        public bool BookingForOther { get; set; }
+        
+        [NotMapped]
+        [StringLength(50)]
+        public string? Relationship { get; set; }
+        
         // Basic Info
         [StringLength(10)]
         public string? Gender { get; set; }
-        [StringLength(20)]
+        [StringLength(100)] // Increased for encrypted data
+        [Encrypted]
         public string? ContactNumber { get; set; }
         public DateTime? DateOfBirth { get; set; }
-        [StringLength(200)]
+        [StringLength(1000)] // Increased for encrypted data
+        [Encrypted]
         public string? Address { get; set; }
         
         // Emergency Contact
-        [StringLength(100)]
+        [StringLength(500)] // Increased for encrypted data
+        [Encrypted]
         public string? EmergencyContact { get; set; }
-        [StringLength(20)]
+        [StringLength(100)] // Increased for encrypted data
+        [Encrypted]
         public string? EmergencyContactNumber { get; set; }
         
         // Medical Info
-        [StringLength(500)]
+        [StringLength(2000)] // Increased for encrypted data
+        [Encrypted]
         public string? Allergies { get; set; }
-        [StringLength(1000)]
+        [StringLength(2000)] // Increased for encrypted data
+        [Encrypted]
         public string? MedicalHistory { get; set; }
-        [StringLength(500)]
+        [StringLength(2000)] // Increased for encrypted data
+        [Encrypted]
         public string? CurrentMedications { get; set; }
         public string? AttachmentsData { get; set; }
         
@@ -63,10 +82,12 @@ namespace Barangay.Models
         public TimeSpan AppointmentTime { get; set; }
         public string AppointmentTimeInput { get; set; } = string.Empty;
         
-        [StringLength(500)]
+        [StringLength(2000)] // Increased for encrypted data
+        [Encrypted]
         public string Description { get; set; } = string.Empty;
         
-        [StringLength(500)]
+        [StringLength(2000)] // Increased for encrypted data
+        [Encrypted]
         public string ReasonForVisit { get; set; } = string.Empty;
         
         [Required]
@@ -84,10 +105,12 @@ namespace Barangay.Models
         [StringLength(500)]
         public string? AttachmentPath { get; set; }
         
-        [StringLength(1000)]
+        [StringLength(2000)] // Increased for encrypted data
+        [Encrypted]
         public string? Prescription { get; set; }
         
-        [StringLength(1000)]
+        [StringLength(2000)] // Increased for encrypted data
+        [Encrypted]
         public string? Instructions { get; set; }
         
         // Added ApplicationUserId property to match database schema
@@ -96,6 +119,7 @@ namespace Barangay.Models
         
         // Navigation properties - Updated for Patient to use the Patient model
         [ForeignKey(nameof(PatientId))]
+        [JsonIgnore]
         public virtual Patient Patient { get; set; } = null!;
         
         [ForeignKey(nameof(DoctorId))]
@@ -103,7 +127,10 @@ namespace Barangay.Models
         public virtual ApplicationUser? Doctor { get; set; }
         
         // Navigation properties for attachments and files
+        [JsonIgnore]
         public virtual ICollection<AppointmentAttachment> Attachments { get; set; } = new List<AppointmentAttachment>();
+        
+        [JsonIgnore]
         public virtual ICollection<AppointmentFile> Files { get; set; } = new List<AppointmentFile>();
 
         // Helper methods

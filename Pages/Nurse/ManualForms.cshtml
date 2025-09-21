@@ -1,0 +1,495 @@
+@page
+@model Barangay.Pages.Nurse.ManualFormsModel
+@{
+    ViewData["Title"] = "Manual Forms";
+    Layout = "_NurseLayout";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="m-0">Manual Forms & Records</h2>
+        <a href="/Nurse/NurseDashboard" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>
+            Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Quick Actions Section -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-bolt me-2"></i>
+                Quick Actions
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <a href="#shortcutForm" class="btn btn-warning w-100 mb-2" onclick="showForm('shortcut')">
+                        <i class="fas fa-calendar-plus me-2"></i>
+                        Quick Schedule Request
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="#fullForm" class="btn btn-success w-100 mb-2" onclick="showForm('full')">
+                        <i class="fas fa-baby me-2"></i>
+                        Full Immunization Record
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="/Nurse/ImmunizationRequests" class="btn btn-info w-100 mb-2">
+                        <i class="fas fa-list me-2"></i>
+                        View All Requests
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="/Nurse/ImmunizationRecords" class="btn btn-primary w-100 mb-2">
+                        <i class="fas fa-database me-2"></i>
+                        View Records
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-secondary w-100 mb-2" onclick="sendReminder()">
+                        <i class="fas fa-envelope me-2"></i>
+                        Send Reminder
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Schedule Request Form -->
+    <div id="shortcutForm" class="form-section" style="display: none;">
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-plus me-2"></i>
+                    Quick Schedule Request Form
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" asp-page-handler="ShortcutForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="ShortcutForm.ChildName" class="form-label">Child's Name *</label>
+                                <input asp-for="ShortcutForm.ChildName" class="form-control" required />
+                                <span asp-validation-for="ShortcutForm.ChildName" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="ShortcutForm.MotherName" class="form-label">Mother's Name *</label>
+                                <input asp-for="ShortcutForm.MotherName" class="form-control" required />
+                                <span asp-validation-for="ShortcutForm.MotherName" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="ShortcutForm.FatherName" class="form-label">Father's Name</label>
+                                <input asp-for="ShortcutForm.FatherName" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="ShortcutForm.Email" class="form-label">Email Address *</label>
+                                <input asp-for="ShortcutForm.Email" type="email" class="form-control" required />
+                                <span asp-validation-for="ShortcutForm.Email" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="ShortcutForm.ContactNumber" class="form-label">Contact Number</label>
+                                <input asp-for="ShortcutForm.ContactNumber" class="form-control" placeholder="09XX-XXX-XXXX" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="ShortcutForm.Barangay" class="form-label">Barangay *</label>
+                                <select asp-for="ShortcutForm.Barangay" class="form-control" required>
+                                    <option value="">Select Barangay</option>
+                                    <option value="Barangay 158">Barangay 158</option>
+                                    <option value="Barangay 159">Barangay 159</option>
+                                    <option value="Barangay 160">Barangay 160</option>
+                                    <option value="Barangay 161">Barangay 161</option>
+                                </select>
+                                <span asp-validation-for="ShortcutForm.Barangay" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ShortcutForm.Address" class="form-label">Complete Address *</label>
+                        <textarea asp-for="ShortcutForm.Address" class="form-control" rows="2" required placeholder="House No., Street, Barangay, City"></textarea>
+                        <span asp-validation-for="ShortcutForm.Address" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="ShortcutForm.PreferredDate" class="form-label">Preferred Date *</label>
+                                <input asp-for="ShortcutForm.PreferredDate" type="date" class="form-control" required />
+                                <small class="form-text text-muted">Immunization is available every Wednesday</small>
+                                <span asp-validation-for="ShortcutForm.PreferredDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="ShortcutForm.PreferredTime" class="form-label">Preferred Time</label>
+                                <select asp-for="ShortcutForm.PreferredTime" class="form-control">
+                                    <option value="">Select Time</option>
+                                    <option value="8:00 AM">8:00 AM</option>
+                                    <option value="9:00 AM">9:00 AM</option>
+                                    <option value="10:00 AM">10:00 AM</option>
+                                    <option value="11:00 AM">11:00 AM</option>
+                                    <option value="12:00 PM">12:00 PM</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ShortcutForm.Notes" class="form-label">Additional Notes</label>
+                        <textarea asp-for="ShortcutForm.Notes" class="form-control" rows="3" placeholder="Any special requirements or notes..."></textarea>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Note:</strong> After submitting this form, an email confirmation will be sent with the immunization schedule.
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-warning btn-lg me-3">
+                            <i class="fas fa-paper-plane me-2"></i>
+                            Send Schedule Request
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-lg" onclick="hideAllForms()">
+                            <i class="fas fa-times me-2"></i>
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Full Immunization Record Form -->
+    <div id="fullForm" class="form-section" style="display: none;">
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-baby me-2"></i>
+                    Complete Immunization Record Form
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" asp-page-handler="FullForm">
+                    <!-- Child Information Section -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <h6 class="text-primary mb-3">Child Information</h6>
+                            <div class="mb-3">
+                                <label asp-for="FullForm.ChildName" class="form-label">Child's Name *</label>
+                                <input asp-for="FullForm.ChildName" class="form-control" required />
+                                <span asp-validation-for="FullForm.ChildName" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="FullForm.DateOfBirth" class="form-label">Date of Birth *</label>
+                                <input asp-for="FullForm.DateOfBirth" type="date" class="form-control" required />
+                                <span asp-validation-for="FullForm.DateOfBirth" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="FullForm.PlaceOfBirth" class="form-label">Place of Birth</label>
+                                <input asp-for="FullForm.PlaceOfBirth" class="form-control" />
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="FullForm.Address" class="form-label">Address</label>
+                                <textarea asp-for="FullForm.Address" class="form-control" rows="2"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-primary mb-3">Parent Information</h6>
+                            <div class="mb-3">
+                                <label asp-for="FullForm.MotherName" class="form-label">Mother's Name *</label>
+                                <input asp-for="FullForm.MotherName" class="form-control" required />
+                                <span asp-validation-for="FullForm.MotherName" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="FullForm.FatherName" class="form-label">Father's Name</label>
+                                <input asp-for="FullForm.FatherName" class="form-control" />
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="FullForm.Sex" class="form-label">Sex *</label>
+                                <select asp-for="FullForm.Sex" class="form-control" required>
+                                    <option value="">Select Sex</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                                <span asp-validation-for="FullForm.Sex" class="text-danger"></span>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="FullForm.BirthHeight" class="form-label">Birth Height</label>
+                                        <input asp-for="FullForm.BirthHeight" class="form-control" placeholder="e.g., 50 cm" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="FullForm.BirthWeight" class="form-label">Birth Weight</label>
+                                        <input asp-for="FullForm.BirthWeight" class="form-control" placeholder="e.g., 3.2 kg" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-primary mb-3">Health Center Information</h6>
+                            <div class="mb-3">
+                                <label asp-for="FullForm.HealthCenter" class="form-label">Health Center</label>
+                                <input asp-for="FullForm.HealthCenter" class="form-control" value="Baesa Health Center" readonly />
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="FullForm.Barangay" class="form-label">Barangay</label>
+                                <input asp-for="FullForm.Barangay" class="form-control" />
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="FullForm.FamilyNumber" class="form-label">Family Number</label>
+                                <input asp-for="FullForm.FamilyNumber" class="form-control" />
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="FullForm.Email" class="form-label">Email Address *</label>
+                                <input asp-for="FullForm.Email" type="email" class="form-control" required placeholder="parent@email.com" />
+                                <small class="form-text text-muted">Email will be sent to confirm immunization record creation</small>
+                                <span asp-validation-for="FullForm.Email" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="FullForm.ContactNumber" class="form-label">Contact Number</label>
+                                <input asp-for="FullForm.ContactNumber" class="form-control" placeholder="09XX-XXX-XXXX" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vaccination Records Table -->
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Vaccine</th>
+                                    <th>Dose</th>
+                                    <th>Date Given</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- BCG Vaccine -->
+                                <tr>
+                                    <td rowspan="1"><strong>BCG Vaccine</strong><br><small class="text-muted">At Birth</small></td>
+                                    <td>①</td>
+                                    <td>
+                                        <input asp-for="FullForm.BCGVaccineDate" type="date" class="form-control form-control-sm" />
+                                    </td>
+                                    <td>
+                                        <input asp-for="FullForm.BCGVaccineRemarks" class="form-control form-control-sm" placeholder="Return date or notes" />
+                                    </td>
+                                </tr>
+
+                                <!-- Hepatitis B Vaccine -->
+                                <tr>
+                                    <td rowspan="1"><strong>Hepatitis B Vaccine</strong><br><small class="text-muted">At Birth</small></td>
+                                    <td>①</td>
+                                    <td>
+                                        <input asp-for="FullForm.HepatitisBVaccineDate" type="date" class="form-control form-control-sm" />
+                                    </td>
+                                    <td>
+                                        <input asp-for="FullForm.HepatitisBVaccineRemarks" class="form-control form-control-sm" placeholder="Return date or notes" />
+                                    </td>
+                                </tr>
+
+                                <!-- Pentavalent Vaccine -->
+                                <tr>
+                                    <td rowspan="3"><strong>Pentavalent Vaccine</strong><br><small class="text-muted">DPT-Hep B-HIB</small><br><small class="text-muted">1, 2, 3 months</small></td>
+                                    <td>①</td>
+                                    <td>
+                                        <input asp-for="FullForm.Pentavalent1Date" type="date" class="form-control form-control-sm" />
+                                    </td>
+                                    <td>
+                                        <input asp-for="FullForm.Pentavalent1Remarks" class="form-control form-control-sm" placeholder="Return date or notes" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>②</td>
+                                    <td>
+                                        <input asp-for="FullForm.Pentavalent2Date" type="date" class="form-control form-control-sm" />
+                                    </td>
+                                    <td>
+                                        <input asp-for="FullForm.Pentavalent2Remarks" class="form-control form-control-sm" placeholder="Return date or notes" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>③</td>
+                                    <td>
+                                        <input asp-for="FullForm.Pentavalent3Date" type="date" class="form-control form-control-sm" />
+                                    </td>
+                                    <td>
+                                        <input asp-for="FullForm.Pentavalent3Remarks" class="form-control form-control-sm" placeholder="Return date or notes" />
+                                    </td>
+                                </tr>
+
+                                <!-- Oral Polio Vaccine -->
+                                <tr>
+                                    <td rowspan="3"><strong>Oral Polio Vaccine (OPV)</strong><br><small class="text-muted">1, 2, 3 months</small></td>
+                                    <td>①</td>
+                                    <td>
+                                        <input asp-for="FullForm.OPV1Date" type="date" class="form-control form-control-sm" />
+                                    </td>
+                                    <td>
+                                        <input asp-for="FullForm.OPV1Remarks" class="form-control form-control-sm" placeholder="Return date or notes" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>②</td>
+                                    <td>
+                                        <input asp-for="FullForm.OPV2Date" type="date" class="form-control form-control-sm" />
+                                    </td>
+                                    <td>
+                                        <input asp-for="FullForm.OPV2Remarks" class="form-control form-control-sm" placeholder="Return date or notes" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>③</td>
+                                    <td>
+                                        <input asp-for="FullForm.OPV3Date" type="date" class="form-control form-control-sm" />
+                                    </td>
+                                    <td>
+                                        <input asp-for="FullForm.OPV3Remarks" class="form-control form-control-sm" placeholder="Return date or notes" />
+                                    </td>
+                                </tr>
+
+                                <!-- Inactivated Polio Vaccine -->
+                                <tr>
+                                    <td rowspan="2"><strong>Inactivated Polio Vaccine (IPV)</strong><br><small class="text-muted">3 & 9 months</small></td>
+                                    <td>①</td>
+                                    <td>
+                                        <input asp-for="FullForm.IPV1Date" type="date" class="form-control form-control-sm" />
+                                    </td>
+                                    <td>
+                                        <input asp-for="FullForm.IPV1Remarks" class="form-control form-control-sm" placeholder="Return date or notes" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>②</td>
+                                    <td>
+                                        <input asp-for="FullForm.IPV2Date" type="date" class="form-control form-control-sm" />
+                                    </td>
+                                    <td>
+                                        <input asp-for="FullForm.IPV2Remarks" class="form-control form-control-sm" placeholder="Return date or notes" />
+                                    </td>
+                                </tr>
+
+                                <!-- Pneumococcal Conjugate Vaccine -->
+                                <tr>
+                                    <td rowspan="3"><strong>Pneumococcal Conjugate Vaccine (PCV)</strong><br><small class="text-muted">1, 2, 3 months</small></td>
+                                    <td>①</td>
+                                    <td>
+                                        <input asp-for="FullForm.PCV1Date" type="date" class="form-control form-control-sm" />
+                                    </td>
+                                    <td>
+                                        <input asp-for="FullForm.PCV1Remarks" class="form-control form-control-sm" placeholder="Return date or notes" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>②</td>
+                                    <td>
+                                        <input asp-for="FullForm.PCV2Date" type="date" class="form-control form-control-sm" />
+                                    </td>
+                                    <td>
+                                        <input asp-for="FullForm.PCV2Remarks" class="form-control form-control-sm" placeholder="Return date or notes" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>③</td>
+                                    <td>
+                                        <input asp-for="FullForm.PCV3Date" type="date" class="form-control form-control-sm" />
+                                    </td>
+                                    <td>
+                                        <input asp-for="FullForm.PCV3Remarks" class="form-control form-control-sm" placeholder="Return date or notes" />
+                                    </td>
+                                </tr>
+
+                                <!-- MMR Vaccine -->
+                                <tr>
+                                    <td rowspan="2"><strong>Measles, Mumps, Rubella Vaccine (MMR)</strong><br><small class="text-muted">9 months & 1 year</small></td>
+                                    <td>①</td>
+                                    <td>
+                                        <input asp-for="FullForm.MMR1Date" type="date" class="form-control form-control-sm" />
+                                    </td>
+                                    <td>
+                                        <input asp-for="FullForm.MMR1Remarks" class="form-control form-control-sm" placeholder="Return date or notes" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>②</td>
+                                    <td>
+                                        <input asp-for="FullForm.MMR2Date" type="date" class="form-control form-control-sm" />
+                                    </td>
+                                    <td>
+                                        <input asp-for="FullForm.MMR2Remarks" class="form-control form-control-sm" placeholder="Return date or notes" />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-success btn-lg me-3">
+                            <i class="fas fa-save me-2"></i>
+                            Save Immunization Record
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-lg" onclick="hideAllForms()">
+                            <i class="fas fa-times me-2"></i>
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function showForm(formType) {
+            // Hide all forms first
+            hideAllForms();
+            
+            // Show the selected form
+            if (formType === 'shortcut') {
+                document.getElementById('shortcutForm').style.display = 'block';
+            } else if (formType === 'full') {
+                document.getElementById('fullForm').style.display = 'block';
+            }
+            
+            // Scroll to the form
+            document.getElementById(formType + 'Form').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function hideAllForms() {
+            document.getElementById('shortcutForm').style.display = 'none';
+            document.getElementById('fullForm').style.display = 'none';
+        }
+
+        function sendReminder() {
+            if (confirm('Send immunization reminder to all patients?')) {
+                window.location.href = '/Nurse/Immunization';
+            }
+        }
+
+
+        // Set default date to next Wednesday for shortcut form
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateInput = document.querySelector('input[name="ShortcutForm.PreferredDate"]');
+            if (dateInput && !dateInput.value) {
+                const today = new Date();
+                const daysUntilWednesday = (3 - today.getDay() + 7) % 7;
+                const nextWednesday = new Date(today);
+                nextWednesday.setDate(today.getDate() + (daysUntilWednesday === 0 ? 7 : daysUntilWednesday));
+                dateInput.value = nextWednesday.toISOString().split('T')[0];
+            }
+        });
+    </script>
+}

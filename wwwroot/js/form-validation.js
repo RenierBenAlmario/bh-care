@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const middleNameInput = document.querySelector('input[name="Input.MiddleName"]');
     const lastNameInput = document.querySelector('input[name="Input.LastName"]');
     const suffixInput = document.querySelector('input[name="Input.Suffix"]');
+    const usernameInput = document.querySelector('input[name="Input.Username"]');
     
     // Regular expressions for validation
     const patterns = {
@@ -21,17 +22,29 @@ document.addEventListener('DOMContentLoaded', function() {
         // Allows letters, spaces, hyphens and apostrophes
         name: /^[A-Za-z\s\-']+$/,
         
-        // Checks for repeating characters (same character repeated 4+ times)
-        repeatingChars: /(.)\1{3,}/
+        // Checks for repeating characters (same character repeated 5+ times)
+        repeatingChars: /(.)\1{4,}/,
+        
+        // Username validation - allow any character combination
+        username: /^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?]{3,15}$/
     };
     
     // Error messages
     const errorMessages = {
         contactNumber: 'Contact number must be in format 09XXXXXXXXX or +639XXXXXXXXX',
         nameFormat: 'Only letters, spaces, hyphens, and apostrophes are allowed',
-        nameRepeating: 'Name contains too many repeating characters'
+        nameRepeating: 'Name contains too many repeating characters',
+        username: 'Username must be between 3-15 characters and can contain letters, numbers, and special characters'
     };
     
+    // Apply username validation
+    if (usernameInput) {
+        // Validate on blur (when user leaves the field)
+        usernameInput.addEventListener('blur', function(e) {
+            validateUsername(this);
+        });
+    }
+
     // Apply contact number validation to both contact number fields
     [contactNumberInput, guardianContactNumberInput].forEach(input => {
         if (input) {
@@ -66,6 +79,13 @@ document.addEventListener('DOMContentLoaded', function() {
     if (form) {
         form.addEventListener('submit', function(e) {
             let isValid = true;
+            
+            // Validate username
+            if (usernameInput && usernameInput.value.trim()) {
+                if (!validateUsername(usernameInput)) {
+                    isValid = false;
+                }
+            }
             
             // Validate contact number fields
             [contactNumberInput, guardianContactNumberInput].forEach(input => {
@@ -234,6 +254,37 @@ document.addEventListener('DOMContentLoaded', function() {
         // Successful validation
         updateValidationState(input, true, '');
         return true;
+    }
+    
+    /**
+     * Validate the username format
+     * @param {HTMLInputElement} input - The username input field
+     * @returns {boolean} - Whether the username is valid
+     */
+    function validateUsername(input) {
+        const value = input.value.trim();
+        
+        // Skip validation if the field is empty and not required
+        if (!value) {
+            if (input.hasAttribute('required')) {
+                updateValidationState(input, false, 'Username is required');
+                return false;
+            }
+            clearValidationState(input);
+            return true;
+        }
+        
+        // Check length (between 3 and 15 characters)
+        if (value.length < 3 || value.length > 15) {
+            updateValidationState(input, false, 'Username must be between 3 and 15 characters');
+            return false;
+        }
+        
+        // Check against the pattern
+        const isValid = patterns.username.test(value);
+        updateValidationState(input, isValid, isValid ? '' : errorMessages.username);
+        
+        return isValid;
     }
     
     /**

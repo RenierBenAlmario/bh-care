@@ -5,8 +5,16 @@
     Layout = "_NurseLayout";
 }
 
-<h1>Patient Queue</h1>
-<p>Manage the patient queue efficiently.</p>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="m-0">Patient Queue</h1>
+        <p class="m-0 text-muted">Manage the patient queue efficiently.</p>
+    </div>
+    <a href="/Nurse/NurseDashboard" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i>
+        Back to Dashboard
+    </a>
+</div>
 
 @if (TempData["SuccessMessage"] != null)
 {
@@ -45,26 +53,33 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @{
+                    @if (Model.QueuedAppointments != null && Model.QueuedAppointments.Any())
+                    {
                         int queueNumber = 1;
+                        foreach (var appointment in Model.QueuedAppointments)
+                        {
+                            <tr>
+                                <td>@queueNumber</td>
+                                <td>@appointment.PatientName</td>
+                                <td>@(appointment.AppointmentTime?.ToString(@"hh\:mm") ?? "Not scheduled")</td>
+                                <td>@appointment.DoctorName</td>
+                                <td>
+                                    <span class="badge bg-warning">@appointment.Status</span>
+                                </td>
+                                <td>
+                                    <a asp-page="/Nurse/VitalSigns" asp-route-patientId="@appointment.PatientId" class="btn btn-primary btn-sm">Edit Vital Signs</a>
+                                    <a asp-page="/Nurse/MedicalHistory" asp-route-id="@appointment.Id" class="btn btn-info btn-sm">Medical History</a>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteAppointment(@appointment.Id)">Delete</button>
+                                </td>
+                            </tr>
+                            queueNumber++;
+                        }
                     }
-                    @foreach (var appointment in Model.QueuedAppointments)
+                    else
                     {
                         <tr>
-                            <td>@queueNumber</td>
-                            <td>@appointment.PatientName</td>
-                            <td>@(appointment.AppointmentTime?.ToString(@"hh\:mm") ?? "Not scheduled")</td>
-                            <td>@appointment.DoctorName</td>
-                            <td>
-                                <span class="badge bg-warning">@appointment.Status</span>
-                            </td>
-                            <td>
-                                <a asp-page="/Nurse/VitalSigns" asp-route-patientId="@appointment.PatientId" class="btn btn-primary btn-sm">Edit Vital Signs</a>
-                                <a asp-page="/Nurse/MedicalHistory" asp-route-id="@appointment.Id" class="btn btn-info btn-sm">Medical History</a>
-                                <button class="btn btn-danger btn-sm" onclick="deleteAppointment(@appointment.Id)">Delete</button>
-                            </td>
+                            <td colspan="6" class="text-center">There are no patients in the queue.</td>
                         </tr>
-                        queueNumber++;
                     }
                 </tbody>
             </table>

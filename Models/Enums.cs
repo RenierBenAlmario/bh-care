@@ -40,7 +40,12 @@ namespace Barangay.Models
         /// <summary>
         /// Patient did not show up for the appointment
         /// </summary>
-        NoShow = 6
+        NoShow = 6,
+        
+        /// <summary>
+        /// Appointment form was started but not completed
+        /// </summary>
+        Draft = 7
     }
 
     /// <summary>

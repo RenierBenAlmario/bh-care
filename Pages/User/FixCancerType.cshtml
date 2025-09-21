@@ -1,0 +1,28 @@
+@page
+@model Barangay.Pages.User.FixCancerTypeModel
+@{
+    ViewData["Title"] = "Fix CancerType Column";
+}
+
+<div class="container">
+    <h1>Database Fix Results</h1>
+    
+    @if (Model.Success)
+    {
+        <div class="alert alert-success">
+            <h4>SQL executed successfully!</h4>
+            <p>The CancerType column has been updated to allow NULL values.</p>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-danger">
+            <h4>Error executing SQL</h4>
+            <p>@Model.ErrorMessage</p>
+        </div>
+    }
+    
+    <div class="mt-4">
+        <a href="/User/UserDashboard" class="btn btn-primary">Return to Dashboard</a>
+    </div>
+</div> 

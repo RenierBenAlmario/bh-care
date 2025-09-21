@@ -11,26 +11,30 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using Barangay.Helpers;
+using Barangay.Services;
 
 namespace Barangay.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Doctor,Admin")]
+    [Authorize]
     public class ReportsApiController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<ReportsApiController> _logger;
+        private readonly IPermissionService _permissionService;
 
         public ReportsApiController(
             ApplicationDbContext context, 
             UserManager<ApplicationUser> userManager,
-            ILogger<ReportsApiController> logger)
+            ILogger<ReportsApiController> logger,
+            IPermissionService permissionService)
         {
             _context = context;
             _userManager = userManager;
             _logger = logger;
+            _permissionService = permissionService;
         }
 
         [HttpGet]
@@ -39,6 +43,17 @@ namespace Barangay.Controllers
         {
             try
             {
+                // Check if user has permission to access reports
+                bool canAccessReports = await _permissionService.UserHasPermissionAsync(User, "Access Reports") ||
+                                      User.IsInRole("Admin") ||
+                                      User.IsInRole("Doctor");
+                                      
+                if (!canAccessReports)
+                {
+                    _logger.LogWarning($"User {User.Identity?.Name} attempted to access reports without permission");
+                    return Forbid();
+                }
+                
                 _logger.LogInformation($"Generating report of type {reportType} from {startDate} to {endDate}");
                 
                 var now = DateTime.Now;

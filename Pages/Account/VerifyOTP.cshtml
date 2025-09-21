@@ -1,0 +1,128 @@
+@page
+@model Barangay.Pages.Account.VerifyOTPModel
+@{
+    ViewData["Title"] = "Verify Code";
+}
+
+<div class="container py-4">
+    <div class="login-form-container">
+        <h2 class="text-center welcome-header">
+            <i class="fas fa-shield-alt"></i> Verify Code <i class="fas fa-arrow-right arrow-icon"></i>
+        </h2>
+        
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle me-2"></i>
+                @TempData["SuccessMessage"]
+            </div>
+        }
+        
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                @TempData["ErrorMessage"]
+            </div>
+        }
+        
+        <form method="post" id="verifyOtpForm" class="login-form">
+            <div asp-validation-summary="ModelOnly" class="text-danger validation-summary"></div>
+            
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                We've sent a 6-digit verification code to <strong>@Model.Email</strong>. Please enter it below.
+            </div>
+            
+            <div class="form-group">
+                <label asp-for="Input.OTP" class="form-label">Verification Code <span class="required">*</span></label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-key"></i>
+                    </span>
+                    <input asp-for="Input.OTP" class="form-control text-center" placeholder="000000" aria-label="OTP input" required aria-required="true" maxlength="6" pattern="[0-9]{6}" />
+                </div>
+                <div class="invalid-feedback" id="otpError">Please enter the 6-digit verification code</div>
+                <span asp-validation-for="Input.OTP" class="text-danger error-message"></span>
+            </div>
+            
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary w-100 login-button" id="verifyOtpButton">
+                    <span class="login-button-content">
+                        <i class="fas fa-check me-2"></i> Verify Code
+                    </span>
+                    <span class="login-button-spinner d-none">
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Verifying...
+                    </span>
+                </button>
+            </div>
+            
+            <div class="text-center mt-3">
+                <div class="mb-2">
+                    <a asp-page="./ForgotPassword" class="forgot-password">
+                        <i class="fas fa-arrow-left me-1"></i> Back to Forgot Password
+                    </a>
+                </div>
+                <div>
+                    <span class="text-dark">Didn't receive the code?</span> 
+                    <button type="button" class="btn btn-link p-0" onclick="resendOTP()">
+                        <strong>Resend Code</strong>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Auto-format OTP input
+        document.getElementById('Input_OTP').addEventListener('input', function(e) {
+            // Remove any non-numeric characters
+            this.value = this.value.replace(/[^0-9]/g, '');
+            
+            // Limit to 6 digits
+            if (this.value.length > 6) {
+                this.value = this.value.substring(0, 6);
+            }
+        });
+
+        // Form submission
+        document.getElementById('verifyOtpForm').addEventListener('submit', function(e) {
+            const button = document.getElementById('verifyOtpButton');
+            const content = button.querySelector('.login-button-content');
+            const spinner = button.querySelector('.login-button-spinner');
+            
+            // Show loading state
+            button.disabled = true;
+            content.classList.add('d-none');
+            spinner.classList.remove('d-none');
+        });
+
+        // Resend OTP function
+        function resendOTP() {
+            if (confirm('Resend verification code to @Model.Email?')) {
+                fetch('?handler=ResendOTP', {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('✅ New verification code sent! Please check your email.');
+                    } else {
+                        alert('❌ Error: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    alert('❌ Error resending code. Please try again.');
+                    console.error('Error:', error);
+                });
+            }
+        }
+    </script>
+}

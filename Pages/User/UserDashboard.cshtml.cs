@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,15 +14,20 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Barangay.Services;
+using Barangay.Extensions;
 
-namespace Barangay.Pages.User
-{
-    [Authorize]
-    public class UserDashboardModel : PageModel
+namespace Barangay.Pages.User {
+    [Authorize(Roles = "User")]
+    public partial class UserDashboardModel : PageModel
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<UserDashboardModel> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly JsonSerializerOptions _jsonOptions;
+        private readonly IDataEncryptionService _encryptionService;
 
         public List<Barangay.Models.Appointment> TodayAppointments { get; set; } = new();
         public List<Barangay.Models.Appointment> UpcomingAppointments { get; set; } = new();
@@ -35,17 +40,31 @@ namespace Barangay.Pages.User
         public bool IsDoctor { get; set; }
         public bool IsNurse { get; set; }
         public bool IsPatient { get; set; }
+        
+        // Property to store the user's age
+        public int UserAge { get; set; }
+        
+        // Property to check if the user is eligible for NCD Risk Assessment
+        public bool IsEligibleForNCDAssessment => IsPatient && UserAge >= 20;
 
         [BindProperty]
         public Barangay.Models.Appointment Appointment { get; set; } = new();
 
         public List<ApplicationUser> AvailableDoctors { get; set; } = new();
 
-        public UserDashboardModel(ApplicationDbContext context, ILogger<UserDashboardModel> logger, UserManager<ApplicationUser> userManager)
+        public UserDashboardModel(ApplicationDbContext context, ILogger<UserDashboardModel> logger, UserManager<ApplicationUser> userManager, IDataEncryptionService encryptionService)
         {
             _context = context;
             _logger = logger;
             _userManager = userManager;
+            _encryptionService = encryptionService;
+            
+            // Setup JSON serializer options to handle circular references
+            _jsonOptions = new JsonSerializerOptions
+            {
+                ReferenceHandler = ReferenceHandler.Preserve,
+                MaxDepth = 64
+            };
         }
 
         public async Task<IActionResult> OnGetAsync()
@@ -55,16 +74,48 @@ namespace Barangay.Pages.User
                 var user = await _userManager.GetUserAsync(User);
                 if (user == null) return RedirectToPage("/Account/Login");
 
+                // Decrypt user data for authorized users
+                user = user.DecryptSensitiveData(_encryptionService, User);
+                
+                // Manually decrypt Email and PhoneNumber since they're not marked with [Encrypted] attribute
+                if (!string.IsNullOrEmpty(user.Email) && _encryptionService.IsEncrypted(user.Email))
+                {
+                    user.Email = user.Email.DecryptForUser(_encryptionService, User);
+                }
+                if (!string.IsNullOrEmpty(user.PhoneNumber) && _encryptionService.IsEncrypted(user.PhoneNumber))
+                {
+                    user.PhoneNumber = user.PhoneNumber.DecryptForUser(_encryptionService, User);
+                }
+
                 CurrentUser = user;
                 IsDoctor = await _userManager.IsInRoleAsync(user, "Doctor");
                 IsNurse = await _userManager.IsInRoleAsync(user, "Nurse");
                 IsPatient = await _userManager.IsInRoleAsync(user, "Patient");
+                
+                // Calculate user's age
+                var currentDate = DateTime.Today;
+                var userBirthDate = DateTime.TryParse(user.BirthDate, out var parsedBirthDate) ? parsedBirthDate : DateTime.MinValue;
+                UserAge = currentDate.Year - userBirthDate.Year;
+                // Adjust age if birthday hasn't occurred yet this year
+                if (userBirthDate.Date > currentDate.AddYears(-UserAge)) 
+                {
+                    UserAge--;
+                }
 
                 // Load latest health report
-                LatestHealthReport = await _context.HealthReports
-                    .Where(hr => hr.UserId == user.Id)
-                    .OrderByDescending(hr => hr.CheckupDate)
-                    .FirstOrDefaultAsync();
+                try
+                {
+                    LatestHealthReport = await _context.HealthReports
+                        .Where(hr => hr.UserId == user.Id)
+                        .OrderByDescending(hr => hr.CheckupDate)
+                        .FirstOrDefaultAsync();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning($"Failed to load health report: {ex.Message}");
+                    // Continue execution without health reports
+                    LatestHealthReport = null;
+                }
 
                 // Get current queue info
                 var today = DateTime.Today;
@@ -75,7 +126,7 @@ namespace Barangay.Pages.User
 
                 // Load available doctors
                 var doctorRole = await _userManager.GetUsersInRoleAsync("Doctor");
-                AvailableDoctors = doctorRole.ToList();
+                AvailableDoctors = doctorRole.Select(d => d.DecryptSensitiveData(_encryptionService, User)).ToList();
 
                 await LoadAppointments(user.Id, today);
 
@@ -101,42 +152,6 @@ namespace Barangay.Pages.User
             }
         }
 
-        public async Task<IActionResult> OnGetDownloadReportAsync(int reportId)
-        {
-            try
-            {
-                var user = await _userManager.GetUserAsync(User);
-                var report = await _context.HealthReports
-                    .Include(hr => hr.Doctor)
-                    .FirstOrDefaultAsync(hr => hr.Id == reportId && hr.UserId == user.Id);
-
-                if (report == null)
-                {
-                    return NotFound();
-                }
-
-                var reportContent = $@"Health Report - {report.CheckupDate:MMMM dd, yyyy}
-Blood Pressure: {report.BloodPressure}
-Heart Rate: {report.HeartRate} BPM
-Blood Sugar: {report.BloodSugar} mg/dL
-Weight: {report.Weight} lbs
-Temperature: {report.Temperature}°C
-Physical Activity: {report.PhysicalActivity}
-Notes: {report.Notes}
-Doctor: {report.Doctor?.FirstName} {report.Doctor?.LastName}";
-
-                byte[] fileBytes = System.Text.Encoding.UTF8.GetBytes(reportContent);
-                string fileName = $"health_report_{report.CheckupDate:yyyy_MM_dd}.txt";
-                
-                return File(fileBytes, "text/plain", fileName);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error downloading health report");
-                return RedirectToPage();
-            }
-        }
-
         public async Task<JsonResult> OnGetRefreshAppointmentsAsync()
         {
             try
@@ -145,41 +160,45 @@ Doctor: {report.Doctor?.FirstName} {report.Doctor?.LastName}";
                 var today = DateTime.Today;
                 await LoadAppointments(user.Id, today);
 
+
                 // Add formatted date and time strings to the appointments
                 var todayAppointmentsWithFormatting = TodayAppointments.Select(a => new {
                     id = a.Id,
                     patientName = a.PatientName,
                     doctorId = a.DoctorId,
-                    doctor = a.Doctor,
+                    doctorName = a.Doctor?.FullName ?? "Not Assigned",
                     appointmentDate = a.AppointmentDate,
                     appointmentTime = a.AppointmentTime,
                     formattedDate = a.GetFormattedDate(),
                     formattedTime = a.GetFormattedTime(),
-                    status = a.Status.ToString()
+                    status = a.Status.ToString(),
+                    reasonForVisit = a.ReasonForVisit
                 });
 
                 var upcomingAppointmentsWithFormatting = UpcomingAppointments.Select(a => new {
                     id = a.Id,
                     patientName = a.PatientName,
                     doctorId = a.DoctorId,
-                    doctor = a.Doctor,
+                    doctorName = a.Doctor?.FullName ?? "Not Assigned",
                     appointmentDate = a.AppointmentDate,
                     appointmentTime = a.AppointmentTime,
                     formattedDate = a.GetFormattedDate(),
                     formattedTime = a.GetFormattedTime(),
-                    status = a.Status.ToString()
+                    status = a.Status.ToString(),
+                    reasonForVisit = a.ReasonForVisit
                 });
 
                 var recentAppointmentsWithFormatting = PastAppointments.Take(5).Select(a => new {
                     id = a.Id,
                     patientName = a.PatientName,
                     doctorId = a.DoctorId,
-                    doctor = a.Doctor,
+                    doctorName = a.Doctor?.FullName ?? "Not Assigned",
                     appointmentDate = a.AppointmentDate,
                     appointmentTime = a.AppointmentTime,
                     formattedDate = a.GetFormattedDate(),
                     formattedTime = a.GetFormattedTime(),
-                    status = a.Status.ToString()
+                    status = a.Status.ToString(),
+                    reasonForVisit = a.ReasonForVisit
                 });
 
                 return new JsonResult(new
@@ -188,12 +207,13 @@ Doctor: {report.Doctor?.FirstName} {report.Doctor?.LastName}";
                     today = todayAppointmentsWithFormatting,
                     upcoming = upcomingAppointmentsWithFormatting,
                     recent = recentAppointmentsWithFormatting
-                });
+
+                }, _jsonOptions);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error refreshing appointments");
-                return new JsonResult(new { success = false, message = "Error refreshing appointments" });
+                return new JsonResult(new { success = false, message = "Error refreshing appointments" }, _jsonOptions);
             }
         }
 
@@ -266,7 +286,7 @@ Doctor: {report.Doctor?.FirstName} {report.Doctor?.LastName}";
                 
                 // Get the user's full name to use as default if no name is provided
                 string userName;
-                if (!string.IsNullOrEmpty(user.FirstName) && !string.IsNullOrEmpty(user.LastName))
+                if (!string.IsNullOrEmpty(user.FirstName) && !string.IsNullOrEmpty(user.LastName)) 
                 {
                     userName = !string.IsNullOrEmpty(user.FirstName) && !string.IsNullOrEmpty(user.LastName) 
                         ? $"{user.FirstName} {user.LastName}".Trim() 
@@ -436,56 +456,188 @@ Doctor: {report.Doctor?.FirstName} {report.Doctor?.LastName}";
 
                 _logger.LogInformation($"Found {doctors.Count} doctors in role");
 
-                var availableDoctors = doctors.Select(d => new
+                var availableDoctors = doctors.Select(d => 
                 {
-                    id = d.Id,
-                    name = d.FullName ?? d.Email ?? d.UserName,
-                    specialization = "General"
+                    var decryptedDoctor = d.DecryptSensitiveData(_encryptionService, User);
+                    // Manually decrypt Email since it's not marked with [Encrypted] attribute
+                    if (!string.IsNullOrEmpty(decryptedDoctor.Email) && _encryptionService.IsEncrypted(decryptedDoctor.Email))
+                    {
+                        decryptedDoctor.Email = decryptedDoctor.Email.DecryptForUser(_encryptionService, User);
+                    }
+                    return new
+                    {
+                        id = decryptedDoctor.Id,
+                        name = decryptedDoctor.FullName ?? decryptedDoctor.Email ?? decryptedDoctor.UserName,
+                        specialization = "General"
+                    };
                 }).ToList();
 
                 _logger.LogInformation($"Returning {availableDoctors.Count} doctors");
 
-                return new JsonResult(availableDoctors);
+                return new JsonResult(availableDoctors, _jsonOptions);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting available doctors: {Message}", ex.Message);
-                return new JsonResult(new List<object>());
+                return new JsonResult(new List<object>(), _jsonOptions);
             }
         }
 
-        public async Task<JsonResult> OnGetAvailableTimeSlotsAsync(string doctorId, string date)
+        public async Task<JsonResult> OnGetAvailableTimeSlotsAsync(string doctorId, string date, string consultationType)
         {
             try
             {
-                if (string.IsNullOrEmpty(doctorId) || string.IsNullOrEmpty(date))
-                    return new JsonResult(new List<string>());
+                if (string.IsNullOrEmpty(doctorId) || string.IsNullOrEmpty(date) || string.IsNullOrEmpty(consultationType))
+                    return new JsonResult(new { success = false, error = "Missing required parameters" }, _jsonOptions);
 
                 if (!DateTime.TryParse(date, out DateTime appointmentDate))
-                    return new JsonResult(new List<string>());
+                    return new JsonResult(new { success = false, error = "Invalid date format" }, _jsonOptions);
 
-                var bookedTimes = await _context.Appointments
-                    .Where(a => a.DoctorId == doctorId && a.AppointmentDate.Date == appointmentDate.Date)
-                    .Select(a => a.AppointmentTime)
+                // Get times booked in Appointments table for ALL appointment types
+                var bookedAppointmentTimes = await _context.Appointments
+                    .Where(a => a.AppointmentDate.Date == appointmentDate.Date &&
+                           a.Status != AppointmentStatus.Cancelled)
+                    .Select(a => new { a.AppointmentTime, a.Type })
                     .ToListAsync();
+                
+                _logger.LogInformation($"Found {bookedAppointmentTimes.Count} booked appointment times on {appointmentDate.ToShortDateString()}");
 
-                var availableTimeSlots = new List<string>();
-                for (int hour = 9; hour <= 17; hour++)
+                // Get booked time slots from ConsultationTimeSlots table
+                var bookedTimeSlots = await _context.ConsultationTimeSlots
+                    .Where(cts => cts.StartTime.Date == appointmentDate.Date && 
+                                  cts.IsBooked)
+                    .Select(cts => new { Time = cts.StartTime.TimeOfDay, cts.ConsultationType })
+                    .ToListAsync();
+                
+                _logger.LogInformation($"Found {bookedTimeSlots.Count} booked time slots on {appointmentDate.ToShortDateString()}");
+
+                // Create a set of unavailable times (including 30 minutes before and after each booking)
+                var unavailableTimes = new HashSet<TimeSpan>();
+                
+                // Add all booked appointment times to the unavailable list
+                foreach (var bookedTime in bookedAppointmentTimes)
+                {
+                    // Add the booked time
+                    unavailableTimes.Add(bookedTime.AppointmentTime);
+                    
+                    // Add buffer times based on appointment type duration
+                    int bufferMinutes = GetAppointmentTypeDuration(bookedTime.Type);
+                    
+                    // Add time slots that would overlap with this appointment
+                    for (int i = -bufferMinutes; i <= bufferMinutes; i += 30)
+                    {
+                        var bufferTime = bookedTime.AppointmentTime.Add(TimeSpan.FromMinutes(i));
+                        if (bufferTime.TotalMinutes >= 0 && bufferTime.TotalHours < 24)
+                        {
+                            unavailableTimes.Add(bufferTime);
+                        }
+                    }
+                }
+                
+                // Add all booked consultation time slots to the unavailable list
+                foreach (var bookedSlot in bookedTimeSlots)
+                {
+                    // Add the booked time
+                    unavailableTimes.Add(bookedSlot.Time);
+                    
+                    // Add buffer times based on consultation type duration
+                    int bufferMinutes = GetConsultationTypeDuration(bookedSlot.ConsultationType);
+                    
+                    // Add time slots that would overlap with this consultation
+                    for (int i = -bufferMinutes; i <= bufferMinutes; i += 30)
+                    {
+                        var bufferTime = bookedSlot.Time.Add(TimeSpan.FromMinutes(i));
+                        if (bufferTime.TotalMinutes >= 0 && bufferTime.TotalHours < 24)
+                        {
+                            unavailableTimes.Add(bufferTime);
+                        }
+                    }
+                }
+
+                // Generate ALL time slots based on consultation type, including unavailable ones
+                var allTimeSlots = new List<object>();
+                
+                // Set start and end times based on consultation type
+                var (startHour, endHour) = GetConsultationTypeHours(consultationType);
+                
+                for (int hour = startHour; hour <= endHour; hour++)
                 {
                     for (int minute = 0; minute < 60; minute += 30)
                     {
                         var time = new TimeSpan(hour, minute, 0);
-                        if (!bookedTimes.Contains(time))
-                            availableTimeSlots.Add($"{hour:D2}:{minute:D2}");
+                        string formattedTime = $"{hour:D2}:{minute:D2}";
+                        bool isAvailable = !unavailableTimes.Contains(time);
+                        
+                        allTimeSlots.Add(new {
+                            time = formattedTime,
+                            isAvailable = isAvailable,
+                            displayTime = $"{(hour > 12 ? hour - 12 : hour)}:{minute:D2} {(hour >= 12 ? "PM" : "AM")}"
+                        });
                     }
                 }
+                
+                _logger.LogInformation($"Returning {allTimeSlots.Count} time slots for {consultationType} on {appointmentDate.ToShortDateString()}");
 
-                return new JsonResult(availableTimeSlots);
+                return new JsonResult(new { success = true, timeSlots = allTimeSlots }, _jsonOptions);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error loading available time slots");
-                return new JsonResult(new List<string>());
+                return new JsonResult(new { success = false, error = "Error loading available time slots" }, _jsonOptions);
+            }
+        }
+        
+        private int GetAppointmentTypeDuration(string appointmentType)
+        {
+            // Return duration in minutes based on appointment type
+            switch (appointmentType?.ToLower())
+            {
+                case "medical":
+                    return 20;
+                case "immunization":
+                    return 15;
+                case "checkup":
+                    return 10;
+                case "family":
+                    return 20;
+                default:
+                    return 30; // Default buffer
+            }
+        }
+        
+        private int GetConsultationTypeDuration(string consultationType)
+        {
+            // Return duration in minutes based on consultation type
+            switch (consultationType?.ToLower())
+            {
+                case "medical":
+                    return 20;
+                case "immunization":
+                    return 15;
+                case "checkup":
+                    return 10;
+                case "family":
+                    return 20;
+                default:
+                    return 30; // Default buffer
+            }
+        }
+        
+        private (int startHour, int endHour) GetConsultationTypeHours(string consultationType)
+        {
+            // Return start and end hours based on consultation type
+            switch (consultationType?.ToLower())
+            {
+                case "medical":
+                    return (8, 17); // 8 AM to 5 PM
+                case "immunization":
+                    return (8, 12); // 8 AM to 12 PM (mornings only)
+                case "checkup":
+                    return (8, 17); // 8 AM to 5 PM
+                case "family":
+                    return (13, 17); // 1 PM to 5 PM (afternoons only)
+                default:
+                    return (8, 17); // Default hours
             }
         }
     }

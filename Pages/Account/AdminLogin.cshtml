@@ -1,0 +1,185 @@
+@page
+@model Barangay.Pages.Account.AdminLoginModel
+@{
+    ViewData["Title"] = "Admin Login";
+}
+
+<div class="container py-4">
+    <div class="login-form-container">
+        <div class="admin-login-header">
+            <i class="fas fa-shield-alt admin-icon"></i>
+            <h2 class="text-center admin-welcome-header">
+                Admin
+            </h2>
+            <p class="text-center admin-subtitle">Authorized personnel only</p>
+        </div>
+        
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                @TempData["SuccessMessage"]
+            </div>
+        }
+        
+        <form method="post" id="adminLoginForm" class="login-form">
+            <div asp-validation-summary="ModelOnly" class="text-danger validation-summary"></div>
+            
+            <div class="form-group">
+                <label asp-for="EmailOrUsername" class="form-label">Email or Username <span class="required">*</span></label>
+                <div class="input-group">
+                    <span class="input-group-text admin-input-icon">
+                        <i class="fas fa-user-shield"></i>
+                    </span>
+                    <input asp-for="EmailOrUsername" class="form-control admin-input" placeholder="Enter admin email or username" aria-label="Admin Email or Username input" required aria-required="true" />
+                </div>
+                <div class="invalid-feedback" id="emailUsernameError">Admin email or username is required</div>
+                <span asp-validation-for="EmailOrUsername" class="text-danger error-message"></span>
+            </div>
+            
+            <div class="form-group">
+                <label asp-for="Password" class="form-label">Password <span class="required">*</span></label>
+                <div class="input-group">
+                    <span class="input-group-text admin-input-icon">
+                        <i class="fas fa-lock"></i>
+                    </span>
+                    <input asp-for="Password" class="form-control admin-input" type="password" id="adminPassword" aria-label="Admin Password input" required aria-required="true" />
+                    <button class="btn btn-outline-secondary toggle-password" type="button" id="toggleAdminPassword" tabindex="0" aria-label="Toggle password visibility">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <div class="invalid-feedback" id="passwordError">Admin password is required</div>
+                <span asp-validation-for="Password" class="text-danger error-message"></span>
+            </div>
+            
+            <div class="form-group">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="form-check">
+                        <input asp-for="RememberMe" class="form-check-input" id="rememberMe" aria-label="Remember me checkbox" />
+                        <label asp-for="RememberMe" class="form-check-label text-dark">
+                            Remember me
+                        </label>
+                    </div>
+                    <a asp-page="./ForgotPassword" class="forgot-password text-decoration-none">
+                        <i class="fas fa-key me-1"></i> Forgot Password?
+                    </a>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <button type="submit" class="btn btn-danger w-100 admin-login-button" id="adminLoginButton">
+                    <span class="admin-login-button-content">
+                        <i class="fas fa-shield-alt me-2"></i> Login
+                    </span>
+                    <span class="admin-login-button-spinner d-none">
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Authenticating...
+                    </span>
+                </button>
+            </div>
+            
+            <div class="divider">
+                <span>OR</span>
+            </div>
+            
+            <div class="text-center mt-3">
+                <div>
+                    <span class="text-dark">Need regular access?</span> 
+                    <a asp-page="./Login" class="register-link">
+                        <strong>User Login</strong>
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.admin-login-header {
+    margin-bottom: 2rem;
+}
+
+.admin-icon {
+    font-size: 3rem;
+    color: #dc3545;
+    display: block;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.admin-welcome-header {
+    color: #dc3545;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.admin-subtitle {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 0;
+}
+
+.admin-input-icon {
+    background-color: #f8f9fa;
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+.admin-input {
+    border-color: #dc3545;
+}
+
+.admin-input:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.admin-login-button {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    font-weight: bold;
+}
+
+.admin-login-button:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+.admin-login-button:focus {
+    background-color: #c82333;
+    border-color: #bd2130;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.5);
+}
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const togglePassword = document.getElementById('toggleAdminPassword');
+            const password = document.getElementById('adminPassword');
+            const loginButton = document.getElementById('adminLoginButton');
+            const loginForm = document.getElementById('adminLoginForm');
+
+            // Toggle password visibility
+            togglePassword.addEventListener('click', function() {
+                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                password.setAttribute('type', type);
+                
+                const icon = this.querySelector('i');
+                icon.classList.toggle('fa-eye');
+                icon.classList.toggle('fa-eye-slash');
+            });
+
+            // Form submission with loading state
+            loginForm.addEventListener('submit', function() {
+                const buttonContent = loginButton.querySelector('.admin-login-button-content');
+                const buttonSpinner = loginButton.querySelector('.admin-login-button-spinner');
+                
+                buttonContent.classList.add('d-none');
+                buttonSpinner.classList.remove('d-none');
+                loginButton.disabled = true;
+            });
+        });
+    </script>
+}

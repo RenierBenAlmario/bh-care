@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Barangay.Attributes;
 
 namespace Barangay.Models
 {
@@ -9,163 +10,233 @@ namespace Barangay.Models
         [Key]
         public int Id { get; set; }
         
-        [Required]
-        public string UserId { get; set; } = string.Empty;
+        public string? UserId { get; set; }
         
-        public int AppointmentId { get; set; }
+        [Encrypted]
+        public string? AppointmentId { get; set; }
         
-        public string HealthFacility { get; set; }
+        [Encrypted]
+        public string? HealthFacility { get; set; }
         
-        public string FamilyNo { get; set; }
+        [Encrypted]
+        public string? FamilyNo { get; set; }
         
         // Personal Information 
-        public string FullName { get; set; }
+        [Encrypted]
+        public string? FullName { get; set; }
         
-        public DateTime Birthday { get; set; }
+        [NotMapped]
+        public DateTime? Birthday { get; set; }
         
-        public int Age { get; set; }
+        [Encrypted]
+        public string? Age { get; set; }
 
-        public string Gender { get; set; }
+        [Encrypted]
+        public string? Gender { get; set; }
 
-        public string Address { get; set; }
+        [Encrypted]
+        public string? Address { get; set; }
 
-        public string ContactNumber { get; set; }
+        [Encrypted]
+        public string? ContactNumber { get; set; }
         
         // HOME
-        public string HomeEnvironment { get; set; } = string.Empty;
+        [Encrypted]
+        public string? HomeEnvironment { get; set; }
         
-        public string FamilyRelationship { get; set; } = string.Empty;
+        [Encrypted]
+        public string? FamilyRelationship { get; set; }
         
-        public string HomeFamilyProblems { get; set; }
+        [Encrypted]
+        public string? HomeFamilyProblems { get; set; }
         
-        public string HomeParentalListening { get; set; }
+        [Encrypted]
+        public string? HomeParentalListening { get; set; }
         
-        public string HomeParentalBlame { get; set; }
+        [Encrypted]
+        public string? HomeParentalBlame { get; set; }
         
-        public string HomeFamilyChanges { get; set; }
+        [Encrypted]
+        public string? HomeFamilyChanges { get; set; }
         
         // EDUCATION
-        public string SchoolPerformance { get; set; } = string.Empty;
+        [Encrypted]
+        public string? SchoolPerformance { get; set; }
         
-        public bool AttendanceIssues { get; set; }
+        [Encrypted]
+        public string? AttendanceIssues { get; set; }
         
-        public string CareerPlans { get; set; } = string.Empty;
+        [Encrypted]
+        public string? CareerPlans { get; set; }
         
-        public string EducationCurrentlyStudying { get; set; }
+        [Encrypted]
+        public string? EducationCurrentlyStudying { get; set; }
         
-        public string EducationWorking { get; set; }
+        [Encrypted]
+        public string? EducationWorking { get; set; }
         
-        public string EducationSchoolWorkProblems { get; set; }
+        [Encrypted]
+        public string? EducationSchoolWorkProblems { get; set; }
         
-        public string EducationBullying { get; set; }
+        [Encrypted]
+        public string? EducationBullying { get; set; }
         
-        public string EducationEmployment { get; set; } = string.Empty;
+        [Encrypted]
+        public string? EducationEmployment { get; set; }
         
         // EATING HABITS
-        public string DietDescription { get; set; } = string.Empty;
+        [Encrypted]
+        public string? DietDescription { get; set; }
         
-        public bool WeightConcerns { get; set; }
+        [Encrypted]
+        public string? WeightConcerns { get; set; }
         
-        public bool EatingDisorderSymptoms { get; set; }
+        [Encrypted]
+        public string? EatingDisorderSymptoms { get; set; }
         
-        public string EatingBodyImageSatisfaction { get; set; }
+        [Encrypted]
+        public string? EatingBodyImageSatisfaction { get; set; }
         
-        public string EatingDisorderedEatingBehaviors { get; set; }
+        [Encrypted]
+        public string? EatingDisorderedEatingBehaviors { get; set; }
         
-        public string EatingWeightComments { get; set; }
+        [Encrypted]
+        public string? EatingWeightComments { get; set; }
         
         // ACTIVITIES
-        public string Hobbies { get; set; } = string.Empty;
+        [Encrypted]
+        public string? Hobbies { get; set; }
         
-        public string PhysicalActivity { get; set; } = string.Empty;
+        [Encrypted]
+        public string? PhysicalActivity { get; set; }
         
-        public string ScreenTime { get; set; } = string.Empty;
+        [Encrypted]
+        public string? ScreenTime { get; set; }
         
-        public string ActivitiesParticipation { get; set; }
+        [Encrypted]
+        public string? ActivitiesParticipation { get; set; }
         
-        public string ActivitiesRegularExercise { get; set; }
+        [Encrypted]
+        public string? ActivitiesRegularExercise { get; set; }
         
-        public string ActivitiesScreenTime { get; set; }
+        [Encrypted]
+        public string? ActivitiesScreenTime { get; set; }
         
         // DRUGS
-        public bool SubstanceUse { get; set; }
+        [Encrypted]
+        public string? SubstanceUse { get; set; }
         
-        public string SubstanceType { get; set; } = string.Empty;
+        [Encrypted]
+        public string? SubstanceType { get; set; }
         
-        public string DrugsTobaccoUse { get; set; }
+        [Encrypted]
+        public string? DrugsTobaccoUse { get; set; }
         
-        public string DrugsAlcoholUse { get; set; }
+        [Encrypted]
+        public string? DrugsAlcoholUse { get; set; }
         
-        public string DrugsIllicitDrugUse { get; set; }
+        [Encrypted]
+        public string? DrugsIllicitDrugUse { get; set; }
         
         // SEXUALITY
-        public string DatingRelationships { get; set; } = string.Empty;
+        [Encrypted]
+        public string? DatingRelationships { get; set; }
         
-        public bool SexualActivity { get; set; }
+        [Encrypted]
+        public string? SexualActivity { get; set; }
         
-        public string SexualOrientation { get; set; } = string.Empty;
+        [Encrypted]
+        public string? SexualOrientation { get; set; }
         
-        public string SexualityBodyConcerns { get; set; }
+        [Encrypted]
+        public string? SexualityBodyConcerns { get; set; }
         
-        public string SexualityIntimateRelationships { get; set; }
+        [Encrypted]
+        public string? SexualityIntimateRelationships { get; set; }
         
-        public string SexualityPartners { get; set; }
+        [Encrypted]
+        public string? SexualityPartners { get; set; }
         
-        public string SexualitySexualOrientation { get; set; }
+        [Encrypted]
+        public string? SexualitySexualOrientation { get; set; }
         
-        public string SexualityPregnancy { get; set; }
+        [Encrypted]
+        public string? SexualityPregnancy { get; set; }
         
-        public string SexualitySTI { get; set; }
+        [Encrypted]
+        public string? SexualitySTI { get; set; }
         
-        public string SexualityProtection { get; set; }
+        [Encrypted]
+        public string? SexualityProtection { get; set; }
         
         // SUICIDE/DEPRESSION
-        public bool MoodChanges { get; set; }
+        [Encrypted]
+        public string? MoodChanges { get; set; }
         
-        public bool SuicidalThoughts { get; set; }
+        [Encrypted]
+        public string? SuicidalThoughts { get; set; }
         
-        public bool SelfHarmBehavior { get; set; }
+        [Encrypted]
+        public string? SelfHarmBehavior { get; set; }
         
         // SAFETY
-        public bool FeelsSafeAtHome { get; set; }
+        [Encrypted]
+        public string? FeelsSafeAtHome { get; set; }
         
-        public bool FeelsSafeAtSchool { get; set; }
+        [Encrypted]
+        public string? FeelsSafeAtSchool { get; set; }
         
-        public bool ExperiencedBullying { get; set; }
+        [Encrypted]
+        public string? ExperiencedBullying { get; set; }
         
         // STRENGTHS
-        public string PersonalStrengths { get; set; } = string.Empty;
+        [Encrypted]
+        public string? PersonalStrengths { get; set; }
         
-        public string SupportSystems { get; set; } = string.Empty;
+        [Encrypted]
+        public string? SupportSystems { get; set; }
         
-        public string CopingMechanisms { get; set; } = string.Empty;
+        [Encrypted]
+        public string? CopingMechanisms { get; set; }
         
         // SAFETY/WEAPONS/VIOLENCE
-        public string SafetyPhysicalAbuse { get; set; }
+        [Encrypted]
+        public string? SafetyPhysicalAbuse { get; set; }
         
-        public string SafetyRelationshipViolence { get; set; }
+        [Encrypted]
+        public string? SafetyRelationshipViolence { get; set; }
         
-        public string SafetyProtectiveGear { get; set; }
+        [Encrypted]
+        public string? SafetyProtectiveGear { get; set; }
         
-        public string SafetyGunsAtHome { get; set; }
+        [Encrypted]
+        public string? SafetyGunsAtHome { get; set; }
         
         // SUICIDE/DEPRESSION
-        public string SuicideDepressionFeelings { get; set; }
+        [Encrypted]
+        public string? SuicideDepressionFeelings { get; set; }
         
-        public string SuicideSelfHarmThoughts { get; set; }
+        [Encrypted]
+        public string? SuicideSelfHarmThoughts { get; set; }
         
-        public string SuicideFamilyHistory { get; set; }
+        [Encrypted]
+        public string? SuicideFamilyHistory { get; set; }
         
         // Assessment Information
-        public string AssessmentNotes { get; set; } = string.Empty;
+        [Encrypted]
+        public string? AssessmentNotes { get; set; }
         
-        public string RecommendedActions { get; set; } = string.Empty;
+        [Encrypted]
+        public string? RecommendedActions { get; set; }
         
-        public string FollowUpPlan { get; set; } = string.Empty;
+        [Encrypted]
+        public string? FollowUpPlan { get; set; }
         
-        public string Notes { get; set; }
+        [Encrypted]
+        public string? Notes { get; set; }
         
-        public string AssessedBy { get; set; }
+        [Encrypted]
+        public string? AssessedBy { get; set; }
         
         // Timestamps
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

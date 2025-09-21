@@ -30,7 +30,7 @@
     transition: all var(--transition-speed) ease;
     z-index: 999;
     height: 100%;
-    position: sticky;
+    position: relative;
     top: 0;
     left: 0;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
@@ -176,7 +176,7 @@
         max-width: var(--sidebar-collapsed-width);
         text-align: center;
         margin-left: calc(-1 * var(--sidebar-collapsed-width));
-        position: fixed;
+        position: relative;
         height: 100vh;
         z-index: 1050;
     }
@@ -231,7 +231,7 @@
     }
     
     #sidebar {
-        position: fixed;
+        position: relative;
         top: var(--top-navbar-height); /* Adjust for navbar height */
         left: 0;
         height: calc(100vh - var(--top-navbar-height));
@@ -401,7 +401,7 @@
 }
 
 .bg-primary-card {
-    background: linear-gradient(135deg, #4F46E5 0%, #2563EB 100%);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
 }
 
 .bg-success-card {
@@ -413,15 +413,15 @@
 }
 
 .bg-info-card {
-    background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
 }
 
 /* Dashboard heading styles */
-.dashboard-heading {
+.dashboard-title {
     font-size: 1.75rem;
     font-weight: 600;
     margin-bottom: 0.5rem;
-    color: #1E3A8A;
+    color: var(--text-color);
 }
 
 .dashboard-subheading {
@@ -455,7 +455,7 @@
 }
 
 .breadcrumb-item a {
-    color: #3B82F6;
+    color: var(--color-primary);
     text-decoration: none;
 }
 
@@ -466,21 +466,27 @@
 /* Desktop layout adjustments */
 @media (min-width: 769px) {
     #sidebar {
-        position: sticky;
+        position: relative;
         top: 0;
         left: 0;
         height: 100vh;
         min-height: 100vh;
+        flex: 0 0 var(--sidebar-width);
+        min-width: var(--sidebar-width);
+        max-width: var(--sidebar-width);
     }
     
+    #sidebar.active {
+        flex: 0 0 var(--sidebar-collapsed-width);
+        min-width: var(--sidebar-collapsed-width);
+        max-width: var(--sidebar-collapsed-width);
+    }
+
     #content {
-        width: calc(100% - var(--sidebar-width));
-        margin-left: var(--sidebar-width);
+        margin: 0;
+        width: auto;
+        flex: 1 1 auto;
+        min-width: 0;
         transition: all var(--transition-speed) ease;
-    }
-    
-    #sidebar.active + #content {
-        width: calc(100% - var(--sidebar-collapsed-width));
-        margin-left: var(--sidebar-collapsed-width);
     }
 } 

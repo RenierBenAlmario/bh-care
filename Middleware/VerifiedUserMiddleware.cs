@@ -7,6 +7,7 @@ using Barangay.Models;
 using Barangay.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
+using System.Security.Claims;
 
 namespace Barangay.Middleware
 {
@@ -24,7 +25,9 @@ namespace Barangay.Middleware
         public async Task InvokeAsync(
             HttpContext context,
             UserManager<ApplicationUser> userManager,
-            IUserVerificationService userVerificationService)
+            IUserVerificationService userVerificationService,
+            SignInManager<ApplicationUser> signInManager,
+            IPermissionService permissionService)
         {
             // Skip middleware for non-authenticated users or specific paths
             if (!context.User.Identity.IsAuthenticated ||
@@ -48,11 +51,45 @@ namespace Barangay.Middleware
             // Get user roles
             var roles = await userManager.GetRolesAsync(user);
             
-            // Allow doctors and nurses to access User pages without verification check
+            // Ensure cookie principal role claims are in sync with DB roles
+            var roleClaimType = context.User?.Identities.FirstOrDefault()?.RoleClaimType ?? ClaimTypes.Role;
+            var principalRoles = context.User?.Claims
+                .Where(c => c.Type == roleClaimType)
+                .Select(c => c.Value)
+                .ToHashSet() ?? new HashSet<string>();
+            var dbRoles = roles.ToHashSet();
+            if (!principalRoles.SetEquals(dbRoles))
+            {
+                await signInManager.RefreshSignInAsync(user);
+                // Replace the current principal so updated roles apply in this request
+                var newPrincipal = await signInManager.CreateUserPrincipalAsync(user);
+                context.User = newPrincipal ?? context.User;
+                _logger.LogInformation($"Refreshed sign-in for {user.Email} to sync role claims. DB=[{string.Join(",", dbRoles)}] Principal=[{string.Join(",", principalRoles)}]");
+            }
+
+            // Always clear the permission session cache for the current user so updates apply immediately
+            try
+            {
+                permissionService.ClearCachedPermissions(user.Id);
+            }
+            catch
+            {
+                // Don't block request if cache clear fails
+            }
+            
+            // Allow doctors to access User pages and Doctor pages without verification check
             if (roles.Any(r => r == "Doctor") && 
                (context.Request.Path.StartsWithSegments("/User") || 
                 context.Request.Path.StartsWithSegments("/Doctor")))
             {
+                // Ensure doctor users are always verified and active
+                if (user.Status != "Verified" || !user.IsActive)
+                {
+                    user.Status = "Verified";
+                    user.IsActive = true;
+                    await userManager.UpdateAsync(user);
+                    _logger.LogInformation($"Doctor {user.Email} status updated to Verified and Active");
+                }
                 _logger.LogInformation($"Doctor {user.Email} accessing page: {context.Request.Path}");
                 await _next(context);
                 return;
@@ -63,14 +100,28 @@ namespace Barangay.Middleware
                (context.Request.Path.StartsWithSegments("/User") || 
                 context.Request.Path.StartsWithSegments("/Nurse")))
             {
+                // Ensure nurse users are always verified and active
+                if (user.Status != "Verified" || !user.IsActive)
+                {
+                    user.Status = "Verified";
+                    user.IsActive = true;
+                    await userManager.UpdateAsync(user);
+                    _logger.LogInformation($"Nurse {user.Email} status updated to Verified and Active");
+                }
                 _logger.LogInformation($"Nurse {user.Email} accessing page: {context.Request.Path}");
                 await _next(context);
                 return;
             }
 
-            // Admin users and staff bypass verification check
+            // Super Admin or Admin users bypass verification check and force activation
             if (roles.Any(r => r == "Admin" || r == "System Administrator" || r == "Admin Staff"))
             {
+                // Always force admin users to be verified and active
+                user.Status = "Verified";
+                user.IsActive = true;
+                await userManager.UpdateAsync(user);
+                _logger.LogInformation($"Admin user {user.Email} status force updated to Verified and Active");
+                
                 await _next(context);
                 return;
             }
@@ -80,31 +131,66 @@ namespace Barangay.Middleware
             {
                 if (user.Status == "Verified" && user.IsActive)
                 {
-                    // Ensure user has the User role if verified
-                    if (!roles.Contains("User"))
+                    // Ensure user has the User role if verified (for patients and other users)
+                    if (!roles.Contains("User") && !roles.Contains("Admin") && !roles.Contains("Doctor") && !roles.Contains("Nurse"))
                     {
                         await userVerificationService.EnsureUserRoleAssignedAsync(user.Id);
+
+                        // Re-fetch roles and refresh sign-in so the new role applies immediately in this request
+                        roles = await userManager.GetRolesAsync(user);
+
+                        var updatedPrincipalRoles = context.User?.Claims
+                            .Where(c => c.Type == roleClaimType)
+                            .Select(c => c.Value)
+                            .ToHashSet() ?? new HashSet<string>();
+
+                        if (roles.Contains("User") && !updatedPrincipalRoles.Contains("User"))
+                        {
+                            await signInManager.RefreshSignInAsync(user);
+                            var refreshedPrincipal = await signInManager.CreateUserPrincipalAsync(user);
+                            context.User = refreshedPrincipal ?? context.User;
+                            _logger.LogInformation($"Refreshed sign-in for {user.Email} after assigning 'User' role.");
+                        }
                     }
                     await _next(context);
                     return;
                 }
 
-                // Redirect unverified users trying to access user pages
+                // Handle unverified users trying to access user pages
                 _logger.LogWarning($"Unverified user {user.Email} attempted to access {context.Request.Path}");
-                context.Response.Redirect("/Account/WaitingForApproval");
+                if (IsAjaxOrApiRequest(context.Request))
+                {
+                    context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                    context.Response.ContentType = "application/json";
+                    await context.Response.WriteAsync("{\"success\":false,\"message\":\"Your account is not verified yet. Please wait for approval.\"}");
+                }
+                else
+                {
+                    context.Response.Redirect("/Account/WaitingForApproval");
+                }
                 return;
             }
 
-            // Allow access to other pages
             await _next(context);
+        }
+
+        private static bool IsAjaxOrApiRequest(HttpRequest request)
+        {
+            var accept = request.Headers["Accept"].ToString();
+            var requestedWith = request.Headers["X-Requested-With"].ToString();
+            var secFetchMode = request.Headers["Sec-Fetch-Mode"].ToString();
+
+            return (!string.IsNullOrEmpty(requestedWith) && requestedWith == "XMLHttpRequest")
+                   || (!string.IsNullOrEmpty(accept) && (accept.Contains("application/json") || accept.Contains("text/json")))
+                   || (!string.IsNullOrEmpty(secFetchMode) && (secFetchMode == "cors" || secFetchMode == "same-origin"));
         }
     }
 
     public static class VerifiedUserMiddlewareExtensions
     {
-        public static IApplicationBuilder UseVerifiedUser(this IApplicationBuilder builder)
+        public static IApplicationBuilder UseVerifiedUserMiddleware(this IApplicationBuilder builder)
         {
             return builder.UseMiddleware<VerifiedUserMiddleware>();
         }
     }
-} 
+}

@@ -33,61 +33,117 @@
         </div>
     }
 
-    <div class="row">
-        <div class="col-md-12 mb-4">
-            <div class="d-flex justify-content-between align-items-center">
-                <h3>Patient Consultation</h3>
-                <div>
-                    <a asp-page="/Doctor/Appointments" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left"></i> Back to Records
-                    </a>
-                    <button id="printSummaryBtn" class="btn btn-outline-primary ms-2">
-                        <i class="bi bi-printer"></i> Print Summary
-                    </button>
-                </div>
-            </div>
+    @if (TempData["InfoMessage"] != null)
+    {
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            @TempData["InfoMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-    </div>
+    }
 
     @if (!Model.IsDataLoaded)
     {
-        <div class="alert alert-warning">
-            <p>Unable to load consultation data. Please try again or select a different patient.</p>
-            <a asp-page="/Doctor/Appointments" class="btn btn-primary">Return to Appointments</a>
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Consultation Queue (Today & Tomorrow)</h4>
+            </div>
+            <div class="card-body">
+                @if (Model.ConsultationQueue != null && Model.ConsultationQueue.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Patient Name</th>
+                                    <th>Time</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var appointment in Model.ConsultationQueue)
+                                {
+                                    <tr>
+                                        <td>@appointment.Patient.User.FullName</td>
+                                        <td>@(appointment.AppointmentTime.ToString(@"hh\:mm"))</td>
+                                        <td>@appointment.Type</td>
+                                        <td>
+                                            @{
+                                                string badgeClass = appointment.Status switch
+                                                {
+                                                    AppointmentStatus.Draft => "bg-secondary",
+                                                    AppointmentStatus.Pending => "bg-warning text-dark",
+                                                    AppointmentStatus.Confirmed => "bg-info text-dark",
+                                                    AppointmentStatus.InProgress => "bg-primary",
+                                                    AppointmentStatus.Completed => "bg-success",
+                                                    AppointmentStatus.Cancelled => "bg-danger",
+                                                    _ => "bg-secondary"
+                                                };
+                                            }
+                                            <span class="badge @badgeClass">@appointment.Status</span>
+                                        </td>
+                                        <td>
+                                            <a class="btn btn-sm btn-primary" asp-page="/Doctor/Consultation" asp-route-id="@appointment.Id" asp-route-patientId="@appointment.PatientId">
+                                                <i class="fas fa-play-circle me-1"></i> Start Consultation
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">No patients in the consultation queue.</h4>
+                        <p class="text-muted">Today's and tomorrow's scheduled appointments will appear here.</p>
+                    </div>
+                }
+            </div>
         </div>
     }
-    else if (Model.Patient != null && Model.Appointment != null)
+    else if (Model.IsDataLoaded && Model.Patient != null && Model.Appointment != null)
     {
         <div class="row">
-            <div class="col-md-4">
-                <!-- Patient Information Card -->
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">Patient Information</h5>
-                    </div>
-                    <div class="card-body">
-                        <h4>@Model.Patient?.FullName</h4>
-                        <p><strong>Address:</strong> @(string.IsNullOrEmpty(Model.Patient?.Address) ? "Not specified" : Model.Patient.Address)</p>
-                        <p><strong>Contact #:</strong> @(string.IsNullOrEmpty(Model.Patient?.ContactNumber) ? "Not specified" : Model.Patient.ContactNumber)</p>
-                        <p><strong>Emergency Contact #:</strong> @(string.IsNullOrEmpty(Model.Patient?.EmergencyContactNumber) ? "Not specified" : Model.Patient.EmergencyContactNumber)</p>
-                        <p><strong>Medical History:</strong> @(string.IsNullOrEmpty(Model.Patient?.MedicalHistory) ? "Not specified" : Model.Patient.MedicalHistory)</p>
-                    </div>
-                </div>
+            <div class="col-md-12 mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3>Patient Consultation</h3>
 
-                <!-- Vital Signs Card -->
-                <div class="card mb-4">
-                    <div class="card-header">
+                </div>
+            </div>
+
+                <div class="col-md-4">
+                    <!-- Patient Information Card -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Patient Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <h4>@Model.Patient?.FullName</h4>
+                            <p><strong>Address:</strong> @(string.IsNullOrEmpty(Model.Patient?.Address) ? "Not specified" : Model.Patient.Address)</p>
+                            <p><strong>Contact #:</strong> @(string.IsNullOrEmpty(Model.Patient?.ContactNumber) ? "Not specified" : Model.Patient.ContactNumber)</p>
+                            <p><strong>Emergency Contact #:</strong> @(string.IsNullOrEmpty(Model.Patient?.EmergencyContactNumber) ? "Not specified" : Model.Patient.EmergencyContactNumber)</p>
+                            <p><strong>Medical History:</strong> @(string.IsNullOrEmpty(Model.Patient?.MedicalHistory) ? "Not specified" : Model.Patient.MedicalHistory)</p>
+                        </div>
+                    </div>
+
+                    <!-- Vital Signs Card -->
+                    <div class="card mb-4">
+                        <div class="card-header">
                         <h5 class="mb-0">Vital Signs</h5>
                     </div>
                     <div class="card-body">
                         @if (Model.LatestVitalSigns != null)
                         {
                             <p><strong>BP:</strong> @(string.IsNullOrEmpty(Model.LatestVitalSigns.BloodPressure) ? "Not recorded" : Model.LatestVitalSigns.BloodPressure)</p>
-                            <p><strong>Temp:</strong> @(Model.LatestVitalSigns.Temperature.HasValue ? $"{Model.LatestVitalSigns.Temperature:F2} °C" : "Not recorded")</p>
-                            <p><strong>HR:</strong> @(Model.LatestVitalSigns.HeartRate.HasValue ? $"{Model.LatestVitalSigns.HeartRate} bpm" : "Not recorded")</p>
-                            <p><strong>SpO2:</strong> @(Model.LatestVitalSigns.SpO2.HasValue ? $"{Model.LatestVitalSigns.SpO2:F2}%" : "Not recorded")</p>
-                            <p><strong>Weight:</strong> @(Model.LatestVitalSigns.Weight.HasValue ? $"{Model.LatestVitalSigns.Weight:F2} kg" : "Not recorded")</p>
-                            <p><strong>Height:</strong> @(Model.LatestVitalSigns.Height.HasValue ? $"{Model.LatestVitalSigns.Height:F2} cm" : "Not recorded")</p>
+                            <p><strong>Temp:</strong> @(string.IsNullOrEmpty(Model.LatestVitalSigns.Temperature) ? "Not recorded" : $"{Model.LatestVitalSigns.Temperature} °C")</p>
+                            <p><strong>HR:</strong> @(string.IsNullOrEmpty(Model.LatestVitalSigns.HeartRate) ? "Not recorded" : $"{Model.LatestVitalSigns.HeartRate} bpm")</p>
+                            <p><strong>SpO2:</strong> @(string.IsNullOrEmpty(Model.LatestVitalSigns.SpO2) ? "Not recorded" : $"{Model.LatestVitalSigns.SpO2}%")</p>
+                            <p><strong>Weight:</strong> @(string.IsNullOrEmpty(Model.LatestVitalSigns.Weight) ? "Not recorded" : $"{Model.LatestVitalSigns.Weight} kg")</p>
+                            <p><strong>Height:</strong> @(string.IsNullOrEmpty(Model.LatestVitalSigns.Height) ? "Not recorded" : $"{Model.LatestVitalSigns.Height} cm")</p>
                         }
                         else
                         {
@@ -117,8 +173,9 @@
                     </div>
                     <div class="card-body">
                         <form method="post" id="consultationForm">
-                            <input type="hidden" asp-for="AppointmentId" value="@Model.AppointmentId" />
-                            <input type="hidden" asp-for="PatientId" value="@Model.PatientId" />
+                            <input type="hidden" asp-for="AppointmentId" />
+                            <input type="hidden" asp-for="PatientId" />
+                            <input type="hidden" asp-for="PatientId" />
 
                             <!-- Validation Summary -->
                             <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
@@ -151,92 +208,52 @@
                                 <span asp-validation-for="Notes" class="text-danger"></span>
                             </div>
 
-                            <!-- Medications Section -->
-                            <div class="card mb-3">
-                                <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                                    <h5 class="mb-0">Medications</h5>
-                                    <button type="button" class="btn btn-sm btn-success" id="addMedicationBtn">
-                                        <i class="bi bi-plus-circle"></i> Add Medication
-                                    </button>
+                            <!-- Follow-up Appointment Reason -->
+                            <div class="form-group mb-3">
+                                <label for="FollowUpReason">Reason for Follow-up Appointment</label>
+                                <textarea asp-for="FollowUpReason" class="form-control" id="FollowUpReason" rows="2" placeholder="e.g., Follow-up check-up, medication review, progress monitoring, etc."></textarea>
+                                <span asp-validation-for="FollowUpReason" class="text-danger"></span>
+                                <small class="form-text text-muted">If a follow-up appointment is needed, please specify the reason. This will be included in the appointment reminder email.</small>
+                            </div>
+
+                            <!-- Follow-up Appointment Date and Time -->
+                            <div class="row" id="followUpDateTimeSection" style="display: none;">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="FollowUpDate">Follow-up Appointment Date</label>
+                                        <input asp-for="FollowUpDate" type="date" class="form-control" id="FollowUpDate" min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")" value="@DateTime.Today.AddDays(7).ToString("yyyy-MM-dd")" />
+                                        <span asp-validation-for="FollowUpDate" class="text-danger"></span>
+                                        <small class="form-text text-muted">Default: 7 days from today</small>
+                                    </div>
                                 </div>
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table class="table table-bordered" id="medicationsTable">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th>Medicine Name</th>
-                                                    <th>Dosage</th>
-                                                    <th>Instructions</th>
-                                                    <th style="width: 50px;"></th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="medicationsTableBody">
-                                                @if (Model.Medications != null && Model.Medications.Count > 0)
-                                                {
-                                                    @for (int i = 0; i < Model.Medications.Count; i++)
-                                                    {
-                                                        <tr class="medication-row">
-                                                            <td>
-                                                                <input type="text" class="form-control medication-name" name="Medications[@i].MedicationName" 
-                                                                    value="@Model.Medications[i].MedicationName" />
-                                                            </td>
-                                                            <td>
-                                                                <input type="text" class="form-control medication-dosage" name="Medications[@i].Dosage" 
-                                                                    value="@Model.Medications[i].Dosage" 
-                                                                    pattern="^[0-9]*\.?[0-9]+$" 
-                                                                    title="Please enter a valid number" 
-                                                                    oninput="validateNumericInput(this)" />
-                                                                <div class="invalid-feedback">
-                                                                    Please enter a valid number for dosage
-                                                                </div>
-                                                            </td>
-                                                            <td>
-                                                                <input type="text" class="form-control medication-instructions" name="Medications[@i].Instructions" 
-                                                                    value="@Model.Medications[i].Instructions" />
-                                                            </td>
-                                                            <td>
-                                                                <button type="button" class="btn btn-sm btn-danger remove-medication">
-                                                                    <i class="bi bi-trash"></i>
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    <tr class="medication-row">
-                                                        <td>
-                                                            <input type="text" class="form-control medication-name" name="Medications[0].MedicationName" value="" />
-                                                        </td>
-                                                        <td>
-                                                            <input type="text" class="form-control medication-dosage" name="Medications[0].Dosage" value=""
-                                                                pattern="^[0-9]*\.?[0-9]+$" 
-                                                                title="Please enter a valid number"
-                                                                oninput="validateNumericInput(this)" />
-                                                            <div class="invalid-feedback">
-                                                                Please enter a valid number for dosage
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <input type="text" class="form-control medication-instructions" name="Medications[0].Instructions" value="" />
-                                                        </td>
-                                                        <td>
-                                                            <button type="button" class="btn btn-sm btn-danger remove-medication">
-                                                                <i class="bi bi-trash"></i>
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                }
-                                            </tbody>
-                                        </table>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="FollowUpTime">Follow-up Appointment Time</label>
+                                        <input asp-for="FollowUpTime" type="time" class="form-control" id="FollowUpTime" value="@Model.Appointment?.AppointmentTime.ToString(@"hh\:mm")" />
+                                        <span asp-validation-for="FollowUpTime" class="text-danger"></span>
+                                        <small class="form-text text-muted">Default: Same time as current appointment</small>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="form-group text-end">
-                                <button type="submit" class="btn btn-success" id="completeConsultationBtn">
-                                    <i class="bi bi-check-circle"></i> Complete Consultation
-                                </button>
+                            <!-- Prescribe Section -->
+                            <div class="form-group mb-3">
+                                <label for="Prescribe">Prescribe</label>
+                                <textarea asp-for="Prescribe" class="form-control" id="Prescribe" rows="4" placeholder="Enter prescription details, medications, dosage instructions, etc."></textarea>
+                                <span asp-validation-for="Prescribe" class="text-danger"></span>
+                                <small class="form-text text-muted">Optional: Prescription details will be included in the consultation summary email.</small>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="d-flex justify-content-between">
+                                <a href="/Doctor/Appointments" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-1"></i> Back to Appointments
+                                </a>
+                                <div>
+                                    <button type="submit" class="btn btn-primary" id="completeConsultationBtn">
+                                        <i class="fas fa-save me-1"></i> Save Consultation
+                                    </button>
+                                </div>
                             </div>
                         </form>
                     </div>
@@ -246,9 +263,12 @@
     }
     else
     {
-        <div class="alert alert-warning">
-            <p>Unable to load patient or appointment data. Please try again or select a different patient.</p>
-            <a asp-page="/Doctor/Appointments" class="btn btn-primary">Return to Appointments</a>
+        <!-- Fallback for any unexpected state -->
+        <div class="alert alert-warning" role="alert">
+            <h4 class="alert-heading">Data Loading Issue</h4>
+            <p>There was an issue loading the consultation data. Please try again or contact support if the problem persists.</p>
+            <hr>
+            <a href="/Doctor/Appointments" class="btn btn-primary">Return to Appointments</a>
         </div>
     }
 </div>
@@ -276,43 +296,24 @@
             <p><strong>Diagnosis:</strong> <span id="printDiagnosis">@Model.Diagnosis</span></p>
             <p><strong>Treatment Plan:</strong> <span id="printTreatment">@Model.Treatment</span></p>
             <p><strong>Additional Notes:</strong> <span id="printNotes">@(string.IsNullOrEmpty(Model.Notes) ? "None" : Model.Notes)</span></p>
+            @if (!string.IsNullOrEmpty(Model.FollowUpReason))
+            {
+                <p><strong>Follow-up Appointment Reason:</strong> <span id="printFollowUpReason">@Model.FollowUpReason</span></p>
+                @if (Model.FollowUpDate.HasValue)
+                {
+                    <p><strong>Follow-up Appointment Date:</strong> <span id="printFollowUpDate">@Model.FollowUpDate.Value.ToString("MMMM dd, yyyy")</span></p>
+                }
+                @if (Model.FollowUpTime.HasValue)
+                {
+                    <p><strong>Follow-up Appointment Time:</strong> <span id="printFollowUpTime">@Model.FollowUpTime.Value.ToString(@"hh\:mm")</span></p>
+                }
+            }
+            @if (!string.IsNullOrEmpty(Model.Prescribe))
+            {
+                <p><strong>Prescription:</strong> <span id="printPrescribe">@Model.Prescribe</span></p>
+            }
         </div>
 
-        <div style="margin-bottom: 20px;">
-            <h3 style="border-bottom: 1px solid #ccc; padding-bottom: 5px;">Prescribed Medications</h3>
-            <table style="width: 100%; border-collapse: collapse; margin-top: 10px;" id="printMedicationsTable">
-                <thead>
-                    <tr>
-                        <th style="border: 1px solid #ccc; padding: 8px; background-color: #f8f9fa;">Medicine Name</th>
-                        <th style="border: 1px solid #ccc; padding: 8px; background-color: #f8f9fa;">Dosage</th>
-                        <th style="border: 1px solid #ccc; padding: 8px; background-color: #f8f9fa;">Instructions</th>
-                    </tr>
-                </thead>
-                <tbody id="printMedicationsBody">
-                    @{
-                        var hasMedications = Model.Medications != null && Model.Medications.Any(m => !string.IsNullOrEmpty(m.MedicationName));
-                    }
-                    
-                    @if (hasMedications)
-                    {
-                        @foreach (var medication in Model.Medications.Where(m => !string.IsNullOrEmpty(m.MedicationName)))
-                        {
-                            <tr>
-                                <td style="border: 1px solid #ccc; padding: 8px;">@medication.MedicationName</td>
-                                <td style="border: 1px solid #ccc; padding: 8px;">@medication.Dosage</td>
-                                <td style="border: 1px solid #ccc; padding: 8px;">@medication.Instructions</td>
-                            </tr>
-                        }
-                    }
-                    else
-                    {
-                        <tr>
-                            <td colspan="3" style="border: 1px solid #ccc; padding: 8px; text-align: center;">No medications prescribed</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
 
         <div style="margin-top: 40px;">
             <div style="margin-bottom: 20px;">
@@ -328,6 +329,109 @@
 
 @section Scripts {
     <script>
+        // Form validation and submission handling
+        document.addEventListener('DOMContentLoaded', function() {
+            const consultationForm = document.getElementById('consultationForm');
+            const completeConsultationBtn = document.getElementById('completeConsultationBtn');
+            const followUpReasonField = document.getElementById('FollowUpReason');
+            const followUpDateTimeSection = document.getElementById('followUpDateTimeSection');
+            
+            // Initially hide follow-up date/time fields
+            if (followUpDateTimeSection) {
+                followUpDateTimeSection.style.display = 'none';
+            }
+            
+            // Show/hide follow-up date/time fields based on reason input
+            function toggleFollowUpFields() {
+                const reasonValue = followUpReasonField.value.trim();
+                if (followUpDateTimeSection) {
+                    if (reasonValue.length > 0) {
+                        followUpDateTimeSection.style.display = 'block';
+                    } else {
+                        followUpDateTimeSection.style.display = 'none';
+                    }
+                }
+            }
+            
+            // Add event listener to follow-up reason field
+            if (followUpReasonField) {
+                followUpReasonField.addEventListener('input', toggleFollowUpFields);
+                // Check initial state
+                toggleFollowUpFields();
+            }
+            
+            if (consultationForm) {
+                consultationForm.addEventListener('submit', function(event) {
+                    // Prevent default form submission
+                    event.preventDefault();
+                    
+                    // Validate form
+                    if (!validateConsultationForm()) {
+                        return false;
+                    }
+                    
+                    // Show loading state
+                    if (completeConsultationBtn) {
+                        completeConsultationBtn.disabled = true;
+                        completeConsultationBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
+                    }
+                    
+                    // Submit the form
+                    this.submit();
+                });
+            }
+            
+            // Form validation function
+            function validateConsultationForm() {
+                let isValid = true;
+                const requiredFields = ['ChiefComplaint', 'Diagnosis', 'Treatment'];
+                
+                // Check required fields
+                requiredFields.forEach(fieldId => {
+                    const field = document.getElementById(fieldId);
+                    if (field && !field.value.trim()) {
+                        isValid = false;
+                        field.classList.add('is-invalid');
+                        
+                        // Add validation message if not exists
+                        let nextSibling = field.nextElementSibling;
+                        if (!nextSibling || !nextSibling.classList.contains('invalid-feedback')) {
+                            const feedback = document.createElement('div');
+                            feedback.className = 'invalid-feedback';
+                            feedback.textContent = 'This field is required';
+                            field.parentNode.insertBefore(feedback, field.nextSibling);
+                        }
+                    } else if (field) {
+                        field.classList.remove('is-invalid');
+                    }
+                });
+                
+                if (!isValid) {
+                    // Show error message at the top
+                    const validationSummary = document.querySelector('[asp-validation-summary]');
+                    if (validationSummary) {
+                        validationSummary.innerHTML = '<div class="text-danger">Please fill in all required fields</div>';
+                    }
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            // Add input event listeners to clear validation errors
+            requiredFields = ['ChiefComplaint', 'Diagnosis', 'Treatment'];
+            requiredFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.addEventListener('input', function() {
+                        if (this.value.trim()) {
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                }
+            });
+        });
+        
         // Print summary functionality
         document.getElementById('printSummaryBtn')?.addEventListener('click', function() {
             updatePrintMedications();
@@ -362,185 +466,79 @@
                 document.getElementById('printNotes').textContent = notes || 'None';
             }
             
-            // Get medications from the form
-            const medicationRows = document.querySelectorAll('.medication-row');
+            const followUpReason = document.getElementById('FollowUpReason')?.value;
+            if (followUpReason) {
+                const printFollowUpElement = document.getElementById('printFollowUpReason');
+                if (printFollowUpElement) {
+                    printFollowUpElement.textContent = followUpReason;
+                }
+            }
             
-            // Only update if we have form fields and they have values
-            if (medicationRows.length > 0) {
-                let hasMedications = false;
-                let medicationsHtml = '';
-                
-                medicationRows.forEach(row => {
-                    const nameInput = row.querySelector('.medication-name');
-                    const name = nameInput ? nameInput.value.trim() : '';
-                    
-                    if (name) {
-                        hasMedications = true;
-                        const dosageInput = row.querySelector('.medication-dosage');
-                        const instructionsInput = row.querySelector('.medication-instructions');
-                        
-                        const dosage = dosageInput ? dosageInput.value.trim() : '';
-                        const instructions = instructionsInput ? instructionsInput.value.trim() : '';
-                        
-                        medicationsHtml += `
-                            <tr>
-                                <td style="border: 1px solid #ccc; padding: 8px;">${name}</td>
-                                <td style="border: 1px solid #ccc; padding: 8px;">${dosage}</td>
-                                <td style="border: 1px solid #ccc; padding: 8px;">${instructions}</td>
-                            </tr>
-                        `;
-                    }
-                });
-                
-                const printMedicationsBody = document.getElementById('printMedicationsBody');
-                if (printMedicationsBody) {
-                    if (hasMedications) {
-                        printMedicationsBody.innerHTML = medicationsHtml;
-                    } else {
-                        printMedicationsBody.innerHTML = `
-                            <tr>
-                                <td colspan="3" style="border: 1px solid #ccc; padding: 8px; text-align: center;">No medications prescribed</td>
-                            </tr>
-                        `;
-                    }
+            const followUpDate = document.getElementById('FollowUpDate')?.value;
+            if (followUpDate) {
+                const printFollowUpDateElement = document.getElementById('printFollowUpDate');
+                if (printFollowUpDateElement) {
+                    const date = new Date(followUpDate);
+                    printFollowUpDateElement.textContent = date.toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    });
+                }
+            }
+            
+            const followUpTime = document.getElementById('FollowUpTime')?.value;
+            if (followUpTime) {
+                const printFollowUpTimeElement = document.getElementById('printFollowUpTime');
+                if (printFollowUpTimeElement) {
+                    printFollowUpTimeElement.textContent = followUpTime;
+                }
+            }
+            
+            const prescribe = document.getElementById('Prescribe')?.value;
+            if (prescribe) {
+                const printPrescribeElement = document.getElementById('printPrescribe');
+                if (printPrescribeElement) {
+                    printPrescribeElement.textContent = prescribe;
                 }
             }
         }
         
-        // Add new medication row
-        document.getElementById('addMedicationBtn')?.addEventListener('click', function() {
-            addMedicationRow();
-        });
-        
-        // Function to add a new medication row
-        function addMedicationRow() {
-            const tbody = document.getElementById('medicationsTableBody');
-            if (!tbody) return;
-            
-            // Get current number of rows to determine the next index
-            const currentRows = tbody.querySelectorAll('.medication-row');
-            const nextIndex = currentRows.length;
-            
-            // Create new row
-            const newRow = document.createElement('tr');
-            newRow.className = 'medication-row';
-            
-            // Create the row's content
-            newRow.innerHTML = `
-                <td>
-                    <input type="text" class="form-control medication-name" name="Medications[${nextIndex}].MedicationName" value="" />
-                </td>
-                <td>
-                    <input type="text" class="form-control medication-dosage" name="Medications[${nextIndex}].Dosage" value=""
-                        pattern="^[0-9]*\\.?[0-9]+$" 
-                        title="Please enter a valid number"
-                        oninput="validateNumericInput(this)" />
-                    <div class="invalid-feedback">
-                        Please enter a valid number for dosage
-                    </div>
-                </td>
-                <td>
-                    <input type="text" class="form-control medication-instructions" name="Medications[${nextIndex}].Instructions" value="" />
-                </td>
-                <td>
-                    <button type="button" class="btn btn-sm btn-danger remove-medication">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                </td>
-            `;
-            
-            // Add the row to the table
-            tbody.appendChild(newRow);
-            
-            // Add event listener to the remove button
-            const removeBtn = newRow.querySelector('.remove-medication');
-            if (removeBtn) {
-                removeBtn.addEventListener('click', function() {
-                    removeMedicationRow(newRow);
-                });
-            }
-        }
-        
-        // Function to remove a medication row
-        function removeMedicationRow(row) {
-            if (!row) return;
-            
-            row.remove();
-            reindexMedicationRows();
-        }
-        
-        // Function to reindex medication rows after a removal
-        function reindexMedicationRows() {
-            const tbody = document.getElementById('medicationsTableBody');
-            if (!tbody) return;
-            
-            const rows = tbody.querySelectorAll('.medication-row');
-            
-            rows.forEach((row, index) => {
-                const nameInput = row.querySelector('.medication-name');
-                const dosageInput = row.querySelector('.medication-dosage');
-                const instructionsInput = row.querySelector('.medication-instructions');
-                
-                if (nameInput) nameInput.name = `Medications[${index}].MedicationName`;
-                if (dosageInput) dosageInput.name = `Medications[${index}].Dosage`;
-                if (instructionsInput) instructionsInput.name = `Medications[${index}].Instructions`;
-            });
-        }
-        
-        // Function to validate numeric input for dosage field
-        function validateNumericInput(input) {
-            const value = input.value;
-            const numericRegex = /^[0-9]*\.?[0-9]*$/;
-            
-            if (!numericRegex.test(value)) {
-                // Remove non-numeric characters
-                input.value = value.replace(/[^0-9.]/g, '');
-                // Replace multiple dots with single dot
-                input.value = input.value.replace(/\.{2,}/g, '.');
-                // Only keep the first dot
-                const parts = input.value.split('.');
-                if (parts.length > 2) {
-                    input.value = parts[0] + '.' + parts.slice(1).join('');
-                }
-                
-                input.classList.add('is-invalid');
-            } else {
-                input.classList.remove('is-invalid');
-            }
-        }
-        
-        // Initialize remove buttons for existing rows
-        document.addEventListener('DOMContentLoaded', function() {
-            const removeButtons = document.querySelectorAll('.remove-medication');
-            removeButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const row = this.closest('.medication-row');
-                    removeMedicationRow(row);
-                });
-            });
-            
-            // Initialize validation for existing dosage fields
-            const dosageInputs = document.querySelectorAll('.medication-dosage');
-            dosageInputs.forEach(input => {
-                input.addEventListener('input', function() {
-                    validateNumericInput(this);
-                });
-            });
-        });
         
         // Optional: Update preview when form changes
         document.getElementById('consultationForm')?.addEventListener('input', function(e) {
-            if (e.target.classList.contains('medication-name') || 
-                e.target.classList.contains('medication-dosage') || 
-                e.target.classList.contains('medication-instructions') ||
-                e.target.id === 'ChiefComplaint' ||
+            if (e.target.id === 'ChiefComplaint' ||
                 e.target.id === 'Diagnosis' ||
                 e.target.id === 'Treatment' ||
-                e.target.id === 'Notes') {
+                e.target.id === 'Notes' ||
+                e.target.id === 'FollowUpReason' ||
+                e.target.id === 'FollowUpDate' ||
+                e.target.id === 'FollowUpTime' ||
+                e.target.id === 'Prescribe') {
                 // Update the print preview data
                 updatePrintMedications();
             }
         });
+
+        // Handle follow-up appointment fields visibility
+        function toggleFollowUpFields() {
+            const reasonField = document.getElementById('FollowUpReason');
+            const dateTimeSection = document.getElementById('followUpDateTimeSection');
+            
+            if (reasonField && dateTimeSection) {
+                if (reasonField.value.trim()) {
+                    dateTimeSection.style.display = 'block';
+                } else {
+                    dateTimeSection.style.display = 'none';
+                }
+            }
+        }
+
+        // Add event listener for follow-up reason field
+        document.getElementById('FollowUpReason')?.addEventListener('input', toggleFollowUpFields);
+        
+        // Initialize on page load
+        toggleFollowUpFields();
     </script>
     
     <style>

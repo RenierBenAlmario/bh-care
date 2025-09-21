@@ -13,7 +13,8 @@ using Barangay.Helpers;
 
 namespace Barangay.Pages.Doctor
 {
-    [Authorize(Roles = "Doctor")]
+    // Allow access either by Doctor role or explicit permission via policy
+    [Authorize(Policy = "AccessDoctorDashboard")]
     public class DashboardModel : PageModel
     {
         private readonly ApplicationDbContext _context;

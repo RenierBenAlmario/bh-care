@@ -9,10 +9,18 @@ namespace Barangay.Models
         public int Id { get; set; }
 
         [Required]
+        public string PatientId { get; set; } = string.Empty;
+        public virtual Patient Patient { get; set; } = null!;
+
+        [Required]
         public string ChiefComplaint { get; set; } = string.Empty;
 
         [Required]
         public string HistoryOfPresentIllness { get; set; } = string.Empty;
+
+        public string? Allergies { get; set; }
+
+        public string? CurrentMedications { get; set; }
 
         public string PastMedicalHistory { get; set; } = string.Empty;
 
@@ -24,7 +32,7 @@ namespace Barangay.Models
 
         public string PhysicalExamination { get; set; } = string.Empty;
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime DateRecorded { get; set; } = DateTime.UtcNow;
 
         public DateTime? UpdatedAt { get; set; }
     }

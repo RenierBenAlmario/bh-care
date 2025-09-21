@@ -219,7 +219,8 @@ namespace Barangay.Pages.Admin
                         FilePath = filePath,
                         Status = "Missing",
                         FileSize = 0,
-                        ContentType = "unknown"
+                        ContentType = "unknown",
+                        FileType = Path.GetExtension(fileName)?.TrimStart('.')?.ToLower() ?? "unknown"
                     };
                     
                     _context.UserDocuments.Add(missingDoc);
@@ -244,7 +245,8 @@ namespace Barangay.Pages.Admin
                     FilePath = filePath,
                     Status = "Pending",
                     FileSize = fileInfo.Length,
-                    ContentType = contentType
+                    ContentType = contentType,
+                    FileType = Path.GetExtension(fileName)?.TrimStart('.')?.ToLower() ?? "unknown"
                 };
                 
                 _context.UserDocuments.Add(userDocument);

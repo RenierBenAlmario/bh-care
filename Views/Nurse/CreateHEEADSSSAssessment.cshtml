@@ -1,0 +1,876 @@
+@model Barangay.Models.HEEADSSSAssessmentViewModel
+@{
+    ViewData["Title"] = "Create HEEADSSS Assessment";
+    Layout = "_NurseLayout";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="m-0">
+            <i class="fas fa-user-friends text-primary me-2"></i>
+            HEEADSSS Assessment (Adolescent Psychosocial Assessment)
+        </h2>
+        <a href="/Nurse/AppointmentDetails?id=@Model.AppointmentId" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>
+            Back to Appointment
+        </a>
+    </div>
+
+    @if (!string.IsNullOrEmpty(TempData["StatusMessage"]?.ToString()))
+    {
+        <div class="alert @(TempData["StatusMessage"].ToString().Contains("Error") ? "alert-danger" : "alert-success") alert-dismissible fade show" role="alert">
+            @TempData["StatusMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <form asp-action="CreateHEEADSSSAssessment" method="post" id="heeadsssAssessmentForm">
+        <input asp-for="AppointmentId" type="hidden" />
+        <input asp-for="UserId" type="hidden" />
+
+        <!-- Patient Information -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-user me-2"></i>
+                            Patient Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="HealthFacility" class="form-label">Health Facility</label>
+                                    <input asp-for="HealthFacility" class="form-control" readonly />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="FamilyNo" class="form-label">Family Number</label>
+                                    <input asp-for="FamilyNo" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="FullName" class="form-label">Full Name</label>
+                                    <input asp-for="FullName" class="form-control" />
+                                    <span asp-validation-for="FullName" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label asp-for="Age" class="form-label">Age</label>
+                                    <input asp-for="Age" class="form-control" type="number" min="10" max="25" />
+                                    <span asp-validation-for="Age" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label asp-for="Gender" class="form-label">Gender</label>
+                                    <select asp-for="Gender" class="form-select">
+                                        <option value="">Select Gender</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="ContactNumber" class="form-label">Contact Number</label>
+                                    <input asp-for="ContactNumber" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label asp-for="Address" class="form-label">Address</label>
+                                    <textarea asp-for="Address" class="form-control" rows="2"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HEEADSSS Sections -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-home me-2"></i>
+                            H - Home Environment
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="HomeEnvironment" class="form-label">Home Environment</label>
+                                    <textarea asp-for="HomeEnvironment" class="form-control" rows="3" placeholder="Describe the home environment"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="FamilyRelationship" class="form-label">Family Relationship</label>
+                                    <textarea asp-for="FamilyRelationship" class="form-control" rows="3" placeholder="Describe family relationships"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="HomeFamilyProblems" class="form-label">Family Problems</label>
+                                    <select asp-for="HomeFamilyProblems" class="form-select">
+                                        <option value="">Select</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                        <option value="Sometimes">Sometimes</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="HomeParentalListening" class="form-label">Parental Listening</label>
+                                    <select asp-for="HomeParentalListening" class="form-select">
+                                        <option value="">Select</option>
+                                        <option value="Always">Always</option>
+                                        <option value="Sometimes">Sometimes</option>
+                                        <option value="Rarely">Rarely</option>
+                                        <option value="Never">Never</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="HomeParentalBlame" class="form-label">Parental Blame</label>
+                                    <select asp-for="HomeParentalBlame" class="form-select">
+                                        <option value="">Select</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                        <option value="Sometimes">Sometimes</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="HomeFamilyChanges" class="form-label">Family Changes</label>
+                                    <textarea asp-for="HomeFamilyChanges" class="form-control" rows="2" placeholder="Describe any recent family changes"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Education Section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-graduation-cap me-2"></i>
+                            E - Education
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="SchoolPerformance" class="form-label">School Performance</label>
+                                    <select asp-for="SchoolPerformance" class="form-select">
+                                        <option value="">Select</option>
+                                        <option value="Excellent">Excellent</option>
+                                        <option value="Good">Good</option>
+                                        <option value="Average">Average</option>
+                                        <option value="Below Average">Below Average</option>
+                                        <option value="Poor">Poor</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="CareerPlans" class="form-label">Career Plans</label>
+                                    <textarea asp-for="CareerPlans" class="form-control" rows="2" placeholder="What are your career plans?"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check mb-3">
+                                    <input asp-for="AttendanceIssues" class="form-check-input" type="checkbox" />
+                                    <label asp-for="AttendanceIssues" class="form-check-label">Has Attendance Issues</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="EducationCurrentlyStudying" class="form-label">Currently Studying</label>
+                                    <select asp-for="EducationCurrentlyStudying" class="form-select">
+                                        <option value="">Select</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                        <option value="Part-time">Part-time</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="EducationWorking" class="form-label">Working</label>
+                                    <textarea asp-for="EducationWorking" class="form-control" rows="2" placeholder="Are you working? If yes, what job?"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="EducationSchoolWorkProblems" class="form-label">School/Work Problems</label>
+                                    <textarea asp-for="EducationSchoolWorkProblems" class="form-control" rows="2" placeholder="Any problems at school or work?"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="EducationBullying" class="form-label">Bullying Experience</label>
+                                    <select asp-for="EducationBullying" class="form-select">
+                                        <option value="">Select</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                        <option value="Sometimes">Sometimes</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="EducationEmployment" class="form-label">Employment Status</label>
+                                    <select asp-for="EducationEmployment" class="form-select">
+                                        <option value="">Select</option>
+                                        <option value="Student">Student</option>
+                                        <option value="Working">Working</option>
+                                        <option value="Both">Both</option>
+                                        <option value="Neither">Neither</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Eating Section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">
+                            <i class="fas fa-utensils me-2"></i>
+                            E - Eating Habits
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="DietDescription" class="form-label">Diet Description</label>
+                                    <textarea asp-for="DietDescription" class="form-control" rows="3" placeholder="Describe your eating habits"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="EatingBodyImageSatisfaction" class="form-label">Body Image Satisfaction</label>
+                                    <select asp-for="EatingBodyImageSatisfaction" class="form-select">
+                                        <option value="">Select</option>
+                                        <option value="Very Satisfied">Very Satisfied</option>
+                                        <option value="Satisfied">Satisfied</option>
+                                        <option value="Neutral">Neutral</option>
+                                        <option value="Dissatisfied">Dissatisfied</option>
+                                        <option value="Very Dissatisfied">Very Dissatisfied</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-check mb-3">
+                                    <input asp-for="WeightConcerns" class="form-check-input" type="checkbox" />
+                                    <label asp-for="WeightConcerns" class="form-check-label">Has Weight Concerns</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check mb-3">
+                                    <input asp-for="EatingDisorderSymptoms" class="form-check-input" type="checkbox" />
+                                    <label asp-for="EatingDisorderSymptoms" class="form-check-label">Eating Disorder Symptoms</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="EatingDisorderedEatingBehaviors" class="form-label">Disordered Eating Behaviors</label>
+                                    <textarea asp-for="EatingDisorderedEatingBehaviors" class="form-control" rows="2" placeholder="Describe any disordered eating behaviors"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label asp-for="EatingWeightComments" class="form-label">Weight Comments</label>
+                                    <textarea asp-for="EatingWeightComments" class="form-control" rows="2" placeholder="Any comments about weight changes?"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activities Section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-running me-2"></i>
+                            A - Activities
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Hobbies" class="form-label">Hobbies</label>
+                                    <textarea asp-for="Hobbies" class="form-control" rows="2" placeholder="What are your hobbies?"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="PhysicalActivity" class="form-label">Physical Activity</label>
+                                    <textarea asp-for="PhysicalActivity" class="form-control" rows="2" placeholder="Describe your physical activity"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="ActivitiesParticipation" class="form-label">Sports/Activities Participation</label>
+                                    <textarea asp-for="ActivitiesParticipation" class="form-control" rows="2" placeholder="What sports or activities do you participate in?"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="ActivitiesRegularExercise" class="form-label">Regular Exercise</label>
+                                    <select asp-for="ActivitiesRegularExercise" class="form-select">
+                                        <option value="">Select</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                        <option value="Sometimes">Sometimes</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="ScreenTime" class="form-label">Screen Time</label>
+                                    <textarea asp-for="ScreenTime" class="form-control" rows="2" placeholder="How much time do you spend on screens?"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="ActivitiesScreenTime" class="form-label">Screen Time Hours</label>
+                                    <input asp-for="ActivitiesScreenTime" class="form-control" type="text" placeholder="Hours per day" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Drugs Section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            D - Drugs/Substances
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check mb-3">
+                                    <input asp-for="SubstanceUse" class="form-check-input" type="checkbox" id="substanceUse" />
+                                    <label asp-for="SubstanceUse" class="form-check-label">Substance Use</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3" id="substanceTypeDiv" style="display: none;">
+                                    <label asp-for="SubstanceType" class="form-label">Substance Type</label>
+                                    <input asp-for="SubstanceType" class="form-control" placeholder="Specify substance type" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="DrugsTobaccoUse" class="form-label">Tobacco Use</label>
+                                    <select asp-for="DrugsTobaccoUse" class="form-select">
+                                        <option value="">Select</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                        <option value="Former">Former</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="DrugsAlcoholUse" class="form-label">Alcohol Use</label>
+                                    <select asp-for="DrugsAlcoholUse" class="form-select">
+                                        <option value="">Select</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                        <option value="Former">Former</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="DrugsIllicitDrugUse" class="form-label">Illicit Drug Use</label>
+                                    <select asp-for="DrugsIllicitDrugUse" class="form-select">
+                                        <option value="">Select</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                        <option value="Former">Former</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sexuality Section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-purple text-white" style="background-color: #6f42c1 !important;">
+                        <h5 class="mb-0">
+                            <i class="fas fa-heart me-2"></i>
+                            S - Sexuality
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="DatingRelationships" class="form-label">Dating Relationships</label>
+                                    <textarea asp-for="DatingRelationships" class="form-control" rows="2" placeholder="Tell me about your dating relationships"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mb-3">
+                                    <input asp-for="SexualActivity" class="form-check-input" type="checkbox" />
+                                    <label asp-for="SexualActivity" class="form-check-label">Sexual Activity</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="SexualOrientation" class="form-label">Sexual Orientation</label>
+                                    <select asp-for="SexualOrientation" class="form-select">
+                                        <option value="">Select</option>
+                                        <option value="Heterosexual">Heterosexual</option>
+                                        <option value="Homosexual">Homosexual</option>
+                                        <option value="Bisexual">Bisexual</option>
+                                        <option value="Questioning">Questioning</option>
+                                        <option value="Prefer not to say">Prefer not to say</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="SexualityBodyConcerns" class="form-label">Body Concerns</label>
+                                    <textarea asp-for="SexualityBodyConcerns" class="form-control" rows="2" placeholder="Any concerns about your body or health?"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="SexualityIntimateRelationships" class="form-label">Intimate Relationships</label>
+                                    <select asp-for="SexualityIntimateRelationships" class="form-select">
+                                        <option value="">Select</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                        <option value="Not yet">Not yet</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="SexualityPartners" class="form-label">Number of Partners</label>
+                                    <input asp-for="SexualityPartners" class="form-control" placeholder="Number of partners in the past year" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="SexualityPregnancy" class="form-label">Pregnancy Experience</label>
+                                    <select asp-for="SexualityPregnancy" class="form-select">
+                                        <option value="">Select</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                        <option value="Not applicable">Not applicable</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="SexualitySTI" class="form-label">STI History</label>
+                                    <select asp-for="SexualitySTI" class="form-select">
+                                        <option value="">Select</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                        <option value="Not sure">Not sure</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="SexualityProtection" class="form-label">Protection Use</label>
+                                    <select asp-for="SexualityProtection" class="form-select">
+                                        <option value="">Select</option>
+                                        <option value="Always">Always</option>
+                                        <option value="Sometimes">Sometimes</option>
+                                        <option value="Never">Never</option>
+                                        <option value="Not applicable">Not applicable</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Suicide/Depression Section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            S - Suicide/Depression
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check mb-3">
+                                    <input asp-for="MoodChanges" class="form-check-input" type="checkbox" />
+                                    <label asp-for="MoodChanges" class="form-check-label">Mood Changes</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mb-3">
+                                    <input asp-for="SuicidalThoughts" class="form-check-input" type="checkbox" />
+                                    <label asp-for="SuicidalThoughts" class="form-check-label">Suicidal Thoughts</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check mb-3">
+                                    <input asp-for="SelfHarmBehavior" class="form-check-input" type="checkbox" />
+                                    <label asp-for="SelfHarmBehavior" class="form-check-label">Self-Harm Behavior</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="SuicideDepressionFeelings" class="form-label">Depression Feelings</label>
+                                    <textarea asp-for="SuicideDepressionFeelings" class="form-control" rows="2" placeholder="Describe any feelings of depression"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="SuicideSelfHarmThoughts" class="form-label">Self-Harm Thoughts</label>
+                                    <textarea asp-for="SuicideSelfHarmThoughts" class="form-control" rows="2" placeholder="Any thoughts of self-harm?"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="SuicideFamilyHistory" class="form-label">Family History</label>
+                                    <textarea asp-for="SuicideFamilyHistory" class="form-control" rows="2" placeholder="Any family history of depression or suicide?"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Safety Section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">
+                            <i class="fas fa-shield-alt me-2"></i>
+                            S - Safety
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check mb-3">
+                                    <input asp-for="FeelsSafeAtHome" class="form-check-input" type="checkbox" />
+                                    <label asp-for="FeelsSafeAtHome" class="form-check-label">Feels Safe at Home</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mb-3">
+                                    <input asp-for="FeelsSafeAtSchool" class="form-check-input" type="checkbox" />
+                                    <label asp-for="FeelsSafeAtSchool" class="form-check-label">Feels Safe at School</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check mb-3">
+                                    <input asp-for="ExperiencedBullying" class="form-check-input" type="checkbox" />
+                                    <label asp-for="ExperiencedBullying" class="form-check-label">Experienced Bullying</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="SafetyPhysicalAbuse" class="form-label">Physical Abuse</label>
+                                    <select asp-for="SafetyPhysicalAbuse" class="form-select">
+                                        <option value="">Select</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                        <option value="Sometimes">Sometimes</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="SafetyRelationshipViolence" class="form-label">Relationship Violence</label>
+                                    <select asp-for="SafetyRelationshipViolence" class="form-select">
+                                        <option value="">Select</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                        <option value="Sometimes">Sometimes</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="SafetyProtectiveGear" class="form-label">Protective Gear Use</label>
+                                    <select asp-for="SafetyProtectiveGear" class="form-select">
+                                        <option value="">Select</option>
+                                        <option value="Always">Always</option>
+                                        <option value="Sometimes">Sometimes</option>
+                                        <option value="Never">Never</option>
+                                        <option value="Not applicable">Not applicable</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="SafetyGunsAtHome" class="form-label">Guns at Home</label>
+                                    <select asp-for="SafetyGunsAtHome" class="form-select">
+                                        <option value="">Select</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                        <option value="Not sure">Not sure</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Strengths Section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-star me-2"></i>
+                            Strengths & Support
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="PersonalStrengths" class="form-label">Personal Strengths</label>
+                                    <textarea asp-for="PersonalStrengths" class="form-control" rows="3" placeholder="What are your personal strengths?"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="SupportSystems" class="form-label">Support Systems</label>
+                                    <textarea asp-for="SupportSystems" class="form-control" rows="3" placeholder="Who supports you?"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="CopingMechanisms" class="form-label">Coping Mechanisms</label>
+                                    <textarea asp-for="CopingMechanisms" class="form-control" rows="3" placeholder="How do you cope with stress?"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assessment Notes Section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-clipboard-list me-2"></i>
+                            Assessment Summary
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="AssessmentNotes" class="form-label">Assessment Notes</label>
+                                    <textarea asp-for="AssessmentNotes" class="form-control" rows="4" placeholder="Overall assessment notes"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="RecommendedActions" class="form-label">Recommended Actions</label>
+                                    <textarea asp-for="RecommendedActions" class="form-control" rows="4" placeholder="Recommended actions or interventions"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="FollowUpPlan" class="form-label">Follow-up Plan</label>
+                                    <textarea asp-for="FollowUpPlan" class="form-control" rows="3" placeholder="Follow-up plan"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Notes" class="form-label">Additional Notes</label>
+                                    <textarea asp-for="Notes" class="form-control" rows="3" placeholder="Any additional notes"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit Section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <button type="submit" class="btn btn-primary btn-lg me-3">
+                            <i class="fas fa-save me-2"></i>
+                            Save Assessment
+                        </button>
+                        <a href="/Nurse/AppointmentDetails?id=@Model.AppointmentId" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-times me-2"></i>
+                            Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Show/hide substance type field based on substance use checkbox
+            $('#substanceUse').change(function() {
+                if ($(this).is(':checked')) {
+                    $('#substanceTypeDiv').show();
+                } else {
+                    $('#substanceTypeDiv').hide();
+                    $('#SubstanceType').val('');
+                }
+            });
+
+            // Initialize substance type visibility
+            if ($('#substanceUse').is(':checked')) {
+                $('#substanceTypeDiv').show();
+            }
+
+            // Form validation
+            $('#heeadsssAssessmentForm').on('submit', function(e) {
+                var isValid = true;
+                var errorMessage = '';
+
+                // Check required fields
+                if (!$('#FullName').val().trim()) {
+                    errorMessage += 'Full Name is required.\n';
+                    isValid = false;
+                }
+                if (!$('#Age').val() || $('#Age').val() < 10 || $('#Age').val() > 25) {
+                    errorMessage += 'Age must be between 10 and 25.\n';
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    e.preventDefault();
+                    alert('Please fix the following errors:\n\n' + errorMessage);
+                }
+            });
+        });
+    </script>
+}

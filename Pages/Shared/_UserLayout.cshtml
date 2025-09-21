@@ -5,31 +5,68 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Barangay Health Center</title>
+    <title>@ViewData["Title"] - BHCARE</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/user-theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css?v=2" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/dashboard-nav.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
     <style>
-        /* Custom styles for matching the screenshots */
+        /* Custom styles for maximizing space */
         body {
             background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
         }
         
-        /* Top header */
+        /* Top header - more compact */
         .top-header {
-            background-color: #1a73e8;
-            color: white;
-            padding: 0.6rem 1.5rem;
-            height: 60px;
+            background-color: var(--color-primary);
+            color: #fff;
+            padding: 0.5rem 1rem;
+            height: 50px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
         }
         
-        /* Sidebar */
+        /* Collapsible sidebar */
         .minimal-sidebar {
-            width: 80px;
-            background-color: white;
+            width: 60px;
+            background-color: var(--color-primary);
             box-shadow: 1px 0 5px rgba(0,0,0,0.05);
-            padding-top: 80px;
+            /* padding-top is handled dynamically based on header/nav height */
+            position: fixed;
+            height: 100vh;
+            transition: width 0.3s ease;
+            z-index: 1020;
+            overflow: hidden;
+        }
+        
+        .minimal-sidebar.expanded {
+            width: 220px;
+        }
+        
+        .sidebar-toggle {
+            position: fixed;
+            bottom: 15px;
+            left: 15px;
+            z-index: 1021;
+            background: var(--color-primary);
+            color: #fff;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
         }
         
         .sidebar-branding {
@@ -37,46 +74,110 @@
         }
         
         .minimal-sidebar .nav-link {
-            padding: 1rem 0;
+            padding: 0.75rem 0;
             text-align: center;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            color: #ffffff;
         }
         
         .minimal-sidebar .nav-link span {
             display: none;
+            margin-left: 10px;
+            transition: opacity 0.3s ease;
+            color: #ffffff;
+        }
+        
+        .minimal-sidebar.expanded .nav-link span {
+            display: inline;
         }
         
         .minimal-sidebar .nav-icon {
             margin: 0 auto;
-            width: 40px;
-            height: 40px;
-            font-size: 1.2rem;
-            background-color: transparent;
-            color: #5f6368;
+            width: 32px;
+            height: 32px;
+            font-size: 1rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
             transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .minimal-sidebar.expanded .nav-link {
+            text-align: left;
+            padding-left: 15px;
+        }
+        
+        .minimal-sidebar.expanded .nav-icon {
+            margin: 0;
         }
         
         .minimal-sidebar .nav-link:hover .nav-icon {
-            background-color: rgba(30, 136, 229, 0.1);
-            color: #1a73e8;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
         }
         
         .minimal-sidebar .nav-link.active .nav-icon,
         .minimal-sidebar .nav-link.active:hover .nav-icon {
-            background-color: #1a73e8;
-            color: white;
+            background-color: #ffffff;
+            color: #E76F2B; /* match orange-accent */
         }
         
-        /* Content area */
+        .minimal-sidebar .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+        
+        .minimal-sidebar .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            font-weight: 500;
+        }
+        
+        /* Content area - maximize space */
         .content-wrapper {
-            margin-left: 80px;
-            margin-top: 60px;
-            padding: 1.5rem;
+            margin-left: 0; /* margins handled on #content via user-theme.css */
+            padding-top: 70px; /* Space for fixed navbar */
+            padding-bottom: 60px; /* Space for footer */
+            transition: margin-left 0.3s ease;
+        }
+        
+        
+        /* Responsive adjustments */
+        @@media (max-width: 768px) {
+            .minimal-sidebar {
+                width: 0;
+            }
+            
+            .minimal-sidebar.expanded {
+                width: 220px;
+            }
+            
+            .content-wrapper {
+                margin-left: 0;
+            }
+            
+            .content-wrapper.sidebar-expanded {
+                margin-left: 220px;
+            }
         }
         
         /* Notification badge */
         .notification-badge {
             background-color: #ea4335;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            font-size: 0.65rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         /* Button styles */
@@ -85,7 +186,8 @@
             color: #1a73e8;
             border: none;
             font-weight: 500;
-            padding: 0.375rem 1rem;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.9rem;
         }
         
         .btn-logout:hover {
@@ -93,39 +195,65 @@
             color: #1a73e8;
         }
         
+        /* User profile elements */
+        .user-greeting {
+            font-size: 0.9rem;
+        }
+        
+        .notifications-icon {
+            position: relative;
+        }
+        
+        /* Dark mode functionality removed */
+        
         /* Hide breadcrumbs as they don't appear in the screenshots */
+        .user-profile-picture {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
         .breadcrumb-container {
             display: none;
         }
+
+        /* Dark mode styles removed */
+
+
     </style>
+
 </head>
-<body>
+<body class="user-theme">
     <div class="wrapper">
+        @if (ViewData["ShowDashboardNav"] as bool? != true)
+        {
         <!-- Top blue header -->
         <header class="top-header">
             <div class="container-fluid">
                 <div class="row align-items-center">
                     <div class="col-md-6">
                         <div class="branding">
-                            <i class="fas fa-heart text-white me-2"></i>
-                            <span>Barangay Health Center</span>
+                            <i class="fa-solid fa-heart text-white me-2"></i>
+                            <span class="text-white">BHCARE</span>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="d-flex justify-content-end align-items-center">
                             <a href="/User/UserDashboard" class="dashboard-link me-3">
-                                <i class="fas fa-chart-line me-1"></i>
+                                <i class="fa-solid fa-chart-line me-1"></i>
                                 Dashboard
                             </a>
                             <div class="notifications-icon me-3">
-                                <i class="fas fa-bell"></i>
+                                <i class="fa-solid fa-bell"></i>
                                 <span class="notification-badge">1</span>
                             </div>
                             <div class="user-greeting me-3">
                                 Hello, Ben!
                             </div>
+                            
                             <a href="javascript:document.getElementById('logoutForm').submit();" class="btn btn-logout">
-                                <i class="fas fa-sign-out-alt me-1"></i>
+                                <i class="fa-solid fa-right-from-bracket me-1"></i>
                                 Logout
                             </a>
                         </div>
@@ -133,60 +261,79 @@
                 </div>
             </div>
         </header>
+        }
 
         <!-- Vertical Sidebar -->
-        <aside class="minimal-sidebar">
+        <aside class="minimal-sidebar app-sidebar" id="sidebar">
             <ul class="nav flex-column">
                 <li class="nav-item">
-                    <a class="nav-link" id="dashboard-link" href="/User/UserDashboard">
+                    <a class="nav-link" id="dashboard-link" href="/User/UserDashboard" title="Dashboard">
                         <div class="nav-icon">
-                            <i class="fas fa-home"></i>
+                            <i class="fa-solid fa-house"></i>
                         </div>
+                        <span>Dashboard</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="appointments-link" href="/User/Appointments">
+                    <a class="nav-link" id="appointments-link" href="/User/Appointments" title="Appointments">
                         <div class="nav-icon">
-                            <i class="fas fa-calendar-alt"></i>
+                            <i class="fa-solid fa-calendar-check"></i>
                         </div>
+                        <span>Appointments</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="records-link" href="/User/Records">
+                    <a class="nav-link" id="records-link" href="/User/Records" title="Records">
                         <div class="nav-icon">
-                            <i class="fas fa-file-medical"></i>
+                            <i class="fa-solid fa-file-medical"></i>
                         </div>
+                        <span>Records</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="prescriptions-link" href="/User/Prescriptions">
+                    <a class="nav-link" id="help-link" href="/User/Help" title="Help">
                         <div class="nav-icon">
-                            <i class="fas fa-prescription-bottle-alt"></i>
+                            <i class="fa-solid fa-circle-question"></i>
                         </div>
+                        <span>Help</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="help-link" href="/User/Help">
+                    <a class="nav-link" id="settings-link" href="/User/Settings" title="Settings">
                         <div class="nav-icon">
-                            <i class="fas fa-question-circle"></i>
+                            <i class="fa-solid fa-gear"></i>
                         </div>
+                        <span>Settings</span>
                     </a>
                 </li>
+                
                 <li class="nav-item">
-                    <a class="nav-link" id="settings-link" href="/User/Settings">
+                    <a class="nav-link" href="javascript:document.getElementById('logoutForm').submit();" style="cursor: pointer;" title="Logout">
                         <div class="nav-icon">
-                            <i class="fas fa-cog"></i>
+                            <i class="fa-solid fa-right-from-bracket"></i>
                         </div>
+                        <span>Logout</span>
                     </a>
                 </li>
             </ul>
+            
+
+            <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar" title="Toggle sidebar">
+                <i class="fa-solid fa-chevron-right" id="sidebarToggleIcon"></i>
+            </button>
         </aside>
 
         <!-- Main Content -->
-        <div class="content-wrapper">
+        @if (ViewData["ShowDashboardNav"] as bool? == true)
+        {
+            <partial name="_DashboardNavbar" />
+        }
+
+        <!-- Main Content -->
+        <div class="content-wrapper pt-4 app-content" id="content">
             <!-- Page Content -->
-            <main class="content-container">
-                <div class="container-fluid">
+            <main>
+                <div class="container-fluid p-0">
                     @RenderBody()
                 </div>
             </main>
@@ -201,24 +348,75 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
-        // Set active menu item based on current URL
-        $(document).ready(function() {
-            var currentUrl = window.location.pathname.toLowerCase();
-            
-            if (currentUrl.includes('/userdashboard')) {
-                $('#dashboard-link').addClass('active');
-            } else if (currentUrl.includes('/appointments')) {
-                $('#appointments-link').addClass('active');
-            } else if (currentUrl.includes('/records')) {
-                $('#records-link').addClass('active');
-            } else if (currentUrl.includes('/prescriptions')) {
-                $('#prescriptions-link').addClass('active');
-            } else if (currentUrl.includes('/help')) {
-                $('#help-link').addClass('active');
-            } else if (currentUrl.includes('/settings')) {
-                $('#settings-link').addClass('active');
+        // Dark mode functionality removed
+
+            // Sidebar expand/collapse with persistence
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarToggleIcon = document.getElementById('sidebarToggleIcon');
+            const STORAGE_KEY_SIDEBAR = 'user-sidebar-expanded';
+
+            const setSidebarState = (expanded) => {
+                if (!sidebar) return;
+                sidebar.classList.toggle('expanded', expanded);
+                body.classList.toggle('sidebar-expanded', expanded);
+                body.classList.toggle('sidebar-collapsed', !expanded);
+                if (sidebarToggle) sidebarToggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+                if (sidebarToggleIcon) sidebarToggleIcon.style.transform = expanded ? 'rotate(180deg)' : 'rotate(0deg)';
+                // Show/hide labels handled by CSS .minimal-sidebar.expanded
+            };
+
+            // Initialize from storage (default: collapsed on small screens, expanded on desktop)
+            const saved = localStorage.getItem(STORAGE_KEY_SIDEBAR);
+            const defaultExpanded = window.matchMedia('(min-width: 992px)').matches; // lg+
+            const initialExpanded = saved === null ? defaultExpanded : saved === 'true';
+            setSidebarState(initialExpanded);
+
+            if (sidebarToggle) {
+                sidebarToggle.setAttribute('role', 'button');
+                sidebarToggle.setAttribute('aria-controls', 'sidebar');
+                sidebarToggle.addEventListener('click', function(e){
+                    e.preventDefault();
+                                        const nowExpanded = !body.classList.contains('sidebar-expanded');
+                    setSidebarState(nowExpanded);
+                    localStorage.setItem(STORAGE_KEY_SIDEBAR, nowExpanded ? 'true' : 'false');
+                });
             }
-        });
+
+            // Prevent overlap with top header or dashboard navbar by setting sidebar offset
+            const applyTopOffset = () => {
+                const headerEl = document.querySelector('.top-header');
+                const navEl = document.querySelector('.dashboard-navbar');
+                const headerH = headerEl ? headerEl.offsetHeight : 0;
+                const navH = navEl ? navEl.offsetHeight : 0;
+                const offset = Math.max(headerH, navH); // only one is visible at a time in this layout
+                if (sidebar) {
+                    sidebar.style.top = offset + 'px';
+                    sidebar.style.height = `calc(100vh - ${offset}px)`;
+                }
+                // expose header height as CSS variable for CSS-variable layout
+                document.documentElement.style.setProperty('--header-height', offset + 'px');
+                // Ensure content has enough top padding to clear any fixed header/nav
+                const content = document.getElementById('content');
+                if (content) {
+                    const basePadTop = 70; // existing intended spacing
+                    const finalPadTop = Math.max(basePadTop, offset + 10);
+                    content.style.paddingTop = finalPadTop + 'px';
+                }
+            };
+            applyTopOffset();
+            // Re-run shortly after first paint to ensure correct measurements
+            setTimeout(applyTopOffset, 60);
+            window.addEventListener('resize', applyTopOffset);
+
+            // Enable Bootstrap tooltips for sidebar items (helpful when collapsed)
+            if (window.bootstrap) {
+                const tooltipTriggerList = [].slice.call(document.querySelectorAll('#sidebar [title], #sidebar [data-bs-toggle="tooltip"]'));
+                tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+                    new bootstrap.Tooltip(tooltipTriggerEl, { container: 'body' });
+                });
+            }
+        })();
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)

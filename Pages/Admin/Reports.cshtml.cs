@@ -12,7 +12,7 @@ using System.Linq;
 
 namespace Barangay.Pages.Admin
 {
-    public class ReportData
+        public class ReportData
     {
         public DateTime Date { get; set; }
         public int Count { get; set; }
@@ -20,6 +20,12 @@ namespace Barangay.Pages.Admin
         public string Type { get; set; }
         public decimal Value { get; set; }
         public string Trend { get; set; }
+    }
+
+    public class SicknessReportData
+    {
+        public string Sickness { get; set; }
+        public int Count { get; set; }
     }
 
     public class AdminReportsViewModel
@@ -32,6 +38,10 @@ namespace Barangay.Pages.Admin
         public int TotalConsultations { get; set; }
         public decimal AverageHealthIndex { get; set; }
         public string HealthIndexTrend { get; set; }
+        public List<SicknessReportData> MonthlySicknessSummary { get; set; }
+        public int SelectedYear { get; set; }
+        public int SelectedMonth { get; set; }
+        public List<int> AvailableYears { get; set; }
     }
 
     [Authorize(Roles = "Admin")]
@@ -52,6 +62,12 @@ namespace Barangay.Pages.Admin
 
         public AdminReportsViewModel ReportData { get; private set; }
 
+        [BindProperty(SupportsGet = true)]
+        public int SelectedYear { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public int SelectedMonth { get; set; }
+
         private DateTime GetPhilippineTime()
         {
             var utcNow = DateTime.UtcNow;
@@ -59,23 +75,52 @@ namespace Barangay.Pages.Admin
             return TimeZoneInfo.ConvertTimeFromUtc(utcNow, philippineZone);
         }
 
-        public async Task<IActionResult> OnGetAsync()
+        public async Task<IActionResult> OnGetAsync(int? year, int? month)
         {
             try
             {
-                // Initialize report data
+                var philippineTime = GetPhilippineTime();
+                SelectedYear = year ?? philippineTime.Year;
+                SelectedMonth = month ?? philippineTime.Month;
+
+                var availableYears = await _context.Appointments
+                    .Select(a => a.AppointmentDate.Year)
+                    .Distinct()
+                    .OrderByDescending(y => y)
+                    .ToListAsync();
+
+                if (!availableYears.Any())
+                {
+                    availableYears.Add(philippineTime.Year);
+                }
+
+                var monthlySicknessSummary = await _context.Appointments
+                    .Where(a => a.AppointmentDate.Year == SelectedYear && a.AppointmentDate.Month == SelectedMonth && !string.IsNullOrEmpty(a.ReasonForVisit))
+                    .GroupBy(a => a.ReasonForVisit)
+                    .Select(g => new SicknessReportData
+                    {
+                        Sickness = g.Key,
+                        Count = g.Count()
+                    })
+                    .OrderByDescending(d => d.Count)
+                    .ToListAsync();
+
                 ReportData = new AdminReportsViewModel
                 {
-                    CurrentPhilippineTime = GetPhilippineTime(),
+                    CurrentPhilippineTime = philippineTime,
                     PatientRegistrations = new List<ReportData>(),
                     ConsultationsByType = new List<ReportData>(),
-                    HealthIndexData = new List<ReportData>()
+                    HealthIndexData = new List<ReportData>(),
+                    TotalRegistrations = 0,
+                    TotalConsultations = 0,
+                    AverageHealthIndex = 0,
+                    HealthIndexTrend = "0%",
+                    MonthlySicknessSummary = monthlySicknessSummary,
+                    SelectedYear = SelectedYear,
+                    SelectedMonth = SelectedMonth,
+                    AvailableYears = availableYears
                 };
 
-                // Generate mock data
-                GenerateReportData();
-
-                // Load notifications
                 await LoadNotificationsAsync();
                 return Page();
             }
@@ -83,71 +128,24 @@ namespace Barangay.Pages.Admin
             {
                 _logger.LogError(ex, "Error loading Reports page");
                 TempData["ErrorMessage"] = "Failed to load reports. Please try again.";
+                ReportData = new AdminReportsViewModel
+                {
+                    CurrentPhilippineTime = GetPhilippineTime(),
+                    PatientRegistrations = new List<ReportData>(),
+                    ConsultationsByType = new List<ReportData>(),
+                    HealthIndexData = new List<ReportData>(),
+                    MonthlySicknessSummary = new List<SicknessReportData>(),
+                    AvailableYears = new List<int> { GetPhilippineTime().Year }
+                };
                 return Page();
             }
         }
 
         private void GenerateReportData()
         {
-            var today = GetPhilippineTime().Date;
-            var random = new Random(123); // Fixed seed for consistent mock data
-
-            // Generate Patient Registrations data
-            for (int i = 29; i >= 0; i--)
-            {
-                var date = today.AddDays(-i);
-                var count = random.Next(5, 25);
-                ReportData.PatientRegistrations.Add(new ReportData
-                {
-                    Date = date,
-                    Count = count,
-                    Label = date.ToString("MMM dd")
-                });
-            }
-            ReportData.TotalRegistrations = ReportData.PatientRegistrations.Sum(r => r.Count);
-
-            // Generate Consultations by Type data
-            var consultationTypes = new[] {
-                ("General Checkup", 45),
-                ("Vaccination", 30),
-                ("Prenatal Care", 25),
-                ("Dental", 20),
-                ("Emergency", 15)
-            };
-
-            foreach (var (type, baseCount) in consultationTypes)
-            {
-                var variation = random.Next(-5, 6);
-                ReportData.ConsultationsByType.Add(new ReportData
-                {
-                    Type = type,
-                    Count = baseCount + variation,
-                    Label = type,
-                    Trend = $"{(variation >= 0 ? "+" : "")}{variation}%"
-                });
-            }
-            ReportData.TotalConsultations = ReportData.ConsultationsByType.Sum(c => c.Count);
-
-            // Generate Health Index data
-            var baseIndex = 82.5m;
-            for (int i = 29; i >= 0; i--)
-            {
-                var date = today.AddDays(-i);
-                var variation = (decimal)(random.NextDouble() * 2 - 1);
-                var value = Math.Round(baseIndex + variation, 1);
-                baseIndex = value; // Use previous value as new base
-
-                ReportData.HealthIndexData.Add(new ReportData
-                {
-                    Date = date,
-                    Value = value,
-                    Label = date.ToString("MMM dd")
-                });
-            }
-
-            ReportData.AverageHealthIndex = Math.Round(ReportData.HealthIndexData.Average(h => h.Value), 1);
-            var trend = ReportData.HealthIndexData.Last().Value - ReportData.HealthIndexData.First().Value;
-            ReportData.HealthIndexTrend = $"{(trend >= 0 ? "+" : "")}{trend:F1}%";
+            // This method is kept for reference but not used anymore
+            // In a real implementation, this would fetch actual data from the database
+            _logger.LogInformation("Report data generation is disabled");
         }
 
         private new async Task LoadNotificationsAsync()

@@ -45,6 +45,7 @@ namespace Barangay.Services
                     Title = title,
                     Message = message,
                     Type = type,
+                    Link = link ?? "/Index", // Use default value if link is null
                     RecipientId = recipientId,
                     CreatedAt = DateTime.UtcNow,
                     IsRead = false

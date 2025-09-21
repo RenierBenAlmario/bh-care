@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Barangay.Models;
 using Barangay.Data;
+using Barangay.Services;
+using Barangay.Extensions;
 
 namespace Barangay.Pages.Records
 {
@@ -18,14 +20,16 @@ namespace Barangay.Pages.Records
     public class IndexModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly ApplicationDbContext _context;
+        private readonly EncryptedDbContext _context;
         private readonly ILogger<IndexModel> _logger;
+        private readonly IDataEncryptionService _encryptionService;
 
-        public IndexModel(UserManager<ApplicationUser> userManager, ApplicationDbContext context, ILogger<IndexModel> logger)
+        public IndexModel(UserManager<ApplicationUser> userManager, EncryptedDbContext context, ILogger<IndexModel> logger, IDataEncryptionService encryptionService)
         {
             _userManager = userManager;
             _context = context;
             _logger = logger;
+            _encryptionService = encryptionService;
         }
 
         public string BloodType { get; set; } = "O+";
@@ -94,7 +98,7 @@ namespace Barangay.Pages.Records
                 // Determine user role
                 IsNurse = await _userManager.IsInRoleAsync(user, "Nurse");
                 IsDoctor = await _userManager.IsInRoleAsync(user, "Doctor");
-                IsPatient = await _userManager.IsInRoleAsync(user, "User");
+                IsPatient = await _userManager.IsInRoleAsync(user, "Patient");
                 CurrentUserId = user.Id;
 
                 // If the user is a Patient, only show their own records
@@ -119,7 +123,7 @@ namespace Barangay.Pages.Records
                     await LoadPatientMedicalHistory(patient.UserId);
 
                     // Get lab results for this patient
-                    await LoadPatientLabResults(patient.UserId);
+                    LoadPatientLabResults(patient.UserId);
                 }
                 // If the user is a Nurse or Doctor, show all patient records
                 else if (IsNurse || IsDoctor)
@@ -136,7 +140,7 @@ namespace Barangay.Pages.Records
                     await LoadAllMedicalHistory();
 
                     // Load all lab results
-                    await LoadAllLabResults();
+                    LoadAllLabResults();
                 }
                 else
                 {
@@ -160,6 +164,12 @@ namespace Barangay.Pages.Records
                 .OrderByDescending(v => v.RecordedAt)
                 .ToListAsync();
 
+            // Manually decrypt vital signs data
+            foreach (var vitalSign in vitalSigns)
+            {
+                vitalSign.DecryptVitalSignData(_encryptionService, User);
+            }
+
             VitalSigns = vitalSigns.Select(v => new VitalSign
             {
                 Id = v.Id,
@@ -167,11 +177,11 @@ namespace Barangay.Pages.Records
                 PatientName = PatientName,
                 Date = v.RecordedAt,
                 BloodPressure = v.BloodPressure,
-                HeartRate = v.HeartRate ?? 0,
-                Temperature = (double)(v.Temperature ?? 0),
-                RespiratoryRate = v.RespiratoryRate ?? 0,
-                Weight = (double?)(v.Weight),
-                Height = (double?)(v.Height)
+                HeartRate = !string.IsNullOrEmpty(v.HeartRate) && int.TryParse(v.HeartRate, out var hr) ? hr : 0,
+                Temperature = !string.IsNullOrEmpty(v.Temperature) && double.TryParse(v.Temperature, out var temp) ? temp : 0,
+                RespiratoryRate = !string.IsNullOrEmpty(v.RespiratoryRate) && int.TryParse(v.RespiratoryRate, out var rr) ? rr : 0,
+                Weight = !string.IsNullOrEmpty(v.Weight) && double.TryParse(v.Weight, out var weight) ? weight : null,
+                Height = !string.IsNullOrEmpty(v.Height) && double.TryParse(v.Height, out var height) ? height : null
             }).ToList();
         }
 
@@ -182,6 +192,12 @@ namespace Barangay.Pages.Records
                 .OrderByDescending(v => v.RecordedAt)
                 .ToListAsync();
 
+            // Manually decrypt vital signs data
+            foreach (var vitalSign in vitalSigns)
+            {
+                vitalSign.DecryptVitalSignData(_encryptionService, User);
+            }
+
             VitalSigns = vitalSigns.Select(v => new VitalSign
             {
                 Id = v.Id,
@@ -189,11 +205,11 @@ namespace Barangay.Pages.Records
                 PatientName = v.Patient?.FullName ?? "Unknown",
                 Date = v.RecordedAt,
                 BloodPressure = v.BloodPressure,
-                HeartRate = v.HeartRate ?? 0,
-                Temperature = (double)(v.Temperature ?? 0),
-                RespiratoryRate = v.RespiratoryRate ?? 0,
-                Weight = (double?)(v.Weight),
-                Height = (double?)(v.Height)
+                HeartRate = !string.IsNullOrEmpty(v.HeartRate) && int.TryParse(v.HeartRate, out var hr) ? hr : 0,
+                Temperature = !string.IsNullOrEmpty(v.Temperature) && double.TryParse(v.Temperature, out var temp) ? temp : 0,
+                RespiratoryRate = !string.IsNullOrEmpty(v.RespiratoryRate) && int.TryParse(v.RespiratoryRate, out var rr) ? rr : 0,
+                Weight = !string.IsNullOrEmpty(v.Weight) && double.TryParse(v.Weight, out var weight) ? weight : null,
+                Height = !string.IsNullOrEmpty(v.Height) && double.TryParse(v.Height, out var height) ? height : null
             }).ToList();
         }
 
@@ -237,69 +253,22 @@ namespace Barangay.Pages.Records
             }).ToList();
         }
 
-        private async Task LoadPatientLabResults(string patientId)
+        private void LoadPatientLabResults(string patientId)
         {
-            // For demo purposes, creating sample lab results
-            // In a real implementation, you'd query a LabResults table
-            LabResults = new List<LabResult>
-            {
-                new LabResult
-                {
-                    Id = 1,
-                    PatientId = patientId,
-                    PatientName = PatientName,
-                    Date = DateTime.Now.AddDays(-30),
-                    TestName = "Blood Glucose",
-                    Result = "95 mg/dL",
-                    ReferenceRange = "70-100 mg/dL (fasting)",
-                    Status = "Normal"
-                },
-                new LabResult
-                {
-                    Id = 2,
-                    PatientId = patientId,
-                    PatientName = PatientName,
-                    Date = DateTime.Now.AddDays(-30),
-                    TestName = "Cholesterol",
-                    Result = "180 mg/dL",
-                    ReferenceRange = "<200 mg/dL",
-                    Status = "Normal"
-                }
-            };
+            // Return empty list instead of sample data
+            LabResults = new List<LabResult>();
+            
+            // Log that we're not generating sample data anymore
+            _logger.LogInformation("Lab results are now empty by default - no sample data generated");
         }
 
-        private async Task LoadAllLabResults()
+        private void LoadAllLabResults()
         {
-            // In a real implementation, you'd query a LabResults table
-            // Here we're generating sample data for all patients
+            // Return empty list instead of sample data for all patients
             LabResults = new List<LabResult>();
-
-            foreach (var patient in Patients)
-            {
-                LabResults.Add(new LabResult
-                {
-                    Id = LabResults.Count + 1,
-                    PatientId = patient.UserId,
-                    PatientName = patient.FullName,
-                    Date = DateTime.Now.AddDays(-30),
-                    TestName = "Blood Glucose",
-                    Result = "95 mg/dL",
-                    ReferenceRange = "70-100 mg/dL (fasting)",
-                    Status = "Normal"
-                });
-
-                LabResults.Add(new LabResult
-                {
-                    Id = LabResults.Count + 1,
-                    PatientId = patient.UserId,
-                    PatientName = patient.FullName,
-                    Date = DateTime.Now.AddDays(-60),
-                    TestName = "Cholesterol",
-                    Result = "180 mg/dL",
-                    ReferenceRange = "<200 mg/dL",
-                    Status = "Normal"
-                });
-            }
+            
+            // Log that we're not generating sample data anymore
+            _logger.LogInformation("Lab results are now empty by default - no sample data generated");
         }
 
         public async Task<IActionResult> OnPostDeleteAsync(int id)

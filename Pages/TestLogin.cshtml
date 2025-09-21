@@ -1,0 +1,58 @@
+@page
+@model TestLoginModel
+@{
+    ViewData["Title"] = "Test Login";
+}
+
+<div class="container mt-4">
+    <h2>Test Login</h2>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <h4>Direct Login Test</h4>
+            <form method="post">
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="text" class="form-control" id="email" name="Email" value="renierbenalma@gmail.com" />
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" class="form-control" id="password" name="Password" />
+                </div>
+                <button type="submit" class="btn btn-primary">Test Login</button>
+            </form>
+            
+            @if (!string.IsNullOrEmpty(Model.Result))
+            {
+                <div class="mt-3">
+                    <h5>Result:</h5>
+                    <p>@Model.Result</p>
+                </div>
+            }
+        </div>
+        
+        <div class="col-md-6">
+            <h4>User Search Test</h4>
+            <form method="post" asp-page-handler="SearchUser">
+                <div class="form-group">
+                    <label for="searchEmail">Search Email:</label>
+                    <input type="text" class="form-control" id="searchEmail" name="SearchEmail" value="renierbenalma@gmail.com" />
+                </div>
+                <button type="submit" class="btn btn-info">Search User</button>
+            </form>
+            
+            @if (Model.FoundUser != null)
+            {
+                <div class="mt-3">
+                    <h5>Found User:</h5>
+                    <p><strong>ID:</strong> @Model.FoundUser.Id</p>
+                    <p><strong>Username:</strong> @Model.FoundUser.UserName</p>
+                    <p><strong>Email (Raw):</strong> @(Model.FoundUser.Email?.Substring(0, Math.Min(30, Model.FoundUser.Email.Length)) + "...")</p>
+                    <p><strong>Email (Decrypted):</strong> @Model.DecryptedEmail</p>
+                    <p><strong>Status:</strong> @Model.FoundUser.Status</p>
+                    <p><strong>Email Confirmed:</strong> @Model.FoundUser.EmailConfirmed</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>

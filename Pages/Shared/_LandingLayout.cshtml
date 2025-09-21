@@ -3,23 +3,24 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Barangay Health Center</title>
+    <title>@ViewData["Title"] - BHCARE</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/custom.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/theme-orange.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" crossorigin="anonymous" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-md navbar-dark landing-nav">
+        <nav class="navbar navbar-expand-md navbar-dark bg-primary landing-nav">
             <div class="container">
                 <a class="navbar-brand d-flex align-items-center" href="/">
                     <i class="fas fa-heartbeat me-2"></i>
-                    <span>Barangay Health System</span>
+                    <span>BHCARE System</span>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -31,9 +32,6 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link @(ViewContext.RouteData.Values["Page"]?.ToString() == "/Account/SignUp" ? "active" : "")" href="/Account/SignUp">Sign Up</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["Page"]?.ToString() == "/Help/HowItWorks" ? "active" : "")" href="/Help/HowItWorks">Help</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link @(ViewContext.RouteData.Values["Page"]?.ToString() == "/Account/Login" ? "active" : "")" href="/Account/Login">Login</a>
@@ -48,36 +46,35 @@
         @RenderBody()
     </main>
 
-    <footer class="footer py-4 bg-dark text-white">
+    <footer class="footer py-4 bg-soft">
         <div class="container">
             <div class="row">
                 <div class="col-md-4 mb-3 mb-md-0">
-                    <h5 class="mb-3">Barangay Health Center</h5>
+                    <h5 class="mb-3 heading-accent">BHCARE</h5>
                     <p class="mb-1">Barangay 161, Manila</p>
-                    <p class="mb-1">Phone: <a href="tel:+6328123456" class="text-white">(02) 8123-4567</a></p>
-                    <p>Email: <a href="mailto:bhcare@barangay161.ph" class="text-white">bhcare@barangay161.ph</a></p>
+                    <p class="mb-1">Phone: <a href="tel:+6328123456" class="text-primary">(02) 8123-4567</a></p>
+                    <p>Email: <a href="mailto:bhcare@barangay161.ph" class="text-primary">bhcare@barangay161.ph</a></p>
                 </div>
                 <div class="col-md-4 mb-3 mb-md-0">
                     <h5 class="mb-3">Quick Links</h5>
                     <ul class="list-unstyled">
-                        <li><a href="/" class="text-white">Home</a></li>
-                        <li><a href="/Account/SignUp" class="text-white">Sign Up</a></li>
-                        <li><a href="/Account/Login" class="text-white">Login</a></li>
-                        <li><a href="/Help/HowItWorks" class="text-white">How It Works</a></li>
+                        <li><a href="/" class="text-primary">Home</a></li>
+                        <li><a href="/Account/SignUp" class="text-primary">Sign Up</a></li>
+                        <li><a href="/Account/Login" class="text-primary">Login</a></li>
                     </ul>
                 </div>
                 <div class="col-md-4">
                     <h5 class="mb-3">Legal</h5>
                     <ul class="list-unstyled">
-                        <li><a href="/Privacy" class="text-white">Privacy Policy</a></li>
-                        <li><a href="/Terms" class="text-white">Terms of Use</a></li>
-                        <li><a href="/DataPrivacy" class="text-white">Data Privacy</a></li>
+                        <li><a href="/Privacy" class="text-primary">Privacy Policy</a></li>
+                        <li><a href="/Terms" class="text-primary">Terms of Service</a></li>
+                        <li><a href="/DataPrivacy" class="text-primary">Data Privacy</a></li>
                     </ul>
                 </div>
             </div>
-            <hr class="my-3 bg-light">
-            <div class="text-center">
-                <p class="mb-0">&copy; @DateTime.Now.Year Barangay Health System. All rights reserved.</p>
+            <hr class="my-3" />
+            <div class="text-center text-muted">
+                <p class="mb-0">&copy; @DateTime.Now.Year BHCARE System. All rights reserved.</p>
             </div>
         </div>
     </footer>

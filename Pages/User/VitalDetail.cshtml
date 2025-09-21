@@ -1,0 +1,45 @@
+@page "{id:int}"
+@model Barangay.Pages.User.VitalDetailModel
+@{
+    ViewData["Title"] = "Vital Signs Details";
+    Layout = "_UserLayout";
+}
+
+<div class="container-fluid">
+    <h2 class="mt-4">Vital Signs Details</h2>
+
+    @if (Model.VitalSign != null)
+    {
+        <div class="card">
+            <div class="card-header">
+                <h4>Vitals from @Model.VitalSign.RecordedAt.ToShortDateString()</h4>
+            </div>
+            <div class="card-body">
+                <p><strong>Temperature:</strong> @Model.VitalSign.Temperature °C</p>
+                <p><strong>Blood Pressure:</strong> @Model.VitalSign.BloodPressure</p>
+                <p><strong>Heart Rate:</strong> @(Model.VitalSign.HeartRate?.ToString() ?? "-") bpm</p>
+                <p><strong>Weight:</strong> @(Model.VitalSign.Weight?.ToString() ?? "-") kg</p>
+                <p><strong>Height:</strong> @(Model.VitalSign.Height?.ToString() ?? "-") cm</p>
+                <p><strong>BMI:</strong> @{
+                    if (!string.IsNullOrEmpty(Model.VitalSign.Height) && !string.IsNullOrEmpty(Model.VitalSign.Weight) && 
+                        double.TryParse(Model.VitalSign.Height, out var height) && double.TryParse(Model.VitalSign.Weight, out var weight))
+                    {
+                        var bmi = Math.Round(weight / ((height / 100) * (height / 100)), 1);
+                        @bmi
+                    }
+                    else
+                    {
+                        @("0")
+                    }
+                }</p>
+            </div>
+            <div class="card-footer">
+                <a asp-page="./Records" class="btn btn-secondary">Back to Records</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning">Vital signs record not found.</div>
+    }
+</div>

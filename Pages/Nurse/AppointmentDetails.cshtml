@@ -1,0 +1,584 @@
+@page
+@model Barangay.Pages.Nurse.AppointmentDetailsModel
+@{
+    ViewData["Title"] = "Appointment Details";
+    Layout = "_NurseLayout";
+    
+}
+
+@section Styles {
+    <style>
+        .list-group-item-warning {
+            border-left: 4px solid #ffc107;
+        }
+        
+        .list-group-item-danger {
+            border-left: 4px solid #dc3545;
+        }
+        
+        .assessment-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .assessment-history {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        
+        .tab-pane {
+            padding-top: 15px;
+        }
+        
+        .section-heading {
+            border-bottom: 1px solid rgb(0, 0, 0);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .nav-tabs .nav-link {
+            color: #000000;
+            font-weight: 500;
+            padding: 10px 15px;
+            min-width: 150px;
+            text-align: center;
+        }
+        
+        .nav-tabs .nav-link.active {
+            background-color: rgb(0, 0, 0);
+            border-color: #dee2e6 #dee2e6 #000000;
+            color: #ffffff;
+            font-weight: 600;
+        }
+    </style>
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="m-0">Appointment Details</h2>
+        <a href="/Nurse/Appointments" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>
+            Back to Appointments
+        </a>
+    </div>
+    
+    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+    {
+        <div class="alert @(Model.StatusMessage.Contains("Error") ? "alert-danger" : "alert-success") alert-dismissible fade show" role="alert">
+            @Model.StatusMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Patient Information</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Patient Name</dt>
+                        <dd class="col-sm-8">@Model.Appointment.PatientName</dd>
+
+                        <dt class="col-sm-4">Appointment Date</dt>
+                        <dd class="col-sm-8">@Model.Appointment.AppointmentDate.ToString("MMM d, yyyy")</dd>
+
+                        <dt class="col-sm-4">Appointment Time</dt>
+                        <dd class="col-sm-8">@Model.Appointment.AppointmentTime.ToString(@"hh\:mm")</dd>
+
+                        <dt class="col-sm-4">Doctor</dt>
+                        <dd class="col-sm-8">@Model.Appointment.DoctorName</dd>
+
+                        <dt class="col-sm-4">Type</dt>
+                        <dd class="col-sm-8">@Model.Appointment.Type</dd>
+
+                        <dt class="col-sm-4">Status</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge @(Model.Appointment.Status == AppointmentStatus.Pending ? "bg-warning" : 
+                                            Model.Appointment.Status == AppointmentStatus.Confirmed ? "bg-info" :
+                                            Model.Appointment.Status == AppointmentStatus.InProgress ? "bg-primary" : 
+                                            Model.Appointment.Status == AppointmentStatus.Completed ? "bg-success" : 
+                                            Model.Appointment.Status == AppointmentStatus.Cancelled ? "bg-danger" : 
+                                            Model.Appointment.Status == AppointmentStatus.Urgent ? "bg-danger" : 
+                                            Model.Appointment.Status == AppointmentStatus.NoShow ? "bg-secondary" : "bg-secondary")">
+                                @Model.Appointment.Status.ToString()
+                            </span>
+                        </dd>
+
+                        <dt class="col-sm-4">Description</dt>
+                        <dd class="col-sm-8">@(string.IsNullOrEmpty(Model.Appointment.Description) ? "No description provided." : Model.Appointment.Description)</dd>
+
+                        <dt class="col-sm-4">Age</dt>
+                        <dd class="col-sm-8">@(Model.PatientAge) years</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Assessment Forms</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="assessmentSelect" class="form-label">Select Assessment Type</label>
+                    </div>
+                    <ul class="nav nav-tabs mb-3" id="assessmentTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="ncd-tab" data-bs-toggle="tab" data-bs-target="#ncd-content" 
+                                    type="button" role="tab" aria-controls="ncd-content" aria-selected="true">
+                                <strong>NCD Risk Assessment</strong>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="heeadsss-tab" data-bs-toggle="tab" data-bs-target="#heeadsss-content" 
+                                    type="button" role="tab" aria-controls="heeadsss-content" aria-selected="false">
+                                <strong>HEEADSSS Assessment</strong>
+                            </button>
+                        </li>
+                    </ul>
+                    <div class="tab-content p-3" id="assessmentTabContent">
+                        <!-- NCD Risk Assessment Tab -->
+                        <div class="tab-pane fade show active" id="ncd-content" role="tabpanel" aria-labelledby="ncd-tab">
+                            @if (Model.HasNCDAssessment)
+                            {
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="section-heading mb-0">
+                                        <i class="fas fa-heartbeat text-primary me-2"></i>
+                                        NCD Risk Assessment
+                                    </h6>
+                                    <div class="btn-group">
+                                        <a href="/Nurse/EditNCDAssessment?appointmentId=@Model.Appointment.Id" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit me-1"></i>
+                                            Edit
+                                        </a>
+                                        <a href="/Nurse/PrintNCDAssessment?appointmentId=@Model.Appointment.Id" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-print me-1"></i>
+                                            Print
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <!-- Assessment Summary -->
+                                <div class="alert alert-info mb-3">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p class="mb-1"><strong>Completed:</strong> @Model.NCDRiskAssessment.CreatedAt</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p class="mb-1"><strong>Last Updated:</strong> @Model.NCDRiskAssessment.UpdatedAt</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Patient Demographics -->
+                                <div class="assessment-section mb-3">
+                                    <h6 class="text-primary mb-2">Patient Demographics</h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>Name:</strong> @(string.IsNullOrEmpty(Model.NCDRiskAssessment.FirstName) ? "N/A" : $"{Model.NCDRiskAssessment.FirstName} {Model.NCDRiskAssessment.MiddleName} {Model.NCDRiskAssessment.LastName}".Trim())</p>
+                                            <p><strong>Age:</strong> @(string.IsNullOrEmpty(Model.NCDRiskAssessment.Edad) ? "N/A" : Model.NCDRiskAssessment.Edad) years</p>
+                                            <p><strong>Gender:</strong> @(string.IsNullOrEmpty(Model.NCDRiskAssessment.Kasarian) ? "N/A" : Model.NCDRiskAssessment.Kasarian)</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>Address:</strong> @(string.IsNullOrEmpty(Model.NCDRiskAssessment.Address) ? "N/A" : Model.NCDRiskAssessment.Address)</p>
+                                            <p><strong>Barangay:</strong> @(string.IsNullOrEmpty(Model.NCDRiskAssessment.Barangay) ? "N/A" : Model.NCDRiskAssessment.Barangay)</p>
+                                            <p><strong>Contact:</strong> @(string.IsNullOrEmpty(Model.NCDRiskAssessment.Telepono) ? "N/A" : Model.NCDRiskAssessment.Telepono)</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Medical History -->
+                                <div class="assessment-section mb-3">
+                                    <h6 class="text-primary mb-2">Medical History</h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>Current Conditions:</strong> 
+                                                @{
+                                                    var currentConditions = new List<string>();
+                                                    if (Model.NCDRiskAssessment.HasDiabetes == "true") currentConditions.Add("Diabetes");
+                                                    if (Model.NCDRiskAssessment.HasHypertension == "true") currentConditions.Add("Hypertension");
+                                                    if (Model.NCDRiskAssessment.HasCancer == "true") currentConditions.Add("Cancer");
+                                                    if (Model.NCDRiskAssessment.HasCOPD == "true") currentConditions.Add("COPD");
+                                                    if (Model.NCDRiskAssessment.HasLungDisease == "true") currentConditions.Add("Lung Disease");
+                                                    if (Model.NCDRiskAssessment.HasEyeDisease == "true") currentConditions.Add("Eye Disease");
+                                                }
+                                                @(currentConditions.Any() ? string.Join(", ", currentConditions) : "None reported")
+                                            </p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>Family History:</strong> 
+                                                @{
+                                                    var familyHistory = new List<string>();
+                                                    if (Model.NCDRiskAssessment.FamilyHasHypertension == "true") familyHistory.Add("Hypertension");
+                                                    if (Model.NCDRiskAssessment.FamilyHasHeartDisease == "true") familyHistory.Add("Heart Disease");
+                                                    if (Model.NCDRiskAssessment.FamilyHasStroke == "true") familyHistory.Add("Stroke");
+                                                    if (Model.NCDRiskAssessment.FamilyHasDiabetes == "true") familyHistory.Add("Diabetes");
+                                                    if (Model.NCDRiskAssessment.FamilyHasCancer == "true") familyHistory.Add("Cancer");
+                                                    if (Model.NCDRiskAssessment.FamilyHasKidneyDisease == "true") familyHistory.Add("Kidney Disease");
+                                                }
+                                                @(familyHistory.Any() ? string.Join(", ", familyHistory) : "None reported")
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Lifestyle Factors -->
+                                <div class="assessment-section mb-3">
+                                    <h6 class="text-primary mb-2">Lifestyle Factors</h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>Smoking:</strong> @(string.IsNullOrEmpty(Model.NCDRiskAssessment.SmokingStatus) ? "N/A" : (Model.NCDRiskAssessment.SmokingStatus == "true" ? "Yes" : "No"))</p>
+                                            <p><strong>Alcohol Use:</strong> @(string.IsNullOrEmpty(Model.NCDRiskAssessment.AlcoholFrequency) ? "N/A" : Model.NCDRiskAssessment.AlcoholFrequency)</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>Salt Intake:</strong> @(string.IsNullOrEmpty(Model.NCDRiskAssessment.HighSaltIntake) ? "N/A" : (Model.NCDRiskAssessment.HighSaltIntake == "true" ? "High" : "Normal"))</p>
+                                            <p><strong>Exercise:</strong> @(string.IsNullOrEmpty(Model.NCDRiskAssessment.ExerciseDuration) ? "N/A" : Model.NCDRiskAssessment.ExerciseDuration)</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Risk Assessment -->
+                                <div class="assessment-section mb-3">
+                                    <h6 class="text-primary mb-2">Risk Assessment</h6>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <p><strong>Overall Risk Status:</strong> 
+                                                <span class="badge @(Model.NCDRiskAssessment.RiskStatus == "High" ? "bg-danger" : Model.NCDRiskAssessment.RiskStatus == "Medium" ? "bg-warning" : "bg-success")">
+                                                    @(string.IsNullOrEmpty(Model.NCDRiskAssessment.RiskStatus) ? "Not Assessed" : Model.NCDRiskAssessment.RiskStatus)
+                                                </span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- View Full Assessment Button -->
+                                <div class="text-center mt-4">
+                                    <a href="/Nurse/PrintNCDAssessment?appointmentId=@Model.Appointment.Id" class="btn btn-primary">
+                                        <i class="fas fa-eye me-1"></i>
+                                        View Full Assessment
+                                    </a>
+                                </div>
+
+                            }
+                            else
+                            {
+                                <div class="text-center py-5">
+                                    <i class="fas fa-heartbeat fa-3x text-muted mb-3"></i>
+                                    <h6 class="text-muted">No NCD Risk Assessment data available for this patient.</h6>
+                                    <p class="text-muted mb-4">Create a new NCD Risk Assessment to evaluate the patient's risk factors for non-communicable diseases.</p>
+                                    <a href="/Nurse/CreateNCDAssessment?appointmentId=@Model.Appointment.Id" class="btn btn-primary">
+                                        <i class="fas fa-plus-circle me-1"></i>
+                                        Create New Assessment
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                        
+                        <!-- HEEADSSS Assessment Tab -->
+                        <div class="tab-pane fade" id="heeadsss-content" role="tabpanel" aria-labelledby="heeadsss-tab">
+                            @if (Model.HasHEEADSSSAssessment)
+                            {
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="section-heading mb-0">
+                                        <i class="fas fa-user-friends text-primary me-2"></i>
+                                        HEEADSSS Assessment
+                                    </h6>
+                                    <div class="btn-group">
+                                        <a href="/Nurse/EditHEEADSSSAssessment?appointmentId=@Model.Appointment.Id" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit me-1"></i>
+                                            Edit
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <!-- Assessment Summary -->
+                                <div class="alert alert-info mb-3">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p class="mb-1"><strong>Completed:</strong> @Model.HEEADSSSAssessment.CreatedAt.ToString("MMM dd, yyyy HH:mm")</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p class="mb-1"><strong>Last Updated:</strong> @(Model.HEEADSSSAssessment.UpdatedAt.HasValue ? Model.HEEADSSSAssessment.UpdatedAt.Value.ToString("MMM dd, yyyy HH:mm") : "Not updated")</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Patient Demographics -->
+                                <div class="assessment-section mb-3">
+                                    <h6 class="text-primary mb-2">Patient Demographics</h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>Name:</strong> @(string.IsNullOrEmpty(Model.HEEADSSSAssessment.FullName) ? "N/A" : Model.HEEADSSSAssessment.FullName)</p>
+                                            <p><strong>Age:</strong> @(string.IsNullOrEmpty(Model.HEEADSSSAssessment.Age) ? "N/A" : Model.HEEADSSSAssessment.Age) years</p>
+                                            <p><strong>Gender:</strong> @(string.IsNullOrEmpty(Model.HEEADSSSAssessment.Gender) ? "N/A" : Model.HEEADSSSAssessment.Gender)</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>Address:</strong> @(string.IsNullOrEmpty(Model.HEEADSSSAssessment.Address) ? "N/A" : Model.HEEADSSSAssessment.Address)</p>
+                                            <p><strong>Contact:</strong> @(string.IsNullOrEmpty(Model.HEEADSSSAssessment.ContactNumber) ? "N/A" : Model.HEEADSSSAssessment.ContactNumber)</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Home Environment -->
+                                <div class="assessment-section mb-3">
+                                    <h6 class="text-primary mb-2">Home Environment</h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>Environment:</strong> @(string.IsNullOrEmpty(Model.HEEADSSSAssessment.HomeEnvironment) ? "N/A" : Model.HEEADSSSAssessment.HomeEnvironment)</p>
+                                            <p><strong>Family Relationship:</strong> @(string.IsNullOrEmpty(Model.HEEADSSSAssessment.FamilyRelationship) ? "N/A" : Model.HEEADSSSAssessment.FamilyRelationship)</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>Family Problems:</strong> @(string.IsNullOrEmpty(Model.HEEADSSSAssessment.HomeFamilyProblems) ? "None reported" : Model.HEEADSSSAssessment.HomeFamilyProblems)</p>
+                                            <p><strong>Parental Listening:</strong> @(string.IsNullOrEmpty(Model.HEEADSSSAssessment.HomeParentalListening) ? "N/A" : Model.HEEADSSSAssessment.HomeParentalListening)</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Education -->
+                                <div class="assessment-section mb-3">
+                                    <h6 class="text-primary mb-2">Education</h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>School Performance:</strong> @(string.IsNullOrEmpty(Model.HEEADSSSAssessment.SchoolPerformance) ? "N/A" : Model.HEEADSSSAssessment.SchoolPerformance)</p>
+                                            <p><strong>Attendance Issues:</strong> @(string.IsNullOrEmpty(Model.HEEADSSSAssessment.AttendanceIssues) ? "None reported" : Model.HEEADSSSAssessment.AttendanceIssues)</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>Career Plans:</strong> @(string.IsNullOrEmpty(Model.HEEADSSSAssessment.CareerPlans) ? "N/A" : Model.HEEADSSSAssessment.CareerPlans)</p>
+                                            <p><strong>Currently Studying:</strong> @(string.IsNullOrEmpty(Model.HEEADSSSAssessment.EducationCurrentlyStudying) ? "N/A" : Model.HEEADSSSAssessment.EducationCurrentlyStudying)</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Activities -->
+                                <div class="assessment-section mb-3">
+                                    <h6 class="text-primary mb-2">Activities & Lifestyle</h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>Hobbies:</strong> @(string.IsNullOrEmpty(Model.HEEADSSSAssessment.Hobbies) ? "N/A" : Model.HEEADSSSAssessment.Hobbies)</p>
+                                            <p><strong>Physical Activity:</strong> @(string.IsNullOrEmpty(Model.HEEADSSSAssessment.PhysicalActivity) ? "N/A" : Model.HEEADSSSAssessment.PhysicalActivity)</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>Screen Time:</strong> @(string.IsNullOrEmpty(Model.HEEADSSSAssessment.ScreenTime) ? "N/A" : Model.HEEADSSSAssessment.ScreenTime)</p>
+                                            <p><strong>Exercise:</strong> @(string.IsNullOrEmpty(Model.HEEADSSSAssessment.ActivitiesRegularExercise) ? "N/A" : Model.HEEADSSSAssessment.ActivitiesRegularExercise)</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Risk Assessment -->
+                                <div class="assessment-section mb-3">
+                                    <h6 class="text-primary mb-2">Risk Assessment</h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>Risk Areas:</strong> 
+                                                @{
+                                                    var riskAreas = new List<string>();
+                                                    if (Model.HEEADSSSAssessment.SubstanceUse == "True") riskAreas.Add("Substance Use");
+                                                    if (Model.HEEADSSSAssessment.SexualActivity == "True") riskAreas.Add("Sexual Activity");
+                                                    if (Model.HEEADSSSAssessment.MoodChanges == "True") riskAreas.Add("Mood Changes");
+                                                    if (Model.HEEADSSSAssessment.SuicidalThoughts == "True") riskAreas.Add("Suicidal Thoughts");
+                                                    if (Model.HEEADSSSAssessment.SelfHarmBehavior == "True") riskAreas.Add("Self-Harm");
+                                                }
+                                                @(riskAreas.Any() ? string.Join(", ", riskAreas) : "None identified")
+                                            </p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>Safety Concerns:</strong> 
+                                                @{
+                                                    var safetyConcerns = new List<string>();
+                                                    if (Model.HEEADSSSAssessment.FeelsSafeAtHome != "True") safetyConcerns.Add("Home Safety");
+                                                    if (Model.HEEADSSSAssessment.FeelsSafeAtSchool != "True") safetyConcerns.Add("School Safety");
+                                                    if (Model.HEEADSSSAssessment.ExperiencedBullying == "True") safetyConcerns.Add("Bullying");
+                                                }
+                                                @(safetyConcerns.Any() ? string.Join(", ", safetyConcerns) : "None identified")
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- View Full Assessment Button -->
+                                <div class="text-center mt-4">
+                                    <a href="/Nurse/EditHEEADSSSAssessment?appointmentId=@Model.Appointment.Id" class="btn btn-primary">
+                                        <i class="fas fa-eye me-1"></i>
+                                        View Full Assessment
+                                    </a>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-center py-5">
+                                    <i class="fas fa-user-friends fa-3x text-muted mb-3"></i>
+                                    <h6 class="text-muted">No HEEADSSS Assessment data available for this patient.</h6>
+                                    <p class="text-muted mb-4">Create a new HEEADSSS Assessment to evaluate the patient's psychosocial risk factors.</p>
+                                    <a href="/Nurse/CreateHEEADSSSAssessment?appointmentId=@Model.Appointment.Id" class="btn btn-primary">
+                                        <i class="fas fa-plus-circle me-1"></i>
+                                        Create New Assessment
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Initialize assessment tabs
+            initializeAssessmentTabs();
+            
+            // Handle window resize for responsive behavior
+            $(window).on('resize', function() {
+                handleResponsiveLayout();
+            });
+            
+            // Initialize responsive layout on page load
+            handleResponsiveLayout();
+            
+            // Add loading states for buttons
+            $('.btn').on('click', function() {
+                var $btn = $(this);
+                if (!$btn.hasClass('btn-loading')) {
+                    $btn.addClass('btn-loading');
+                    setTimeout(function() {
+                        $btn.removeClass('btn-loading');
+                    }, 2000);
+                }
+            });
+        });
+        
+        function initializeAssessmentTabs() {
+            // Enhanced tab initialization with better UX
+            var triggerTabList = [].slice.call(document.querySelectorAll('#assessmentTabs button'));
+            
+            triggerTabList.forEach(function (triggerEl) {
+                var tabTrigger = new bootstrap.Tab(triggerEl);
+                
+                triggerEl.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    tabTrigger.show();
+                    
+                    // Add smooth transition
+                    setTimeout(function() {
+                        adjustTabContentHeight();
+                    }, 100);
+                });
+            });
+            
+            // Handle mobile tab behavior
+            if (window.innerWidth <= 768) {
+                $('#assessmentTabs').addClass('nav-pills').removeClass('nav-tabs');
+                $('#assessmentTabs .nav-link').addClass('mb-2');
+            }
+        }
+        
+        function handleResponsiveLayout() {
+            var windowWidth = $(window).width();
+            
+            // Adjust card layout for mobile
+            if (windowWidth <= 768) {
+                $('.col-md-6').removeClass('col-md-6').addClass('col-12');
+                $('.card').addClass('mb-3');
+                
+                // Stack assessment sections vertically on mobile
+                $('.assessment-section .row').each(function() {
+                    $(this).find('.col-md-6').removeClass('col-md-6').addClass('col-12 mb-2');
+                });
+                
+                // Adjust tab styling for mobile
+                $('#assessmentTabs').addClass('nav-pills').removeClass('nav-tabs');
+                $('#assessmentTabs .nav-link').addClass('mb-2');
+                
+            } else {
+                // Restore desktop layout
+                $('.col-12').removeClass('col-12').addClass('col-md-6');
+                $('.card').removeClass('mb-3');
+                
+                // Restore assessment sections layout
+                $('.assessment-section .row').each(function() {
+                    $(this).find('.col-12').removeClass('col-12 mb-2').addClass('col-md-6');
+                });
+                
+                // Restore tab styling for desktop
+                $('#assessmentTabs').removeClass('nav-pills').addClass('nav-tabs');
+                $('#assessmentTabs .nav-link').removeClass('mb-2');
+            }
+            
+            // Adjust content height dynamically
+            adjustTabContentHeight();
+        }
+        
+        function adjustTabContentHeight() {
+            var activeTabContent = $('.tab-pane.active');
+            if (activeTabContent.length) {
+                var maxHeight = Math.max(
+                    $('#ncd-content').outerHeight(),
+                    $('#heeadsss-content').outerHeight()
+                );
+                $('.tab-content').css('min-height', maxHeight + 'px');
+            }
+        }
+        
+        // Add CSS for enhanced styling
+        $('<style>')
+            .prop('type', 'text/css')
+            .html(`
+                .btn-loading {
+                    position: relative;
+                    pointer-events: none;
+                }
+                .btn-loading::after {
+                    content: '';
+                    position: absolute;
+                    width: 16px;
+                    height: 16px;
+                    top: 50%;
+                    left: 50%;
+                    margin-left: -8px;
+                    margin-top: -8px;
+                    border: 2px solid transparent;
+                    border-top-color: #ffffff;
+                    border-radius: 50%;
+                    animation: button-loading-spinner 1s ease infinite;
+                }
+                @@keyframes button-loading-spinner {
+                    from { transform: rotate(0turn); }
+                    to { transform: rotate(1turn); }
+                }
+                .assessment-section {
+                    transition: all 0.3s ease;
+                }
+                .tab-pane {
+                    transition: opacity 0.3s ease;
+                }
+                .nav-tabs .nav-link {
+                    transition: all 0.3s ease;
+                }
+                .nav-tabs .nav-link:hover {
+                    background-color: rgba(0, 0, 0, 0.05);
+                }
+                @@media (max-width: 768px) {
+                    .nav-tabs {
+                        flex-direction: column;
+                    }
+                    .nav-tabs .nav-link {
+                        margin-bottom: 0.5rem;
+                        text-align: center;
+                    }
+                    .assessment-section .row {
+                        margin: 0;
+                    }
+                    .assessment-section .col-md-6 {
+                        padding: 0.5rem;
+                    }
+                }
+            `)
+            .appendTo('head');
+    </script>
+} 

@@ -20,8 +20,8 @@ namespace Barangay.Services
 
         public EmailSender(string smtpHost, int smtpPort, string smtpUser, string smtpPassword)
         {
-            _smtpHost = smtpHost;
-            _smtpPort = smtpPort;
+            _smtpHost = smtpHost ?? "smtp.gmail.com";
+            _smtpPort = smtpPort > 0 ? smtpPort : 587;
             _smtpUser = smtpUser;
             _smtpPassword = smtpPassword;
         }
@@ -30,6 +30,13 @@ namespace Barangay.Services
         {
             try
             {
+                // Check if email configuration is valid
+                if (string.IsNullOrEmpty(_smtpUser) || string.IsNullOrEmpty(_smtpPassword))
+                {
+                    Console.WriteLine("Email configuration is missing. Email not sent.");
+                    return;
+                }
+
                 using var client = new SmtpClient(_smtpHost, _smtpPort)
                 {
                     Credentials = new System.Net.NetworkCredential(_smtpUser, _smtpPassword),
@@ -46,11 +53,12 @@ namespace Barangay.Services
                 mail.To.Add(email);
 
                 await client.SendMailAsync(mail);
+                Console.WriteLine($"Email sent successfully to {email}");
             }
             catch (Exception ex)
             {
                 // Log error but don't throw to prevent application crashes
-                Console.WriteLine($"Error sending email: {ex.Message}");
+                Console.WriteLine($"Error sending email to {email}: {ex.Message}");
             }
         }
     }

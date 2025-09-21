@@ -13,6 +13,7 @@ using System.IO;
 using Barangay.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
+using Barangay.Services;
 
 namespace Barangay.Controllers
 {
@@ -24,19 +25,22 @@ namespace Barangay.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ILogger<AdminController> _logger;
+        private readonly DatabaseSeeder _databaseSeeder;
 
         public AdminController(
             UserManager<ApplicationUser> userManager,
             ApplicationDbContext context,
             RoleManager<IdentityRole> roleManager,
             IWebHostEnvironment webHostEnvironment,
-            ILogger<AdminController> logger)
+            ILogger<AdminController> logger,
+            DatabaseSeeder databaseSeeder)
         {
             _userManager = userManager;
             _context = context;
             _roleManager = roleManager;
             _webHostEnvironment = webHostEnvironment;
             _logger = logger;
+            _databaseSeeder = databaseSeeder;
         }
 
         [HttpPut]
@@ -49,6 +53,7 @@ namespace Barangay.Controllers
             {
                 return NotFound();
             }
+
 
             // Start a transaction to ensure all updates are consistent
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -93,6 +98,7 @@ namespace Barangay.Controllers
                 _logger.LogError(ex, "Error approving user via API");
                 return StatusCode(500, new { error = "An error occurred while approving the user" });
             }
+
         }
 
         [HttpGet]
@@ -114,9 +120,8 @@ namespace Barangay.Controllers
                     "Nurse"
                 };
 
-                // Get all users excluding staff members with their documents
+                // Get all users (including Pending/Inactive) excluding staff members later, with their documents
                 var users = await _userManager.Users
-                    .Where(u => u.IsActive)
                     .Include(u => u.UserDocuments)
                         .ThenInclude(d => d.Approver)
                     .Select(u => new UserData
@@ -130,9 +135,11 @@ namespace Barangay.Controllers
                         IsActive = u.IsActive,
                         PhilHealthId = u.PhilHealthId,
                         Gender = u.Gender,
-                        BirthDate = u.BirthDate,
+                        BirthDate = u.BirthDate, // Keep as string for LINQ
                         Address = u.Address,
+
                         ContactNumber = u.PhoneNumber ?? string.Empty,
+
                         Documents = u.UserDocuments.OrderByDescending(d => d.UploadDate).ToList()
                     })
                     .ToListAsync();
@@ -141,6 +148,7 @@ namespace Barangay.Controllers
                 var filteredUsers = new List<UserData>();
                 foreach (var user in users)
                 {
+
                     var appUser = await _userManager.FindByIdAsync(user.Id);
                     var userRoles = await _userManager.GetRolesAsync(appUser);
                     
@@ -166,6 +174,7 @@ namespace Barangay.Controllers
                             }
                         }
                         
+
                         filteredUsers.Add(user);
                     }
                 }
@@ -182,7 +191,7 @@ namespace Barangay.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> AdminDashboard()
+        public IActionResult AdminDashboard()
         {
             // Get the current time in Philippine Standard Time (UTC+8)
             var philippineTime = TimeZoneInfo.ConvertTimeFromUtc(
@@ -283,8 +292,8 @@ namespace Barangay.Controllers
 
             var consultationsByType = await _context.Appointments
                 .Where(a => a.Status == AppointmentStatus.Completed)
-                .GroupBy(a => a.Type)
-                .Select(g => new { Type = g.Key, Count = g.Count() })
+                .GroupBy(a => a.Type ?? "Unspecified")
+                .Select(g => new { Type = g.Key ?? "Unspecified", Count = g.Count() })
                 .ToDictionaryAsync(x => x.Type, x => x.Count);
 
             return new ReportData
@@ -495,6 +504,7 @@ Average Health Index & " + data.AverageHealthIndex.ToString("F1") + @"\% \\
                     Status = "Pending",
                     FileSize = file.Length,
                     ContentType = file.ContentType,
+                    FileType = Path.GetExtension(file.FileName)?.TrimStart('.')?.ToLower() ?? "unknown",
                     UploadDate = DateTime.UtcNow
                 };
 
@@ -652,6 +662,7 @@ Average Health Index & " + data.AverageHealthIndex.ToString("F1") + @"\% \\
             }
         }
 
+
         [HttpGet]
         [Route("api/Admin/GetGuardianProof/{id}")]
         public async Task<IActionResult> GetGuardianProof(int id)
@@ -710,8 +721,9 @@ Average Health Index & " + data.AverageHealthIndex.ToString("F1") + @"\% \\
                 
                 // Check if guardian consent is required but missing
                 var today = DateTime.Today;
-                var age = today.Year - user.BirthDate.Year;
-                if (user.BirthDate.Date > today.AddYears(-age)) age--;
+                var birthDate = DateTime.TryParse(user.BirthDate, out var parsedBirthDate) ? parsedBirthDate : DateTime.MinValue;
+                var age = today.Year - birthDate.Year;
+                if (birthDate.Date > today.AddYears(-age)) age--;
                 
                 if (age < 18)
                 {
@@ -840,6 +852,26 @@ Average Health Index & " + data.AverageHealthIndex.ToString("F1") + @"\% \\
                 return RedirectToAction(nameof(UserManagement));
             }
         }
+
+        [HttpPost]
+        [Route("api/Admin/SeedDatabase")]
+        public async Task<IActionResult> SeedDatabase()
+        {
+            try
+            {
+                _logger.LogInformation("Manual database seeding triggered by admin");
+                await _databaseSeeder.SeedAllAsync();
+                
+                return Json(new { success = true, message = "Database seeded successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during manual database seeding");
+                return Json(new { success = false, message = $"Error seeding database: {ex.Message}" });
+            }
+        }
+
+
     }
 
     public class AdminDashboardViewModel

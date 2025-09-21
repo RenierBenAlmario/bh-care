@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Barangay.Pages.Nurse
 {
-    [Authorize(Roles = "Nurse")]
+    [Authorize(Roles = "Nurse,Head Nurse")]
     public class NotificationsModel : PageModel
     {
         private readonly ApplicationDbContext _context;
@@ -57,7 +57,7 @@ namespace Barangay.Pages.Nurse
 
         public List<NotificationViewModel> Notifications { get; set; }
 
-        public async Task<IActionResult> OnGetAsync()
+        public IActionResult OnGet()
         {
             try
             {

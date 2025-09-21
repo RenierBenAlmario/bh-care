@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Identity;
 using Barangay.Models;
 using Barangay.Data;
+using Barangay.Services;
 using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -17,15 +18,18 @@ namespace Barangay.Pages.User
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<AppointmentConfirmationModel> _logger;
+        private readonly IDataEncryptionService _encryptionService;
 
         public AppointmentConfirmationModel(
             ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
-            ILogger<AppointmentConfirmationModel> logger)
+            ILogger<AppointmentConfirmationModel> logger,
+            IDataEncryptionService encryptionService)
         {
             _context = context;
             _userManager = userManager;
             _logger = logger;
+            _encryptionService = encryptionService;
         }
 
         public Appointment Appointment { get; set; }
@@ -82,8 +86,29 @@ namespace Barangay.Pages.User
             // If no NCD Risk Assessment, try to load HEEADSSS Assessment
             if (NCDRiskAssessment == null)
             {
-                HEEADSSSAssessment = await _context.HEEADSSSAssessments
-                    .FirstOrDefaultAsync(h => h.AppointmentId == id);
+                // Since AppointmentId is encrypted, we need to check all records and decrypt them
+                var allHEEADSSSAssessments = await _context.HEEADSSSAssessments
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                foreach (var assessment in allHEEADSSSAssessments)
+                {
+                    try
+                    {
+                        // Decrypt the AppointmentId to check if it matches
+                        var decryptedAppointmentId = _encryptionService.DecryptForUser(assessment.AppointmentId, User);
+                        if (decryptedAppointmentId == id.ToString())
+                        {
+                            HEEADSSSAssessment = assessment;
+                            break;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Failed to decrypt AppointmentId for HEEADSSS assessment {Id}", assessment.Id);
+                        // Continue checking other assessments
+                    }
+                }
             }
 
             return Page();

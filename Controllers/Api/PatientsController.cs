@@ -35,8 +35,21 @@ namespace Barangay.Controllers.Api
 
             try
             {
+                // Get list of staff user IDs to exclude
+                var staffUserIds = await _context.UserRoles
+                    .Where(ur => ur.RoleId == _context.Roles.Where(r => r.Name == "Doctor").Select(r => r.Id).FirstOrDefault()
+                        || ur.RoleId == _context.Roles.Where(r => r.Name == "Nurse").Select(r => r.Id).FirstOrDefault()
+                        || ur.RoleId == _context.Roles.Where(r => r.Name == "Admin").Select(r => r.Id).FirstOrDefault()
+                        || ur.RoleId == _context.Roles.Where(r => r.Name == "Admin Staff").Select(r => r.Id).FirstOrDefault())
+                    .Select(ur => ur.UserId)
+                    .ToListAsync();
+
                 var appointmentPatients = await _context.Appointments
-                    .Where(a => a.PatientName.Contains(term) && DateTimeHelper.IsDateGreaterThanOrEqual(a.AppointmentDate, DateTime.Today))
+                    .Where(a => a.PatientName.Contains(term) 
+                        && DateTimeHelper.IsDateGreaterThanOrEqual(a.AppointmentDate, DateTime.Today)
+                        && a.PatientName != "System Administrator" 
+                        && a.PatientId != "0e03f06e-ba88-46ed-b047-4974d8b8252a"
+                        && !staffUserIds.Contains(a.PatientId))
                     .Select(a => new
                     {
                         a.PatientId,
@@ -50,7 +63,10 @@ namespace Barangay.Controllers.Api
                 _logger.LogInformation($"Found {appointmentPatients.Count} patients in appointments matching '{term}'");
 
                 var patients = await _context.Patients
-                    .Where(p => p.Name.Contains(term) || p.ContactNumber.Contains(term))
+                    .Where(p => (p.Name.Contains(term) || p.ContactNumber.Contains(term))
+                        && p.Name != "System Administrator" 
+                        && p.UserId != "0e03f06e-ba88-46ed-b047-4974d8b8252a"
+                        && !staffUserIds.Contains(p.UserId))
                     .Select(p => new
                     {
                         p.UserId,

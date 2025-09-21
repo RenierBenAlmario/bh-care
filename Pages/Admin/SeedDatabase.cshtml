@@ -1,0 +1,125 @@
+@page
+@model Barangay.Pages.Admin.SeedDatabaseModel
+@{
+    ViewData["Title"] = "Seed Database";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Database Seeding</h3>
+                </div>
+                <div class="card-body">
+                    <p>This page allows you to manually trigger database seeding to create default users and roles.</p>
+                    
+                    <div class="alert alert-info">
+                        <strong>Note:</strong> This will create default users including:
+                        <ul>
+                            <li>Admin user (if configured)</li>
+                            <li>Doctor user (doctor@example.com)</li>
+                            <li>Nurse user (nurse@example.com)</li>
+                        </ul>
+                    </div>
+
+                    <button id="seedBtn" class="btn btn-primary" onclick="seedDatabase()">
+                        <i class="fas fa-seedling"></i> Seed Database
+                    </button>
+
+                    <button id="fixRolesBtn" class="btn btn-warning ml-2" onclick="fixStaffRoles()">
+                        <i class="fas fa-user-cog"></i> Fix Staff Roles
+                    </button>
+
+                    <div id="result" class="mt-3" style="display: none;">
+                        <div class="alert" id="resultAlert"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function seedDatabase() {
+    const btn = document.getElementById('seedBtn');
+    const result = document.getElementById('result');
+    const resultAlert = document.getElementById('resultAlert');
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Seeding...';
+    
+    fetch('/api/Admin/SeedDatabase', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        result.style.display = 'block';
+        if (data.success) {
+            resultAlert.className = 'alert alert-success';
+            resultAlert.innerHTML = '<strong>Success!</strong> ' + data.message;
+        } else {
+            resultAlert.className = 'alert alert-danger';
+            resultAlert.innerHTML = '<strong>Error!</strong> ' + data.message;
+        }
+    })
+    .catch(error => {
+        result.style.display = 'block';
+        resultAlert.className = 'alert alert-danger';
+        resultAlert.innerHTML = '<strong>Error!</strong> ' + error.message;
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-seedling"></i> Seed Database';
+    });
+}
+
+function fixStaffRoles() {
+    const btn = document.getElementById('fixRolesBtn');
+    const result = document.getElementById('result');
+    const resultAlert = document.getElementById('resultAlert');
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fixing...';
+    
+    fetch('/api/Admin/FixStaffRoles', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        result.style.display = 'block';
+        if (data.success) {
+            resultAlert.className = 'alert alert-success';
+            let message = '<strong>Success!</strong> ' + data.message;
+            if (data.details && data.details.length > 0) {
+                message += '<ul>';
+                data.details.forEach(detail => {
+                    message += '<li>' + detail + '</li>';
+                });
+                message += '</ul>';
+            }
+            resultAlert.innerHTML = message;
+        } else {
+            resultAlert.className = 'alert alert-danger';
+            resultAlert.innerHTML = '<strong>Error!</strong> ' + data.message;
+        }
+    })
+    .catch(error => {
+        result.style.display = 'block';
+        resultAlert.className = 'alert alert-danger';
+        resultAlert.innerHTML = '<strong>Error!</strong> ' + error.message;
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-user-cog"></i> Fix Staff Roles';
+    });
+}
+</script>

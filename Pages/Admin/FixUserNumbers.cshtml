@@ -1,0 +1,94 @@
+@page
+@model Barangay.Pages.Admin.FixUserNumbersModel
+@{
+    ViewData["Title"] = "Fix User Numbers";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Fix User Numbers</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <strong>Warning!</strong> This page allows administrators to repair user numbering.
+                        Only use this if there are issues with user ID numbers.
+                    </div>
+
+                    @if (Model.Message != null)
+                    {
+                        <div class="alert @(Model.IsError ? "alert-danger" : "alert-success")">
+                            @Model.Message
+                        </div>
+                    }
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <form method="post" asp-page-handler="VerifyColumn">
+                                <button type="submit" class="btn btn-info">
+                                    <i class="fas fa-check-circle"></i> Verify Column Exists
+                                </button>
+                            </form>
+                        </div>
+                        <div class="col-md-6">
+                            <form method="post" asp-page-handler="CreateColumn">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-plus-circle"></i> Create Column and Trigger
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <form method="post" asp-page-handler="RepairNumbers">
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="fas fa-wrench"></i> Repair User Numbers
+                                </button>
+                            </form>
+                        </div>
+                        <div class="col-md-6">
+                            <form method="post" asp-page-handler="RunFullRepair">
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fas fa-tools"></i> Run Full Repair (All Steps)
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <h6>Status Report</h6>
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Column Exists
+                            <span class="badge @(Model.ColumnExists ? "bg-success" : "bg-danger") rounded-pill">
+                                @(Model.ColumnExists ? "Yes" : "No")
+                            </span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Trigger Exists
+                            <span class="badge @(Model.TriggerExists ? "bg-success" : "bg-danger") rounded-pill">
+                                @(Model.TriggerExists ? "Yes" : "No")
+                            </span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Users With Zero Numbers
+                            <span class="badge @(Model.UsersWithZeroNumber > 0 ? "bg-warning" : "bg-success") rounded-pill">
+                                @Model.UsersWithZeroNumber
+                            </span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Total Users
+                            <span class="badge bg-info rounded-pill">
+                                @Model.TotalUsers
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

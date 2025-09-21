@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Barangay.Attributes;
 
 namespace Barangay.Models
 {
@@ -22,7 +23,8 @@ namespace Barangay.Models
         public virtual ICollection<Prescription> Prescriptions { get; set; } = new List<Prescription>();
         
         [Required]
-        [StringLength(100)]
+        [StringLength(1000)] // Increased for encrypted data
+        [Encrypted]
         public string FullName { get; set; } = string.Empty;
         
         [Required]
@@ -34,26 +36,31 @@ namespace Barangay.Models
         public DateTime BirthDate { get; set; }
         
         [Required]
-        [StringLength(200)]
+        [StringLength(1000)] // Increased for encrypted data
+        [Encrypted]
         public string Address { get; set; } = string.Empty;
         
         [Required]
         [Phone]
-        [StringLength(20)]
+        [StringLength(100)] // Increased for encrypted data
+        [Encrypted]
         public string ContactNumber { get; set; } = string.Empty;
         
         [Required]
-        [StringLength(100)]
+        [StringLength(500)] // Increased for encrypted data
+        [Encrypted]
         public string EmergencyContact { get; set; } = string.Empty;
         
         [Required]
         [Phone]
-        [StringLength(20)]
+        [StringLength(100)] // Increased for encrypted data
+        [Encrypted]
         public string EmergencyContactNumber { get; set; } = string.Empty;
         
         [Required]
         [EmailAddress]
-        [StringLength(100)]
+        [StringLength(500)] // Increased for encrypted data
+        [Encrypted]
         public string Email { get; set; } = string.Empty;
         
         [StringLength(50)]
@@ -62,21 +69,26 @@ namespace Barangay.Models
         [StringLength(20)]
         public string? Room { get; set; }
         
-        [StringLength(500)]
+        [StringLength(2000)] // Increased for encrypted data
+        [Encrypted]
         public string? Diagnosis { get; set; }
         
-        [StringLength(500)]
+        [StringLength(2000)] // Increased for encrypted data
+        [Encrypted]
         public string? Alert { get; set; }
         
         public TimeSpan? Time { get; set; }
         
-        [StringLength(500)]
+        [StringLength(2000)] // Increased for encrypted data
+        [Encrypted]
         public string? Allergies { get; set; }
         
         [Column(TypeName = "text")]
+        [Encrypted]
         public string? MedicalHistory { get; set; }
         
         [Column(TypeName = "text")]
+        [Encrypted]
         public string? CurrentMedications { get; set; }
         
         [Column(TypeName = "decimal(5,2)")]

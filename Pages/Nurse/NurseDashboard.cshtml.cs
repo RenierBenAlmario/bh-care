@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Barangay.Models;
+using Microsoft.Extensions.Configuration;
+using System.Linq;
 using Barangay.Services;
 using System;
 using System.Collections.Generic;
@@ -10,24 +13,20 @@ using System.Security.Claims;
 
 namespace Barangay.Pages.Nurse
 {
-    [Authorize(Policy = "AccessNurseDashboard")]
+    [Authorize(Roles = "Nurse,Head Nurse")]
+    [Authorize(Policy = "NurseDashboard")]
     public class NurseDashboardModel : PageModel
     {
-        private readonly string _connectionString;
-        private readonly PermissionService _permissionService;
-        
-        public NurseDashboardModel(IConfiguration configuration, PermissionService permissionService)
+        private readonly Data.ApplicationDbContext _context;
+        private readonly IPermissionService _permissionService;
+
+        public NurseDashboardModel(Data.ApplicationDbContext context, IPermissionService permissionService)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection") ?? 
-                throw new ArgumentNullException(nameof(configuration), "Connection string 'DefaultConnection' not found");
+            _context = context;
             _permissionService = permissionService;
-            
-            // Initialize properties with sample data (for May 27, 2025)
+
+            // Initialize properties
             ErrorMessage = string.Empty;
-            TodaysTotalPatients = 5;
-            InProgressCount = 2;
-            WaitingCount = 1;
-            CompletedTodayCount = 2;
             
             // Initialize collections
             Alerts = new List<AlertViewModel>();
@@ -48,18 +47,15 @@ namespace Barangay.Pages.Nurse
         {
             try
             {
-                // The authorization is now handled by the [Authorize(Policy = "AccessNurseDashboard")] attribute
-                // We don't need to check the permission again here
-
-                // Check additional permissions for specific functionalities
+                // Get current user ID
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var canManageAppointments = await _permissionService.HasPermissionAsync(userId, "ManageAppointments");
-                var canRecordVitalSigns = await _permissionService.HasPermissionAsync(userId, "Record Vital Signs");
-                var canManageMedicalRecords = await _permissionService.HasPermissionAsync(userId, "Manage Medical Records");
-                var canViewPatientHistory = await _permissionService.HasPermissionAsync(userId, "View Patient History");
-
-                // Load dashboard data based on permissions
-                // ... (rest of your existing dashboard loading logic)
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return RedirectToPage("/Account/Login");
+                }
+                
+                // Load actual dashboard data from database
+                await LoadDashboardDataAsync();
 
                 return Page();
             }
@@ -68,6 +64,23 @@ namespace Barangay.Pages.Nurse
                 ErrorMessage = $"Error loading dashboard: {ex.Message}";
                 return Page();
             }
+        }
+        
+        private async Task LoadDashboardDataAsync()
+        {
+            var today = DateTime.UtcNow.Date;
+
+            // Exclude system administrator from query
+            var adminUser = await _context.Users.FirstOrDefaultAsync(u => u.UserName == "admin@example.com");
+            var adminId = adminUser?.Id ?? "";
+
+            var todaysAppointments = _context.Appointments
+                .Where(a => a.AppointmentDate.Date == today && a.PatientId != adminId);
+
+            TodaysTotalPatients = await todaysAppointments.Select(a => a.PatientId).Distinct().CountAsync();
+            InProgressCount = await todaysAppointments.CountAsync(a => a.Status == Models.AppointmentStatus.InProgress);
+            WaitingCount = await todaysAppointments.CountAsync(a => a.Status == Models.AppointmentStatus.Pending || a.Status == Models.AppointmentStatus.Confirmed);
+            CompletedTodayCount = await todaysAppointments.CountAsync(a => a.Status == Models.AppointmentStatus.Completed);
         }
 
         public class AlertViewModel

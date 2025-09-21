@@ -120,6 +120,9 @@ $(document).ready(function() {
     // Setup batch operations
     setupBatchOperations();
     
+    // Guardian modal initialization
+    setupGuardianModalHandlers();
+    
     // Document preview
     const previewButtons = document.querySelectorAll('.preview-document');
     if (previewButtons.length > 0) {
@@ -770,34 +773,49 @@ function updateUserStatus(userId, status) {
         },
         body: JSON.stringify({ userId, status })
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
+    .then(resp => resp.json().catch(() => ({ success: false, message: 'Unexpected response from server.' })))
     .then(data => {
+        if (!data || data.success !== true) {
+            const msg = (data && data.message) ? data.message : 'Failed to update user status. Please try again.';
+            if (typeof showToast === 'function') {
+                showToast('error', msg);
+            } else {
+                showErrorMessage(msg);
+            }
+            button.disabled = false;
+            button.innerHTML = originalText;
+            return;
+        }
+
         // Show success message
-        showSuccessMessage(data.message || `User status updated to ${status}`);
-        
+        if (typeof showToast === 'function') {
+            showToast('success', data.message || `User status updated to ${status}`);
+        } else {
+            showSuccessMessage(data.message || `User status updated to ${status}`);
+        }
+
         // Update UI
         const row = button.closest('tr');
         const statusCell = row.querySelector('.status-badge');
         statusCell.textContent = status;
         statusCell.className = `status-badge ${status.toLowerCase()}`;
-        
+
         // Remove action buttons
         const actionButtons = row.querySelector('.action-buttons');
         actionButtons.innerHTML = '';
-        
+
         // Refresh the page after a short delay
         setTimeout(() => {
             window.location.reload();
-        }, 1500);
+        }, 1200);
     })
     .catch(error => {
         console.error('Error:', error);
-        showErrorMessage('Failed to update user status. Please try again.');
+        if (typeof showToast === 'function') {
+            showToast('error', 'Failed to update user status. Please try again.');
+        } else {
+            showErrorMessage('Failed to update user status. Please try again.');
+        }
         button.disabled = false;
         button.innerHTML = originalText;
     });
@@ -879,4 +897,231 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-}); 
+});
+
+// Add this function to handle viewing user details
+function viewUserDetails(userId) {
+    // Redirect to user details page
+    window.location.href = `/Admin/UserDetails?id=${userId}`;
+}
+
+/**
+ * Sets up event handlers for the guardian information modal
+ */
+function setupGuardianModalHandlers() {
+    let currentUserId = null;
+
+    // Guardian modal shown event
+    $('#guardianModal').on('show.bs.modal', function (event) {
+        const button = $(event.relatedTarget);
+        currentUserId = button.data('userid');
+        
+        if (!currentUserId) {
+            console.error('No user ID provided for guardian information');
+            return;
+        }
+        
+        // Show loading state
+        $('#proofPlaceholder').html(`
+            <div class="text-center">
+                <i class="fas fa-spinner fa-spin fa-2x mb-2"></i>
+                <p>Loading guardian information...</p>
+            </div>
+        `);
+        
+        $('#residencyProofImage').addClass('d-none');
+        $('#viewProofDocumentBtn').addClass('disabled');
+        
+        // Get the anti-forgery token
+        const token = $('input[name="__RequestVerificationToken"]').val();
+        
+        // Fetch guardian information via AJAX
+        fetch(`/Admin/UserManagement?handler=GuardianProof&userId=${currentUserId}`, {
+            headers: {
+                'RequestVerificationToken': token
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data && data.success) {
+                // Update guardian name
+                $('#guardianName').text(`${data.guardianFirstName || ''} ${data.guardianLastName || ''}`.trim());
+                
+                // Update consent status badge
+                const statusBadge = $('#consentStatusBadge');
+                statusBadge.removeClass('bg-success bg-warning bg-danger');
+                
+                switch (data.consentStatus?.toLowerCase()) {
+                    case 'approved':
+                        statusBadge.addClass('bg-success').text('Approved');
+                        $('#approveConsentBtn').prop('disabled', true);
+                        $('#rejectConsentBtn').prop('disabled', false);
+                        break;
+                    case 'rejected':
+                        statusBadge.addClass('bg-danger').text('Rejected');
+                        $('#approveConsentBtn').prop('disabled', false);
+                        $('#rejectConsentBtn').prop('disabled', true);
+                        break;
+                    default:
+                        statusBadge.addClass('bg-warning').text('Pending');
+                        $('#approveConsentBtn').prop('disabled', false);
+                        $('#rejectConsentBtn').prop('disabled', false);
+                }
+                
+                // Update proof type
+                $('#proofType').text(data.proofType || 'Unknown');
+                
+                // Update consent date if available
+                if (data.createdAt) {
+                    const consentDate = new Date(data.createdAt);
+                    $('#consentDate').text(consentDate.toLocaleDateString());
+                } else {
+                    $('#consentDate').text('Not available');
+                }
+                
+                // Update proof document
+                if (data.hasProof && data.proofPath) {
+                    $('#proofPlaceholder').addClass('d-none');
+                    $('#residencyProofImage').attr('src', data.proofPath).removeClass('d-none');
+                    $('#viewProofDocumentBtn').removeClass('disabled').attr('href', data.proofPath);
+                } else {
+                    $('#proofPlaceholder').html(`
+                        <div class="text-center text-muted">
+                            <i class="fas fa-file-excel fa-3x mb-2"></i>
+                            <p>No proof document provided</p>
+                        </div>
+                    `);
+                    $('#residencyProofImage').addClass('d-none');
+                    $('#viewProofDocumentBtn').addClass('disabled');
+                }
+            } else {
+                // Handle error or no data
+                $('#proofPlaceholder').html(`
+                    <div class="text-center text-warning">
+                        <i class="fas fa-exclamation-triangle fa-3x mb-2"></i>
+                        <p>No guardian information available</p>
+                    </div>
+                `);
+                $('#guardianName').text('Not provided');
+                $('#consentDate').text('Not available');
+                $('#proofType').text('Not available');
+                $('#consentStatusBadge').removeClass('bg-success bg-warning bg-danger').addClass('bg-danger').text('Missing');
+                $('#approveConsentBtn').prop('disabled', true);
+                $('#rejectConsentBtn').prop('disabled', true);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching guardian information:', error);
+            
+            $('#proofPlaceholder').html(`
+                <div class="text-center text-danger">
+                    <i class="fas fa-exclamation-circle fa-3x mb-2"></i>
+                    <p>Error loading guardian information</p>
+                </div>
+            `);
+            $('#approveConsentBtn').prop('disabled', true);
+            $('#rejectConsentBtn').prop('disabled', true);
+        });
+    });
+    
+    // Handle approve consent button
+    $('#approveConsentBtn').on('click', function() {
+        if (!currentUserId) {
+            showToast('error', 'Missing user ID for approval', 3000);
+            return;
+        }
+        
+        updateGuardianConsentStatus(currentUserId, 'Approved');
+    });
+    
+    // Handle reject consent button
+    $('#rejectConsentBtn').on('click', function() {
+        if (!currentUserId) {
+            showToast('error', 'Missing user ID for rejection', 3000);
+            return;
+        }
+        
+        updateGuardianConsentStatus(currentUserId, 'Rejected');
+    });
+    
+    // Function to update guardian consent status
+    function updateGuardianConsentStatus(userId, status) {
+        // Show loading
+        const approveBtn = $('#approveConsentBtn');
+        const rejectBtn = $('#rejectConsentBtn');
+        const originalApproveHtml = approveBtn.html();
+        const originalRejectHtml = rejectBtn.html();
+        
+        if (status === 'Approved') {
+            approveBtn.html('<i class="fas fa-spinner fa-spin"></i> Processing...').prop('disabled', true);
+            rejectBtn.prop('disabled', true);
+        } else {
+            rejectBtn.html('<i class="fas fa-spinner fa-spin"></i> Processing...').prop('disabled', true);
+            approveBtn.prop('disabled', true);
+        }
+        
+        // Get the anti-forgery token
+        const token = $('input[name="__RequestVerificationToken"]').val();
+        
+        // Make API call to update status
+        fetch('/Admin/UserManagement?handler=UpdateGuardianConsent', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': token
+            },
+            body: JSON.stringify({ userId: userId, status: status })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data && data.success) {
+                // Update UI to reflect the new status
+                const statusBadge = $('#consentStatusBadge');
+                statusBadge.removeClass('bg-success bg-warning bg-danger');
+                
+                if (status === 'Approved') {
+                    statusBadge.addClass('bg-success').text('Approved');
+                    approveBtn.prop('disabled', true);
+                    rejectBtn.prop('disabled', false);
+                } else {
+                    statusBadge.addClass('bg-danger').text('Rejected');
+                    approveBtn.prop('disabled', false);
+                    rejectBtn.prop('disabled', true);
+                }
+                
+                // Show success message
+                showToast('success', `Guardian consent ${status.toLowerCase()} successfully`, 3000);
+                
+                // Update the table row status badge after a delay
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else {
+                // Handle error
+                showToast('error', data.message || 'Failed to update consent status', 3000);
+                
+                // Reset buttons
+                approveBtn.html(originalApproveHtml).prop('disabled', false);
+                rejectBtn.html(originalRejectHtml).prop('disabled', false);
+            }
+        })
+        .catch(error => {
+            console.error('Error updating guardian consent:', error);
+            showToast('error', 'Error updating guardian consent status', 3000);
+            
+            // Reset buttons
+            approveBtn.html(originalApproveHtml).prop('disabled', false);
+            rejectBtn.html(originalRejectHtml).prop('disabled', false);
+        });
+    }
+} 

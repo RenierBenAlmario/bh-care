@@ -1,11 +1,394 @@
-@{
-    Layout = "_Layout";
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Barangay Health Care</title>
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" asp-append-version="true">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="~/css/custom-site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/custom.css" asp-append-version="true" />
+    <!-- Orange Theme CSS -->
+    <link rel="stylesheet" href="~/css/theme-orange.css" asp-append-version="true" />
+    <!-- Nurse Orange Theme CSS - Must load after theme-orange.css -->
+    <link rel="stylesheet" href="~/css/nurse-orange.css" asp-append-version="true" />
 
-<div class="container mt-4">
-    @RenderBody()
+    <style>
+        body {
+            overflow-x: hidden;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 250px;
+            background-color: var(--color-primary);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .sidebar * {
+            color: #ffffff !important;
+        }
+
+        .sidebar.collapsed {
+            width: 60px;
+        }
+
+        .sidebar-sticky {
+            position: relative;
+            top: 0;
+            height: 100vh;
+            padding-top: 1rem;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .sidebar .nav-link {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            overflow: hidden;
+            color: #ffffff !important;
+            padding: 0.75rem 1rem;
+            margin: 0.25rem 0.5rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            border-radius: 0;
+            background: transparent;
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #ffffff !important;
+            text-decoration: none;
+        }
+
+        .sidebar .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff !important;
+            text-decoration: none;
+            border-left: 3px solid #ffffff;
+        }
+
+        .sidebar.collapsed .nav-link {
+            padding: 1rem 0;
+            justify-content: center;
+        }
+
+        .sidebar .nav-link:hover {
+            text-decoration: none;
+        }
+
+        .sidebar .nav-link i {
+            margin-right: 0.5rem;
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+            color: #ffffff !important;
+        }
+
+        .sidebar.collapsed .nav-link i {
+            margin-right: 0;
+        }
+
+        .sidebar.collapsed .nav-link span {
+            display: none;
+        }
+
+        .sidebar-profile {
+            padding: 1.5rem;
+            text-align: center;
+            color: #ffffff !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+            background-color: transparent;
+        }
+
+        .sidebar-profile .user-name {
+            color: #ffffff !important;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .sidebar-profile small {
+            color: #ffffff !important;
+            opacity: 0.8;
+        }
+
+        .sidebar.collapsed .sidebar-profile {
+            padding: 0.5rem;
+        }
+
+        .sidebar-profile .user-name {
+            margin-bottom: 0.25rem;
+            font-weight: 600;
+        }
+
+        .sidebar.collapsed .sidebar-profile .user-name,
+        .sidebar.collapsed .sidebar-profile small {
+            display: none;
+        }
+
+        .sidebar .btn-link {
+            color: #ffffff !important;
+            text-decoration: none;
+            background: transparent;
+            border: none;
+            padding: 0.75rem 1rem;
+            margin: 0.25rem 0.5rem;
+            border-radius: 0;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar .btn-link:hover {
+            color: #ffffff !important;
+            text-decoration: none;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar .btn-link i {
+            color: #ffffff !important;
+        }
+
+        #sidebarToggle {
+            position: fixed;
+            left: 250px;
+            top: 10px;
+            z-index: 1001;
+            background-color: #0D6EFD;
+            border: none;
+            color: #ffffff;
+            padding: 8px;
+            border-radius: 0 4px 4px 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar.collapsed + #sidebarToggle {
+            left: 60px;
+        }
+
+        #sidebarToggle:hover {
+            background-color: #0B5ED7;
+        }
+
+        #sidebarToggle i {
+            transition: transform 0.3s ease;
+            font-size: 14px;
+        }
+
+        .sidebar.collapsed + #sidebarToggle i {
+            transform: rotate(180deg);
+        }
+
+        .main-content {
+            margin-left: 250px;
+            transition: all 0.3s;
+            padding: 1rem;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+        }
+
+        .sidebar.collapsed ~ .main-content {
+            margin-left: 60px;
+        }
+
+        @@media screen and (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                margin-left: -250px;
+            }
+
+            .sidebar.collapsed {
+                margin-left: -60px;
+            }
+
+            .sidebar.show {
+                margin-left: 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            #sidebarToggle {
+                left: 10px;
+                top: 10px;
+                border-radius: 4px;
+            }
+
+            #sidebarToggle.show {
+                left: 260px;
+            }
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+            display: none;
+        }
+
+        @@media screen and (max-width: 768px) {
+            .sidebar-overlay.show {
+                display: block;
+            }
+        }
+    </style>
+
+    @await RenderSectionAsync("Styles", required: false)
+    @inject Microsoft.AspNetCore.Identity.UserManager<Barangay.Models.ApplicationUser> UserManager
+</head>
+<body class="nurse">
+
+<div class="wrapper">
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <!-- Sidebar Toggle Button -->
+        <button id="sidebarToggle" class="btn" aria-label="Toggle Sidebar">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        
+        <div class="sidebar-sticky">
+            <div class="sidebar-profile">
+                <i class="fas fa-user-nurse fa-3x mb-2"></i>
+                @{ 
+                    var currentUser = await UserManager.GetUserAsync(User);
+                    var displayName = !string.IsNullOrWhiteSpace(currentUser?.FullName)
+                        ? currentUser.FullName
+                        : (!string.IsNullOrWhiteSpace(currentUser?.Name) ? currentUser.Name : User.Identity?.Name);
+                }
+                <h6 class="mb-0 user-name">@displayName</h6>
+                <small class="text-white-50">Nurse</small>
+            </div>
+
+            <ul class="nav flex-column">
+                @await Component.InvokeAsync("SidebarMenu", new { role = "nurse" })
+                
+                <li class="nav-item mt-3">
+                    <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/Index", new { area = "" })" method="post">
+                        <button type="submit" class="nav-link w-100 btn btn-link text-left">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main content wrapper -->
+    <div class="main-content" id="mainContent">
+        @RenderBody()
+    </div>
 </div>
 
-@section Scripts {
-    @await RenderSectionAsync("Scripts", required: false)
-}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const isMobile = window.innerWidth <= 768;
+    let isCollapsed = localStorage.getItem('nurseSidebarCollapsed') === 'true';
+
+    // Dark mode functionality removed
+
+    function updateSidebarState() {
+        if (sidebar) {
+            if (isCollapsed) {
+                sidebar.classList.add('collapsed');
+            } else {
+                sidebar.classList.remove('collapsed');
+            }
+            localStorage.setItem('nurseSidebarCollapsed', isCollapsed);
+        }
+    }
+
+    // Initialize sidebar state
+    updateSidebarState();
+
+    function toggleSidebar() {
+        if (isMobile) {
+            if (sidebar) sidebar.classList.toggle('show');
+            if (sidebarToggle) sidebarToggle.classList.toggle('show');
+            if (sidebarOverlay) sidebarOverlay.classList.toggle('show');
+        } else {
+            isCollapsed = !isCollapsed;
+            updateSidebarState();
+        }
+    }
+
+    function closeSidebar() {
+        if (sidebar) sidebar.classList.remove('show');
+        if (sidebarToggle) sidebarToggle.classList.remove('show');
+        if (sidebarOverlay) sidebarOverlay.classList.remove('show');
+    }
+
+    // Dark mode functionality removed
+
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleSidebar();
+        });
+    }
+
+    // Dark mode functionality removed
+
+    // Close sidebar when clicking outside on mobile
+    if (isMobile) {
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', closeSidebar);
+        }
+        document.addEventListener('click', function(event) {
+            if (sidebar && !sidebar.contains(event.target) && 
+                sidebarToggle && !sidebarToggle.contains(event.target) && 
+                sidebar.classList.contains('show')) {
+                closeSidebar();
+            }
+        });
+    }
+
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        const newIsMobile = window.innerWidth <= 768;
+        if (newIsMobile !== isMobile) {
+            location.reload();
+        }
+    });
+});
+</script>
+
+<!-- Bootstrap JavaScript -->
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<!-- jQuery -->
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -20,7 +20,6 @@ namespace Barangay.Models
         [EmailAddress]
         public string Email { get; set; } = string.Empty;
         
-        [Required]
         public string? Department { get; set; }
         
         [Required]

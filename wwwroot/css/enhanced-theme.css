@@ -1,0 +1,260 @@
+/* BHCARE System - Enhanced Orange-Based Theme */
+/* 
+   Enhanced Color Palette:
+   - Primary Orange: #FF8C42 (current orange)
+   - Dark Complementary: #2D3E50 (deep navy)
+   - Light Neutral: #FFF8F0 (soft cream)
+   - Accent-Teal: #4ECDC4 (success/CTA)
+   - Accent-Coral: #FF6B6B (warnings)
+   - Text-Dark: #333333
+   - Text-Light: #FFFFFF
+   - Text-Muted: #777777
+*/
+
+/* Override root variables with !important to ensure they take precedence */
+:root {
+  /* Primary Colors */
+  --primary-orange: #FF8C42 !important;
+  --hover-accent-orange: #FFA75C !important;
+  --accent-orange: #D9662C !important;
+  --background-light-orange: #FFF8F0 !important; /* Changed to soft cream */
+  
+  /* Enhanced Palette */
+  --dark-navy: #2D3E50 !important;
+  --soft-cream: #FFF8F0 !important;
+  --accent-teal: #4ECDC4 !important;
+  --accent-coral: #FF6B6B !important;
+  
+  /* Text Colors */
+  --text-dark: #333333 !important;
+  --text-light: #FFFFFF !important;
+  --text-muted: #777777 !important;
+  
+  /* UI Elements */
+  --card-bg: var(--soft-cream) !important;
+  --border-color: #E8E0D9 !important;
+}
+
+/* Direct element styling to ensure overrides */
+
+/* Base Elements */
+body {
+  background-color: var(--soft-cream) !important;
+  color: var(--text-dark) !important;
+}
+
+/* Navbar - Keep Orange */
+.navbar {
+  background: linear-gradient(135deg, var(--primary-orange) 0%, var(--hover-accent-orange) 100%) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Footer - Use Dark Navy */
+.footer {
+  background-color: var(--dark-navy) !important;
+  color: var(--text-light) !important;
+  border-top: none !important;
+}
+
+.footer a {
+  color: var(--soft-cream) !important;
+}
+
+.footer a:hover {
+  color: var(--accent-teal) !important;
+}
+
+/* Cards & Containers - Use Soft Cream */
+.card, .login-card, .service-card, .step {
+  background-color: var(--soft-cream) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(45, 62, 80, 0.1) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+/* Admin Dashboard: stat cards and generic dashboard cards */
+.dashboard-card, .stat-card {
+  background-color: #fff !important;
+  border-radius: 10px !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05) !important;
+  border: none !important;
+}
+.dashboard-card-header, .card-header.navyn {
+  background-color: var(--dark-navy) !important;
+  color: #fff !important;
+  border: none !important;
+}
+.stat-card-value {
+  color: var(--primary-orange) !important;
+  font-size: 2rem !important;
+  font-weight: 700 !important;
+}
+.stat-card-body, .dashboard-card-body, .card-body.standard-padding { padding: 1.5rem !important; }
+
+/* Staff table and generic tables */
+.table.enhanced {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+}
+.table.enhanced thead th {
+  background-color: var(--dark-navy) !important;
+  color: #fff !important;
+  font-weight: 500 !important;
+  padding: 0.75rem 1rem !important;
+  border: none !important;
+}
+.table.enhanced tbody td { padding: 0.75rem 1rem !important; }
+.table.enhanced tbody tr:nth-child(even) { background-color: rgba(255,248,240,0.6) !important; }
+.table.enhanced tbody tr:hover { background-color: rgba(255,140,66,0.06) !important; }
+
+/* Status indicators */
+.badge.pill { border-radius: 50px !important; padding: 0.35rem 0.75rem !important; font-weight: 600 !important; font-size: 0.8rem !important; }
+.badge.status-verified { background-color: rgba(78,205,196,0.2) !important; color: #2a9d8f !important; }
+.badge.status-warning { background-color: rgba(255,107,107,0.15) !important; color: #c44545 !important; }
+
+/* Action buttons */
+.btn.action {
+  border-radius: 6px !important;
+  padding: 0.4rem 0.75rem !important;
+}
+.btn.action-primary { background: #e86a17 !important; color: #fff !important; border: none !important; box-shadow: 0 6px 14px rgba(232,106,23,.24) !important; }
+.btn.action-secondary { background-color: #fff !important; color: #334155 !important; border: 1px solid #e5e7eb !important; }
+.btn.action:hover { filter: brightness(0.98); }
+
+/* Layout spacing */
+.card + .card { margin-top: 1.5rem !important; }
+.section-spacing { margin-top: 1.5rem !important; }
+
+/* Staff Permissions two-panel accents */
+.staff-list { background-color: #fff !important; border-radius: 8px !important; box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important; }
+.staff-list .staff-item { padding: 1rem !important; border-bottom: 1px solid var(--border-color) !important; }
+.staff-list .staff-item:hover, .staff-list .staff-item.active { background-color: rgba(255,140,66,0.06) !important; }
+.permissions-panel { background-color: #fff !important; border-radius: 8px !important; box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important; padding: 1.5rem !important; }
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .table.enhanced { display: block !important; overflow-x: auto !important; }
+  .action-buttons { display: flex !important; flex-direction: column !important; }
+  .btn.action { margin-bottom: 0.5rem !important; }
+}
+
+/* Service Icons */
+.service-icon {
+  background-color: var(--dark-navy) !important;
+  color: var(--text-light) !important;
+}
+
+.service-card:hover .service-icon {
+  background-color: var(--primary-orange) !important;
+}
+
+.service-card h3 {
+  color: var(--dark-navy) !important;
+}
+
+/* Step Numbers */
+.step-number {
+  background-color: var(--primary-orange) !important;
+  color: var(--text-light) !important;
+}
+
+/* Section Titles */
+.section-title {
+  color: var(--dark-navy) !important;
+}
+
+.section-title i {
+  color: var(--primary-orange) !important;
+}
+
+/* How It Works Section */
+.how-it-works-section {
+  background-color: var(--soft-cream) !important;
+}
+
+/* Hero Section - Keep Orange */
+.hero-section {
+  background-color: var(--primary-orange) !important;
+}
+
+.hero-section::before {
+  background: linear-gradient(135deg, rgba(255, 140, 66, 0.9) 0%, rgba(255, 105, 0, 0.8) 100%) !important;
+}
+
+/* Login Card */
+.login-card {
+  background-color: var(--text-light) !important; /* White for better contrast */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Buttons */
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary-orange) 0%, var(--hover-accent-orange) 100%) !important;
+  border: none !important;
+}
+
+.btn-success {
+  background-color: var(--accent-teal) !important;
+  border-color: var(--accent-teal) !important;
+}
+
+.btn-warning {
+  background-color: var(--accent-coral) !important;
+  border-color: var(--accent-coral) !important;
+}
+
+/* Our Services Section */
+#services {
+  background-color: var(--text-light) !important; /* White background */
+}
+
+#services .section-title {
+  color: var(--dark-navy) !important;
+}
+
+/* Alerts and Notifications */
+.alert-success {
+  background-color: rgba(78, 205, 196, 0.15) !important;
+  border-color: var(--accent-teal) !important;
+}
+
+.alert-warning {
+  background-color: rgba(255, 107, 107, 0.15) !important;
+  border-color: var(--accent-coral) !important;
+}
+
+.notification-badge {
+  background-color: var(--accent-coral) !important;
+}
+
+/* Accessibility Focus Styles */
+a:focus, button:focus, input:focus, select:focus, textarea:focus {
+  outline: 2px solid var(--accent-teal) !important;
+  outline-offset: 2px !important;
+}
+
+/* Sidebar Compatibility */
+.minimal-sidebar {
+  background-color: var(--dark-navy) !important;
+}
+
+/* Fix for the specific elements in the How It Works section */
+.step {
+  background-color: white !important;
+}
+
+.step h3 {
+  color: var(--dark-navy) !important;
+}
+
+/* Number circles in How It Works section */
+.step .step-number {
+  background-color: var(--accent-coral) !important;
+}
+
+/* Apply styles to the footer text */
+.footer.text-muted {
+  color: var(--text-light) !important;
+}

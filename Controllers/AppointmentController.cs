@@ -34,19 +34,22 @@ namespace Barangay.Controllers
         private readonly ILogger<AppointmentController> _logger;
         private readonly IAppointmentService _appointmentService;
         private readonly IWebHostEnvironment _env;
+        private readonly IDataEncryptionService _encryptionService;
 
         public AppointmentController(
             ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             ILogger<AppointmentController> logger,
             IAppointmentService appointmentService,
-            IWebHostEnvironment env)
+            IWebHostEnvironment env,
+            IDataEncryptionService encryptionService)
         {
             _context = context;
             _userManager = userManager;
             _logger = logger;
             _appointmentService = appointmentService;
             _env = env;
+            _encryptionService = encryptionService;
         }
 
         [HttpGet]
@@ -132,8 +135,8 @@ namespace Barangay.Controllers
                     patient = new Patient
                     {
                         UserId = userId,
-                        FullName = user.FullName ?? user.UserName ?? "Unknown",
-                        Email = user.Email ?? string.Empty,
+                        FullName = _encryptionService.Encrypt(user.FullName ?? user.UserName ?? "Unknown"),
+                        Email = _encryptionService.Encrypt(user.Email ?? string.Empty),
                         User = user
                     };
                     
@@ -277,6 +280,26 @@ namespace Barangay.Controllers
         {
             try
             {
+                // Check if this is a GET request and render the form
+                if (HttpContext.Request.Method == "GET")
+                {
+                    // Load available doctors for the form
+                    var doctors = await _userManager.GetUsersInRoleAsync("Doctor");
+                    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                    var currentUser = await _userManager.FindByIdAsync(currentUserId);
+
+                    // Return a custom response with doctor and user information
+                    return Ok(new { 
+                        success = true, 
+                        doctors = doctors.Select(d => new { d.Id, Name = $"Dr. {d.FirstName} {d.LastName}" }), 
+                        user = new { 
+                            FullName = currentUser?.FullName ?? "Unknown", 
+                            Email = currentUser?.Email, 
+                            PhoneNumber = currentUser?.PhoneNumber 
+                        } 
+                    });
+                }
+
                 // Get the logged in user
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (string.IsNullOrEmpty(userId))
@@ -390,8 +413,8 @@ namespace Barangay.Controllers
                     patient = new Patient
                     {
                         UserId = userId,
-                        FullName = user.FullName ?? user.UserName ?? "Unknown",
-                        Email = user.Email ?? string.Empty,
+                        FullName = _encryptionService.Encrypt(user.FullName ?? user.UserName ?? "Unknown"),
+                        Email = _encryptionService.Encrypt(user.Email ?? string.Empty),
                         User = user
                     };
                     
@@ -444,6 +467,129 @@ namespace Barangay.Controllers
             {
                 _logger.LogError(ex, "Error booking appointment");
                 return StatusCode(500, new { error = $"An error occurred while booking your appointment: {ex.Message}" });
+            }
+        }
+
+        [HttpGet("GetAvailableTimeSlots")]
+        [Authorize]
+        public async Task<IActionResult> GetAvailableTimeSlots(string doctorId, string date)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(doctorId) || string.IsNullOrEmpty(date))
+                {
+                    return BadRequest(new { error = "Doctor ID and date are required" });
+                }
+
+                // Parse the date
+                if (!DateTime.TryParse(date, out DateTime appointmentDate))
+                {
+                    _logger.LogWarning($"Invalid date format: {date}");
+                    return BadRequest(new { error = "Invalid date format" });
+                }
+
+                // Get the doctor to check their working hours
+                var doctor = await _userManager.FindByIdAsync(doctorId);
+                if (doctor == null)
+                {
+                    _logger.LogWarning($"Doctor not found with ID: {doctorId}");
+                    return NotFound(new { error = "Doctor not found" });
+                }
+
+                // Get the doctor's working days
+                var workingDays = doctor.WorkingDays?.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(d => d.Trim())
+                    .ToArray();
+
+                // Check if the doctor works on the selected day
+                if (workingDays != null && workingDays.Length > 0 && 
+                    !workingDays.Contains(appointmentDate.DayOfWeek.ToString()))
+                {
+                    _logger.LogInformation($"Doctor {doctorId} does not work on {appointmentDate.DayOfWeek}");
+                    return Ok(new string[] { }); // Return empty slots
+                }
+
+                // Get existing appointments for the doctor on the selected date
+                var existingAppointments = await _context.Appointments
+                    .Where(a => a.DoctorId == doctorId && 
+                           DateTimeHelper.AreDatesEqual(a.AppointmentDate, appointmentDate) &&
+                           a.Status != AppointmentStatus.Cancelled)
+                    .Select(a => a.AppointmentTime)
+                    .ToListAsync();
+
+                // Generate time slots based on doctor's schedule (9 AM - 5 PM as default)
+                var startTime = new TimeSpan(9, 0, 0); // 9 AM
+                var endTime = new TimeSpan(17, 0, 0);  // 5 PM
+                var interval = new TimeSpan(0, 30, 0); // 30-minute slots
+
+                // If doctor has custom work hours, try to parse them
+                if (!string.IsNullOrEmpty(doctor.WorkingHours))
+                {
+                    var hoursString = doctor.WorkingHours;
+                    string[] hoursParts = hoursString.Split('-');
+                    if (hoursParts.Length == 2)
+                    {
+                        if (TimeSpan.TryParse(hoursParts[0].Trim(), out TimeSpan customStart))
+                        {
+                            startTime = customStart;
+                        }
+                        if (TimeSpan.TryParse(hoursParts[1].Trim(), out TimeSpan customEnd))
+                        {
+                            endTime = customEnd;
+                        }
+                    }
+                }
+
+                // Generate all possible time slots
+                var availableSlots = new List<string>();
+                for (var time = startTime; time < endTime; time = time.Add(interval))
+                {
+                    // Skip the slot if it's already booked
+                    if (!existingAppointments.Any(a => a == time))
+                    {
+                        // Format as "1:30 PM" or "9:00 AM"
+                        var hour = time.Hours > 12 ? time.Hours - 12 : (time.Hours == 0 ? 12 : time.Hours);
+                        var amPm = time.Hours < 12 ? "AM" : "PM";
+                        availableSlots.Add($"{hour}:{time.Minutes:00} {amPm}");
+                    }
+                }
+
+                return Ok(availableSlots);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting available time slots");
+                return StatusCode(500, new { error = "An error occurred while getting available time slots" });
+            }
+        }
+
+        [HttpGet("GetDoctors")]
+        [Authorize]
+        public async Task<IActionResult> GetDoctors()
+        {
+            try
+            {
+                // Get users in Doctor role
+                var doctors = await _userManager.GetUsersInRoleAsync("Doctor");
+                
+                // Format data for response
+                var formattedDoctors = doctors.Select(d => new
+                {
+                    id = d.Id,
+                    firstName = d.FirstName,
+                    lastName = d.LastName,
+                    specialization = d.Specialization,
+                    workingDays = d.WorkingDays,
+                    workingHours = d.WorkingHours,
+                    maxDailyPatients = d.MaxDailyPatients
+                });
+                
+                return Ok(formattedDoctors);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting available doctors");
+                return StatusCode(500, new { error = "An error occurred while getting available doctors" });
             }
         }
 

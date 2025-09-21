@@ -15,24 +15,28 @@ using Microsoft.AspNetCore.Authorization;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
+using Barangay.Services;
 
 namespace Barangay.Pages.Doctor
 {
-    [Authorize(Roles = "Doctor")]
+    [Authorize(Roles = "Doctor,Head Doctor")]
     public class PatientRecordsModel : PageModel
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<PatientRecordsModel> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IDataEncryptionService _encryptionService;
 
         public PatientRecordsModel(
             ApplicationDbContext context, 
             ILogger<PatientRecordsModel> logger,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IDataEncryptionService encryptionService)
         {
             _context = context;
             _logger = logger;
             _userManager = userManager;
+            _encryptionService = encryptionService;
         }
 
         // Original all patients list
@@ -77,7 +81,20 @@ namespace Barangay.Pages.Doctor
                 var query = _context.Patients
                     .Include(p => p.Appointments)
                     .Include(p => p.User)
+                    .Where(p => p.UserId != "0e03f06e-ba88-46ed-b047-4974d8b8252a" && p.FullName != "System Administrator")
                     .AsQueryable();
+
+                // Exclude staff members (doctor, nurse, admin) from patient list
+                var staffUserIds = await _context.UserRoles
+                    .Where(ur => ur.RoleId == _context.Roles.Where(r => r.Name == "Doctor").Select(r => r.Id).FirstOrDefault()
+                        || ur.RoleId == _context.Roles.Where(r => r.Name == "Nurse").Select(r => r.Id).FirstOrDefault()
+                        || ur.RoleId == _context.Roles.Where(r => r.Name == "Admin").Select(r => r.Id).FirstOrDefault()
+                        || ur.RoleId == _context.Roles.Where(r => r.Name == "Admin Staff").Select(r => r.Id).FirstOrDefault())
+                    .Select(ur => ur.UserId)
+                    .Distinct()
+                    .ToListAsync();
+
+                query = query.Where(p => !staffUserIds.Contains(p.UserId));
                 
                 // Apply search filter if provided
                 if (!string.IsNullOrWhiteSpace(SearchTerm))
@@ -147,6 +164,22 @@ namespace Barangay.Pages.Doctor
                     .Skip((CurrentPage - 1) * PageSize)
                     .Take(PageSize)
                     .ToListAsync();
+
+                // Decrypt patient data for authorized users
+                foreach (var patient in PaginatedPatients)
+                {
+                    patient.DecryptSensitiveData(_encryptionService, User);
+                    if (patient.User != null)
+                    {
+                        patient.User.DecryptSensitiveData(_encryptionService, User);
+                        
+                        // Manually decrypt PhoneNumber since it's not marked with [Encrypted] attribute
+                        if (!string.IsNullOrEmpty(patient.User.PhoneNumber) && _encryptionService.IsEncrypted(patient.User.PhoneNumber))
+                        {
+                            patient.User.PhoneNumber = patient.User.PhoneNumber.DecryptForUser(_encryptionService, User);
+                        }
+                    }
+                }
                 
                 // Log the results for debugging
                 _logger.LogInformation($"Loaded {PaginatedPatients.Count} patients (page {CurrentPage} of {TotalPages})");
@@ -234,8 +267,8 @@ namespace Barangay.Pages.Doctor
                 var user = new ApplicationUser
                 {
                     UserName = NewPatient.Email,
-                    Email = NewPatient.Email,
-                    PhoneNumber = NewPatient.ContactNumber,
+                    Email = _encryptionService.Encrypt(NewPatient.Email), // Encrypt email
+                    PhoneNumber = _encryptionService.Encrypt(NewPatient.ContactNumber), // Encrypt phone number
                     EmailConfirmed = true, // Auto-confirm for admin-created accounts
                     FullName = NewPatient.FullName
                 };
@@ -254,22 +287,22 @@ namespace Barangay.Pages.Doctor
                     
                     _logger.LogInformation("User account created successfully, adding patient record");
                     
-                    // Create patient record
+                    // Create patient record with encrypted data
                     var patient = new Patient
                     {
                         UserId = user.Id,
-                        FullName = NewPatient.FullName,
+                        FullName = _encryptionService.Encrypt(NewPatient.FullName),
                         Gender = NewPatient.Gender,
                         BirthDate = NewPatient.BirthDate,
-                        Address = NewPatient.Address,
-                        ContactNumber = NewPatient.ContactNumber,
-                        Email = NewPatient.Email,
-                        EmergencyContact = NewPatient.EmergencyContact,
-                        EmergencyContactNumber = NewPatient.EmergencyContactNumber,
+                        Address = _encryptionService.Encrypt(NewPatient.Address),
+                        ContactNumber = _encryptionService.Encrypt(NewPatient.ContactNumber),
+                        Email = _encryptionService.Encrypt(NewPatient.Email),
+                        EmergencyContact = _encryptionService.Encrypt(NewPatient.EmergencyContact),
+                        EmergencyContactNumber = _encryptionService.Encrypt(NewPatient.EmergencyContactNumber),
                         Status = NewPatient.Status,
-                        Allergies = NewPatient.Allergies,
+                        Allergies = _encryptionService.Encrypt(NewPatient.Allergies),
                         BloodType = NewPatient.BloodType,
-                        MedicalHistory = NewPatient.MedicalHistory,
+                        MedicalHistory = _encryptionService.Encrypt(NewPatient.MedicalHistory),
                         CreatedAt = DateTime.UtcNow
                     };
                     
@@ -321,7 +354,20 @@ namespace Barangay.Pages.Doctor
             {
                 var query = _context.Patients
                     .Include(p => p.Appointments)
+                    .Where(p => p.UserId != "0e03f06e-ba88-46ed-b047-4974d8b8252a" && p.FullName != "System Administrator")
                     .AsQueryable();
+                
+                // Exclude staff members (doctor, nurse, admin) from patient list
+                var staffUserIds = await _context.UserRoles
+                    .Where(ur => ur.RoleId == _context.Roles.Where(r => r.Name == "Doctor").Select(r => r.Id).FirstOrDefault()
+                        || ur.RoleId == _context.Roles.Where(r => r.Name == "Nurse").Select(r => r.Id).FirstOrDefault()
+                        || ur.RoleId == _context.Roles.Where(r => r.Name == "Admin").Select(r => r.Id).FirstOrDefault()
+                        || ur.RoleId == _context.Roles.Where(r => r.Name == "Admin Staff").Select(r => r.Id).FirstOrDefault())
+                    .Select(ur => ur.UserId)
+                    .Distinct()
+                    .ToListAsync();
+
+                query = query.Where(p => !staffUserIds.Contains(p.UserId));
                 
                 // Apply any active filters
                 if (!string.IsNullOrWhiteSpace(SearchTerm))

@@ -18,6 +18,9 @@ namespace Barangay.Models
         [Display(Name = "Date of Birth")]
         public DateTime DateOfBirth { get; set; }
         
+        [Display(Name = "Birthday")]
+        public DateTime? Birthday { get; set; }
+        
         [Required(ErrorMessage = "Address is required")]
         [Display(Name = "Address")]
         public string Address { get; set; }
@@ -55,11 +58,17 @@ namespace Barangay.Models
         [Display(Name = "Booking for Someone Else")]
         public bool BookingForOther { get; set; }
 
+        [Display(Name = "Relationship to Patient")]
+        public string Relationship { get; set; }
+
         [Display(Name = "Current Step")]
         public int CurrentStep { get; set; } = 1;
 
         [Display(Name = "Family Number")]
         public string FamilyNumber { get; set; }
+
+        [Display(Name = "Health Facility ID")]
+        public string HealthFacilityId { get; set; }
 
         public bool HasFamilyNumber { get; set; }
 
@@ -75,13 +84,19 @@ namespace Barangay.Models
         [Display(Name = "Symptoms")]
         public string Symptoms { get; set; }
         
+        [Display(Name = "Gender")]
+        public string Gender { get; set; }
+        
+        [Display(Name = "Time Slot")]
+        public string TimeSlot { get; set; }
+        
         public static List<string> ConsultationTypes => new List<string>
         {
-            "Medical Consultation",
-            "Dental Consultation",
+            "General Consult",
+            "Dental",
             "Immunization",
-            "BP/Sugar/Weight Check-up",
-            "Family Planning"
+            "Prenatal & Family Planning",
+            "DOTS Consult"
         };
         
         public List<ConsultationTimeSlot> AvailableTimeSlots { get; set; } = new();

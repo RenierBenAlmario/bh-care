@@ -1,0 +1,2 @@
+PrescriptionMedications table does not exist.
+Script completed.

@@ -19,7 +19,7 @@ namespace Barangay.Models
         public string Type { get; set; } // Info, Success, Warning, Danger
 
         // Making this nullable and not required to maintain backward compatibility
-        public string Link { get; set; }
+        public string Link { get; set; } = "/Index";  // Default value to prevent NULL errors
 
         public string UserId { get; set; } // User ID of the notification owner
 

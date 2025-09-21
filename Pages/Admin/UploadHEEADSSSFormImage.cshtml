@@ -1,0 +1,562 @@
+@page
+@model Barangay.Pages.Admin.UploadHEEADSSSFormImageModel
+@{
+    ViewData["Title"] = "Upload HEEADSSS Form Images";
+}
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-upload me-2"></i>Upload HEEADSSS Health Assessment Form Images</h5>
+        </div>
+        <div class="card-body">
+            <p class="text-muted mb-4">
+                Use this page to upload HEEADSSS Health Assessment Form images. These images will be processed using OCR 
+                to extract text, or you can fill the form manually if the handwriting is not readable.
+            </p>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="heeadsssFormImageUploader" class="form-label">Select Image File</label>
+                        <input class="form-control" type="file" id="heeadsssFormImageUploader" accept="image/jpeg,image/png">
+                        <div class="form-text">Max file size: 5MB. Accepted formats: JPG, PNG</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="heeadsssFormPageSelector" class="form-label">Select Page Number</label>
+                        <select class="form-select" id="heeadsssFormPageSelector">
+                            <option value="">-- Select Page --</option>
+                            <option value="1">Page 1 - Profile & Home</option>
+                            <option value="2">Page 2 - Education & Activities</option>
+                            <option value="3">Page 3 - Drugs & Sexuality</option>
+                            <option value="4">Page 4 - Safety & Suicide</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <button type="button" id="uploadHeeadsssFormImage" class="btn btn-primary" disabled>
+                            <i class="fas fa-upload me-1"></i> Upload
+                        </button>
+                        <button type="button" id="extractTextFromHeeadsssImage" class="btn btn-success ms-2" disabled>
+                            <i class="fas fa-eye me-1"></i> Extract Text (OCR)
+                        </button>
+                    </div>
+                    
+                    <div id="heeadsssFormUploadStatus"></div>
+                    
+                    <!-- OCR Results Section -->
+                    <div id="heeadsssOcrResultsSection" class="mt-4" style="display: none;">
+                        <div class="card">
+                            <div class="card-header bg-success text-white">
+                                <h6 class="mb-0"><i class="fas fa-eye me-2"></i>Extracted Text (OCR Results)</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="heeadsssOcrResults" class="mb-3">
+                                    <p class="text-muted">OCR results will appear here...</p>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button type="button" id="useHeeadsssOcrResults" class="btn btn-success btn-sm">
+                                        <i class="fas fa-check me-1"></i> Use OCR Results
+                                    </button>
+                                    <button type="button" id="heeadsssManualEntry" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit me-1"></i> Manual Entry
+                                    </button>
+                                    <button type="button" id="retryHeeadsssOcr" class="btn btn-info btn-sm">
+                                        <i class="fas fa-redo me-1"></i> Retry OCR
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">Image Preview</h6>
+                        </div>
+                        <div class="card-body text-center">
+                            <div id="heeadsssFormImagePreview" class="p-3">
+                                <div class="text-muted">
+                                    <i class="fas fa-image fa-4x mb-3"></i>
+                                    <p>Preview will appear here</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Admin Notice -->
+            <div class="card mt-4">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Admin-Only Functionality</h6>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">
+                        <strong>Note:</strong> This page is for administrative use only. Uploaded images will be used as reference forms for users filling out digital assessments.
+                    </p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Enhanced Management:</strong> Use the new <a href="/Admin/NCDFormManagement" class="alert-link">NCD Form Management</a> page for advanced image management features.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="action-buttons mt-4">
+                <a href="/Admin/AdminDashboard" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+                </a>
+                <div class="btn-group ms-2" role="group">
+                    <a href="/User/NCDRiskAssessment" class="btn btn-outline-primary" target="_blank">
+                        <i class="fas fa-file-medical me-1"></i> NCD Risk Assessment Form
+                    </a>
+                    <a href="/User/HEEADSSSAssessment" class="btn btn-outline-info" target="_blank">
+                        <i class="fas fa-user-md me-1"></i> HEEADSSS Assessment Form
+                    </a>
+                </div>
+            </div>
+
+            <hr class="my-4">
+            
+            <h5 class="mb-3">Current Uploaded Images</h5>
+            <div class="row">
+                <div class="col-md-3 mb-4">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">Page 1</h6>
+                            <span class="badge bg-info">Profile & Home</span>
+                        </div>
+                        <div class="card-body text-center">
+                            <img src="/images/forms/heeadsss-form-page1.jpg" 
+                                 alt="HEEADSSS Form Page 1" 
+                                 class="img-fluid border" 
+                                 id="currentHeeadsssPage1Image"
+                                 onerror="if(!this.dataset.errorShown){ this.dataset.errorShown='true'; this.onerror=null; this.src='/images/preview-placeholder.jpg'; this.classList.add('border-danger'); if(!this.parentNode.querySelector('.image-not-found-msg')){ const msg=document.createElement('div'); msg.className='mt-3 text-danger image-not-found-msg'; msg.innerHTML='<i class=&quot;fas fa-exclamation-triangle&quot;></i> Image not found'; this.parentNode.appendChild(msg);} }">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3 mb-4">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">Page 2</h6>
+                            <span class="badge bg-info">Education & Activities</span>
+                        </div>
+                        <div class="card-body text-center">
+                            <img src="/images/forms/heeadsss-form-page2.jpg" 
+                                 alt="HEEADSSS Form Page 2" 
+                                 class="img-fluid border" 
+                                 id="currentHeeadsssPage2Image"
+                                 onerror="if(!this.dataset.errorShown){ this.dataset.errorShown='true'; this.onerror=null; this.src='/images/preview-placeholder.jpg'; this.classList.add('border-danger'); if(!this.parentNode.querySelector('.image-not-found-msg')){ const msg=document.createElement('div'); msg.className='mt-3 text-danger image-not-found-msg'; msg.innerHTML='<i class=&quot;fas fa-exclamation-triangle&quot;></i> Image not found'; this.parentNode.appendChild(msg);} }">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3 mb-4">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">Page 3</h6>
+                            <span class="badge bg-info">Drugs & Sexuality</span>
+                        </div>
+                        <div class="card-body text-center">
+                            <img src="/images/forms/heeadsss-form-page3.jpg" 
+                                 alt="HEEADSSS Form Page 3" 
+                                 class="img-fluid border" 
+                                 id="currentHeeadsssPage3Image"
+                                 onerror="if(!this.dataset.errorShown){ this.dataset.errorShown='true'; this.onerror=null; this.src='/images/preview-placeholder.jpg'; this.classList.add('border-danger'); if(!this.parentNode.querySelector('.image-not-found-msg')){ const msg=document.createElement('div'); msg.className='mt-3 text-danger image-not-found-msg'; msg.innerHTML='<i class=&quot;fas fa-exclamation-triangle&quot;></i> Image not found'; this.parentNode.appendChild(msg);} }">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3 mb-4">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">Page 4</h6>
+                            <span class="badge bg-info">Safety & Suicide</span>
+                        </div>
+                        <div class="card-body text-center">
+                            <img src="/images/forms/heeadsss-form-page4.jpg" 
+                                 alt="HEEADSSS Form Page 4" 
+                                 class="img-fluid border" 
+                                 id="currentHeeadsssPage4Image"
+                                 onerror="if(!this.dataset.errorShown){ this.dataset.errorShown='true'; this.onerror=null; this.src='/images/preview-placeholder.jpg'; this.classList.add('border-danger'); if(!this.parentNode.querySelector('.image-not-found-msg')){ const msg=document.createElement('div'); msg.className='mt-3 text-danger image-not-found-msg'; msg.innerHTML='<i class=&quot;fas fa-exclamation-triangle&quot;></i> Image not found'; this.parentNode.appendChild(msg);} }">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Manual Form Entry Section -->
+            <div id="heeadsssManualFormSection" class="mt-4" style="display: none;">
+                <hr class="my-4">
+                <h5 class="mb-3">Manual HEEADSSS Form Entry</h5>
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="mb-0"><i class="fas fa-edit me-2"></i>Fill HEEADSSS Form Manually</h6>
+                    </div>
+                    <div class="card-body">
+                        <form id="manualHeeadsssForm">
+                            <!-- Basic Information -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="heeadsssHealthFacility" class="form-label">Health Facility:</label>
+                                        <input type="text" id="heeadsssHealthFacility" name="healthFacility" class="form-control" value="Barangay Health Center 161" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="heeadsssFamilyNo" class="form-label">Family No.:</label>
+                                        <input type="text" id="heeadsssFamilyNo" name="familyNo" class="form-control">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="heeadsssDateAssessment" class="form-label">Date of Assessment:</label>
+                                        <input type="text" id="heeadsssDateAssessment" name="dateAssessment" class="form-control" value="@DateTime.Now.ToString("MM/dd/yyyy")" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="heeadsssIdNo" class="form-label">ID No.:</label>
+                                        <input type="text" id="heeadsssIdNo" name="idNo" class="form-control" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="heeadsssBirthday" class="form-label">Birthday:</label>
+                                        <input type="date" id="heeadsssBirthday" name="birthday" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="heeadsssAge" class="form-label">Age:</label>
+                                        <input type="number" id="heeadsssAge" name="age" class="form-control" min="10" max="19" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="heeadsssContactNumber" class="form-label">Contact Number:</label>
+                                        <input type="text" id="heeadsssContactNumber" name="contactNumber" class="form-control" pattern="[0-9]{11}" maxlength="11">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="heeadsssPatientName" class="form-label">Patient Name:</label>
+                                        <input type="text" id="heeadsssPatientName" name="patientName" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- HEEADSSS Sections -->
+                            <hr class="my-4">
+                            <h6>HOME</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="heeadsssHomeFamilyProblems" class="form-label">Family Problems:</label>
+                                        <textarea id="heeadsssHomeFamilyProblems" name="homeFamilyProblems" class="form-control" rows="3"></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="heeadsssHomeParentalListening" class="form-label">Parental Listening:</label>
+                                        <textarea id="heeadsssHomeParentalListening" name="homeParentalListening" class="form-control" rows="3"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="heeadsssHomeParentalBlame" class="form-label">Parental Blame:</label>
+                                        <textarea id="heeadsssHomeParentalBlame" name="homeParentalBlame" class="form-control" rows="3"></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="heeadsssHomeFamilyChanges" class="form-label">Family Changes:</label>
+                                        <textarea id="heeadsssHomeFamilyChanges" name="homeFamilyChanges" class="form-control" rows="3"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <hr class="my-4">
+                            <h6>EDUCATION</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="heeadsssEducationCurrentlyStudying" class="form-label">Currently Studying:</label>
+                                        <textarea id="heeadsssEducationCurrentlyStudying" name="educationCurrentlyStudying" class="form-control" rows="3"></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="heeadsssEducationWorking" class="form-label">Working:</label>
+                                        <textarea id="heeadsssEducationWorking" name="educationWorking" class="form-control" rows="3"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="heeadsssEducationSchoolWorkProblems" class="form-label">School/Work Problems:</label>
+                                        <textarea id="heeadsssEducationSchoolWorkProblems" name="educationSchoolWorkProblems" class="form-control" rows="3"></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="heeadsssEducationBullying" class="form-label">Bullying:</label>
+                                        <textarea id="heeadsssEducationBullying" name="educationBullying" class="form-control" rows="3"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <hr class="my-4">
+                            <h6>EATING HABITS</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="heeadsssEatingBodyImageSatisfaction" class="form-label">Body Image Satisfaction:</label>
+                                        <textarea id="heeadsssEatingBodyImageSatisfaction" name="eatingBodyImageSatisfaction" class="form-control" rows="3"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="heeadsssEatingDisorderedEatingBehaviors" class="form-label">Disordered Eating Behaviors:</label>
+                                        <textarea id="heeadsssEatingDisorderedEatingBehaviors" name="eatingDisorderedEatingBehaviors" class="form-control" rows="3"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex gap-2 mt-4">
+                                <button type="button" id="saveHeeadsssManualForm" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i> Save Form Data
+                                </button>
+                                <button type="button" id="clearHeeadsssManualForm" class="btn btn-secondary">
+                                    <i class="fas fa-eraser me-1"></i> Clear Form
+                                </button>
+                                <button type="button" id="backToHeeadsssUpload" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-1"></i> Back to Upload
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Tesseract.js for OCR functionality -->
+    <script src="https://unpkg.com/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
+    <script src="/js/admin-tools.js"></script>
+    <script>
+        // Initialize HEEADSSS OCR functionality
+        $(document).ready(function() {
+            initializeHeeadsssOCR();
+            initializeHeeadsssManualForm();
+        });
+        
+        // HEEADSSS OCR Functionality
+        function initializeHeeadsssOCR() {
+            const extractButton = $('#extractTextFromHeeadsssImage');
+            const ocrResultsSection = $('#heeadsssOcrResultsSection');
+            const ocrResults = $('#heeadsssOcrResults');
+            const useOcrButton = $('#useHeeadsssOcrResults');
+            const manualEntryButton = $('#heeadsssManualEntry');
+            const retryOcrButton = $('#retryHeeadsssOcr');
+            
+            // Enable OCR button when file is selected
+            $('#heeadsssFormImageUploader').on('change', function() {
+                const hasFile = this.files.length > 0;
+                extractButton.prop('disabled', !hasFile);
+            });
+            
+            // Extract text using OCR
+            extractButton.on('click', function() {
+                const fileInput = $('#heeadsssFormImageUploader')[0];
+                const file = fileInput.files[0];
+                
+                if (!file) {
+                    alert('Please select an image file first.');
+                    return;
+                }
+                
+                // Show loading state
+                extractButton.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
+                ocrResults.html('<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Extracting text from image...</div>');
+                ocrResultsSection.show();
+                
+                // Use Tesseract.js for OCR
+                Tesseract.recognize(file, 'eng', {
+                    logger: m => {
+                        if (m.status === 'recognizing text') {
+                            ocrResults.html(`<div class="text-center"><i class="fas fa-spinner fa-spin"></i> ${m.progress * 100}% complete...</div>`);
+                        }
+                    }
+                }).then(({ data: { text } }) => {
+                    // Display OCR results
+                    displayHeeadsssOCRResults(text);
+                    extractButton.prop('disabled', false).html('<i class="fas fa-eye me-1"></i> Extract Text (OCR)');
+                }).catch(error => {
+                    console.error('OCR Error:', error);
+                    ocrResults.html('<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> OCR failed. Please try manual entry or retry with a clearer image.</div>');
+                    extractButton.prop('disabled', false).html('<i class="fas fa-eye me-1"></i> Extract Text (OCR)');
+                });
+            });
+            
+            // Use OCR results
+            useOcrButton.on('click', function() {
+                populateHeeadsssManualFormFromOCR();
+                $('#heeadsssManualFormSection').show();
+                ocrResultsSection.hide();
+            });
+            
+            // Manual entry
+            manualEntryButton.on('click', function() {
+                $('#heeadsssManualFormSection').show();
+                ocrResultsSection.hide();
+            });
+            
+            // Retry OCR
+            retryOcrButton.on('click', function() {
+                extractButton.click();
+            });
+        }
+        
+        // Display HEEADSSS OCR results
+        function displayHeeadsssOCRResults(text) {
+            const ocrResults = $('#heeadsssOcrResults');
+            
+            if (!text || text.trim().length === 0) {
+                ocrResults.html('<div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> No text detected in the image. Please try manual entry.</div>');
+                return;
+            }
+            
+            // Clean up the text
+            const cleanedText = text.replace(/\n\s*\n/g, '\n').trim();
+            
+            // Display the extracted text
+            ocrResults.html(`
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-check-circle"></i> Text Successfully Extracted!</h6>
+                    <p class="mb-2">The following text was detected in the image:</p>
+                </div>
+                <div class="border p-3 bg-light" style="max-height: 300px; overflow-y: auto;">
+                    <pre style="white-space: pre-wrap; font-family: inherit; margin: 0;">${cleanedText}</pre>
+                </div>
+                <div class="mt-2">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle"></i> 
+                        Review the extracted text above. If it looks accurate, click "Use OCR Results" to auto-fill the form. 
+                        Otherwise, use "Manual Entry" to fill the form manually.
+                    </small>
+                </div>
+            `);
+        }
+        
+        // Populate HEEADSSS manual form from OCR results
+        function populateHeeadsssManualFormFromOCR() {
+            const ocrText = $('#heeadsssOcrResults pre').text();
+            
+            // Simple text parsing for HEEADSSS form
+            const lines = ocrText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+            
+            // Try to extract common fields
+            lines.forEach(line => {
+                const lowerLine = line.toLowerCase();
+                
+                // Extract names
+                if (lowerLine.includes('pangalan') || lowerLine.includes('name')) {
+                    const nameMatch = line.match(/([A-Za-z\s]+)/);
+                    if (nameMatch) {
+                        $('#heeadsssPatientName').val(nameMatch[1].trim());
+                    }
+                }
+                
+                // Extract age
+                const ageMatch = line.match(/(\d{1,2})\s*(taon|years?|edad)/i);
+                if (ageMatch) {
+                    $('#heeadsssAge').val(ageMatch[1]);
+                }
+                
+                // Extract phone number
+                const phoneMatch = line.match(/(\d{11}|\d{3}-\d{3}-\d{4}|\d{4}-\d{3}-\d{4})/);
+                if (phoneMatch) {
+                    $('#heeadsssContactNumber').val(phoneMatch[1].replace(/-/g, ''));
+                }
+                
+                // Extract family-related content
+                if (lowerLine.includes('pamilya') || lowerLine.includes('family')) {
+                    $('#heeadsssHomeFamilyProblems').val(line);
+                }
+                
+                // Extract education-related content
+                if (lowerLine.includes('iskwela') || lowerLine.includes('school')) {
+                    $('#heeadsssEducationCurrentlyStudying').val(line);
+                }
+                
+                // Extract eating-related content
+                if (lowerLine.includes('kain') || lowerLine.includes('eating') || lowerLine.includes('timbang')) {
+                    $('#heeadsssEatingBodyImageSatisfaction').val(line);
+                }
+            });
+            
+            // Generate random ID and family number
+            $('#heeadsssIdNo').val('ID-' + Math.floor(10000 + Math.random() * 90000));
+            $('#heeadsssFamilyNo').val('F-' + Math.floor(100 + Math.random() * 900));
+        }
+        
+        // HEEADSSS Manual Form Functionality
+        function initializeHeeadsssManualForm() {
+            // Auto-calculate age when birthday changes
+            $('#heeadsssBirthday').on('change', function() {
+                if (this.value) {
+                    const birthDate = new Date(this.value);
+                    const today = new Date();
+                    let age = today.getFullYear() - birthDate.getFullYear();
+                    const monthDiff = today.getMonth() - birthDate.getMonth();
+                    
+                    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                        age--;
+                    }
+                    
+                    $('#heeadsssAge').val(age);
+                }
+            });
+            
+            // Phone number validation
+            $('#heeadsssContactNumber').on('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+                if (this.value.length > 11) {
+                    this.value = this.value.slice(0, 11);
+                }
+            });
+            
+            // Save manual form
+            $('#saveHeeadsssManualForm').on('click', function() {
+                const formData = new FormData($('#manualHeeadsssForm')[0]);
+                
+                // Convert FormData to object
+                const data = {};
+                for (let [key, value] of formData.entries()) {
+                    data[key] = value;
+                }
+                
+                // Send to server
+                $.ajax({
+                    url: '/Admin/UploadHEEADSSSFormImage?handler=SaveManualForm',
+                    type: 'POST',
+                    data: JSON.stringify(data),
+                    contentType: 'application/json',
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            alert('HEEADSSS form data saved successfully!');
+                        } else {
+                            alert('Error saving form data: ' + response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('Server error occurred while saving form data.');
+                    }
+                });
+            });
+            
+            // Clear manual form
+            $('#clearHeeadsssManualForm').on('click', function() {
+                if (confirm('Are you sure you want to clear all form data?')) {
+                    $('#manualHeeadsssForm')[0].reset();
+                    $('#heeadsssHealthFacility').val('Barangay Health Center 161');
+                    $('#heeadsssDateAssessment').val('@DateTime.Now.ToString("MM/dd/yyyy")');
+                }
+            });
+            
+            // Back to upload
+            $('#backToHeeadsssUpload').on('click', function() {
+                $('#heeadsssManualFormSection').hide();
+                $('#heeadsssOcrResultsSection').hide();
+            });
+        }
+    </script>
+}

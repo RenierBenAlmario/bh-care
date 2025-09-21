@@ -44,6 +44,32 @@ IF NOT EXISTS (SELECT 1 FROM [dbo].[Permissions] WHERE [Name] = 'AccessDoctorDas
     INSERT INTO [dbo].[Permissions] ([Name], [Description], [Category])
     VALUES ('AccessDoctorDashboard', 'Ability to access the doctor dashboard', 'Dashboard Access');
 
+-- Permissions for Admin/Staff Navigation
+IF NOT EXISTS (SELECT 1 FROM [dbo].[Permissions] WHERE [Name] = 'Admin/Staff Dashboard' AND [Category] = 'Dashboard Access')
+    INSERT INTO [dbo].[Permissions] ([Name], [Description], [Category])
+    VALUES ('Admin/Staff Dashboard', 'Ability to access the admin and staff dashboard', 'Dashboard Access');
+
+IF NOT EXISTS (SELECT 1 FROM [dbo].[Permissions] WHERE [Name] = 'View Patients' AND [Category] = 'Patient Management')
+    INSERT INTO [dbo].[Permissions] ([Name], [Description], [Category])
+    VALUES ('View Patients', 'Ability to view the list of patients', 'Patient Management');
+
+IF NOT EXISTS (SELECT 1 FROM [dbo].[Permissions] WHERE [Name] = 'Add Patient' AND [Category] = 'Patient Management')
+    INSERT INTO [dbo].[Permissions] ([Name], [Description], [Category])
+    VALUES ('Add Patient', 'Ability to add new patients', 'Patient Management');
+
+IF NOT EXISTS (SELECT 1 FROM [dbo].[Permissions] WHERE [Name] = 'View Records' AND [Category] = 'Medical Records')
+    INSERT INTO [dbo].[Permissions] ([Name], [Description], [Category])
+    VALUES ('View Records', 'Ability to view patient medical records', 'Medical Records');
+
+IF NOT EXISTS (SELECT 1 FROM [dbo].[Permissions] WHERE [Name] = 'Manage All Appointments' AND [Category] = 'Appointments')
+    INSERT INTO [dbo].[Permissions] ([Name], [Description], [Category])
+    VALUES ('Manage All Appointments', 'Ability to manage all appointments in the system', 'Appointments');
+
+IF NOT EXISTS (SELECT 1 FROM [dbo].[Permissions] WHERE [Name] = 'View Reports' AND [Category] = 'Reporting')
+    INSERT INTO [dbo].[Permissions] ([Name], [Description], [Category])
+    VALUES ('View Reports', 'Ability to view system reports', 'Reporting');
+
+
 -- Check if UserPermissions table exists, if not create it
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'UserPermissions')
 BEGIN

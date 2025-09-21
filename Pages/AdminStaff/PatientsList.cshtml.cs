@@ -58,7 +58,21 @@ namespace Barangay.Pages.AdminStaff
                 if (PageNumber < 1) PageNumber = 1;
 
                 // Build query with filtering
-                var query = _context.Patients.AsQueryable();
+                var query = _context.Patients
+                    .Where(p => p.UserId != "0e03f06e-ba88-46ed-b047-4974d8b8252a" && p.FullName != "System Administrator")
+                    .AsQueryable();
+
+                // Exclude staff members (doctor, nurse, admin, admin staff) from patient list
+                var staffUserIds = await _context.UserRoles
+                    .Where(ur => ur.RoleId == _context.Roles.Where(r => r.Name == "Doctor").Select(r => r.Id).FirstOrDefault()
+                        || ur.RoleId == _context.Roles.Where(r => r.Name == "Nurse").Select(r => r.Id).FirstOrDefault()
+                        || ur.RoleId == _context.Roles.Where(r => r.Name == "Admin").Select(r => r.Id).FirstOrDefault()
+                        || ur.RoleId == _context.Roles.Where(r => r.Name == "Admin Staff").Select(r => r.Id).FirstOrDefault())
+                    .Select(ur => ur.UserId)
+                    .Distinct()
+                    .ToListAsync();
+
+                query = query.Where(p => !staffUserIds.Contains(p.UserId));
 
                 // Apply search term
                 if (!string.IsNullOrEmpty(SearchTerm))

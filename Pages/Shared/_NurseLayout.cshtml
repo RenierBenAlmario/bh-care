@@ -1,168 +1,285 @@
-@{
-    Layout = null;
-}
+@inject Microsoft.AspNetCore.Identity.UserManager<Barangay.Models.ApplicationUser> UserManager
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Barangay Health Center</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <title>@ViewData["Title"] - Barangay Health Care</title>
+    
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <!-- Theme: Orange + White -->
+    <link rel="stylesheet" href="~/css/theme-orange.css" asp-append-version="true" />
+    <!-- Nurse Orange Theme CSS -->
+    <link rel="stylesheet" href="~/css/nurse-orange.css" asp-append-version="true" />
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" asp-append-version="true">
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="~/css/custom-site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/custom.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/custom-nurse-menu.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/custom-sidebar.css" asp-append-version="true" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" crossorigin="anonymous" />
+
     <style>
-        /* Override default styles for nurse layout */
         body {
-            padding-top: 0;
-            background-color: #f8f9fc;
+            overflow-x: hidden;
         }
-        
-        .wrapper {
-            min-height: 100vh;
-            display: flex;
-        }
-        
-        #sidebar {
+
+        .sidebar {
             position: fixed;
-            height: 100vh;
-            min-width: 250px;
-            max-width: 250px;
-            background: #1E3A8A;
-            color: #fff;
-            transition: all 0.3s;
-            z-index: 1000;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            padding: 48px 0 0;
+            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+            background-color: var(--color-primary);
+            transition: all 0.3s ease;
+            width: 250px;
+            overflow-x: hidden;
         }
-        
-        #sidebar.active {
-            margin-left: -250px;
+
+        .sidebar.collapsed {
+            width: 60px;
         }
-        
-        #content {
-            width: 100%;
-            padding: 0;
-            min-height: 100vh;
+
+        .sidebar-sticky {
+            position: relative;
+            top: 0;
+            height: calc(100vh - 48px);
+            padding-top: .5rem;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .sidebar .nav-link {
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.95);
+            padding: .75rem .85rem;
+            display: flex;
+            align-items: center;
+            transition: background .2s ease, color .2s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            border-radius: 10px;
+            margin: 4px 8px;
+        }
+
+        .sidebar.collapsed .nav-link {
+            padding: 1rem 0;
+            justify-content: center;
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.18);
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        .sidebar .nav-link.active {
+            background-color: #ffffff;
+            color: var(--color-accent);
+        }
+
+        .sidebar .nav-link i {
+            margin-right: 0.5rem;
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .sidebar.collapsed .nav-link i {
+            margin-right: 0;
+        }
+
+        .sidebar.collapsed .nav-link span {
+            display: none;
+        }
+
+        .sidebar-profile {
+            padding: 1.5rem;
+            text-align: center;
+            color: #ffffff;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
             transition: all 0.3s;
+        }
+
+        .sidebar.collapsed .sidebar-profile {
+            padding: 0.5rem;
+        }
+
+        .sidebar-profile .user-name {
+            margin-bottom: 0.25rem;
+            font-weight: 600;
+        }
+
+        .sidebar.collapsed .sidebar-profile .user-name,
+        .sidebar.collapsed .sidebar-profile small {
+            display: none;
+        }
+
+        #sidebarToggle {
+            position: absolute;
+            left: 250px;
+            top: 10px;
+            z-index: 99;
+            background-color: var(--color-primary);
+            border: none;
+            color: #ffffff;
+            padding: 8px;
+            border-radius: 0 4px 4px 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar.collapsed + #sidebarToggle {
+            left: 60px;
+        }
+
+        #sidebarToggle:hover {
+            background-color: var(--color-primary-hover);
+        }
+
+        #sidebarToggle i {
+            transition: transform 0.3s ease;
+            font-size: 14px;
+        }
+
+        .sidebar.collapsed + #sidebarToggle i {
+            transform: rotate(180deg);
+        }
+
+        .main-content {
             margin-left: 250px;
+            transition: all 0.3s;
+            padding: 1rem 1.25rem 1.5rem;
+            min-height: 100vh;
+            background-color: #fff;
+            box-sizing: border-box;
         }
-        
-        #content.active {
-            margin-left: 0;
+
+        /* Constrain and center typical content wrappers */
+        .main-content .container,
+        .main-content .container-fluid,
+        .main-content > section,
+        .main-content > div {
+            max-width: 1200px;
+            margin: 0 auto;
         }
-        
-        @@media (max-width: 768px) {
-            #sidebar {
+
+        .sidebar.collapsed ~ .main-content {
+            margin-left: 60px;
+        }
+
+        @@media screen and (max-width: 768px) {
+            .sidebar {
                 margin-left: -250px;
             }
-            #sidebar.active {
+
+            .sidebar.collapsed {
+                margin-left: -60px;
+            }
+
+            .sidebar.show {
                 margin-left: 0;
             }
-            #content {
+
+            .main-content {
+                margin-left: 0;
+                padding: 0.5rem;
+            }
+
+            #sidebarToggle {
+                left: 0;
+            }
+
+            #sidebarToggle.show {
+                left: 250px;
+            }
+
+            .sidebar.collapsed.show {
                 margin-left: 0;
             }
-            #content.active {
-                margin-left: 250px;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+            display: none;
+        }
+
+        @@media screen and (max-width: 768px) {
+            .sidebar-overlay.show {
+                display: block;
             }
-        }
-        
-        .sidebar-header {
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.1);
-        }
-        
-        .sidebar-user-section {
-            padding: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
     </style>
+
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
-    <div class="wrapper">
-        <!-- Sidebar -->
-        <nav id="sidebar">
-            <div class="sidebar-header">
-                <div class="d-flex justify-content-between align-items-center">
-                    <a href="/Nurse/NurseDashboard" class="text-white text-decoration-none">
-                        <i class="fas fa-clinic-medical me-2"></i>
-                        <span>Health Center</span>
-                    </a>
-                    <button type="button" id="sidebarCollapse" class="btn btn-link text-white">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                </div>
-            </div>
 
-            <ul class="list-unstyled components">
-                @await Component.InvokeAsync("SidebarMenu", new { role = "Nurse" })
-            </ul>
-            
-            <!-- User profile and logout section -->
-            <div class="sidebar-user-section">
-                <div class="user-info mb-3">
-                    <div class="user-avatar mb-2">
-                        <i class="fas fa-user-circle fa-2x"></i>
-                    </div>
-                    <div class="user-name">@User.Identity?.Name</div>
-                    <div class="user-role text-muted small">Nurse</div>
-                </div>
-                <form id="logoutForm" asp-page="/Account/Logout" method="post">
-                    <button type="submit" class="btn btn-outline-light btn-sm w-100">
-                        <i class="fas fa-sign-out-alt me-2"></i>
-                        <span>Logout</span>
-                    </button>
-                </form>
-            </div>
-        </nav>
-
-        <!-- Page Content -->
-        <div id="content">
-            <main role="main">
-                @RenderBody()
-            </main>
-        </div>
-    </div>
-
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Sidebar toggle functionality
-            const sidebar = document.getElementById('sidebar');
-            const content = document.getElementById('content');
-            const sidebarCollapse = document.getElementById('sidebarCollapse');
-            
-            if (sidebarCollapse) {
-                sidebarCollapse.addEventListener('click', function() {
-                    sidebar.classList.toggle('active');
-                    content.classList.toggle('active');
-                });
-            }
-            
-            // Handle mobile view
-            function checkWidth() {
-                if (window.innerWidth <= 768) {
-                    sidebar.classList.add('active');
-                    content.classList.add('active');
-                } else {
-                    sidebar.classList.remove('active');
-                    content.classList.remove('active');
+<div class="wrapper d-flex">
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <!-- Sidebar Toggle Button -->
+        <button id="sidebarToggle" class="btn" aria-label="Toggle Sidebar">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        
+        <div class="sidebar-sticky overflow-y-auto h-screen">
+            <div class="sidebar-profile">
+                <i class="fas fa-user-nurse fa-3x mb-2"></i>
+                @{ 
+                    var currentUser = await UserManager.GetUserAsync(User);
+                    var displayName = !string.IsNullOrWhiteSpace(currentUser?.FullName)
+                        ? currentUser.FullName
+                        : (!string.IsNullOrWhiteSpace(currentUser?.Name) ? currentUser.Name : User.Identity?.Name);
                 }
-            }
-            
-            window.addEventListener('resize', checkWidth);
-            checkWidth(); // Initial check
-        });
-    </script>
+                <p class="user-name">@displayName</p>
+                <small class="text-white-50">Nurse</small>
+            </div>
 
-    @await RenderSectionAsync("Scripts", required: false)
+            <ul class="nav flex-column">
+                @await Component.InvokeAsync("SidebarMenu", new { role = "nurse" })
+                
+                <li class="nav-item mt-3">
+                    <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/Index", new { area = "" })" method="post">
+                        <button type="submit" class="nav-link w-100 btn btn-link text-left">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </button>
+                    </form>
+                </li>
+                
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main content wrapper -->
+    <div class="main-content" id="mainContent">
+        @RenderBody()
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Custom JS -->
+<script src="~/js/doctor-layout.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
 </body>
-</html> 
+</html>

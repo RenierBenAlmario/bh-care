@@ -4,15 +4,20 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Barangay.Data;
 using Barangay.Models;
+using Barangay.Services;
+using Barangay.Extensions;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Barangay.Pages.Doctor
 {
+    [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Doctor,Head Doctor")]
+    [Microsoft.AspNetCore.Authorization.Authorize(Policy = "DoctorPatientList")]
     public class PatientListModel : PageModel
     {
         private readonly ApplicationDbContext _context;
+        private readonly IDataEncryptionService _encryptionService;
         private readonly List<string> _predefinedBarangays = new List<string>
         {
             "Barangay 158",
@@ -21,9 +26,10 @@ namespace Barangay.Pages.Doctor
             "Barangay 161"
         };
 
-        public PatientListModel(ApplicationDbContext context)
+        public PatientListModel(ApplicationDbContext context, IDataEncryptionService encryptionService)
         {
             _context = context;
+            _encryptionService = encryptionService;
         }
 
         [BindProperty(SupportsGet = true)]
@@ -46,9 +52,9 @@ namespace Barangay.Pages.Doctor
 
         public async Task<IActionResult> OnGetAsync()
         {
-            // Get list of unique barangays from database
+            // Get list of unique barangays from database (use Barangay only)
             var databaseBarangays = await _context.Patients
-                .Select(p => p.User.Address)
+                .Select(p => p.User.Barangay)
                 .Where(b => !string.IsNullOrEmpty(b))
                 .Distinct()
                 .ToListAsync();
@@ -65,7 +71,19 @@ namespace Barangay.Pages.Doctor
             // Build query
             var query = _context.Patients
                 .Include(p => p.User)
+                .Where(p => p.UserId != "0e03f06e-ba88-46ed-b047-4974d8b8252a" && p.FullName != "System Administrator")
                 .AsQueryable();
+
+            // Exclude staff members (doctor, nurse, admin) from patient list
+            var staffUserIds = await _context.UserRoles
+                .Where(ur => ur.RoleId == _context.Roles.Where(r => r.Name == "Doctor").Select(r => r.Id).FirstOrDefault()
+                    || ur.RoleId == _context.Roles.Where(r => r.Name == "Nurse").Select(r => r.Id).FirstOrDefault()
+                    || ur.RoleId == _context.Roles.Where(r => r.Name == "Admin").Select(r => r.Id).FirstOrDefault())
+                .Select(ur => ur.UserId)
+                .Distinct()
+                .ToListAsync();
+
+            query = query.Where(p => !staffUserIds.Contains(p.UserId));
 
             // Apply filters
             if (!string.IsNullOrEmpty(SearchQuery))
@@ -78,7 +96,7 @@ namespace Barangay.Pages.Doctor
 
             if (!string.IsNullOrEmpty(SelectedBarangay))
             {
-                query = query.Where(p => p.User.Address == SelectedBarangay);
+                query = query.Where(p => p.User.Barangay == SelectedBarangay);
             }
 
             if (!string.IsNullOrEmpty(SelectedStatus))
@@ -101,10 +119,27 @@ namespace Barangay.Pages.Doctor
                     FullName = p.User.FullName,
                     Email = p.User.Email,
                     PhoneNumber = p.User.PhoneNumber,
-                    Barangay = p.User.Address,
+                    Barangay = string.IsNullOrEmpty(p.User.Barangay) ? "Not specified" : p.User.Barangay,
                     Status = p.User.Status
                 })
                 .ToListAsync();
+
+            // Decrypt patient data for authorized users
+            foreach (var patient in patients)
+            {
+                // Get the full user object to decrypt
+                var user = await _context.Users.FindAsync(patient.PatientId);
+                if (user != null)
+                {
+                    // Decrypt user data
+                    user.DecryptSensitiveData(_encryptionService, User);
+                    
+                    // Update the view model with decrypted data
+                    patient.FullName = user.FullName;
+                    patient.Email = user.Email;
+                    patient.PhoneNumber = user.PhoneNumber;
+                }
+            }
 
             Patients = patients;
 

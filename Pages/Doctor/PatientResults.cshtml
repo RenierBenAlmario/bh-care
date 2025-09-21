@@ -1,0 +1,403 @@
+@page
+@model Barangay.Pages.Doctor.PatientResultsModel
+@{
+    ViewData["Title"] = "Patient Results";
+    Layout = "_DoctorLayout";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Doctor Dashboard - Today's Patient Results (@Model.CurrentDate.ToString("MMMM dd, yyyy"))</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            @Model.ErrorMessage
+                        </div>
+                    }
+
+                    @if (Model.TodayAppointments.Count == 0)
+                    {
+                        <div class="alert alert-info" role="alert">
+                            No appointments found for today.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Patient</th>
+                                        <th>Type</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var appointment in Model.TodayAppointments)
+                                    {
+                                        <tr>
+                                            <td>@appointment.FormattedTime</td>
+                                            <td>@appointment.Patient</td>
+                                            <td>@appointment.Type</td>
+                                            <td>
+                                                <span class="badge @(appointment.Status.ToLower() == "completed" ? "bg-success" : 
+                                                                    appointment.Status.ToLower() == "cancelled" ? "bg-danger" : 
+                                                                    appointment.Status.ToLower() == "pending" ? "bg-warning" : "bg-primary")">
+                                                    @appointment.Status
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="collapse" data-bs-target="#details-@appointment.AppointmentId">
+                                                    View Details
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr class="collapse @(Model.SelectedAppointmentId.HasValue && Model.SelectedAppointmentId.Value == appointment.AppointmentId ? "show" : "")" id="details-@appointment.AppointmentId">
+                                            <td colspan="5" class="bg-light">
+                                                <div class="row mb-3">
+                                                    <div class="col-md-4">
+                                                        <div class="card">
+                                                            <div class="card-header bg-info text-white">
+                                                                <h6 class="mb-0">Patient Information</h6>
+                                                            </div>
+                                                            <div class="card-body">
+                                                                <p><strong>Name:</strong> @(string.IsNullOrEmpty(appointment.PatientFullName) ? appointment.Patient : appointment.PatientFullName)</p>
+                                                                <p><strong>Age:</strong> @appointment.PatientAge</p>
+                                                                <p><strong>Gender:</strong> @appointment.PatientGender</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row mb-3">
+                                                    <div class="col-md-12">
+                                                        <div class="card">
+                                                            <div class="card-header">
+                                                                <div class="d-flex justify-content-between align-items-center">
+                                                                    <h6 class="mb-0">Vital Signs</h6>
+                                                                    @if (!string.IsNullOrEmpty(appointment.VitalSigns.RecordedBy))
+                                                                    {
+                                                                        <span class="badge bg-info">Nurse Recorded</span>
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                            <div class="card-body">
+                                                                <form id="vitals-form-@appointment.AppointmentId">
+                                                                    <div class="row">
+                                                                        <div class="col-md-2 mb-3">
+                                                                            <label class="form-label">Temperature (°C)</label>
+                                                                            <input type="number" step="0.1" class="form-control @(appointment.VitalSigns.IsTemperatureAbnormal ? "text-danger fw-bold" : "")" 
+                                                                                   name="Temperature" value="@appointment.VitalSigns.Temperature" disabled />
+                                                                        </div>
+                                                                        <div class="col-md-2 mb-3">
+                                                                            <label class="form-label">Respiratory Rate</label>
+                                                                            <input type="number" class="form-control @(appointment.VitalSigns.IsRespiratoryRateAbnormal ? "text-danger fw-bold" : "")" 
+                                                                                   name="RespiratoryRate" value="@appointment.VitalSigns.RespiratoryRate" disabled />
+                                                                        </div>
+                                                                        <div class="col-md-2 mb-3">
+                                                                            <label class="form-label">Oxygen Saturation (%)</label>
+                                                                            <input type="number" class="form-control @(appointment.VitalSigns.IsOxygenSaturationAbnormal ? "text-danger fw-bold" : "")" 
+                                                                                   name="OxygenSaturation" value="@appointment.VitalSigns.OxygenSaturation" disabled />
+                                                                        </div>
+                                                                        <div class="col-md-2 mb-3">
+                                                                            <label class="form-label">Weight (kg)</label>
+                                                                            <input type="number" step="0.1" class="form-control" 
+                                                                                   name="Weight" value="@appointment.VitalSigns.Weight" disabled />
+                                                                        </div>
+                                                                        <div class="col-md-2 mb-3">
+                                                                            <label class="form-label">Height (cm)</label>
+                                                                            <input type="number" class="form-control" 
+                                                                                   name="Height" value="@appointment.VitalSigns.Height" disabled />
+                                                                        </div>
+                                                                        <div class="col-md-2 mb-3">
+                                                                            <label class="form-label">Blood Pressure</label>
+                                                                            <input type="text" class="form-control" 
+                                                                                   name="BloodPressure" value="@appointment.VitalSigns.BloodPressure" disabled />
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label">Notes</label>
+                                                                        <textarea class="form-control" name="Notes" rows="2" disabled>@appointment.VitalSigns.Notes</textarea>
+                                                                    </div>
+                                                                </form>
+                                                                <div class="d-flex justify-content-end">
+                                                                    <button class="btn btn-sm btn-primary me-2 edit-btn" data-form="vitals-form-@appointment.AppointmentId">
+                                                                        Edit
+                                                                    </button>
+                                                                    <button class="btn btn-sm btn-success save-btn" data-appointment-id="@appointment.AppointmentId" 
+                                                                            data-form="vitals-form-@appointment.AppointmentId" data-table="VitalSigns" style="display: none;">
+                                                                        Save
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row mb-3">
+                                                    <div class="col-md-6">
+                                                        <div class="card">
+                                                            <div class="card-header">
+                                                                <div class="d-flex justify-content-between align-items-center">
+                                                                    <h6 class="mb-0">HEADSSS Assessment</h6>
+                                                                    @if (!string.IsNullOrEmpty(appointment.HeadsssAssessment.RecordedBy))
+                                                                    {
+                                                                        <span class="badge bg-info">Nurse Recorded</span>
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                            <div class="card-body">
+                                                                <form id="headsss-form-@appointment.AppointmentId">
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label">Home/Family Problems</label>
+                                                                        <textarea class="form-control" name="HomeFamilyProblems" rows="2" disabled>@appointment.HeadsssAssessment.HomeFamilyProblems</textarea>
+                                                                    </div>
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label">Suicidal/Self Harm Thoughts</label>
+                                                                        <select class="form-select @(appointment.HeadsssAssessment.HasSuicidalThoughts ? "text-danger fw-bold" : "")" 
+                                                                                name="SuicidalThoughts" disabled>
+                                                                            @if (string.IsNullOrEmpty(appointment.HeadsssAssessment.SuicidalThoughts))
+                                                                            {
+                                                                                <option value="" selected>Select</option>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <option value="">Select</option>
+                                                                            }
+                                                                            
+                                                                            @if (appointment.HeadsssAssessment.SuicidalThoughts == "Yes")
+                                                                            {
+                                                                                <option value="Yes" selected>Yes</option>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <option value="Yes">Yes</option>
+                                                                            }
+                                                                            
+                                                                            @if (appointment.HeadsssAssessment.SuicidalThoughts == "No")
+                                                                            {
+                                                                                <option value="No" selected>No</option>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <option value="No">No</option>
+                                                                            }
+                                                                        </select>
+                                                                    </div>
+                                                                </form>
+                                                                <div class="d-flex justify-content-end">
+                                                                    <button class="btn btn-sm btn-primary me-2 edit-btn" data-form="headsss-form-@appointment.AppointmentId">
+                                                                        Edit
+                                                                    </button>
+                                                                    <button class="btn btn-sm btn-success save-btn" data-appointment-id="@appointment.AppointmentId" 
+                                                                            data-form="headsss-form-@appointment.AppointmentId" data-table="HEEADSSSAssessments" style="display: none;">
+                                                                        Save
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-md-6">
+                                                        <div class="card">
+                                                            <div class="card-header">
+                                                                <div class="d-flex justify-content-between align-items-center">
+                                                                    <h6 class="mb-0">NCD Risk Assessment</h6>
+                                                                    @if (!string.IsNullOrEmpty(appointment.NcdAssessment.RecordedBy))
+                                                                    {
+                                                                        <span class="badge bg-info">Nurse Recorded</span>
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                            <div class="card-body">
+                                                                <form id="ncd-form-@appointment.AppointmentId">
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label">Has Diabetes</label>
+                                                                        <select class="form-select @(appointment.NcdAssessment.HasDiabetes ? "text-danger fw-bold" : "")" 
+                                                                                name="HasDiabetes" disabled>
+                                                                            @if (!appointment.NcdAssessment.HasDiabetes)
+                                                                            {
+                                                                                <option value="false" selected>No</option>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <option value="false">No</option>
+                                                                            }
+                                                                            
+                                                                            @if (appointment.NcdAssessment.HasDiabetes)
+                                                                            {
+                                                                                <option value="true" selected>Yes</option>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <option value="true">Yes</option>
+                                                                            }
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label">Chest Pain</label>
+                                                                        <select class="form-select @(appointment.NcdAssessment.ChestPain ? "text-danger fw-bold" : "")" 
+                                                                                name="ChestPain" disabled>
+                                                                            @if (!appointment.NcdAssessment.ChestPain)
+                                                                            {
+                                                                                <option value="false" selected>No</option>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <option value="false">No</option>
+                                                                            }
+                                                                            
+                                                                            @if (appointment.NcdAssessment.ChestPain)
+                                                                            {
+                                                                                <option value="true" selected>Yes</option>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <option value="true">Yes</option>
+                                                                            }
+                                                                        </select>
+                                                                    </div>
+                                                                </form>
+                                                                <div class="d-flex justify-content-end">
+                                                                    <button class="btn btn-sm btn-primary me-2 edit-btn" data-form="ncd-form-@appointment.AppointmentId">
+                                                                        Edit
+                                                                    </button>
+                                                                    <button class="btn btn-sm btn-success save-btn" data-appointment-id="@appointment.AppointmentId" 
+                                                                            data-form="ncd-form-@appointment.AppointmentId" data-table="NCDRiskAssessments" style="display: none;">
+                                                                        Save
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Edit button click handler
+            document.querySelectorAll('.edit-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const formId = this.getAttribute('data-form');
+                    const form = document.getElementById(formId);
+                    const saveBtn = this.parentElement.querySelector('.save-btn');
+                    
+                    // Enable form inputs
+                    form.querySelectorAll('input, textarea, select').forEach(input => {
+                        input.disabled = false;
+                    });
+                    
+                    // Hide edit button and show save button
+                    this.style.display = 'none';
+                    saveBtn.style.display = 'block';
+                });
+            });
+            
+            // Save button click handler
+            document.querySelectorAll('.save-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const formId = this.getAttribute('data-form');
+                    const form = document.getElementById(formId);
+                    const appointmentId = this.getAttribute('data-appointment-id');
+                    const tableName = this.getAttribute('data-table');
+                    const editBtn = this.parentElement.querySelector('.edit-btn');
+                    
+                    // Collect form data
+                    const formData = {};
+                    form.querySelectorAll('input, textarea, select').forEach(input => {
+                        if (input.type === 'checkbox') {
+                            formData[input.name] = input.checked;
+                        } else {
+                            formData[input.name] = input.value;
+                        }
+                        // Disable inputs again
+                        input.disabled = true;
+                    });
+                    
+                    // Prepare payload
+                    const payload = {
+                        appointmentId: parseInt(appointmentId),
+                        lastEditedBy: 'doctor', // Current logged-in doctor
+                        isConsulted: true
+                    };
+                    
+                    if (tableName === 'VitalSigns') {
+                        payload.vitalSigns = {
+                            temperature: parseFloat(formData.Temperature) || null,
+                            respiratoryRate: parseInt(formData.RespiratoryRate) || null,
+                            oxygenSaturation: parseInt(formData.OxygenSaturation) || null,
+                            weight: parseFloat(formData.Weight) || null,
+                            height: parseInt(formData.Height) || null,
+                            bloodPressure: formData.BloodPressure || '',
+                            notes: formData.Notes || ''
+                        };
+                    } else if (tableName === 'HEEADSSSAssessments') {
+                        payload.headsssAssessment = {
+                            homeFamilyProblems: formData.HomeFamilyProblems || '',
+                            suicidalThoughts: formData.SuicidalThoughts || '',
+                            isConsulted: true
+                        };
+                    } else if (tableName === 'NCDRiskAssessments') {
+                        payload.ncdAssessment = {
+                            hasDiabetes: formData.HasDiabetes === 'true',
+                            chestPain: formData.ChestPain === 'true'
+                        };
+                    }
+                    
+                    // Send PATCH request to update the data
+                    fetch('/api/update/results', {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to update data');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Show success message
+                        alert('Data updated successfully');
+                        
+                        // Show edit button and hide save button
+                        this.style.display = 'none';
+                        editBtn.style.display = 'block';
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while updating data: ' + error.message);
+                        
+                        // Re-enable form for editing
+                        form.querySelectorAll('input, textarea, select').forEach(input => {
+                            input.disabled = false;
+                        });
+                    });
+                });
+            });
+        });
+    </script>
+} 

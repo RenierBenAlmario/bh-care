@@ -21,7 +21,8 @@ BEGIN
         ('ManageAppointments', 'Can manage all appointment bookings', 'Appointments'),
         ('ManageMedicalRecords', 'Can manage patient medical records', 'Medical Records'),
         ('AccessAdminDashboard', 'Can access the administration dashboard', 'System Access'),
-        ('AccessDoctorDashboard', 'Can access the doctor dashboard', 'System Access');
+        ('AccessDoctorDashboard', 'Can access the doctor dashboard', 'System Access'),
+        ('Access Reports', 'Can access and generate medical reports', 'Reporting');
     
     PRINT 'Permissions table created and populated with default values';
 END

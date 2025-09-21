@@ -1,9 +1,178 @@
-<form id="appointmentForm">
-    <input type="hidden" id="doctorId" value="@Model.DoctorId" />
-    <input type="date" id="appointmentDate" value="@Model.AppointmentDate" />
-    <input type="time" id="appointmentTime" value="@Model.AppointmentTime" />
-    <input type="text" id="patientName" value="@Model.PatientName" />
-    <input type="number" id="patientAge" value="@Model.PatientAge" />
-    <textarea id="reasonForVisit">@Model.ReasonForVisit</textarea>
-    <button type="submit" class="btn btn-primary">Book Appointment</button>
-</form>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Book an Appointment</h3>
+                </div>
+                <div class="card-body">
+                    <form id="appointmentForm" method="post" action="/api/Appointment/book" enctype="multipart/form-data">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="doctorId" class="form-label">Select Doctor</label>
+                                    <select class="form-select" id="doctorId" name="DoctorId" required>
+                                        <option value="">Select a doctor</option>
+                                        <!-- Doctors will be populated via JavaScript -->
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="appointmentDate" class="form-label">Appointment Date</label>
+                                    <input type="date" class="form-control" id="appointmentDate" name="Date" 
+                                           min="@DateTime.Now.ToString("yyyy-MM-dd")" required>
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="appointmentTime" class="form-label">Appointment Time</label>
+                                    <select class="form-select" id="appointmentTime" name="Time" required disabled>
+                                        <option value="">Select date and doctor first</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="patientName" class="form-label">Patient Name</label>
+                                    <input type="text" class="form-control" id="patientName" name="Name" required>
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="patientAge" class="form-label">Age</label>
+                                    <input type="number" class="form-control" id="patientAge" name="Age" min="0" max="120" required>
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="reasonForVisit" class="form-label">Reason for Visit</label>
+                                    <textarea class="form-control" id="reasonForVisit" name="Reason" rows="3" required></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="attachment" class="form-label">Upload Medical Records (Optional)</label>
+                            <input type="file" class="form-control" id="attachment" name="attachment">
+                            <small class="text-muted">Max file size: 5MB. Supported formats: PDF, JPG, PNG</small>
+                        </div>
+                        
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="termsCheck" required>
+                            <label class="form-check-label" for="termsCheck">
+                                I agree to the terms and conditions and will arrive 15 minutes before my appointment.
+                            </label>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">Book Appointment</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize form elements
+        const doctorSelect = document.getElementById('doctorId');
+        const dateInput = document.getElementById('appointmentDate');
+        const timeSelect = document.getElementById('appointmentTime');
+        const nameInput = document.getElementById('patientName');
+        
+        // Load user data
+        fetch('/api/User/GetCurrentUser')
+            .then(response => response.json())
+            .then(user => {
+                if (user && user.fullName) {
+                    nameInput.value = user.fullName;
+                }
+            })
+            .catch(error => console.error('Error loading user data:', error));
+            
+        // Load doctors
+        fetch('/api/Appointment/GetDoctors')
+            .then(response => response.json())
+            .then(data => {
+                // Add doctor options
+                if (data && data.length > 0) {
+                    data.forEach(doctor => {
+                        const option = document.createElement('option');
+                        option.value = doctor.id;
+                        option.textContent = `Dr. ${doctor.firstName} ${doctor.lastName}`;
+                        doctorSelect.appendChild(option);
+                    });
+                }
+            })
+            .catch(error => console.error('Error loading doctors:', error));
+            
+        // Update time slots when doctor or date changes
+        function updateTimeSlots() {
+            const doctorId = doctorSelect.value;
+            const date = dateInput.value;
+            
+            if (!doctorId || !date) {
+                timeSelect.innerHTML = '<option value="">Select date and doctor first</option>';
+                timeSelect.disabled = true;
+                return;
+            }
+            
+            timeSelect.disabled = true;
+            timeSelect.innerHTML = '<option value="">Loading time slots...</option>';
+            
+            fetch(`/api/Appointment/GetAvailableTimeSlots?doctorId=${doctorId}&date=${date}`)
+                .then(response => response.json())
+                .then(slots => {
+                    timeSelect.innerHTML = '';
+                    
+                    if (slots && slots.length > 0) {
+                        const defaultOption = document.createElement('option');
+                        defaultOption.value = '';
+                        defaultOption.textContent = 'Select a time slot';
+                        timeSelect.appendChild(defaultOption);
+                        
+                        slots.forEach(slot => {
+                            const option = document.createElement('option');
+                            option.value = slot;
+                            option.textContent = slot;
+                            timeSelect.appendChild(option);
+                        });
+                        
+                        timeSelect.disabled = false;
+                    } else {
+                        const option = document.createElement('option');
+                        option.value = '';
+                        option.textContent = 'No available slots';
+                        timeSelect.appendChild(option);
+                        timeSelect.disabled = true;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading time slots:', error);
+                    timeSelect.innerHTML = '<option value="">Error loading time slots</option>';
+                    timeSelect.disabled = true;
+                });
+        }
+        
+        doctorSelect.addEventListener('change', updateTimeSlots);
+        dateInput.addEventListener('change', updateTimeSlots);
+        
+        // Form validation
+        const form = document.getElementById('appointmentForm');
+        
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+                
+                // Find first invalid field and focus it
+                const invalidField = form.querySelector(':invalid');
+                if (invalidField) {
+                    invalidField.focus();
+                }
+            }
+            
+            form.classList.add('was-validated');
+        });
+    });
+</script>

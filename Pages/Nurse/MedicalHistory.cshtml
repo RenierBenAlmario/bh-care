@@ -4,7 +4,7 @@
 @model Barangay.Pages.Nurse.MedicalHistoryModel
 @{
     ViewData["Title"] = "Patient Medical History";
-    Layout = "_Layout";
+    Layout = "_NurseLayout";
 }
 
 @section Scripts {
@@ -55,13 +55,60 @@
                     alertDiv.alert('close');
                 }, 5000);
             }
+
+            // Blood pressure validation
+            function validateBloodPressure(input) {
+                const value = input.value;
+                const pattern = /^[0-9/]*$/;
+                
+                if (!pattern.test(value)) {
+                    input.setCustomValidity('Only numbers and forward slash (/) are allowed');
+                    input.reportValidity();
+                    return false;
+                } else {
+                    input.setCustomValidity('');
+                    return true;
+                }
+            }
+
+            // Add event listener for blood pressure input
+            const bloodPressureInput = document.getElementById('InputVitalSign_BloodPressure');
+            if (bloodPressureInput) {
+                bloodPressureInput.addEventListener('input', function() {
+                    validateBloodPressure(this);
+                });
+                
+                bloodPressureInput.addEventListener('keypress', function(e) {
+                    // Allow: backspace, delete, tab, escape, enter
+                    if ([8, 9, 27, 13, 46].indexOf(e.keyCode) !== -1 ||
+                        // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+                        (e.keyCode === 65 && e.ctrlKey === true) ||
+                        (e.keyCode === 67 && e.ctrlKey === true) ||
+                        (e.keyCode === 86 && e.ctrlKey === true) ||
+                        (e.keyCode === 88 && e.ctrlKey === true)) {
+                        return;
+                    }
+                    // Ensure that it is a number or forward slash
+                    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && e.keyCode !== 191) {
+                        e.preventDefault();
+                    }
+                });
+            }
         });
     </script>
 }
 
 <div class="container-fluid mt-4">
-    <h2>Patient Medical History</h2>
-    <p>View and manage patient medical records.</p>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="m-0">Patient Medical History</h2>
+            <p class="m-0 text-muted">View and manage patient medical records.</p>
+        </div>
+        <a href="/Nurse/NurseDashboard" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>
+            Back to Dashboard
+        </a>
+    </div>
 
     <!-- Alert Container -->
     <div id="alertContainer"></div>
@@ -252,13 +299,13 @@
                                                 {
                                                     <tr>
                                                         <td>@vitalSign.RecordedAt.ToString("MMM dd, yyyy HH:mm")</td>
-                                                        <td>@(vitalSign.Temperature.HasValue ? $"{vitalSign.Temperature:F1}°C" : "-")</td>
+                                                        <td>@(string.IsNullOrEmpty(vitalSign.Temperature) ? "-" : $"{vitalSign.Temperature}°C")</td>
                                                         <td>@(string.IsNullOrEmpty(vitalSign.BloodPressure) ? "-" : vitalSign.BloodPressure)</td>
-                                                        <td>@(vitalSign.HeartRate.HasValue ? $"{vitalSign.HeartRate} bpm" : "-")</td>
-                                                        <td>@(vitalSign.RespiratoryRate.HasValue ? $"{vitalSign.RespiratoryRate}/min" : "-")</td>
-                                                        <td>@(vitalSign.SpO2.HasValue ? $"{vitalSign.SpO2}%" : "-")</td>
-                                                        <td>@(vitalSign.Weight.HasValue ? $"{vitalSign.Weight:F1} kg" : "-")</td>
-                                                        <td>@(vitalSign.Height.HasValue ? $"{vitalSign.Height:F1} cm" : "-")</td>
+                                                        <td>@(string.IsNullOrEmpty(vitalSign.HeartRate) ? "-" : $"{vitalSign.HeartRate} bpm")</td>
+                                                        <td>@(string.IsNullOrEmpty(vitalSign.RespiratoryRate) ? "-" : $"{vitalSign.RespiratoryRate}/min")</td>
+                                                        <td>@(string.IsNullOrEmpty(vitalSign.SpO2) ? "-" : $"{vitalSign.SpO2}%")</td>
+                                                        <td>@(string.IsNullOrEmpty(vitalSign.Weight) ? "-" : $"{vitalSign.Weight} kg")</td>
+                                                        <td>@(string.IsNullOrEmpty(vitalSign.Height) ? "-" : $"{vitalSign.Height} cm")</td>
                                                         <td>@(string.IsNullOrEmpty(vitalSign.Notes) ? "-" : vitalSign.Notes)</td>
                                                     </tr>
                                                 }
@@ -311,7 +358,7 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Blood Pressure (mmHg)</label>
-                                <input type="text" class="form-control" asp-for="InputVitalSign.BloodPressure" placeholder="e.g. 120/80">
+                                <input type="text" class="form-control" asp-for="InputVitalSign.BloodPressure" placeholder="e.g. 120/80" pattern="[0-9/]+" title="Only numbers and forward slash allowed">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Heart Rate (bpm)</label>

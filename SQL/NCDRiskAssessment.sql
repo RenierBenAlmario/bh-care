@@ -2,7 +2,7 @@ CREATE TABLE NCDRiskAssessments (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     UserId NVARCHAR(450) NOT NULL,
     AppointmentId INT NOT NULL,
-    AppointmentType NVARCHAR(100) NOT NULL,
+    AppointmentType NVARCHAR(100) NULL,
     FamilyNo NVARCHAR(50),
     Address NVARCHAR(255),
     Barangay NVARCHAR(100),

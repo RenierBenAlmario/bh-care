@@ -6,13 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Admin Portal</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/theme-orange.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="stylesheet" href="~/css/admin-local.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/admin-dashboard-bhcare.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin-dashboard-bhcare-new.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin-orange.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
-<body>
+<body class="admin">
     @Html.AntiForgeryToken()
 
     <div class="container-fluid admin-content p-0">        
@@ -50,22 +52,22 @@
             <div class="modal-content">
                 <div class="modal-header bg-warning">
                     <h5 class="modal-title" id="sessionTimeoutModalLabel">
-                        <i class="fas fa-clock me-2"></i>Session Timeout Warning
+                        <i class="fa-solid fa-clock me-2"></i>Session Timeout Warning
                     </h5>
                 </div>
                 <div class="modal-body">
                     <div class="d-flex align-items-center mb-3">
-                        <i class="fas fa-exclamation-triangle text-warning me-3 fa-2x"></i>
+                        <i class="fa-solid fa-triangle-exclamation text-warning me-3 fa-2x"></i>
                         <p class="mb-0">Your session will expire in <span id="timeoutCountdown" class="fw-bold">60</span> seconds due to inactivity.</p>
                     </div>
                     <p>Would you like to stay logged in or log out now?</p>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-primary" id="stayLoggedIn">
-                        <i class="fas fa-check me-1"></i> Stay Logged In
+                        <i class="fa-solid fa-check me-1"></i> Stay Logged In
                     </button>
                     <button class="btn btn-secondary" id="logoutNow">
-                        <i class="fas fa-sign-out-alt me-1"></i> Logout Now
+                        <i class="fa-solid fa-right-from-bracket me-1"></i> Logout Now
                     </button>
                 </div>
             </div>

@@ -48,12 +48,18 @@
                 <span asp-validation-for="Password" class="text-danger error-message"></span>
             </div>
             
+
             <div class="form-group">
-                <div class="form-check">
-                    <input asp-for="RememberMe" class="form-check-input" id="rememberMe" aria-label="Remember me checkbox" />
-                    <label asp-for="RememberMe" class="form-check-label text-dark">
-                        Remember me
-                    </label>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="form-check">
+                        <input asp-for="RememberMe" class="form-check-input" id="rememberMe" aria-label="Remember me checkbox" />
+                        <label asp-for="RememberMe" class="form-check-label text-dark">
+                            Remember me
+                        </label>
+                    </div>
+                    <a asp-page="./ForgotPassword" class="forgot-password text-decoration-none">
+                        <i class="fas fa-key me-1"></i> Forgot Password?
+                    </a>
                 </div>
             </div>
             
@@ -74,23 +80,91 @@
             </div>
             
             <div class="text-center mt-3">
-                <div class="mb-2">
-                    <a asp-page="./ForgotPassword" class="forgot-password">
-                        <i class="fas fa-key me-1"></i> Forgot your password?
-                    </a>
-                </div>
-                <div>
+                <div class="mb-3">
                     <span class="text-dark">Don't have an account?</span> 
                     <a asp-page="./SignUp" class="register-link">
                         <strong>Register now</strong>
                     </a>
+                </div>
+                
+                <div class="admin-login-section">
+                    <div class="admin-divider">
+                        <span></span>
+                    </div>
+                    <button type="button" class="btn btn-outline-danger admin-access-btn" onclick="goToAdminLogin()">
+                        <i class="fas fa-shield-alt me-2"></i> Admin
+                    </button>
+                    <small class="text-muted d-block mt-2">Authorized personnel only</small>
                 </div>
             </div>
         </form>
     </div>
 </div>
 
+<style>
+.admin-login-section {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 2px solid #e9ecef;
+}
+
+.admin-divider {
+    position: relative;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.admin-divider span {
+    background-color: white;
+    padding: 0 1rem;
+    color: #dc3545;
+    font-weight: bold;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.admin-access-btn {
+    border-color: #dc3545;
+    color: #dc3545;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.admin-access-btn:hover {
+    background-color: #dc3545;
+    color: white;
+    border-color: #dc3545;
+}
+
+.admin-access-btn:focus {
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+</style>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script src="~/js/login.js" asp-append-version="true"></script>
+    <script>
+        function goToAdminLogin() {
+            window.location.href = '/Account/AdminLogin';
+        }
+        
+        // Prevent admin users from submitting regular login form
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('loginForm');
+            const emailInput = document.querySelector('input[name="EmailOrUsername"]');
+            
+            loginForm.addEventListener('submit', function(e) {
+                const email = emailInput.value.toLowerCase();
+                
+                // Check for common admin email patterns
+                if (email.includes('admin') || email.includes('administrator')) {
+                    e.preventDefault();
+                    alert('❌ ACCESS DENIED: Admin users must use the Admin Login page. Please use the "Admin Login Only" button below.');
+                    return false;
+                }
+            });
+        });
+    </script>
 }

@@ -1,0 +1,105 @@
+@page
+@model Barangay.Pages.Admin.FixWeekendAppointmentsModel
+@{
+    ViewData["Title"] = "Fix Weekend Appointments";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-warning text-dark">
+            <h4 class="mb-0">
+                <i class="fas fa-tools me-2"></i> Fix Weekend Appointments
+            </h4>
+        </div>
+        <div class="card-body">
+            @if (!string.IsNullOrEmpty(Model.StatusMessage))
+            {
+                <div class="alert alert-success">
+                    @Model.StatusMessage
+                </div>
+            }
+            
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger">
+                    @Model.ErrorMessage
+                </div>
+            }
+            
+            <div class="row">
+                <div class="col-md-8">
+                    <h5>Current Doctor Availability Status</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Doctor</th>
+                                    <th>Email</th>
+                                    <th>Mon</th>
+                                    <th>Tue</th>
+                                    <th>Wed</th>
+                                    <th>Thu</th>
+                                    <th>Fri</th>
+                                    <th>Sat</th>
+                                    <th>Sun</th>
+                                    <th>Hours</th>
+                                    <th>Active</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var doctor in Model.DoctorAvailabilities)
+                                {
+                                    <tr>
+                                        <td>@doctor.DoctorName</td>
+                                        <td>@doctor.Email</td>
+                                        <td><span class="badge @(doctor.Monday ? "bg-success" : "bg-danger")">@(doctor.Monday ? "✓" : "✗")</span></td>
+                                        <td><span class="badge @(doctor.Tuesday ? "bg-success" : "bg-danger")">@(doctor.Tuesday ? "✓" : "✗")</span></td>
+                                        <td><span class="badge @(doctor.Wednesday ? "bg-success" : "bg-danger")">@(doctor.Wednesday ? "✓" : "✗")</span></td>
+                                        <td><span class="badge @(doctor.Thursday ? "bg-success" : "bg-danger")">@(doctor.Thursday ? "✓" : "✗")</span></td>
+                                        <td><span class="badge @(doctor.Friday ? "bg-success" : "bg-danger")">@(doctor.Friday ? "✓" : "✗")</span></td>
+                                        <td><span class="badge @(doctor.Saturday ? "bg-success" : "bg-danger")">@(doctor.Saturday ? "✓" : "✗")</span></td>
+                                        <td><span class="badge @(doctor.Sunday ? "bg-success" : "bg-danger")">@(doctor.Sunday ? "✓" : "✗")</span></td>
+                                        <td>@doctor.StartTime.ToString(@"hh\:mm") - @doctor.EndTime.ToString(@"hh\:mm")</td>
+                                        <td><span class="badge @(doctor.IsAvailable ? "bg-success" : "bg-danger")">@(doctor.IsAvailable ? "Active" : "Inactive")</span></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0">Quick Actions</h6>
+                        </div>
+                        <div class="card-body">
+                            <form method="post">
+                                <div class="d-grid gap-2">
+                                    <button type="submit" asp-page-handler="EnableWeekends" class="btn btn-success">
+                                        <i class="fas fa-calendar-week me-2"></i>Enable Weekend Appointments
+                                    </button>
+                                    
+                                    <button type="submit" asp-page-handler="CreateMissing" class="btn btn-warning">
+                                        <i class="fas fa-plus me-2"></i>Create Missing Records
+                                    </button>
+                                    
+                                    <button type="submit" asp-page-handler="ResetAll" class="btn btn-danger">
+                                        <i class="fas fa-refresh me-2"></i>Reset All to Default
+                                    </button>
+                                </div>
+                            </form>
+                            
+                            <hr>
+                            
+                            <div class="alert alert-info">
+                                <strong>Note:</strong> This tool will fix weekend appointment availability for all doctors.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -13,7 +13,8 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Barangay.Pages.Nurse
 {
-    [Authorize(Roles = "Nurse")]
+    [Authorize(Roles = "Nurse,Head Nurse")]
+    [Authorize(Policy = "Appointments")]
     public class AppointmentsModel : PageModel
     {
         private readonly ApplicationDbContext _context;
@@ -45,6 +46,7 @@ namespace Barangay.Pages.Nurse
         }
 
         public List<AppointmentViewModel> Appointments { get; set; } = new List<AppointmentViewModel>();
+        public List<AppointmentViewModel> TodayAppointments { get; set; } = new List<AppointmentViewModel>();
 
         [TempData]
         public string StatusMessage { get; set; }
@@ -53,30 +55,45 @@ namespace Barangay.Pages.Nurse
         {
             try
             {
-                // Get all appointments
+                _logger.LogInformation("Loading appointments for nurse dashboard");
+                
+                // Get all appointments with eager loading of Patient and Doctor
                 var appointments = await _context.Appointments
+                    .Include(a => a.Patient)
+                    .Include(a => a.Doctor)
+                    .Where(a => a.PatientName != "System Administrator" && a.PatientId != "0e03f06e-ba88-46ed-b047-4974d8b8252a")
                     .OrderByDescending(a => a.AppointmentDate)
                     .ThenBy(a => a.AppointmentTime)
                     .ToListAsync();
 
-                // Get all doctors
-                var doctors = await _userManager.GetUsersInRoleAsync("Doctor");
-                var doctorDict = doctors.ToDictionary(d => d.Id, d => d.FullName ?? d.UserName ?? "Unknown");
-
-                // Map to view model
+                _logger.LogInformation("Found {0} appointments in the database", appointments.Count);
+                
+                // Get today's date
+                var today = DateTime.Today;
+                
+                // Convert to view models
                 Appointments = appointments.Select(a => new AppointmentViewModel
                 {
                     Id = a.Id,
                     PatientId = a.PatientId,
-                    PatientName = a.PatientName,
+                    PatientName = string.IsNullOrEmpty(a.PatientName) ? 
+                        (a.Patient != null ? a.Patient.FullName : "Unknown") : a.PatientName,
                     AppointmentDate = a.AppointmentDate,
                     AppointmentTime = a.AppointmentTime,
                     DoctorId = a.DoctorId,
-                    DoctorName = doctorDict.TryGetValue(a.DoctorId, out var name) ? name : "Unknown",
+                    DoctorName = a.Doctor?.FullName ?? "Not Assigned",
                     Status = a.Status,
                     Type = a.Type ?? "General",
                     Description = a.Description
                 }).ToList();
+                
+                // Filter today's appointments
+                TodayAppointments = Appointments
+                    .Where(a => a.AppointmentDate.Date == today)
+                    .OrderBy(a => a.AppointmentTime)
+                    .ToList();
+                
+                _logger.LogInformation("Found {0} appointments for today", TodayAppointments.Count);
 
                 return Page();
             }
@@ -88,30 +105,5 @@ namespace Barangay.Pages.Nurse
             }
         }
 
-        public async Task<IActionResult> OnPostDeleteAsync(int id)
-        {
-            try
-            {
-                var appointment = await _context.Appointments.FindAsync(id);
-                
-                if (appointment == null)
-                {
-                    StatusMessage = "Appointment not found.";
-                    return RedirectToPage();
-                }
-
-                _context.Appointments.Remove(appointment);
-                await _context.SaveChangesAsync();
-                
-                StatusMessage = "Appointment deleted successfully.";
-                return RedirectToPage();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error deleting appointment");
-                StatusMessage = "Error deleting appointment. Please try again later.";
-                return RedirectToPage();
-            }
-        }
     }
 } 

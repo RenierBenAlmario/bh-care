@@ -1,0 +1,327 @@
+@page
+@model Barangay.Pages.Account.OTPVerificationModel
+@{
+    ViewData["Title"] = "OTP Verification";
+}
+
+<div class="container py-4">
+    <div class="otp-verification-container">
+        <div class="otp-header text-center mb-4">
+            <div class="otp-icon mb-3">
+                @if (Model.IsAdmin)
+                {
+                    <i class="fas fa-shield-alt fa-4x text-danger"></i>
+                }
+                else
+                {
+                    <i class="fas fa-shield-alt fa-4x text-primary"></i>
+                }
+            </div>
+            <h2 class="otp-title">
+                @if (Model.IsAdmin)
+                {
+                    <span class="text-danger">Admin OTP Verification</span>
+                }
+                else
+                {
+                    <span>OTP Verification</span>
+                }
+            </h2>
+            <p class="otp-subtitle">
+                @if (Model.IsAdmin)
+                {
+                    <span class="text-danger">Enter the verification code sent to your admin email</span>
+                }
+                else
+                {
+                    <span>Enter the verification code sent to your email</span>
+                }
+            </p>
+        </div>
+        
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                @TempData["ErrorMessage"]
+            </div>
+        }
+        
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle me-2"></i>
+                @TempData["SuccessMessage"]
+            </div>
+        }
+        
+        <form method="post" id="otpForm" class="otp-form">
+            <div asp-validation-summary="ModelOnly" class="text-danger validation-summary mb-3"></div>
+            
+            <!-- Hidden fields to preserve login credentials -->
+            <input type="hidden" asp-for="UserEmail" />
+            <input type="hidden" asp-for="Password" />
+            <input type="hidden" asp-for="RememberMe" />
+            
+            <div class="otp-info-box mb-4">
+                <div class="info-icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <div class="info-content">
+                    <h5>Check Your Email</h5>
+                    <p class="mb-0">We've sent a 6-digit verification code to:</p>
+                    <strong class="email-address">@Model.UserEmail</strong>
+                </div>
+            </div>
+            
+            <div class="form-group mb-4">
+                <label asp-for="OTPCode" class="form-label">Enter OTP Code <span class="required">*</span></label>
+                <div class="otp-input-container">
+                    <input asp-for="OTPCode" class="form-control otp-input" placeholder="000000" aria-label="OTP Code input" maxlength="6" autocomplete="off" />
+                    <div class="otp-input-focus"></div>
+                </div>
+                <span asp-validation-for="OTPCode" class="text-danger error-message"></span>
+            </div>
+            
+            <div class="otp-timer mb-3">
+                <div class="timer-info">
+                    <i class="fas fa-clock me-2"></i>
+                    <span id="timerText">Code expires in: <span id="countdown">5:00</span></span>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-verify w-100" id="verifyButton">
+                    <span class="verify-button-content">
+                        <i class="fas fa-check me-2"></i> Verify & Login
+                    </span>
+                    <span class="verify-button-spinner d-none">
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Verifying...
+                    </span>
+                </button>
+            </div>
+            
+            <div class="resend-section mt-4 text-center">
+                <p class="text-muted mb-2">Didn't receive the code?</p>
+                <button type="button" class="btn btn-outline-secondary btn-resend" id="resendButton" disabled>
+                    <i class="fas fa-redo me-2"></i>
+                    Resend Code (<span id="resendCountdown">60</span>s)
+                </button>
+            </div>
+            
+            <div class="back-to-login mt-4 text-center">
+                <a asp-page="/Account/Login" class="back-link">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    Back to Login
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .otp-verification-container {
+        max-width: 500px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+    }
+    
+    .otp-header {
+        margin-bottom: 2rem;
+    }
+    
+    .otp-icon {
+        color: #007bff;
+    }
+    
+    .otp-title {
+        color: #333;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .otp-subtitle {
+        color: #666;
+        font-size: 1.1rem;
+    }
+    
+    .otp-info-box {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .info-icon {
+        background: #007bff;
+        color: white;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+    
+    .info-content h5 {
+        margin-bottom: 0.5rem;
+        color: #333;
+    }
+    
+    .email-address {
+        color: #007bff;
+        font-size: 1.1rem;
+    }
+    
+    .otp-input-container {
+        position: relative;
+    }
+    
+    .otp-input {
+        font-size: 1.5rem;
+        text-align: center;
+        letter-spacing: 0.5rem;
+        padding: 1rem;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+    
+    .otp-input:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+    
+    .otp-timer {
+        text-align: center;
+    }
+    
+    .timer-info {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 8px;
+        padding: 0.75rem;
+        color: #856404;
+    }
+    
+    .btn-verify {
+        padding: 1rem;
+        font-size: 1.1rem;
+        border-radius: 10px;
+        font-weight: 600;
+    }
+    
+    .resend-section {
+        border-top: 1px solid #e9ecef;
+        padding-top: 1rem;
+    }
+    
+    .btn-resend:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    .back-link {
+        color: #6c757d;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    
+    .back-link:hover {
+        color: #007bff;
+        text-decoration: none;
+    }
+    
+    .required {
+        color: #dc3545;
+    }
+    
+    .error-message {
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const otpInput = document.getElementById('OTPCode');
+            const verifyButton = document.getElementById('verifyButton');
+            const resendButton = document.getElementById('resendButton');
+            const countdownElement = document.getElementById('countdown');
+            const resendCountdownElement = document.getElementById('resendCountdown');
+            
+            let timeLeft = 300; // 5 minutes in seconds
+            let resendTimeLeft = 60; // 1 minute for resend
+            
+            // Auto-focus on OTP input
+            if (otpInput) {
+                otpInput.focus();
+            }
+            
+            // Format time as MM:SS
+            function formatTime(seconds) {
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = seconds % 60;
+                return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+            }
+            
+            // Update countdown timer
+            function updateCountdown() {
+                if (timeLeft > 0) {
+                    countdownElement.textContent = formatTime(timeLeft);
+                    timeLeft--;
+                } else {
+                    countdownElement.textContent = '0:00';
+                    // Redirect to login page when time expires
+                    window.location.href = '/Account/Login';
+                }
+            }
+            
+            // Update resend countdown
+            function updateResendCountdown() {
+                if (resendTimeLeft > 0) {
+                    resendCountdownElement.textContent = resendTimeLeft;
+                    resendTimeLeft--;
+                } else {
+                    resendButton.disabled = false;
+                    resendButton.innerHTML = '<i class="fas fa-redo me-2"></i>Resend Code';
+                }
+            }
+            
+            // Start countdown timers
+            const countdownInterval = setInterval(updateCountdown, 1000);
+            const resendInterval = setInterval(updateResendCountdown, 1000);
+            
+            // Handle resend button click
+            resendButton.addEventListener('click', function() {
+                if (!resendButton.disabled) {
+                    // Reload page to resend OTP
+                    window.location.reload();
+                }
+            });
+            
+            // Handle form submission
+            document.getElementById('otpForm').addEventListener('submit', function() {
+                verifyButton.disabled = true;
+                verifyButton.querySelector('.verify-button-content').classList.add('d-none');
+                verifyButton.querySelector('.verify-button-spinner').classList.remove('d-none');
+            });
+            
+            // Clean up intervals when page unloads
+            window.addEventListener('beforeunload', function() {
+                clearInterval(countdownInterval);
+                clearInterval(resendInterval);
+            });
+        });
+    </script>
+}

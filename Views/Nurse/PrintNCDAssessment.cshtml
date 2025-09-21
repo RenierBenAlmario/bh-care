@@ -1,0 +1,471 @@
+@model Barangay.Models.NCDRiskAssessmentViewModel
+@{
+    ViewData["Title"] = "Print NCD Risk Assessment";
+    Layout = null; // No layout for printing
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NCD Risk Assessment Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+            margin: 20px;
+            color: #000;
+        }
+        
+        .form-header {
+            text-align: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .form-header h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .form-section {
+            page-break-inside: avoid;
+            margin-bottom: 20px;
+        }
+        
+        .form-row {
+            display: flex;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+        
+        .form-label {
+            font-weight: bold;
+            min-width: 150px;
+            margin-right: 10px;
+        }
+        
+        .form-input {
+            border-bottom: 1px solid #000;
+            min-width: 200px;
+            padding: 2px 5px;
+            background: transparent;
+            border-top: none;
+            border-left: none;
+            border-right: none;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 5px;
+        }
+        
+        .section-title {
+            font-weight: bold;
+            font-size: 14px;
+            background-color: #f0f0f0;
+            padding: 5px 10px;
+            margin: 15px 0 10px 0;
+            border-left: 4px solid #007bff;
+        }
+        
+        .no-print {
+            display: none !important;
+        }
+        
+        @@media print {
+            body {
+                margin: 0;
+                padding: 10px;
+            }
+            
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Form Header -->
+    <div class="form-header">
+        <h2>INTEGRATED NCD RISK ASSESSMENT FORM</h2>
+        <p><strong>Health Facility:</strong> <span class="form-input">@Model.HealthFacility</span></p>
+        <p><strong>Family No.:</strong> <span class="form-input">@Model.FamilyNo</span></p>
+        <p><strong>Date of Assessment:</strong> <span class="form-input">@DateTime.Now.ToString("MM/dd/yyyy")</span></p>
+    </div>
+
+    <!-- Part I: Demographic-Socio-Economic Profile -->
+    <div class="form-section">
+        <div class="section-title">PART I. DEMOGRAPHIC-SOCIO-ECONOMIC PROFILE</div>
+        
+        <div class="form-row">
+            <span class="form-label">Unang Pangalan (First Name):</span>
+            <input asp-for="FirstName" class="form-input" />
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">Gitnang Pangalan (Middle Name):</span>
+            <input asp-for="MiddleName" class="form-input" />
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">Apelyido (Last Name):</span>
+            <input asp-for="LastName" class="form-input" />
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">Telepono (Telephone):</span>
+            <input asp-for="Telepono" class="form-input" />
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">Address:</span>
+            <input asp-for="Address" class="form-input" />
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">Barangay:</span>
+            <input asp-for="Barangay" class="form-input" />
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">Birthday (mm/dd/yy):</span>
+            <input asp-for="Birthday" type="date" class="form-input" />
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">Edad (Age):</span>
+            <input asp-for="Edad" type="number" class="form-input" />
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">Kasarian (Sex):</span>
+            <input asp-for="Kasarian" class="form-input" />
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">Relihiyon (Religion):</span>
+            <input asp-for="Relihiyon" class="form-input" />
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">Estadong Sibil (Civil Status):</span>
+            <input asp-for="CivilStatus" class="form-input" />
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">Hanapbuhay (Occupation):</span>
+            <input asp-for="Occupation" class="form-input" />
+        </div>
+    </div>
+
+    <!-- Part II: Past Medical History -->
+    <div class="form-section">
+        <div class="section-title">PART II. PAST MEDICAL HISTORY</div>
+        <p><strong>1. Ikaw ba ay may sumusunod nakaramdaman? (Do you have any of the following conditions?)</strong></p>
+        
+        <div class="form-row">
+            <div class="checkbox-group">
+                <input asp-for="HasDiabetes" type="checkbox" />
+                <label>Diabetes</label>
+            </div>
+            <div class="checkbox-group">
+                <input asp-for="HasHypertension" type="checkbox" />
+                <label>Hypertension</label>
+            </div>
+            <div class="checkbox-group">
+                <input asp-for="HasCancer" type="checkbox" />
+                <label>Cancer</label>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="checkbox-group">
+                <input asp-for="HasLungDisease" type="checkbox" />
+                <label>Sakit sa baga na hindi nakakahawa (Non-communicable lung disease)</label>
+            </div>
+            <div class="checkbox-group">
+                <input asp-for="HasEyeDisease" type="checkbox" />
+                <label>Sakit sa mata (Eye disease)</label>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">Taon Nalaman ang Sakit (Year Diagnosed):</span>
+            <input asp-for="DiabetesYear" class="form-input" placeholder="Diabetes Year" />
+            <input asp-for="HypertensionYear" class="form-input" placeholder="Hypertension Year" />
+            <input asp-for="CancerYear" class="form-input" placeholder="Cancer Year" />
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">Iniinom na Gamot (Medication taken):</span>
+            <input asp-for="DiabetesMedication" class="form-input" placeholder="Diabetes Medication" />
+            <input asp-for="HypertensionMedication" class="form-input" placeholder="Hypertension Medication" />
+            <input asp-for="CancerMedication" class="form-input" placeholder="Cancer Medication" />
+        </div>
+    </div>
+
+    <!-- Part III: Assessment of Risk Factors -->
+    <div class="form-section">
+        <div class="section-title">PART III. ASSESSMENT OF RISK FACTORS</div>
+        
+        <div class="section-title">A. Non-Modifiable Risk Factors</div>
+        <p><strong>1. Sakit sa pamilya (first degree relatives) Lagyan ng Tsek (/)</strong></p>
+        <p><em>First degree relatives (magulang at mga kapatid)</em></p>
+        
+        <div class="form-row">
+            <div class="checkbox-group">
+                <input asp-for="FamilyHasHypertension" type="checkbox" />
+                <label>mataas na presyon (high blood pressure)</label>
+            </div>
+            <div class="checkbox-group">
+                <input asp-for="FamilyHasHeartDisease" type="checkbox" />
+                <label>sakit sa puso (heart disease)</label>
+            </div>
+            <div class="checkbox-group">
+                <input asp-for="FamilyHasStroke" type="checkbox" />
+                <label>stroke</label>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="checkbox-group">
+                <input asp-for="FamilyHasDiabetes" type="checkbox" />
+                <label>diabetes</label>
+            </div>
+            <div class="checkbox-group">
+                <input asp-for="FamilyHasCancer" type="checkbox" />
+                <label>kanser (cancer)</label>
+            </div>
+            <div class="checkbox-group">
+                <input asp-for="FamilyHasKidneyDisease" type="checkbox" />
+                <label>sakit sa bato (kidney disease)</label>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">iba pang sakit, isulat (other disease, specify):</span>
+            <input asp-for="FamilyOtherDiseaseDetails" class="form-input" />
+        </div>
+        
+        <div class="section-title">B. Modifiable Risk Factors</div>
+        
+        <div class="section-title">B.1 Nutrisyon (Nutrition)</div>
+        <p><strong>1. Madalas mo bang kainin ang mga sumusunod kada araw? (Do you often eat the following daily?)</strong></p>
+        
+        <div class="form-row">
+            <div class="checkbox-group">
+                <input asp-for="EatsVegetables" type="checkbox" />
+                <label>a. gulay (vegetables)</label>
+            </div>
+            <div class="checkbox-group">
+                <input asp-for="EatsFruits" type="checkbox" />
+                <label>b. prutas (fruits)</label>
+            </div>
+            <div class="checkbox-group">
+                <input asp-for="EatsFish" type="checkbox" />
+                <label>c. isda (fish)</label>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="checkbox-group">
+                <input asp-for="EatsMeat" type="checkbox" />
+                <label>d. karne (meat)</label>
+            </div>
+            <div class="checkbox-group">
+                <input asp-for="EatsSaltyFood" type="checkbox" />
+                <label>e. processed food</label>
+            </div>
+        </div>
+        
+        <p><strong>2. Kumakain ka ba ng higit sa 2 beses kada linggo ng: (Do you eat more than 2 times a week of:)</strong></p>
+        
+        <div class="form-row">
+            <div class="checkbox-group">
+                <input asp-for="EatsSaltyFood" type="checkbox" />
+                <label>a. Maalat na pagkain (Salty food)</label>
+            </div>
+            <div class="checkbox-group">
+                <input asp-for="EatsSweetFood" type="checkbox" />
+                <label>b. matatamis na pagkain (Sweet food)</label>
+            </div>
+            <div class="checkbox-group">
+                <input asp-for="EatsFattyFood" type="checkbox" />
+                <label>c. mamantikang pagkain (Oily food)</label>
+            </div>
+        </div>
+        
+        <div class="section-title">B.2 Alcohol</div>
+        <p><strong>1. Umiinom ka ba ng alak? (Do you drink alcohol?)</strong></p>
+        
+        <div class="form-row">
+            <div class="checkbox-group">
+                <input asp-for="DrinksAlcohol" type="checkbox" />
+                <label>Oo (Yes)</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" />
+                <label>Hindi (No)</label>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">Alcohol Consumption Details:</span>
+            <textarea asp-for="AlcoholConsumption" class="form-input" rows="2" style="width: 300px;"></textarea>
+        </div>
+        
+        <div class="section-title">B.3 Ehersisyo (Exercise)</div>
+        <p><strong>1. May sapat ka bang ehersisyo? (Do you get enough exercise?)</strong></p>
+        
+        <div class="form-row">
+            <div class="checkbox-group">
+                <input asp-for="HasRegularExercise" type="checkbox" />
+                <label>Mayroon (Yes)</label>
+            </div>
+            <div class="checkbox-group">
+                <input asp-for="HasNoRegularExercise" type="checkbox" />
+                <label>Wala (No)</label>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">Exercise Duration (minutes/week):</span>
+            <input asp-for="ExerciseDuration" class="form-input" />
+        </div>
+        
+        <div class="section-title">B.4 Paninigarilyo (Smoking)</div>
+        <p><strong>1. Ikaw ba ay naninigarilyo? (Do you smoke?)</strong></p>
+        
+        <div class="form-row">
+            <span class="form-label">Smoking Status:</span>
+            <input asp-for="SmokingStatus" class="form-input" />
+        </div>
+    </div>
+
+    <!-- Part IV: Risk Screening -->
+    <div class="form-section">
+        <div class="section-title">PART IV. RISK SCREENING</div>
+        
+        <div class="section-title">4.1 Anthropometric Measurement</div>
+        <div class="form-row">
+            <span class="form-label">Weight:</span>
+            <input type="text" class="form-input" />
+            <span class="form-label">Height:</span>
+            <input type="text" class="form-input" />
+            <span class="form-label">BMI:</span>
+            <input type="text" class="form-input" />
+        </div>
+        
+        <div class="section-title">4.2 Blood Sugar</div>
+        <div class="form-row">
+            <span class="form-label">Fasting Blood Sugar (CBG):</span>
+            <input type="text" class="form-input" />
+            <span class="form-label">Random Blood Sugar:</span>
+            <input type="text" class="form-input" />
+        </div>
+        
+        <div class="section-title">4.3 Blood Pressure</div>
+        <div class="form-row">
+            <span class="form-label">Left arm mean BP:</span>
+            <input type="text" class="form-input" />
+            <span class="form-label">Right arm mean BP:</span>
+            <input type="text" class="form-input" />
+        </div>
+        
+        <div class="section-title">4.4 Cholesterol Level</div>
+        <div class="form-row">
+            <span class="form-label">Result:</span>
+            <input type="text" class="form-input" />
+        </div>
+        
+        <div class="section-title">4.5 Urine Dipstick Test</div>
+        <div class="form-row">
+            <span class="form-label">Protein:</span>
+            <div class="checkbox-group">
+                <input type="checkbox" />
+                <label>(-) urine protein</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" />
+                <label>(+) urine protein</label>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">Ketones:</span>
+            <div class="checkbox-group">
+                <input type="checkbox" />
+                <label>(-) urine ketones</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" />
+                <label>(+) urine ketones</label>
+            </div>
+        </div>
+        
+        <div class="section-title">4.6 Risk Profile (For Doctors Only)</div>
+        <div class="form-row">
+            <div class="checkbox-group">
+                <input type="checkbox" />
+                <label>&lt;5%</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" />
+                <label>5-&lt;10%</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" />
+                <label>10%-&lt;20%</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" />
+                <label>20-&lt;30%</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" />
+                <label>&gt;30% risk</label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="form-section">
+        <div class="form-row">
+            <span class="form-label">Interviewed/Assessed by:</span>
+            <input type="text" class="form-input" />
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">Designation:</span>
+            <input type="text" class="form-input" />
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">Date:</span>
+            <input type="text" class="form-input" value="@DateTime.Now.ToString("MM/dd/yyyy")" />
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">Signature of Patient:</span>
+            <input type="text" class="form-input" />
+        </div>
+    </div>
+
+    <script>
+        // Auto-print when page loads
+        window.onload = function() {
+            window.print();
+        };
+    </script>
+</body>
+</html>

@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
 using Barangay.Data;
 using Barangay.Models;
+using Barangay.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,11 +19,11 @@ namespace Barangay.Pages.Doctor
     [Authorize(Roles = "Doctor")]
     public class VitalSignsModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
+        private readonly EncryptedDbContext _context;
         private readonly ILogger<VitalSignsModel> _logger;
         private readonly string _connectionString;
 
-        public VitalSignsModel(ApplicationDbContext context, ILogger<VitalSignsModel> logger, IConfiguration configuration)
+        public VitalSignsModel(EncryptedDbContext context, ILogger<VitalSignsModel> logger, IConfiguration configuration)
         {
             _context = context;
             _logger = logger;
@@ -36,10 +37,12 @@ namespace Barangay.Pages.Doctor
             public string PatientName { get; set; } = string.Empty;
             public DateTime RecordedAt { get; set; }
             public string? BloodPressure { get; set; }
-            public int? HeartRate { get; set; }
-            public decimal? Temperature { get; set; }
-            public int? RespiratoryRate { get; set; }
-            public int? SpO2 { get; set; }
+            public string? HeartRate { get; set; }
+            public string? Temperature { get; set; }
+            public string? RespiratoryRate { get; set; }
+            public string? SpO2 { get; set; }
+            public string? Weight { get; set; }
+            public string? Height { get; set; }
             public string? Notes { get; set; }
         }
 
@@ -150,10 +153,12 @@ namespace Barangay.Pages.Doctor
                 PatientName = vs.Patient?.Name ?? "Unknown",
                 RecordedAt = vs.RecordedAt,
                 BloodPressure = vs.BloodPressure,
-                HeartRate = vs.HeartRate,
-                Temperature = vs.Temperature,
-                RespiratoryRate = vs.RespiratoryRate,
-                SpO2 = vs.SpO2.HasValue ? (int?)vs.SpO2.Value : null,
+                HeartRate = vs.HeartRate?.ToString(),
+                Temperature = vs.Temperature?.ToString(),
+                RespiratoryRate = vs.RespiratoryRate?.ToString(),
+                SpO2 = vs.SpO2?.ToString(),
+                Weight = vs.Weight?.ToString(),
+                Height = vs.Height?.ToString(),
                 Notes = vs.Notes
             };
         }
@@ -200,6 +205,8 @@ namespace Barangay.Pages.Doctor
                     HeartRate = NewVitalSign.HeartRate,
                     RespiratoryRate = NewVitalSign.RespiratoryRate,
                     SpO2 = NewVitalSign.SpO2,
+                    Weight = NewVitalSign.Weight,
+                    Height = NewVitalSign.Height,
                     RecordedAt = DateTime.Now,
                     Notes = NewVitalSign.Notes ?? string.Empty
                 };

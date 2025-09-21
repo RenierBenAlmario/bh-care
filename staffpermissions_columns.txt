@@ -1,0 +1,8 @@
+COLUMN_NAME                                                                                                                      IS_NULLABLE
+-------------------------------------------------------------------------------------------------------------------------------- -----------
+Id                                                                                                                               NO         
+StaffMemberId                                                                                                                    NO         
+PermissionId                                                                                                                     NO         
+GrantedAt                                                                                                                        NO         
+
+(4 rows affected)

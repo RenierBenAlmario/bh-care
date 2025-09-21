@@ -1,0 +1,49 @@
+<li class="nav-item">
+    <a class="nav-link @(ViewContext.RouteData.Values["Page"]?.ToString()?.Contains("DoctorDashboard") == true ? "active" : "")"
+        href="/Doctor/DoctorDashboard">
+        <i class="fas fa-tachometer-alt"></i>
+        <span>Dashboard</span>
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link @(ViewContext.RouteData.Values["Page"]?.ToString()?.Contains("Appointments") == true ? "active" : "")"
+        href="/Doctor/Appointments">
+        <i class="fas fa-calendar-alt"></i>
+        <span>Appointments</span>
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link @(ViewContext.RouteData.Values["Page"]?.ToString()?.Contains("Consultation") == true ? "active" : "")" 
+        href="/Doctor/Consultation">
+        <i class="fas fa-stethoscope"></i>
+        <span>Consultation</span>
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link @(ViewContext.RouteData.Values["Page"]?.ToString()?.Contains("Prescriptions") == true ? "active" : "")"
+        href="/Doctor/Prescriptions">
+        <i class="fas fa-prescription"></i>
+        <span>Prescriptions</span>
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link @(ViewContext.RouteData.Values["Page"]?.ToString()?.Contains("PatientList") == true ? "active" : "")"
+        href="/Doctor/PatientList">
+        <i class="fas fa-users"></i>
+        <span>Patient List</span>
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link @(ViewContext.RouteData.Values["Page"]?.ToString()?.Contains("MedicalRecords") == true ? "active" : "")"
+        href="/Doctor/MedicalRecords">
+        <i class="fas fa-file-medical"></i>
+        <span>Medical Records</span>
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link @(ViewContext.RouteData.Values["Page"]?.ToString()?.Contains("PatientHistory") == true ? "active" : "")"
+        href="/Doctor/PatientHistory">
+        <i class="fas fa-history"></i>
+        <span>Patient History</span>
+    </a>
+</li> 

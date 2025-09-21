@@ -1,0 +1,460 @@
+@model Barangay.Models.NCDRiskAssessmentViewModel
+@{
+    ViewData["Title"] = "Edit NCD Risk Assessment";
+    Layout = "_NurseLayout";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="m-0">
+            <i class="fas fa-edit text-primary me-2"></i>
+            Edit NCD Risk Assessment
+        </h2>
+        <div>
+            <a href="/Nurse/PrintNCDAssessment?appointmentId=@Model.AppointmentId" class="btn btn-success me-2" target="_blank">
+                <i class="fas fa-print me-1"></i>
+                Print Form
+            </a>
+            <a href="/Nurse/AppointmentDetails?id=@Model.AppointmentId" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>
+                Back to Appointment
+            </a>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(TempData["StatusMessage"]?.ToString()))
+    {
+        <div class="alert @(TempData["StatusMessage"].ToString().Contains("Error") ? "alert-danger" : "alert-success") alert-dismissible fade show" role="alert">
+            @TempData["StatusMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <form asp-action="EditNCDAssessment" method="post" id="ncdAssessmentForm">
+        <input asp-for="AppointmentId" type="hidden" />
+        <input asp-for="UserId" type="hidden" />
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-user me-2"></i>
+                            Patient Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="HealthFacility" class="form-label">Health Facility</label>
+                                    <input asp-for="HealthFacility" class="form-control" readonly />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="FamilyNo" class="form-label">Family Number</label>
+                                    <input asp-for="FamilyNo" class="form-control" readonly />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="Address" class="form-label">Address</label>
+                                    <input asp-for="Address" class="form-control" readonly />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label asp-for="Barangay" class="form-label">Barangay</label>
+                                    <input asp-for="Barangay" class="form-control" readonly />
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label asp-for="Birthday" class="form-label">Birthday</label>
+                                    <input asp-for="Birthday" type="date" class="form-control" readonly />
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label asp-for="Telepono" class="form-label">Phone Number</label>
+                                    <input asp-for="Telepono" class="form-control" readonly />
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label asp-for="Edad" class="form-label">Age</label>
+                                    <input asp-for="Edad" type="number" class="form-control" readonly />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="Kasarian" class="form-label">Gender</label>
+                                    <input asp-for="Kasarian" class="form-control" readonly />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="Relihiyon" class="form-label">Religion</label>
+                                    <input asp-for="Relihiyon" class="form-control" readonly />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="CivilStatus" class="form-label">Civil Status</label>
+                                    <input asp-for="CivilStatus" class="form-control" readonly />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="FirstName" class="form-label">First Name</label>
+                                    <input asp-for="FirstName" class="form-control" readonly />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="LastName" class="form-label">Last Name</label>
+                                    <input asp-for="LastName" class="form-control" readonly />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="MiddleName" class="form-label">Middle Name</label>
+                                    <input asp-for="MiddleName" class="form-control" readonly />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Occupation" class="form-label">Occupation</label>
+                                    <input asp-for="Occupation" class="form-control" readonly />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Medical History Section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-stethoscope me-2"></i>
+                            Medical History
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input name="HasDiabetes" class="form-check-input" type="checkbox" value="true" @(Model.HasDiabetes == "true" ? "checked" : "") />
+                                        <label asp-for="HasDiabetes" class="form-check-label">Diabetes</label>
+                                    </div>
+                                    @if (Model.HasDiabetes == "true")
+                                    {
+                                        <div class="mt-2">
+                                            <label asp-for="DiabetesYear" class="form-label">Year Diagnosed</label>
+                                            <input asp-for="DiabetesYear" type="text" class="form-control" />
+                                        </div>
+                                        <div class="mt-2">
+                                            <label asp-for="DiabetesMedication" class="form-label">Medication</label>
+                                            <input asp-for="DiabetesMedication" class="form-control" />
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input name="HasHypertension" class="form-check-input" type="checkbox" value="true" @(Model.HasHypertension == "true" ? "checked" : "") />
+                                        <label asp-for="HasHypertension" class="form-check-label">Hypertension</label>
+                                    </div>
+                                    @if (Model.HasHypertension == "true")
+                                    {
+                                        <div class="mt-2">
+                                            <label asp-for="HypertensionYear" class="form-label">Year Diagnosed</label>
+                                            <input asp-for="HypertensionYear" type="text" class="form-control" />
+                                        </div>
+                                        <div class="mt-2">
+                                            <label asp-for="HypertensionMedication" class="form-label">Medication</label>
+                                            <input asp-for="HypertensionMedication" class="form-control" />
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input name="HasCancer" class="form-check-input" type="checkbox" value="true" @(Model.HasCancer == "true" ? "checked" : "") />
+                                        <label asp-for="HasCancer" class="form-check-label">Cancer</label>
+                                    </div>
+                                    @if (Model.HasCancer == "true")
+                                    {
+                                        <div class="mt-2">
+                                            <label asp-for="CancerType" class="form-label">Cancer Type</label>
+                                            <input asp-for="CancerType" class="form-control" />
+                                        </div>
+                                        <div class="mt-2">
+                                            <label asp-for="CancerYear" class="form-label">Year Diagnosed</label>
+                                            <input asp-for="CancerYear" type="text" class="form-control" />
+                                        </div>
+                                        <div class="mt-2">
+                                            <label asp-for="CancerMedication" class="form-label">Medication</label>
+                                            <input asp-for="CancerMedication" class="form-control" />
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input name="HasLungDisease" class="form-check-input" type="checkbox" value="true" @(Model.HasLungDisease == "true" ? "checked" : "") />
+                                        <label asp-for="HasLungDisease" class="form-check-label">Lung Disease</label>
+                                    </div>
+                                    @if (Model.HasLungDisease == "true")
+                                    {
+                                        <div class="mt-2">
+                                            <label asp-for="LungDiseaseYear" class="form-label">Year Diagnosed</label>
+                                            <input asp-for="LungDiseaseYear" type="text" class="form-control" />
+                                        </div>
+                                        <div class="mt-2">
+                                            <label asp-for="LungDiseaseMedication" class="form-label">Medication</label>
+                                            <input asp-for="LungDiseaseMedication" class="form-control" />
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input name="HasCOPD" class="form-check-input" type="checkbox" value="true" @(Model.HasCOPD == "true" ? "checked" : "") />
+                                        <label asp-for="HasCOPD" class="form-check-label">COPD</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input name="HasEyeDisease" class="form-check-input" type="checkbox" value="true" @(Model.HasEyeDisease == "true" ? "checked" : "") />
+                                        <label asp-for="HasEyeDisease" class="form-check-label">Eye Disease</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lifestyle Factors Section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">
+                            <i class="fas fa-running me-2"></i>
+                            Lifestyle Factors
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="SmokingStatus" class="form-label">Smoking Status</label>
+                                    <select asp-for="SmokingStatus" class="form-select">
+                                        <option value="">Select Status</option>
+                                        <option value="Never">Never</option>
+                                        <option value="Former">Former</option>
+                                        <option value="Current">Current</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="AlcoholFrequency" class="form-label">Alcohol Frequency</label>
+                                    <select asp-for="AlcoholFrequency" class="form-select">
+                                        <option value="">Select Frequency</option>
+                                        <option value="Never">Never</option>
+                                        <option value="Occasionally">Occasionally</option>
+                                        <option value="Weekly">Weekly</option>
+                                        <option value="Daily">Daily</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="ExerciseDuration" class="form-label">Exercise Duration (minutes/week)</label>
+                                    <input asp-for="ExerciseDuration" type="number" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input asp-for="HighSaltIntake" class="form-check-input" type="checkbox" />
+                                        <label asp-for="HighSaltIntake" class="form-check-label">High Salt Intake</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label asp-for="AlcoholConsumption" class="form-label">Alcohol Consumption Details</label>
+                                    <textarea asp-for="AlcoholConsumption" class="form-control" rows="3"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Family History Section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-users me-2"></i>
+                            Family History
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input name="FamilyHasHypertension" class="form-check-input" type="checkbox" value="true" @(Model.FamilyHasHypertension == "true" ? "checked" : "") />
+                                        <label asp-for="FamilyHasHypertension" class="form-check-label">Family Hypertension</label>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input name="FamilyHasHeartDisease" class="form-check-input" type="checkbox" value="true" @(Model.FamilyHasHeartDisease == "true" ? "checked" : "") />
+                                        <label asp-for="FamilyHasHeartDisease" class="form-check-label">Family Heart Disease</label>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input name="FamilyHasStroke" class="form-check-input" type="checkbox" value="true" @(Model.FamilyHasStroke == "true" ? "checked" : "") />
+                                        <label asp-for="FamilyHasStroke" class="form-check-label">Family Stroke</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input name="FamilyHasDiabetes" class="form-check-input" type="checkbox" value="true" @(Model.FamilyHasDiabetes == "true" ? "checked" : "") />
+                                        <label asp-for="FamilyHasDiabetes" class="form-check-label">Family Diabetes</label>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input name="FamilyHasCancer" class="form-check-input" type="checkbox" value="true" @(Model.FamilyHasCancer == "true" ? "checked" : "") />
+                                        <label asp-for="FamilyHasCancer" class="form-check-label">Family Cancer</label>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input name="FamilyHasKidneyDisease" class="form-check-input" type="checkbox" value="true" @(Model.FamilyHasKidneyDisease == "true" ? "checked" : "") />
+                                        <label asp-for="FamilyHasKidneyDisease" class="form-check-label">Family Kidney Disease</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label asp-for="FamilyOtherDiseaseDetails" class="form-label">Other Family Disease Details</label>
+                                    <textarea asp-for="FamilyOtherDiseaseDetails" class="form-control" rows="3"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between">
+                    <a href="/Nurse/AppointmentDetails?id=@Model.AppointmentId" class="btn btn-secondary">
+                        <i class="fas fa-times me-1"></i>
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>
+                        Update Assessment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Show/hide medication fields based on checkbox states
+            function toggleMedicationFields() {
+                $('input[type="checkbox"]').each(function() {
+                    var checkbox = $(this);
+                    var isChecked = checkbox.is(':checked');
+                    var container = checkbox.closest('.mb-3');
+                    
+                    if (isChecked) {
+                        container.find('input[type="number"], input[type="text"]').show();
+                    } else {
+                        container.find('input[type="number"], input[type="text"]').hide();
+                    }
+                });
+            }
+
+            // Initialize on page load
+            toggleMedicationFields();
+
+            // Toggle on checkbox change
+            $('input[type="checkbox"]').change(function() {
+                toggleMedicationFields();
+            });
+
+            // Form validation
+            $('#ncdAssessmentForm').on('submit', function(e) {
+                var isValid = true;
+                
+                // Check required fields
+                $('input[required], select[required], textarea[required]').each(function() {
+                    if (!$(this).val()) {
+                        isValid = false;
+                        $(this).addClass('is-invalid');
+                    } else {
+                        $(this).removeClass('is-invalid');
+                    }
+                });
+
+                if (!isValid) {
+                    e.preventDefault();
+                    alert('Please fill in all required fields.');
+                }
+            });
+        });
+    </script>
+}

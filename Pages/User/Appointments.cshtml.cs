@@ -9,6 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Barangay.Services;
+using Barangay.Extensions;
 
 namespace Barangay.Pages.User
 {
@@ -17,11 +19,13 @@ namespace Barangay.Pages.User
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IDataEncryptionService _encryptionService;
 
-        public AppointmentsModel(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public AppointmentsModel(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IDataEncryptionService encryptionService)
         {
             _context = context;
             _userManager = userManager;
+            _encryptionService = encryptionService;
         }
 
         public List<Appointment> UpcomingAppointments { get; set; } = new List<Appointment>();
@@ -34,6 +38,19 @@ namespace Barangay.Pages.User
             if (user == null)
             {
                 return RedirectToPage("/Account/Login");
+            }
+
+            // Decrypt user data for authorized users
+            user = user.DecryptSensitiveData(_encryptionService, User);
+            
+            // Manually decrypt Email and PhoneNumber since they're not marked with [Encrypted] attribute
+            if (!string.IsNullOrEmpty(user.Email) && _encryptionService.IsEncrypted(user.Email))
+            {
+                user.Email = user.Email.DecryptForUser(_encryptionService, User);
+            }
+            if (!string.IsNullOrEmpty(user.PhoneNumber) && _encryptionService.IsEncrypted(user.PhoneNumber))
+            {
+                user.PhoneNumber = user.PhoneNumber.DecryptForUser(_encryptionService, User);
             }
 
             // Get the current date
@@ -70,7 +87,20 @@ namespace Barangay.Pages.User
                     .Where(u => doctorIds.Contains(u.Id))
                     .ToDictionaryAsync(u => u.Id);
 
-                Doctors = doctors;
+                // Decrypt doctor data
+                Doctors = doctors?.ToDictionary(
+                    kvp => kvp.Key, 
+                    kvp => kvp.Value.DecryptSensitiveData(_encryptionService, User)
+                ) ?? new Dictionary<string, ApplicationUser>();
+
+                // Manually decrypt Email for each doctor
+                foreach (var doctor in Doctors.Values)
+                {
+                    if (!string.IsNullOrEmpty(doctor.Email) && _encryptionService.IsEncrypted(doctor.Email))
+                    {
+                        doctor.Email = doctor.Email.DecryptForUser(_encryptionService, User);
+                    }
+                }
 
                 // Split into upcoming and past appointments
                 UpcomingAppointments = appointments
@@ -112,7 +142,7 @@ namespace Barangay.Pages.User
             if (string.IsNullOrEmpty(doctorId))
                 return "Unknown Doctor";
 
-            if (Doctors.TryGetValue(doctorId, out ApplicationUser doctor))
+            if (Doctors.TryGetValue(doctorId, out ApplicationUser? doctor))
             {
                 string fullName = "";
                 if (!string.IsNullOrEmpty(doctor.FirstName) && !string.IsNullOrEmpty(doctor.LastName))
@@ -132,6 +162,25 @@ namespace Barangay.Pages.User
         public IActionResult OnGetBookNewAppointment()
         {
             return RedirectToPage("/BookAppointment");
+        }
+
+        public string GetFullConsultationType(string? consultationType)
+        {
+            if (string.IsNullOrEmpty(consultationType))
+            {
+                return "N/A";
+            }
+
+            return consultationType.ToLower() switch
+            {
+                "general consult" => "General Consult",
+                "dental" => "Dental",
+                "immunization" => "Immunization",
+                "prenatal & family planning" => "Prenatal & Family Planning",
+                "prenatal and family planning" => "Prenatal & Family Planning",
+                "dots consult" => "DOTS Consult",
+                _ => consultationType
+            };
         }
 
         public async Task<IActionResult> OnPostCancelAppointmentAsync(int appointmentId)
@@ -166,6 +215,80 @@ namespace Barangay.Pages.User
             
             TempData["Success"] = "Appointment cancelled successfully.";
             return RedirectToPage();
+        }
+
+        public async Task<IActionResult> OnGetFixWeekendsAsync()
+        {
+            try
+            {
+                // Get all doctors
+                var doctors = await _context.Users
+                    .Where(u => _context.UserRoles
+                        .Any(ur => ur.UserId == u.Id && 
+                                   _context.Roles.Any(r => r.Id == ur.RoleId && r.Name == "Doctor")))
+                    .ToListAsync();
+
+                var updatedCount = 0;
+                var createdCount = 0;
+
+                foreach (var doctor in doctors)
+                {
+                    // Check if DoctorAvailability exists
+                    var availability = await _context.DoctorAvailabilities
+                        .FirstOrDefaultAsync(da => da.DoctorId == doctor.Id);
+
+                    if (availability == null)
+                    {
+                        // Create new availability with weekend support
+                        availability = new DoctorAvailability
+                        {
+                            DoctorId = doctor.Id,
+                            IsAvailable = true,
+                            Monday = true,
+                            Tuesday = true,
+                            Wednesday = true,
+                            Thursday = true,
+                            Friday = true,
+                            Saturday = true,  // ENABLE WEEKENDS
+                            Sunday = true,    // ENABLE WEEKENDS
+                            StartTime = new TimeSpan(8, 0, 0), // 8:00 AM
+                            EndTime = new TimeSpan(17, 0, 0),  // 5:00 PM
+                            LastUpdated = DateTime.Now
+                        };
+
+                        _context.DoctorAvailabilities.Add(availability);
+                        createdCount++;
+                    }
+                    else
+                    {
+                        // Update existing availability
+                        availability.Saturday = true;  // ENABLE WEEKENDS
+                        availability.Sunday = true;    // ENABLE WEEKENDS
+                        availability.IsAvailable = true;
+                        availability.StartTime = new TimeSpan(8, 0, 0);
+                        availability.EndTime = new TimeSpan(17, 0, 0);
+                        availability.LastUpdated = DateTime.Now;
+                        updatedCount++;
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+
+                return new JsonResult(new { 
+                    success = true, 
+                    message = $"Fixed weekend appointments for {doctors.Count} doctors! Updated {updatedCount} existing records and created {createdCount} new records.",
+                    updatedCount = updatedCount,
+                    createdCount = createdCount,
+                    totalDoctors = doctors.Count
+                });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new { 
+                    success = false, 
+                    error = ex.Message 
+                });
+            }
         }
     }
 } 

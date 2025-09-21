@@ -1,0 +1,20 @@
+@page
+@model Barangay.Pages.Admin.FixRolesModel
+@{
+    ViewData["Title"] = "Fix User Roles";
+}
+
+<h2>Fix User Roles</h2>
+
+<p>This page will find all "Verified" users who are missing the "User" role and assign it to them.</p>
+
+<form method="post">
+    <button type="submit" class="btn btn-primary">Fix Roles</button>
+</form>
+
+@if (Model.FixCount > 0)
+{
+    <div class="alert alert-success mt-3">
+        <p>Fixed @Model.FixCount user(s).</p>
+    </div>
+}

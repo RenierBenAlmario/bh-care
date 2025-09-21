@@ -1,0 +1,84 @@
+/* Custom CSS for User Details page */
+.bg-orange {
+    background-color: #fd7e14 !important;
+}
+
+.text-orange {
+    color: #fd7e14 !important;
+}
+
+.border-orange {
+    border-color: #fd7e14 !important;
+}
+
+.btn-orange {
+    color: #fff;
+    background-color: #fd7e14;
+    border-color: #fd7e14;
+}
+
+.btn-orange:hover {
+    color: #fff;
+    background-color: #e76b00;
+    border-color: #d96300;
+}
+
+/* Clean UI styles */
+.card {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 0.75rem 1.25rem;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.detail-value {
+    color: #212529;
+}
+
+dl.row dt {
+    font-weight: 500;
+    color: #6c757d;
+}
+
+dl.row dd {
+    color: #212529;
+    font-weight: 400;
+}
+
+/* Improved spacing */
+.section-container {
+    margin-bottom: 1.5rem;
+}
+
+.document-preview {
+    max-height: 200px;
+    object-fit: contain;
+    margin-bottom: 0.75rem;
+    border-radius: 4px;
+}
+
+/* Status badges */
+.status-badge {
+    padding: 0.35em 0.65em;
+    font-size: 0.85em;
+}
+
+/* User header */
+.user-header {
+    padding: 1.25rem;
+    background-color: #fd7e14;
+    color: white;
+    border-radius: 8px 8px 0 0;
+}
+
+.user-header h3 {
+    margin-bottom: 0;
+    font-weight: 600;
+}

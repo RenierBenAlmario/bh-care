@@ -1,359 +1,1218 @@
+
 @page
 @model Barangay.Pages.User.NCDRiskAssessmentModel
 @{
     ViewData["Title"] = "NCD Risk Assessment";
+    Layout = "~/Pages/Shared/_UserLayout.cshtml";
+    ViewData["ShowDashboardNav"] = true;
 }
 
-<div class="container mt-5">
-    <!-- Status Bar -->
-    <div class="status-bar">
-        <div class="row">
-            <div class="col-md-6">
-                <strong>Current Queue:</strong> 5 patients waiting (Est. wait time: 15 mins)
+@section Styles {
+    <style>
+        /* Scoped variables for this page */
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --background-color: #f8f9fa;
+            --form-bg-color: #ffffff;
+            --text-color: #333;
+            --border-color: #dee2e6;
+            --danger-color: #dc3545;
+        }
+
+        /* Page-scoped container styles to avoid overriding Bootstrap .container */
+        .ncd-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--form-bg-color);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+
+        .ncd-container h1,
+        .ncd-container h2,
+        .ncd-container h3 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .ncd-container .form-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background: #fff;
+        }
+
+        .ncd-container .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .ncd-container .form-group { display: flex; flex-direction: column; }
+        .ncd-container .form-group label { font-weight: bold; margin-bottom: 5px; }
+        .ncd-container .form-group input[type="text"],
+        .ncd-container .form-group input[type="date"],
+        .ncd-container .form-group input[type="number"] { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; box-sizing: border-box; }
+        .ncd-container .form-group input.error { border-color: var(--danger-color); }
+
+        .ncd-container .radio-group, .ncd-container .checkbox-group { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; }
+        .ncd-container .radio-group label, .ncd-container .checkbox-group label { font-weight: normal; display: flex; align-items: center; gap: 5px; }
+
+        .ncd-container table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .ncd-container th, .ncd-container td { border: 1px solid var(--border-color); padding: 12px; text-align: left; }
+        .ncd-container th { background-color: #f2f2f2; }
+        .ncd-container td { background-color: #fff; }
+
+        /* Wizard styles (scoped) */
+        .ncd-container .wizard-header { margin-bottom: 1rem; }
+        .ncd-container .steps-indicator { display: flex; gap: 10px; justify-content: space-between; margin-bottom: .5rem; }
+        .ncd-container .step-pill { flex: 1; text-align: center; padding: 8px 10px; border-radius: 20px; background: #e9ecef; color: #495057; font-weight: 600; font-size: .9rem; }
+        .ncd-container .step-pill.active { background: var(--primary-color); color: #fff; }
+        .ncd-container .step-pill.done { background: #198754; color: #fff; }
+        .ncd-container .progress { height: 6px; background: #e9ecef; border-radius: 4px; overflow: hidden; }
+        .ncd-container .progress-bar { height: 100%; width: 0%; background: var(--primary-color); transition: width .3s ease; }
+
+        .ncd-container .wizard-step { display: none; }
+        .ncd-container .wizard-step.active { display: block; animation: fadeIn .2s ease-in; }
+
+        .ncd-container .wizard-nav { display: flex; justify-content: space-between; gap: .5rem; margin-top: 1rem; }
+        .ncd-container .btn[disabled] { opacity: .6; cursor: not-allowed; }
+
+        .ncd-container .error-text { color: var(--danger-color); font-size: .9rem; margin-top: .25rem; }
+
+        @@media (max-width: 768px) {
+            .ncd-container .form-grid { grid-template-columns: 1fr; }
+        }
+
+        @@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+ 
+        /* Styles for conditional sections */
+        .conditional-section {
+            display: block; /* Visible by default */
+            margin-left: 2rem;
+            padding-left: 1rem;
+            border-left: 3px solid #ddd;
+            transition: all 0.3s ease;
+        }
+        
+        .conditional-section.hidden {
+            display: none !important; /* Force hidden when this class is applied */
+        }
+    </style>
+}
+
+    <div class="container ncd-container">
+        <h1>Integrated NCD Risk Assessment Form</h1>
+        <form id="ncd-form" method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="wizard-header">
+                <div class="steps-indicator" aria-label="Form steps">
+                    <div class="step-pill" data-step-pill="1">1. Profile</div>
+                    <div class="step-pill" data-step-pill="2">2. Medical History</div>
+                    <div class="step-pill" data-step-pill="3">3. Risk Factors</div>
+                    <div class="step-pill" data-step-pill="4">4. Review</div>
+                </div>
+                <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar" id="wizard-progress"></div>
+                </div>
             </div>
-            <div class="col-md-6 text-end">
-                <strong>Health Tip:</strong> Stay hydrated and bring your ID to appointments.
-            </div>
-        </div>
+
+            <!-- Part I: Demographic-Socio-Economic Profile -->
+            <section class="form-section wizard-step active" data-step="1">
+                <h2>Part I. Demographic-Socio-Economic Profile</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="health-facility">Health Facility:</label>
+                        <select id="health-facility" name="healthFacility" class="form-control">
+                            <option value="Baesa Health Center" selected>Baesa Health Center</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="family-no">Family No.:</label>
+                        <div class="d-flex">
+                            <input type="text" id="family-no" name="familyNo" class="form-control" value="@Model.FamilyNo">
+                            <button type="button" id="generate-family-no" class="btn btn-secondary ms-2">Generate</button>
+                        </div>
+                        <small class="form-text text-muted">If you have a family number, enter it or click Generate to create a new one.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="date-assessment">Date of Assessment:</label>
+                        <input type="text" id="date-assessment" name="dateAssessment" class="form-control" value="@DateTime.Now.ToString("MM/dd/yyyy")" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="first-name">Unang Pangalan:</label>
+                        <input type="text" id="first-name" name="firstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="middle-name">Gitnang Pangalan:</label>
+                        <input type="text" id="middle-name" name="middleName">
+                    </div>
+                    <div class="form-group">
+                        <label for="last-name">Apelyido:</label>
+                        <input type="text" id="last-name" name="lastName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Address:</label>
+                        <input type="text" id="address" name="address">
+                    </div>
+                    <div class="form-group">
+                        <label for="barangay">Barangay:</label>
+                        <input type="text" id="barangay" name="barangay">
+                    </div>
+                    <div class="form-group">
+                        <label for="telefono">Telepono:</label>
+                        <input type="text" id="telefono" name="telefono" pattern="[0-9]{11}" maxlength="11">
+                        <small class="form-text text-muted">11 digits only, Philippine format (e.g. 09123456789)</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="birthday">Birthday:</label>
+                        <input type="date" id="birthday" name="birthday" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edad">Edad:</label>
+                        <input type="number" id="edad" name="edad" min="1" max="120" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Kasarian:</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="kasarian" value="Male" required> Male</label>
+                            <label><input type="radio" name="kasarian" value="Female"> Female</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="relihiyon">Relihiyon:</label>
+                        <input type="text" id="relihiyon" name="relihiyon">
+                    </div>
+                    <div class="form-group">
+                        <label for="hanapbuhay">Hanapbuhay:</label>
+                        <input type="text" id="hanapbuhay" name="Occupation">
+                    </div>
+                    <div class="form-group">
+                        <label for="estado-sibil">Estado Sivil:</label>
+                        <input type="text" id="estado-sibil" name="CivilStatus">
+                    </div>
+                </div>
+                <div class="wizard-nav">
+                    <span></span>
+                    <button type="button" class="btn btn-primary" id="next-1">Next</button>
+                </div>
+            </section>
+
+            <!-- Part II: Past Medical History -->
+            <section class="form-section wizard-step" data-step="2">
+                <h2>Part II. Past Medical History</h2>
+                <h3>1. Karamdamang Naranasan</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Karamdaman</th>
+                            <th>1.2 Lagyan ng tsek</th>
+                            <th>1.3 Taon nalaman ang sakit</th>
+                            <th>1.4 Ininom na gamot / Wala</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><label><input type="checkbox" name="HasDiabetes" value="true"> Diabetes (DM)</label></td>
+                            <td></td>
+                            <td><input type="text" name="DiabetesYear"></td>
+                            <td><input type="text" name="DiabetesMedication"></td>
+                        </tr>
+                        <tr>
+                            <td><label><input type="checkbox" name="HasHypertension" value="true"> Hypertension (HPN)</label></td>
+                            <td></td>
+                            <td><input type="text" name="HypertensionYear"></td>
+                            <td><input type="text" name="HypertensionMedication"></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label><input type="checkbox" name="HasCancer" value="true"> Cancer</label>
+                                <input type="text" name="CancerType" placeholder="specify site">
+                            </td>
+                            <td></td>
+                            <td><input type="text" name="CancerYear"></td>
+                            <td><input type="text" name="CancerMedication"></td>
+                        </tr>
+                        <tr>
+                            <td><label><input type="checkbox" name="HasCOPD" value="true"> COPD</label></td>
+                            <td></td>
+                            <td><input type="text" name="LungDiseaseYear"></td>
+                            <td><input type="text" name="LungDiseaseMedication"></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 style="margin-top: 2rem;">2. Pananakit ng Dibdib (o hirap sa paghinga)</h3>
+                <div class="form-group">
+                    <label>2.1 Pananakit ng dibdib habang naglalakad/umaakyat ng hagdan?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="pananakit_2_1" value="Oo"> Oo</label>
+                        <label><input type="radio" name="pananakit_2_1" value="Hindi"> Hindi</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>2.2 Pananakit ng dibdib na gumagapang sa kaliwang braso?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="pananakit_2_2" value="Oo"> Oo</label>
+                        <label><input type="radio" name="pananakit_2_2" value="Hindi"> Hindi</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>2.3 Pananakit ng dibdib na gumagapang sa panga?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="pananakit_2_3" value="Oo"> Oo</label>
+                        <label><input type="radio" name="pananakit_2_3" value="Hindi"> Hindi</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>2.4 Pananakit ng dibdib na wala pang 10 minuto?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="pananakit_2_4" value="Oo"> Oo</label>
+                        <label><input type="radio" name="pananakit_2_4" value="Hindi"> Hindi</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>2.5 Pananakit ng dibdib na mahigit 10 minuto?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="pananakit_2_5" value="Oo"> Oo</label>
+                        <label><input type="radio" name="pananakit_2_5" value="Hindi"> Hindi</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>2.6 Nawawala ba ang pananakit sa loob ng 10 minuto kung ikaw ay magpapahinga?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="pananakit_2_6" value="Oo"> Oo</label>
+                        <label><input type="radio" name="pananakit_2_6" value="Hindi"> Hindi</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>2.7 Nawawala ba ang pananakit kung iinumin ang gamot sa puso?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="pananakit_2_7" value="Oo"> Oo</label>
+                        <label><input type="radio" name="pananakit_2_7" value="Hindi"> Hindi</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>2.8 Biglaang panghihina ng kalahating bahagi ng katawan?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="pananakit_2_8" value="Oo"> Oo</label>
+                        <label><input type="radio" name="pananakit_2_8" value="Hindi"> Hindi</label>
+                    </div>
+                </div>
+                <div class="wizard-nav">
+                    <button type="button" class="btn btn-secondary" id="back-2">Back</button>
+                    <button type="button" class="btn btn-primary" id="next-2">Next</button>
+                </div>
+            </section>
+
+            <!-- Part III: Assessment of Risk Factors -->
+            <section class="form-section wizard-step" data-step="3">
+                <h2>Part III. Assessment of Risk Factors</h2>
+                
+                <h3>A. Non-Modifiable Risk Factors</h3>
+                <div class="form-group">
+                    <label>Family history of:</label>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Sakit</th>
+                                <th>Ama</th>
+                                <th>Ina</th>
+                                <th>Kapatid</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Stroke</td>
+                                <td><input type="checkbox" name="FamilyHistoryStrokeFather" value="true"></td>
+                                <td><input type="checkbox" name="FamilyHistoryStrokeMother" value="true"></td>
+                                <td><input type="checkbox" name="FamilyHistoryStrokeSibling" value="true"></td>
+                            </tr>
+                            <tr>
+                                <td>Diabetes</td>
+                                <td><input type="checkbox" name="FamilyHistoryDiabetesFather" value="true"></td>
+                                <td><input type="checkbox" name="FamilyHistoryDiabetesMother" value="true"></td>
+                                <td><input type="checkbox" name="FamilyHistoryDiabetesSibling" value="true"></td>
+                            </tr>
+                            <tr>
+                                <td>Kanser</td>
+                                <td><input type="checkbox" name="FamilyHistoryCancerFather" value="true"></td>
+                                <td><input type="checkbox" name="FamilyHistoryCancerMother" value="true"></td>
+                                <td><input type="checkbox" name="FamilyHistoryCancerSibling" value="true"></td>
+                            </tr>
+                            <tr>
+                                <td>Sakit sa puso</td>
+                                <td><input type="checkbox" name="FamilyHistoryHeartDiseaseFather" value="true"></td>
+                                <td><input type="checkbox" name="FamilyHistoryHeartDiseaseMother" value="true"></td>
+                                <td><input type="checkbox" name="FamilyHistoryHeartDiseaseSibling" value="true"></td>
+                            </tr>
+                            <tr>
+                                <td>Sakit sa baga na hindi nakakahawa</td>
+                                <td><input type="checkbox" name="FamilyHistoryLungDiseaseFather" value="true"></td>
+                                <td><input type="checkbox" name="FamilyHistoryLungDiseaseMother" value="true"></td>
+                                <td><input type="checkbox" name="FamilyHistoryLungDiseaseSibling" value="true"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <label for="family-history-other" style="margin-top: 1rem;">Iba pang sakit:</label>
+                    <input type="text" id="family-history-other" name="FamilyOtherDiseaseDetails">
+                </div>
+
+                <h3>B. Modifiable Risk Factors</h3>
+                
+                <h4>B.1 Nutrisyon</h4>
+                <div class="form-group">
+                    <label>Madalas mo bang kainin ang mga sumusunod?</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="nutrisyon_madalas" value="gulay"> Gulay</label>
+                        <label><input type="checkbox" name="nutrisyon_madalas" value="prutas"> Prutas</label>
+                        <label><input type="checkbox" name="nutrisyon_madalas" value="isda"> Isda</label>
+                        <label><input type="checkbox" name="nutrisyon_madalas" value="karne"> Karne</label>
+                        <label><input type="checkbox" name="EatsProcessedFood" value="true"> Processed Food</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Kumakain ka ba ng mga sumusunod?</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="nutrisyon_kumakain" value="matatamis"> Matatamis na pagkain</label>
+                        <label><input type="checkbox" name="HighSaltIntake" value="true"> Maaalat na pagkain</label>
+                        <label><input type="checkbox" name="nutrisyon_kumakain" value="matataba"> Matatabang pagkain</label>
+                    </div>
+                </div>
+
+                <h4>B.2 Alcohol</h4>
+                <div class="form-group">
+                    <label>Umiinom ka ba ng alak?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="alcohol_inom" value="Oo"> Oo</label>
+                        <label><input type="radio" name="alcohol_inom" value="Hindi"> Hindi</label>
+                    </div>
+                </div>
+                <div class="form-group conditional-section" id="alcohol-questions">
+                    <label>Anong klase?</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="alcohol_klase" value="Beer"> Beer</label>
+                        <label><input type="checkbox" name="alcohol_klase" value="Wine"> Wine</label>
+                        <label><input type="checkbox" name="alcohol_klase" value="Whisky/Gin/Brandy"> Whisky/Gin/Brandy</label>
+                    </div>
+                </div>
+                <div class="form-group conditional-section" id="alcohol-questions-2">
+                    <label>Gaano karami sa isang araw?</label>
+                    <div class="checkbox-group">
+                        <label><input type="radio" name="AlcoholConsumption" value="1 bote"> 1 bote</label>
+                        <label><input type="radio" name="AlcoholConsumption" value="2 bote"> 2 bote</label>
+                        <label><input type="radio" name="AlcoholConsumption" value=">=3 bote"> ≥ 3 bote</label>
+                    </div>
+                </div>
+                <div class="form-group conditional-section" id="alcohol-questions-3">
+                    <label>Gaano kadalas sa isang linggo?</label>
+                    <div class="checkbox-group">
+                        <label><input type="radio" name="AlcoholFrequency" value="1-3 beses"> 1–3 beses/linggo</label>
+                        <label><input type="radio" name="AlcoholFrequency" value="4x"> 4x sa isang linggo</label>
+                        <label><input type="radio" name="AlcoholFrequency" value=">=5x"> ≥ 5x sa isang linggo</label>
+                    </div>
+                </div>
+                <div class="form-group conditional-section" id="alcohol-questions-4">
+                    <label>Sa isang okasyon, umiinom ka ba ng 6 o higit pang bote ng beer o 4 o higit pang baso ng wine/whisky/gin/brandy?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="alcohol_okasyon" value="Oo"> Oo</label>
+                        <label><input type="radio" name="alcohol_okasyon" value="Hindi"> Hindi</label>
+                    </div>
+                </div>
+
+                <h4>B.3 Ehersisyo</h4>
+                <div class="form-group">
+                    <label>May regular ka bang ehersisyo (30 minuto, 3-5 beses sa isang linggo)?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="ehersisyo_regular" value="mayroon"> Mayroon</label>
+                        <label><input type="radio" name="ehersisyo_regular" value="wala"> Wala</label>
+                    </div>
+                </div>
+                <div class="form-group conditional-section" id="exercise-questions">
+                    <label>Gaano katagal sa isang araw?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="ExerciseDuration" value="<30 minuto"> Wala pang 30 minuto</label>
+                        <label><input type="radio" name="ExerciseDuration" value=">=30 minuto"> 30 minuto o higit</label>
+                    </div>
+                </div>
+
+                <h4>B.4 Paninigarilyo</h4>
+                <div class="form-group">
+                    <label>Ikaw ba ay naninigarilyo?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="SmokingStatus" value="Smoker"> Oo</label>
+                        <label><input type="radio" name="SmokingStatus" value="Non-smoker"> Hindi</label>
+                    </div>
+                </div>
+                <div class="form-group conditional-section" id="smoking-questions">
+                    <label for="sigarilyo-kadami">Gaano kadami ang nauubos sa isang araw?</label>
+                    <input type="text" id="sigarilyo-kadami" name="sigarilyoKadami">
+                </div>
+                <div class="form-group conditional-section" id="smoking-questions-2">
+                    <label>Tumigil na sa paninigarilyo?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="sigarilyo_tumigil" value="<1 taon"> Wala pang 1 taon</label>
+                        <label><input type="radio" name="sigarilyo_tumigil" value=">=1 taon"> ≥ 1 taon</label>
+                        <label><input type="radio" name="sigarilyo_tumigil" value="N/A"> Hindi naninigarilyo</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Nanatili sa usok ng sigarilyo (secondhand smoke)?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="sigarilyo_usok" value="Oo"> Oo</label>
+                        <label><input type="radio" name="sigarilyo_usok" value="Hindi"> Hindi</label>
+                    </div>
+                </div>
+
+                <h4>B.5 Stress</h4>
+                <div class="form-group">
+                    <label>Madalas ka bang ma-stress?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="stress_madalas" value="Oo"> Oo</label>
+                        <label><input type="radio" name="stress_madalas" value="Hindi"> Hindi</label>
+                    </div>
+                </div>
+                <div class="form-group conditional-section" id="stress-questions">
+                    <label for="stress-sino">Ano o Sino ang dahilan ng iyong stress?</label>
+                    <input type="text" id="stress-sino" name="stressSino">
+                </div>
+                <div class="form-group conditional-section" id="stress-questions-2">
+                    <label>Naepektuhan ba nito ang iyong pang-araw-araw na gawain?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="stress_epekto" value="Oo"> Oo</label>
+                        <label><input type="radio" name="stress_epekto" value="Hindi"> Hindi</label>
+                    </div>
+                </div>
+                <div class="wizard-nav">
+                    <button type="button" class="btn btn-secondary" id="back-3">Back</button>
+                    <button type="button" class="btn btn-primary" id="next-3">Review</button>
+                </div>
+            </section>
+
+            <!-- Step 4: Review & Submit -->
+            <section class="form-section wizard-step" data-step="4">
+                <h2>Review & Submit</h2>
+                <div id="review-summary" class="form-section" aria-live="polite">
+                    <div class="form-grid" id="review-grid">
+                        <!-- Populated via JS -->
+                    </div>
+                </div>
+                <div class="wizard-nav">
+                    <button type="button" class="btn btn-secondary" id="back-4">Back</button>
+                    <button type="submit" class="btn btn-primary" id="submit-btn" disabled>Submit Assessment</button>
+                </div>
+            </section>
+        </form>
     </div>
-
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-        <button type="button" class="btn btn-outline-primary" id="backButton">
-                    <i class="fas fa-arrow-left me-2"></i>Back to HEEADSSS Assessment
-        </button>
-                <h2 class="mb-0">NCD Risk Assessment Form</h2>
-        <div style="width: 135px;"></div>
-            </div>
-        </div>
-    </div>
-
-    @if (!ModelState.IsValid)
-    {
-        <div class="alert alert-danger">
-            <ul>
-                @foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
-                    {
-                        <li>@error.ErrorMessage</li>
-                }
-            </ul>
-        </div>
-    }
-
-    @if (!string.IsNullOrEmpty(Model.StatusMessage))
-    {
-        <div class="alert alert-info">@Model.StatusMessage</div>
-    }
-
-    <form method="post" id="ncdForm">
-        @Html.AntiForgeryToken()
-        <input type="hidden" asp-for="Assessment.AppointmentId" />
-        <input type="hidden" asp-for="Assessment.UserId" />
-
-        <!-- Step 1: Basic Information -->
-        <div id="step1" class="assessment-step">
-            <div class="card mb-4">
-        <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Basic Information</h5>
-        </div>
-        <div class="card-body">
-                    <!-- Health Facility and Family Number section -->
-                    <div class="row mb-4">
-                    <div class="col-md-6">
-                            <label class="form-label">Health Facility:</label>
-                            <input type="text" class="form-control" id="healthFacility" name="Assessment.HealthFacility" 
-                                   value="@Model.Assessment?.HealthFacility" readonly>
-                            <div class="form-text text-muted">Health facility assigned based on your barangay address.</div>
-                    </div>
-                    <div class="col-md-6">
-                            <label class="form-label">Family No:</label>
-                            <input type="text" class="form-control" id="familyNo" name="Assessment.FamilyNo" 
-                                   value="@Model.Assessment?.FamilyNo" 
-                                   @(Model.FamilyNoPreexisting ? "" : "readonly")>
-                            <div class="form-text text-muted">
-                                @if (Model.FamilyNoPreexisting)
-                                {
-                                    <span>Your existing family number from previous assessments.</span>
-                                }
-                                else
-                                {
-                                    <span>Generated from your last name (@(Model.Assessment?.FamilyNo?.Length > 0 ? Model.Assessment.FamilyNo.Substring(0, 1) : "")) with sequence number.</span>
-                                }
-                    </div>
-                </div>
-                    </div>
-
-                    <!-- Personal Information -->
-                    <div class="row">
-                            <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label required">Address</label>
-                                <input type="text" class="form-control" name="Assessment.Address" value="@Model.Assessment?.Address" required />
-                            </div>
-                            </div>
-                            <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label required">Barangay</label>
-                                <input type="text" class="form-control" name="Assessment.Barangay" value="@Model.Assessment?.Barangay" required />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                            <div class="col-md-4">
-                            <div class="mb-3">
-                                <label class="form-label required">Birthday</label>
-                                <input type="date" class="form-control" name="Assessment.Birthday" value="@(Model.Assessment?.Birthday.ToString("yyyy-MM-dd"))" required />
-                            </div>
-                            </div>
-                            <div class="col-md-4">
-                            <div class="mb-3">
-                                <label class="form-label required">Telepono</label>
-                                <input type="text" class="form-control" name="Assessment.Telepono" value="@Model.Assessment?.Telepono" required />
-                            </div>
-                            </div>
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label class="form-label required">Kasarian</label>
-                                <select class="form-select" name="Assessment.Kasarian" required>
-                                    <option value="">Select</option>
-                                    <option value="Lalaki" selected="@(Model.Assessment?.Kasarian == "Lalaki")">Lalaki</option>
-                                    <option value="Babae" selected="@(Model.Assessment?.Kasarian == "Babae")">Babae</option>
-                                </select>
-                            </div>
-                        </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-        <!-- Step 2: Medical History -->
-        <div id="step2" class="assessment-step" style="display: none;">
-                <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Medical History</h5>
-                    </div>
-                    <div class="card-body">
-                    <p class="fw-bold">1. Ikaw ba ay may sumusunod na karamdaman?</p>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" name="Assessment.HasDiabetes" value="true" @(Model.Assessment?.HasDiabetes == true ? "checked" : "")>
-                                <label class="form-check-label">Diabetes</label>
-                            </div>
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" name="Assessment.HasHypertension" value="true" @(Model.Assessment?.HasHypertension == true ? "checked" : "")>
-                                <label class="form-check-label">Hypertension</label>
-                            </div>
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" name="Assessment.HasCancer" value="true" @(Model.Assessment?.HasCancer == true ? "checked" : "")>
-                                <label class="form-check-label">Cancer</label>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" name="Assessment.HasCOPD" value="true" @(Model.Assessment?.HasCOPD == true ? "checked" : "")>
-                                <label class="form-check-label">COPD</label>
-                            </div>
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" name="Assessment.HasLungDisease" value="true" @(Model.Assessment?.HasLungDisease == true ? "checked" : "")>
-                                <label class="form-check-label">Sakit sa baga na hindi nakakahawa</label>
-                            </div>
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" name="Assessment.HasEyeDisease" value="true" @(Model.Assessment?.HasEyeDisease == true ? "checked" : "")>
-                                <label class="form-check-label">Sakit sa mata</label>
-                            </div>
-                        </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-        <!-- Step 3: Risk Factors -->
-        <div id="step3" class="assessment-step" style="display: none;">
-                <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Risk Factors</h5>
-                    </div>
-                    <div class="card-body">
-                    <!-- B.1 Nutrition -->
-                        <div class="mb-4">
-                        <h6 class="fw-bold">B.1 Nutrition</h6>
-                        <div class="form-check mb-3">
-                            <input type="hidden" name="Assessment.HighSaltIntake" value="false" />
-                            <input class="form-check-input" type="checkbox" name="Assessment.HighSaltIntake" value="true" checked="@Model.Assessment?.HighSaltIntake" />
-                            <label class="form-check-label">With high salt intake</label>
-                            <div class="form-text">Kung kumakain ng maalat na pagkain higit sa 2 beses sa isang linggo</div>
-                                </div>
-                            </div>
-
-                            <!-- B.2 Alcohol -->
-                    <div class="mb-4">
-                        <h6 class="fw-bold">B.2 Alcohol</h6>
-                            <div class="mb-3">
-                            <label class="form-label">Alcohol Frequency</label>
-                                    <select class="form-select" name="Assessment.AlcoholFrequency">
-                                <option value="">Select frequency</option>
-                                @{
-                                    var alcoholOptions = new[] {
-                                        new { Value = "None", Text = "Hindi umiinom" },
-                                        new { Value = "Occasional", Text = "Paminsan-minsan" },
-                                        new { Value = "Regular", Text = "Regular" }
-                                    };
-                                }
-                                @foreach (var option in alcoholOptions)
-                                {
-                                    <option value="@option.Value" selected="@(Model.Assessment?.AlcoholFrequency == option.Value)">@option.Text</option>
-                                }
-                                    </select>
-                                </div>
-                            </div>
-
-                            <!-- B.3 Exercise -->
-                    <div class="mb-4">
-                        <h6 class="fw-bold">B.3 Exercise</h6>
-                        <div class="mb-3">
-                            <label class="form-label">Exercise Duration</label>
-                            <select class="form-select" name="Assessment.ExerciseDuration">
-                                <option value="">Select duration</option>
-                                @{
-                                    var exerciseOptions = new[] {
-                                        new { Value = "None", Text = "Walang exercise" },
-                                        new { Value = "Less30", Text = "Wala pang 30 minuto kada araw" },
-                                        new { Value = "More30", Text = "30 minuto o higit pa kada araw" }
-                                    };
-                                }
-                                @foreach (var option in exerciseOptions)
-                                {
-                                    <option value="@option.Value" selected="@(Model.Assessment?.ExerciseDuration == option.Value)">@option.Text</option>
-                                }
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Navigation Buttons -->
-        <div class="d-flex justify-content-between mt-4">
-            <button type="button" class="btn btn-secondary" id="prevButton" style="display: none;">Back</button>
-            <button type="button" class="btn btn-primary" id="nextButton">Next</button>
-            <button type="submit" class="btn btn-success" id="submitButton" style="display: none;">Submit Assessment</button>
-    </div>
-    </form>
-</div>
 
 @section Scripts {
+    <!-- CryptoJS for AES encryption -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script>
-        $(document).ready(function() {
-            console.log('[NCDRiskAssessment] Page loaded');
-            
-            // Track current step
-            let currentStep = 1;
-            const totalSteps = 3;
-            
-            // Function to validate current step
-            function validateStep(step) {
-                console.log('[NCDRiskAssessment] Validating step:', step);
-                let isValid = true;
+        // Initialize wizard state
+        let currentStep = 1;
+        
+        // Encryption configuration - MUST match server-side key (exactly 32 bytes)
+        const ENCRYPTION_KEY = "BHCARE_2024_SECRET_KEY_32BYTES_LONG"; // Exactly 32 bytes for AES-256
+        
+        // Temporary function to send data as plain JSON (no encryption for now)
+        function prepareData(data) {
+            try {
+                const timestamp = new Date().toISOString();
+                console.log(`[${timestamp}] Preparing data for submission`);
+                console.log(`[${timestamp}] Data:`, data);
                 
-                switch(step) {
-                    case 1:
-                        // Validate basic information
-                        const requiredFields = ['healthFacility', 'familyNo', 'Assessment.Address', 'Assessment.Barangay', 'Assessment.Birthday', 'Assessment.Telepono', 'Assessment.Kasarian'];
-                        requiredFields.forEach(field => {
-                            const value = $(`[name="${field}"]`).val();
-                            if (!value) {
-                                isValid = false;
-                                $(`[name="${field}"]`).addClass('is-invalid');
-                                console.error(`[NCDRiskAssessment] Missing required field: ${field}`);
-                            } else {
-                                $(`[name="${field}"]`).removeClass('is-invalid');
+                // Convert data to JSON string
+                const jsonString = JSON.stringify(data);
+                console.log(`[${timestamp}] JSON string length:`, jsonString.length);
+                console.log(`[${timestamp}] JSON preview:`, jsonString.substring(0, 100) + "...");
+                console.log(`[${timestamp}] Data preparation completed successfully`);
+                
+                return jsonString;
+            } catch (error) {
+                const timestamp = new Date().toISOString();
+                console.error(`[${timestamp}] Data preparation failed:`, error);
+                throw new Error(`Failed to prepare data: ${error.message}`);
+            }
+        }
+        // Pre-load values from server or URL parameters
+        // Document ready function
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize wizard
+            updateStepIndicator(currentStep);
+            
+            // Make all sections visible by default
+            document.querySelectorAll('.conditional-section').forEach(section => {
+                section.classList.remove('hidden');
+            });
+            
+            // Initialize conditional sections
+            initConditionalSections();
+            
+            // Get appointment ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const appointmentId = urlParams.get('appointmentId');
+            
+            // Set ID No. to be the same as Family No.
+            const familyNo = document.getElementById('family-no').value;
+            document.getElementById('id-no').value = familyNo;
+            
+            // Set today's date as the assessment date
+            const today = new Date();
+            const formattedDate = formatDate(today); // MM/DD/YYYY format
+            document.getElementById('date-assessment').value = formattedDate;
+            
+            // Add birthday input event listener to auto-calculate age
+            document.getElementById('birthday').addEventListener('change', function() {
+                if (this.value) {
+                    const birthDate = new Date(this.value);
+                    const age = calculateAge(birthDate);
+                    document.getElementById('edad').value = age;
+                    console.log('Auto-calculated age:', age);
+                }
+            });
+            
+            // Get appointment data if available
+            if (appointmentId) {
+                fetch(`/api/Appointments/${appointmentId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.appointmentDate) {
+                            const appointmentDate = new Date(data.appointmentDate);
+                            document.getElementById('date-assessment').value = formatDate(appointmentDate);
+                        }
+                        
+                        // Auto-fill patient information if available
+                        if (data.patient) {
+                            if (data.patient.firstName) document.getElementById('first-name').value = data.patient.firstName;
+                            if (data.patient.middleName) document.getElementById('middle-name').value = data.patient.middleName;
+                            if (data.patient.lastName) document.getElementById('last-name').value = data.patient.lastName;
+                            if (data.patient.address) document.getElementById('address').value = data.patient.address;
+                            if (data.patient.contactNumber) document.getElementById('telefono').value = data.patient.contactNumber;
+                            if (data.patient.birthDate) {
+                                const birthDate = new Date(data.patient.birthDate);
+                                document.getElementById('birthday').value = birthDate.toISOString().split('T')[0];
+                                // Calculate age
+                                const age = calculateAge(birthDate);
+                                document.getElementById('edad').value = age;
                             }
-                        });
-                        break;
-                        
-                    case 2:
-                        // Validate medical history
-                        isValid = true; // Add specific validation if needed
-                        break;
-                        
-                    case 3:
-                        // Validate risk factors
-                        isValid = true; // Add specific validation if needed
-                        break;
-                }
-                
-                return isValid;
+                            if (data.patient.gender) {
+                                const genderRadios = document.querySelectorAll('input[name="kasarian"]');
+                                for (let radio of genderRadios) {
+                                    if (radio.value.toLowerCase() === data.patient.gender.toLowerCase()) {
+                                        radio.checked = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            // Check if patient has family number
+                            if (data.patient.familyNo) {
+                                document.getElementById('family-no').value = data.patient.familyNo;
+                            }
+                        }
+                    })
+                    .catch(error => console.error('Error fetching appointment data:', error));
             }
             
-            // Function to show/hide steps
-            function showStep(step) {
-                console.log('[NCDRiskAssessment] Showing step:', step);
-                $('.assessment-step').hide();
-                $(`#step${step}`).show();
-                
-                // Update buttons
-                if (step === 1) {
-                    $('#prevButton').hide();
-                } else {
-                    $('#prevButton').show();
+            // Add family number generation event handler
+            document.getElementById('generate-family-no').addEventListener('click', async function() {
+                console.log("Generate button clicked"); // Debug logging
+                const lastName = document.getElementById('last-name').value;
+                if (!lastName) {
+                    alert('Please enter your last name first to generate a family number.');
+                    return;
                 }
                 
-                if (step === totalSteps) {
-                    $('#nextButton').hide();
-                    $('#submitButton').show();
-                } else {
-                    $('#nextButton').show();
-                    $('#submitButton').hide();
-                }
-            }
-            
-            // Handle Next button click
-            $('#nextButton').on('click', function() {
-                console.log('[NCDRiskAssessment] Next button clicked');
-                
-                if (validateStep(currentStep)) {
-                    if (currentStep < totalSteps) {
-                        currentStep++;
-                        showStep(currentStep);
+                try {
+                    const response = await fetch('/User/NCDRiskAssessment?handler=GenerateFamilyNumber', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                        },
+                        body: JSON.stringify({ lastName: lastName })
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (result.success) {
+                            document.getElementById('family-no').value = result.familyNo;
+                            // Update ID No. to match Family No.
+                            document.getElementById('id-no').value = result.familyNo;
+                            console.log("Generated family number:", result.familyNo);
+                            
+                            if (result.isPreexisting) {
+                                alert('You already have a family number: ' + result.familyNo);
+                            } else {
+                                alert('New family number generated: ' + result.familyNo);
+                            }
+                        } else {
+                            alert('Error generating family number: ' + result.error);
+                        }
+                    } else {
+                        alert('Error generating family number. Please try again.');
                     }
-                } else {
-                    alert('Please fill in all required fields before proceeding.');
+                } catch (error) {
+                    console.error('Error generating family number:', error);
+                    alert('Error generating family number. Please try again.');
                 }
             });
             
-            // Handle Back button click
-            $('#prevButton').on('click', function() {
-                console.log('[NCDRiskAssessment] Back button clicked');
+            // Add phone number validation
+            document.getElementById('telefono').addEventListener('input', function(e) {
+                // Remove any non-numeric characters
+                this.value = this.value.replace(/[^0-9]/g, '');
                 
-                if (currentStep > 1) {
-                    currentStep--;
-                    showStep(currentStep);
+                // Enforce maximum length of 11 digits
+                if (this.value.length > 11) {
+                    this.value = this.value.slice(0, 11);
                 }
             });
-            
-            // Handle form submission
-            $('#ncdForm').on('submit', function(e) {
-                e.preventDefault();
-                console.log('[NCDRiskAssessment] Form submission started');
-                
-                if (validateStep(currentStep)) {
-                    console.log('[NCDRiskAssessment] Final validation passed, submitting form...');
-                    
-                    // Show loading state
-                    $('#submitButton').prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...');
-                    
-                    // Submit the form
-                    this.submit();
-                } else {
-                    alert('Please fill in all required fields before submitting.');
-                }
-            });
-            
-            // Initialize first step
-            showStep(1);
         });
+        
+        // Calculate age based on birthdate
+        function calculateAge(birthDate) {
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            
+            return age;
+        }
+        
+        // Wizard state and helpers
+        const steps = () => Array.from(document.querySelectorAll('.wizard-step'));
+        const totalSteps = 4;
+        const progressEl = document.getElementById('wizard-progress');
+        const stepPills = Array.from(document.querySelectorAll('[data-step-pill]'));
+
+        function updateStepIndicator(step) {
+            const pct = Math.round(((step - 1) / (totalSteps - 1)) * 100);
+            progressEl.style.width = pct + '%';
+            stepPills.forEach(p => {
+                const n = parseInt(p.getAttribute('data-step-pill'));
+                p.classList.toggle('active', n === step);
+                p.classList.toggle('done', n < step);
+            });
+        }
+
+        function showStep(step) {
+            console.log(`showStep called with step: ${step}`);
+            steps().forEach(s => s.classList.remove('active'));
+            const active = document.querySelector(`.wizard-step[data-step="${step}"]`);
+            if (active) active.classList.add('active');
+            currentStep = step;
+            updateStepIndicator(step);
+            if (step === 4) {
+                console.log('Reached step 4, populating summary and validating');
+                populateSummary();
+                // Enable submit only if all required fields valid
+                const isValid = validateAll();
+                console.log('Step 4 reached. Validation result:', isValid);
+                document.getElementById('submit-btn').disabled = !isValid;
+                console.log('Submit button disabled:', !isValid);
+            }
+            // Focus first field of the step
+            const firstInput = active?.querySelector('input, select, textarea, button');
+            firstInput?.focus();
+        }
+
+        function validateAll() {
+            let ok = true;
+            console.log('Validating all steps...');
+            for (let s = 1; s <= 3; s++) {
+                const stepValid = validateStep(s);
+                console.log(`Step ${s} validation:`, stepValid);
+                ok = stepValid && ok;
+            }
+            console.log('Overall validation result:', ok);
+            return ok;
+        }
+
+        function validateStep(step) {
+            const container = document.querySelector(`.wizard-step[data-step="${step}"]`);
+            if (!container) return true;
+            let isValid = true;
+            container.querySelectorAll('.error-text').forEach(e => e.remove());
+            const requiredFields = container.querySelectorAll('[required]');
+            requiredFields.forEach(field => {
+                field.classList.remove('error');
+                const type = field.getAttribute('type');
+                if ((type === 'text' || type === 'date' || type === 'number') && !field.value.trim()) {
+                    isValid = false;
+                    field.classList.add('error');
+                    addError(field, 'Required');
+                } else if (type === 'radio') {
+                    const group = container.querySelectorAll(`input[name="${field.name}"]`);
+                    if (![...group].some(r => r.checked)) {
+                        isValid = false;
+                        addError(field.closest('.form-group') || field, 'Select an option');
+                    }
+                }
+            });
+            // Additional logical validation for Step 1 (Edad)
+            if (step === 1) {
+                const edadField = document.getElementById('edad');
+                const v = parseInt(edadField.value, 10);
+                if (isNaN(v)) { isValid = false; edadField.classList.add('error'); addError(edadField, 'Enter a valid number'); }
+            }
+            return isValid;
+        }
+
+        function addError(target, message) {
+            const msg = document.createElement('div');
+            msg.className = 'error-text';
+            msg.textContent = message;
+            const parent = target.closest('.form-group') || target.parentElement;
+            parent.appendChild(msg);
+        }
+
+        function populateSummary() {
+            const grid = document.getElementById('review-grid');
+            grid.innerHTML = '';
+            const rows = [
+                ['Health Facility', document.getElementById('health-facility').value],
+                ['Family No.', document.getElementById('family-no').value],
+                ['Date of Assessment', document.getElementById('date-assessment').value],
+                ['Name', `${document.getElementById('first-name').value} ${document.getElementById('last-name').value}`.trim()],
+                ['Birthday', document.getElementById('birthday').value],
+                ['Edad', document.getElementById('edad').value],
+                ['Kasarian', (document.querySelector('input[name="kasarian"]:checked')?.value || '')],
+                ['Address', document.getElementById('address').value],
+                ['Barangay', document.getElementById('barangay').value],
+                ['Telepono', document.getElementById('telefono').value],
+                ['Diabetes', document.querySelector('input[name="HasDiabetes"]')?.checked ? 'Yes' : 'No'],
+                ['Hypertension', document.querySelector('input[name="HasHypertension"]')?.checked ? 'Yes' : 'No'],
+                ['Cancer', document.querySelector('input[name="HasCancer"]')?.checked ? `Yes (${document.querySelector('input[name="CancerType"]').value})` : 'No'],
+                ['COPD', document.querySelector('input[name="HasCOPD"]')?.checked ? 'Yes' : 'No'],
+                ['Alcohol Frequency', document.querySelector('input[name="AlcoholFrequency"]:checked')?.value || 'None'],
+                ['Alcohol Consumption', document.querySelector('input[name="AlcoholConsumption"]:checked')?.value || 'None'],
+                ['Exercise Duration', document.querySelector('input[name="ExerciseDuration"]:checked')?.value || 'None'],
+                ['Smoking Status', document.querySelector('input[name="SmokingStatus"]:checked')?.value || 'Non-smoker']
+            ];
+            rows.forEach(([k, v]) => {
+                const wrap = document.createElement('div');
+                wrap.className = 'form-group';
+                const lab = document.createElement('label');
+                lab.textContent = k + ':';
+                const p = document.createElement('div');
+                p.textContent = v;
+                wrap.appendChild(lab);
+                wrap.appendChild(p);
+                grid.appendChild(wrap);
+            });
+        }
+
+        // Navigation buttons
+        document.getElementById('next-1')?.addEventListener('click', () => { if (validateStep(1)) showStep(2); });
+        document.getElementById('back-2')?.addEventListener('click', () => showStep(1));
+        document.getElementById('next-2')?.addEventListener('click', () => { if (validateStep(2)) showStep(3); });
+        document.getElementById('back-3')?.addEventListener('click', () => showStep(2));
+        document.getElementById('next-3')?.addEventListener('click', () => { 
+            console.log('Next-3 button clicked');
+            if (validateStep(3)) {
+                console.log('Step 3 validation passed, moving to step 4');
+                showStep(4);
+            } else {
+                console.log('Step 3 validation failed');
+            }
+        });
+        document.getElementById('back-4')?.addEventListener('click', () => showStep(3));
+
+        // Initialize step 1 UI
+        showStep(1);
+
+        // Add submit button click handler for debugging
+        document.getElementById('submit-btn')?.addEventListener('click', function(event) {
+            console.log('Submit button clicked');
+            console.log('Current step:', currentStep);
+            console.log('Form validation result:', validateAll());
+        });
+
+
+        // Existing submission handler (final step only)
+        document.getElementById('ncd-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            console.log('Form submission attempted. Current step:', currentStep);
+            
+            // Check if already submitting to prevent double submission
+            const submitButton = document.getElementById('submit-btn');
+            if (submitButton.disabled) {
+                console.log('Form submission blocked - already submitting');
+                return;
+            }
+            
+            if (currentStep !== 4) { 
+                console.log('Form submission blocked - not on review step (step 4)');
+                return; 
+            }
+            if (!validateAll()) { 
+                console.log('Form validation failed');
+                alert('Please fill out all required fields correctly.'); 
+                return; 
+            }
+            console.log('Form validation passed, proceeding with submission');
+
+            // --- Data Collection (Manual Construction for precise mapping) ---
+            const data = {};
+
+            // Part I: Demographic-Socio-Economic Profile
+            data.HealthFacility = document.getElementById('health-facility').value;
+            data.FamilyNo = document.getElementById('family-no').value;
+            data.FirstName = document.getElementById('first-name').value;
+            data.MiddleName = document.getElementById('middle-name').value;
+            data.LastName = document.getElementById('last-name').value;
+            data.Address = document.getElementById('address').value;
+            data.Barangay = document.getElementById('barangay').value;
+            data.Telepono = document.getElementById('telefono').value;
+            const birthdayValue = document.getElementById('birthday').value;
+            data.Birthday = birthdayValue ? new Date(birthdayValue).toISOString() : null;
+            data.Edad = parseInt(document.getElementById('edad').value, 10);
+            data.Kasarian = document.querySelector('input[name="kasarian"]:checked')?.value || '';
+            data.Relihiyon = document.getElementById('relihiyon').value;
+            data.Occupation = document.getElementById('hanapbuhay').value;
+            data.CivilStatus = document.getElementById('estado-sibil').value;
+
+            // Part II: Past Medical History
+            data.HasDiabetes = document.querySelector('input[name="HasDiabetes"]')?.checked || false;
+            data.DiabetesYear = document.querySelector('input[name="DiabetesYear"]')?.value || '';
+            data.DiabetesMedication = document.querySelector('input[name="DiabetesMedication"]')?.value || '';
+
+            data.HasHypertension = document.querySelector('input[name="HasHypertension"]')?.checked || false;
+            data.HypertensionYear = document.querySelector('input[name="HypertensionYear"]')?.value || '';
+            data.HypertensionMedication = document.querySelector('input[name="HypertensionMedication"]')?.value || '';
+
+            data.HasCancer = document.querySelector('input[name="HasCancer"]')?.checked || false;
+            data.CancerType = document.querySelector('input[name="CancerType"]')?.value || '';
+            data.CancerYear = document.querySelector('input[name="CancerYear"]')?.value || '';
+            data.CancerMedication = document.querySelector('input[name="CancerMedication"]')?.value || '';
+
+            data.HasCOPD = document.querySelector('input[name="HasCOPD"]')?.checked || false;
+            data.LungDiseaseYear = document.querySelector('input[name="LungDiseaseYear"]')?.value || '';
+            data.LungDiseaseMedication = document.querySelector('input[name="LungDiseaseMedication"]')?.value || '';
+
+            // Part III: Assessment of Risk Factors
+            // A. Non-Modifiable Risk Factors (Family History)
+            // Collect individual family history data and aggregate them
+            const familyHistoryStrokeFather = document.querySelector('input[name="FamilyHistoryStrokeFather"]')?.checked || false;
+            const familyHistoryStrokeMother = document.querySelector('input[name="FamilyHistoryStrokeMother"]')?.checked || false;
+            const familyHistoryStrokeSibling = document.querySelector('input[name="FamilyHistoryStrokeSibling"]')?.checked || false;
+
+            const familyHistoryDiabetesFather = document.querySelector('input[name="FamilyHistoryDiabetesFather"]')?.checked || false;
+            const familyHistoryDiabetesMother = document.querySelector('input[name="FamilyHistoryDiabetesMother"]')?.checked || false;
+            const familyHistoryDiabetesSibling = document.querySelector('input[name="FamilyHistoryDiabetesSibling"]')?.checked || false;
+
+            const familyHistoryCancerFather = document.querySelector('input[name="FamilyHistoryCancerFather"]')?.checked || false;
+            const familyHistoryCancerMother = document.querySelector('input[name="FamilyHistoryCancerMother"]')?.checked || false;
+            const familyHistoryCancerSibling = document.querySelector('input[name="FamilyHistoryCancerSibling"]')?.checked || false;
+
+            const familyHistoryHeartDiseaseFather = document.querySelector('input[name="FamilyHistoryHeartDiseaseFather"]')?.checked || false;
+            const familyHistoryHeartDiseaseMother = document.querySelector('input[name="FamilyHistoryHeartDiseaseMother"]')?.checked || false;
+            const familyHistoryHeartDiseaseSibling = document.querySelector('input[name="FamilyHistoryHeartDiseaseSibling"]')?.checked || false;
+
+            const familyHistoryLungDiseaseFather = document.querySelector('input[name="FamilyHistoryLungDiseaseFather"]')?.checked || false;
+            const familyHistoryLungDiseaseMother = document.querySelector('input[name="FamilyHistoryLungDiseaseMother"]')?.checked || false;
+            const familyHistoryLungDiseaseSibling = document.querySelector('input[name="FamilyHistoryLungDiseaseSibling"]')?.checked || false;
+
+            const otherDetails = (document.getElementById('family-history-other')?.value || '').trim();
+            data.FamilyOtherDiseaseDetails = otherDetails;
+
+            // Aggregated family history booleans expected by backend
+            data.FamilyHasStroke = !!(familyHistoryStrokeFather || familyHistoryStrokeMother || familyHistoryStrokeSibling);
+            data.FamilyHasDiabetes = !!(familyHistoryDiabetesFather || familyHistoryDiabetesMother || familyHistoryDiabetesSibling);
+            data.FamilyHasCancer = !!(familyHistoryCancerFather || familyHistoryCancerMother || familyHistoryCancerSibling);
+            data.FamilyHasHeartDisease = !!(familyHistoryHeartDiseaseFather || familyHistoryHeartDiseaseMother || familyHistoryHeartDiseaseSibling);
+            data.FamilyHasLungDisease = !!(familyHistoryLungDiseaseFather || familyHistoryLungDiseaseMother || familyHistoryLungDiseaseSibling);
+            // Not captured in UI: set safe defaults
+            data.FamilyHasHypertension = false;
+            data.FamilyHasKidneyDisease = false;
+            data.FamilyHasOtherDisease = otherDetails.length > 0;
+
+            // B. Modifiable Risk Factors
+            // B.1 Nutrisyon
+            data.EatsProcessedFood = document.querySelector('input[name="EatsProcessedFood"]')?.checked || false;
+            data.HighSaltIntake = document.querySelector('input[name="HighSaltIntake"]')?.checked || false;
+
+            // B.2 Alcohol
+            data.AlcoholConsumption = document.querySelector('input[name="AlcoholConsumption"]:checked')?.value || 'None';
+            data.AlcoholFrequency = document.querySelector('input[name="AlcoholFrequency"]:checked')?.value || 'None';
+
+            // B.3 Ehersisyo
+            data.ExerciseDuration = document.querySelector('input[name="ExerciseDuration"]:checked')?.value || 'None';
+
+            // B.4 Paninigarilyo
+            data.SmokingStatus = document.querySelector('input[name="SmokingStatus"]:checked')?.value || 'Non-smoker';
+
+            // Add appointmentId and userId to the data
+            const urlParams = new URLSearchParams(window.location.search);
+            data['AppointmentId'] = urlParams.get('appointmentId'); // Keep as string
+            data['UserId'] = '@Model.Assessment.UserId'; // Get from server-side model
+            
+            // Enhanced logging for debugging
+            const timestamp = new Date().toISOString();
+            console.log(`[${timestamp}] Form data collection completed`);
+            console.log(`[${timestamp}] AppointmentId from URL: ${data['AppointmentId']}`);
+            console.log(`[${timestamp}] UserId: ${data['UserId']}`);
+            console.log(`[${timestamp}] Sample data fields:`, {
+                FirstName: data.FirstName,
+                LastName: data.LastName,
+                Birthday: data.Birthday,
+                Kasarian: data.Kasarian,
+                HasDiabetes: data.HasDiabetes
+            });
+            
+            // Add missing properties that might be required
+            data['AppointmentType'] = 'General Checkup';
+            data['RiskStatus'] = 'Low Risk';
+            data['HasEyeDisease'] = false;
+            
+            // Ensure all boolean fields have proper values
+            const booleanFields = [
+                'HasDiabetes', 'HasHypertension', 'HasCancer', 'HasCOPD', 'HasLungDisease', 'HasEyeDisease',
+                'FamilyHasHypertension', 'FamilyHasHeartDisease', 'FamilyHasStroke', 'FamilyHasDiabetes',
+                'FamilyHasCancer', 'FamilyHasKidneyDisease', 'FamilyHasOtherDisease', 'HighSaltIntake',
+                'HasDifficultyBreathing', 'HasAsthma', 'HasNoRegularExercise'
+            ];
+            
+            booleanFields.forEach(field => {
+                if (data[field] === undefined || data[field] === null) {
+                    data[field] = false;
+                } else if (typeof data[field] === 'string') {
+                    data[field] = data[field].toLowerCase() === 'true' || data[field] === '1';
+                }
+            });
+            data['HasLungDisease'] = false;
+            data['HasDifficultyBreathing'] = false;
+            data['HasAsthma'] = false;
+            data['HasNoRegularExercise'] = false;
+            
+            // Note: Removed non-existent properties that were causing mapping issues
+            
+            // Ensure all boolean properties are properly set
+            data['HasDiabetes'] = data.HasDiabetes || false;
+            data['HasHypertension'] = data.HasHypertension || false;
+            data['HasCancer'] = data.HasCancer || false;
+            data['HasCOPD'] = data.HasCOPD || false;
+            data['HasLungDisease'] = data.HasLungDisease || false;
+            data['HasEyeDisease'] = data.HasEyeDisease || false;
+            data['HasDifficultyBreathing'] = data.HasDifficultyBreathing || false;
+            data['HasAsthma'] = data.HasAsthma || false;
+            data['HasNoRegularExercise'] = data.HasNoRegularExercise || false;
+            data['HighSaltIntake'] = data.HighSaltIntake || false;
+            
+            // Ensure family history properties are set
+            data['FamilyHasHypertension'] = data.FamilyHasHypertension || false;
+            data['FamilyHasHeartDisease'] = data.FamilyHasHeartDisease || false;
+            data['FamilyHasStroke'] = data.FamilyHasStroke || false;
+            data['FamilyHasDiabetes'] = data.FamilyHasDiabetes || false;
+            data['FamilyHasCancer'] = data.FamilyHasCancer || false;
+            data['FamilyHasKidneyDisease'] = data.FamilyHasKidneyDisease || false;
+            data['FamilyHasOtherDisease'] = data.FamilyHasOtherDisease || false;
+
+            console.log("JSON data being sent:", JSON.stringify(data, null, 2));
+            console.log("Data size:", JSON.stringify(data).length, "characters");
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]');
+            console.log('Request verification token:', token ? token.value : 'NOT FOUND');
+
+            try {
+                // Prepare the data (no encryption for now)
+                console.log("Preparing form data...");
+                const jsonData = prepareData(data);
+                console.log("Data prepared successfully");
+                
+                // Update button to show loading state
+                const submitButton = document.getElementById('submit-btn');
+                const originalText = submitButton.textContent;
+                submitButton.textContent = 'Loading...';
+                submitButton.disabled = true;
+
+                // Create form data instead of JSON
+                const formData = new FormData();
+                formData.append('jsonData', jsonData);
+                if (token) {
+                    formData.append('__RequestVerificationToken', token.value);
+                }
+
+                // Enhanced logging for the request
+                console.log(`[${timestamp}] Sending request to /api/NCDRiskAssessment/submit`);
+                console.log(`[${timestamp}] FormData contents:`, {
+                    jsonDataLength: jsonData.length,
+                    hasToken: !!token,
+                    jsonDataPreview: jsonData.substring(0, 200) + "..."
+                });
+
+                fetch('/api/NCDRiskAssessment/submit', {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    console.log('Response ok:', response.ok);
+                    
+                    if (!response.ok) {
+                        console.log('Response not ok:', response.status);
+                        return response.text().then(text => {
+                            console.log('Response body:', text);
+                            throw new Error(`Server error: ${response.status} - ${text}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(result => {
+                    console.log('Success:', result);
+                    
+                    // Restore button state before showing alert and redirecting
+                    submitButton.textContent = originalText;
+                    submitButton.disabled = false;
+                    
+                    alert('Assessment submitted successfully!');
+                    // Redirect or show success message
+                    window.location.href = '/User/UserDashboard';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    
+                    // Restore button state on error
+                    submitButton.textContent = originalText;
+                    submitButton.disabled = false;
+                    
+                    alert('Failed to submit assessment: ' + error.message);
+                });
+            } catch (error) {
+                console.error('Encryption or submission error:', error);
+                alert('Failed to submit assessment: ' + error.message);
+                
+                // Restore button state
+                const submitButton = document.getElementById('submit-btn');
+                submitButton.textContent = 'Submit Assessment';
+                submitButton.disabled = false;
+            }
+        });
+
+        // Function to format date as MM/DD/YYYY
+        function formatDate(date) {
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            const year = date.getFullYear();
+            return `${month}/${day}/${year}`;
+        }
+
+        // Function to initialize conditional sections
+        function initConditionalSections() {
+            console.log("Initializing conditional sections");
+            
+            // Setup the conditional visibility for each section
+            setupConditionalVisibilityGroup('alcohol_inom', ['alcohol-questions', 'alcohol-questions-2', 'alcohol-questions-3', 'alcohol-questions-4']);
+            setupConditionalVisibilityGroup('ehersisyo_regular', ['exercise-questions']);
+            setupConditionalVisibilityGroup('SmokingStatus', ['smoking-questions', 'smoking-questions-2']);
+            setupConditionalVisibilityGroup('stress_madalas', ['stress-questions', 'stress-questions-2']);
+            
+            // Immediately check the current state of radio buttons
+            checkInitialRadioStates();
+        }
+        
+        // Function to check all radio buttons and hide sections accordingly
+        function checkInitialRadioStates() {
+            // Check alcohol section
+            const alcoholRadios = document.querySelectorAll('input[name="alcohol_inom"]');
+            for (const radio of alcoholRadios) {
+                if (radio.checked && radio.value === 'Hindi') {
+                    hideGroupSections(['alcohol-questions', 'alcohol-questions-2', 'alcohol-questions-3', 'alcohol-questions-4']);
+                    break;
+                }
+            }
+            
+            // Check exercise section
+            const exerciseRadios = document.querySelectorAll('input[name="ehersisyo_regular"]');
+            for (const radio of exerciseRadios) {
+                if (radio.checked && radio.value === 'wala') {
+                    hideGroupSections(['exercise-questions']);
+                    break;
+                }
+            }
+            
+            // Check smoking section
+            const smokingRadios = document.querySelectorAll('input[name="SmokingStatus"]');
+            for (const radio of smokingRadios) {
+                if (radio.checked && radio.value === 'Non-smoker') {
+                    hideGroupSections(['smoking-questions', 'smoking-questions-2']);
+                    break;
+                }
+            }
+            
+            // Check stress section
+            const stressRadios = document.querySelectorAll('input[name="stress_madalas"]');
+            for (const radio of stressRadios) {
+                if (radio.checked && radio.value === 'Hindi') {
+                    hideGroupSections(['stress-questions', 'stress-questions-2']);
+                    break;
+                }
+            }
+        }
+        
+        // Helper function to hide a group of sections
+        function hideGroupSections(sectionIds) {
+            sectionIds.forEach(id => {
+                const section = document.getElementById(id);
+                if (section) {
+                    section.classList.add('hidden');
+                    console.log(`Initially hiding section: ${id}`);
+                }
+            });
+        }
+
+        // Helper function to set up conditional visibility for a group of sections
+        function setupConditionalVisibilityGroup(radioName, sectionIds) {
+            if (!sectionIds || sectionIds.length === 0) {
+                console.error(`No section IDs provided for: ${radioName}`);
+                return;
+            }
+            
+            const sections = sectionIds.map(id => document.getElementById(id)).filter(section => section !== null);
+            
+            if (sections.length === 0) {
+                console.error(`No valid sections found for: ${radioName}`);
+                return;
+            }
+            
+            const radioButtons = document.querySelectorAll(`input[name="${radioName}"]`);
+            if (radioButtons.length === 0) {
+                console.error(`No radio buttons found for: ${radioName}`);
+                return;
+            }
+            
+            console.log(`Setting up conditional visibility for ${radioName} -> ${sectionIds.join(', ')}`);
+            
+            // Add event listeners to radio buttons
+            radioButtons.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    // Check if this is a "No" option
+                    const isNoOption = (this.value === 'Hindi' || this.value === 'Non-smoker' || this.value === 'wala');
+                    
+                    sections.forEach(section => {
+                        if (isNoOption) {
+                            console.log(`Hiding section ${section.id} for value: ${this.value}`);
+                            section.classList.add('hidden');
+                        } else {
+                            console.log(`Showing section ${section.id} for value: ${this.value}`);
+                            section.classList.remove('hidden');
+                        }
+                    });
+                });
+            });
+        }
     </script>
-} 
+}

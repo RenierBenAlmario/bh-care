@@ -70,7 +70,7 @@ namespace Barangay.Pages.Admin
                 // Define role-specific essential permission names
                 var essentialPermissionNames = new List<string>();
                 
-                // Common permissions for all staff
+                // Common permissions for all staff - consolidated dashboard access
                 essentialPermissionNames.Add("Access Dashboard");
                 
                 // Role-specific permissions
@@ -79,7 +79,6 @@ namespace Barangay.Pages.Admin
                     case "admin":
                         essentialPermissionNames.AddRange(new[] {
                             "Manage Users",
-                            "Access Admin Dashboard",
                             "View Reports",
                             "Approve Users",
                             "Manage Appointments",
@@ -90,7 +89,6 @@ namespace Barangay.Pages.Admin
                         
                     case "doctor":
                         essentialPermissionNames.AddRange(new[] {
-                            "Access Doctor Dashboard",
                             "Manage Appointments",
                             "Manage Medical Records",
                             "View Patient History",
@@ -102,7 +100,6 @@ namespace Barangay.Pages.Admin
                     case "nurse":
                         essentialPermissionNames.AddRange(new[] {
                             "ManageAppointments",
-                            "Access Nurse Dashboard",
                             "Record Vital Signs",
                             "View Patient History",
                             "Manage Medical Records"
@@ -111,7 +108,6 @@ namespace Barangay.Pages.Admin
                         
                     case "admin staff":
                         essentialPermissionNames.AddRange(new[] {
-                            "Access Admin Dashboard",
                             "Manage Appointments",
                             "View Reports"
                         });

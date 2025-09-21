@@ -55,42 +55,19 @@ namespace Barangay.Services
             _logger.LogInformation("Checking for missing permissions in the database");
             
             // Define all required permissions
-            var requiredPermissions = new List<(string Name, string Description, string Category)>
+            var requiredPermissions = new[]
             {
-                // Administration permissions
-                ("Access Admin Dashboard", "Ability to access the admin dashboard", "Administration"),
-                ("Manage Permissions", "Ability to manage user permissions", "Administration"),
-                
-                // User Management permissions
-                ("Manage Users", "Ability to manage users", "User Management"),
-                ("Approve Users", "Ability to approve new user registrations", "User Management"),
-                ("Delete Users", "Ability to delete users", "User Management"),
-                
-                // Dashboard permissions
-                ("Access Dashboard", "Ability to access the main dashboard", "Dashboard Access"),
-                ("Access Doctor Dashboard", "Ability to access the doctor dashboard", "Dashboard Access"),
-                ("Access Nurse Dashboard", "Ability to access the nurse dashboard", "Dashboard Access"),
-                
-                // Appointment permissions
-                ("ManageAppointments", "Ability to manage appointments", "Appointments"),
-                ("View Appointments", "Ability to view appointments", "Appointments"),
-                ("Create Appointments", "Ability to create appointments", "Appointments"),
-                
-                // Medical Records permissions
-                ("Manage Medical Records", "Ability to manage medical records", "Medical Records"),
-                ("View Patient History", "Ability to view patient history", "Medical Records"),
-                ("Create Medical Records", "Ability to create medical records", "Medical Records"),
-                
-                // Reporting permissions
-                ("View Reports", "Ability to view reports", "Reporting"),
-                ("Generate Reports", "Ability to generate reports", "Reporting"),
-                
-                // Prescription permissions
-                ("Create Prescriptions", "Ability to create prescriptions", "Medical Records"),
-                ("View Prescriptions", "Ability to view prescriptions", "Medical Records"),
-                
-                // Vital Signs permissions
-                ("Record Vital Signs", "Ability to record vital signs", "Medical Records")
+                new { Name = "ApproveUsers", Description = "Ability to approve user registrations", Category = "User Management" },
+                new { Name = "DeleteUsers", Description = "Ability to delete users from the system", Category = "User Management" },
+                new { Name = "ViewReports", Description = "Ability to view system reports", Category = "Reports" },
+                new { Name = "ManageUsers", Description = "Ability to manage user accounts", Category = "User Management" },
+                new { Name = "ManageAppointments", Description = "Ability to manage appointments", Category = "Appointments" },
+                new { Name = "ManageMedicalRecords", Description = "Ability to manage medical records", Category = "Medical Records" },
+                new { Name = "Access Admin Dashboard", Description = "Ability to access the admin dashboard", Category = "Dashboard" },
+                new { Name = "Access Doctor Dashboard", Description = "Ability to access the doctor dashboard", Category = "Dashboard" },
+                new { Name = "Access Nurse Dashboard", Description = "Ability to access the nurse dashboard", Category = "Dashboard" },
+                new { Name = "View Appointments", Description = "Ability to view appointments", Category = "Appointments" },
+                new { Name = "Create Appointments", Description = "Ability to create new appointments", Category = "Appointments" }
             };
             
             // Get existing permissions
@@ -99,15 +76,15 @@ namespace Barangay.Services
             
             // Add missing permissions
             var missingPermissions = new List<Permission>();
-            foreach (var (name, description, category) in requiredPermissions)
+            foreach (var permission in requiredPermissions)
             {
-                if (!existingPermissionNames.Contains(name))
+                if (!existingPermissionNames.Contains(permission.Name))
                 {
                     missingPermissions.Add(new Permission
                     {
-                        Name = name,
-                        Description = description,
-                        Category = category
+                        Name = permission.Name,
+                        Description = permission.Description,
+                        Category = permission.Category
                     });
                 }
             }

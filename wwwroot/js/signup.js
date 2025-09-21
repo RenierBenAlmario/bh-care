@@ -86,8 +86,10 @@ document.addEventListener('DOMContentLoaded', function() {
         element.style.display = 'none';
     });
     
-    // Hide server validation errors on page load
-    hideServerValidationErrors();
+    // Hide server validation errors on page load (guard if function is not defined)
+    if (typeof hideServerValidationErrors === 'function') {
+        hideServerValidationErrors();
+    }
     
     // Function to check if both checkboxes are checked and file is uploaded
     function validateFormSubmission() {
@@ -366,33 +368,52 @@ document.addEventListener('DOMContentLoaded', function() {
     if (nextToSecurity) {
         nextToSecurity.addEventListener('click', function() {
             // Validate personal info fields
-            const requiredFields = section1.querySelectorAll('input[required]');
+            // Textual/number/date/email inputs (exclude radios; handle radios separately)
+            const textRequiredFields = section1.querySelectorAll('input[required]:not([type="radio"])');
             let isValid = true;
-            
-            requiredFields.forEach(field => {
-                if (!field.value) {
+
+            textRequiredFields.forEach(field => {
+                const value = (field.value || '').trim();
+                if (!value) {
                     field.classList.add('is-invalid');
                     isValid = false;
                 } else {
                     field.classList.remove('is-invalid');
                 }
             });
-            
+
+            // Validate Gender radio group
+            const genderChecked = section1.querySelector('input[name="Input.Gender"]:checked');
+            if (!genderChecked) {
+                const genderRadios = section1.querySelectorAll('input[name="Input.Gender"]');
+                genderRadios.forEach(r => r.classList.add('is-invalid'));
+                isValid = false;
+            } else {
+                const genderRadios = section1.querySelectorAll('input[name="Input.Gender"]');
+                genderRadios.forEach(r => r.classList.remove('is-invalid'));
+            }
+
             if (!isValid) {
+                // Find first invalid element and focus
+                const firstInvalid = section1.querySelector('.is-invalid');
+                if (firstInvalid) {
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    try { firstInvalid.focus(); } catch {}
+                }
                 alert('Please fill in all required fields');
                 return;
             }
-            
+
             // Move to next section
             section1.classList.add('d-none');
             section2.classList.remove('d-none');
             section3.classList.add('d-none');
-            
+
             // Update indicators
             step1Indicator.classList.remove('active');
             step2Indicator.classList.add('active');
             step3Indicator.classList.remove('active');
-            
+
             // Update progress bar
             progressBar.style.width = '33%';
             progressBar.setAttribute('aria-valuenow', '33');

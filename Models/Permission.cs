@@ -30,8 +30,8 @@ namespace Barangay.Models
             public const string ManageUsers = "ManageUsers";
             public const string ManageAppointments = "ManageAppointments";
             public const string ManageMedicalRecords = "ManageMedicalRecords";
-            public const string AccessAdminDashboard = "AccessAdminDashboard";
-            public const string AccessDoctorDashboard = "AccessDoctorDashboard";
+            public const string AccessDashboard = "Access Dashboard"; // Consolidated dashboard permission
+            public const string AccessReports = "Access Reports";
         }
     }
 } 

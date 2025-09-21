@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Globalization;
 
 namespace Barangay.Helpers
@@ -96,6 +96,7 @@ namespace Barangay.Helpers
         {
             try 
             {
+
                 // Format without AM/PM first as a fallback
                 return time.Hours.ToString("00") + ":" + time.Minutes.ToString("00");
             }
@@ -103,6 +104,7 @@ namespace Barangay.Helpers
             {
                 // Log the exception
                 System.Diagnostics.Debug.WriteLine($"Error formatting time: {ex.Message}");
+
                 return "00:00";
             }
         }
@@ -172,3 +174,5 @@ namespace Barangay.Helpers
         }
     }
 } 
+
+

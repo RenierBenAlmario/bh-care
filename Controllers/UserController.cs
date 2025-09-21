@@ -214,10 +214,11 @@ namespace Barangay.Controllers
             
             // Calculate age from birth date
             var age = 0;
-            if (user.BirthDate != DateTime.MinValue)
+            var birthDate = DateTime.TryParse(user.BirthDate, out var parsedBirthDate) ? parsedBirthDate : DateTime.MinValue;
+            if (birthDate != DateTime.MinValue)
             {
-                age = DateTime.Now.Year - user.BirthDate.Year;
-                if (user.BirthDate.Date > DateTime.Today.AddYears(-age))
+                age = DateTime.Now.Year - birthDate.Year;
+                if (birthDate.Date > DateTime.Today.AddYears(-age))
                 {
                     age--;
                 }
@@ -226,7 +227,7 @@ namespace Barangay.Controllers
             ViewBag.UserDetails = new
             {
                 FullName = $"{user.FirstName} {user.LastName}",
-                Birthday = user.BirthDate != DateTime.MinValue ? user.BirthDate : DateTime.Today,
+                Birthday = birthDate != DateTime.MinValue ? birthDate : DateTime.Today,
                 Age = age,
                 PhoneNumber = user.PhoneNumber
             };
@@ -325,7 +326,7 @@ namespace Barangay.Controllers
                         ReasonForVisit = model.Description,
                         Status = AppointmentStatus.Pending,
                         AgeValue = model.IsForDependent ? model.DependentAge ?? 0 : 
-                            (user.BirthDate != DateTime.MinValue ? DateTime.Today.Year - user.BirthDate.Year : 0),
+                            CalculateAge(DateTime.TryParse(user.BirthDate, out var parsedBirthDate) ? parsedBirthDate : DateTime.MinValue),
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow,
                         RelationshipToDependent = model.IsForDependent ? model.RelationshipToDependent : null,
@@ -632,11 +633,11 @@ namespace Barangay.Controllers
                     UserId = user.Id,
                     AppointmentId = appointmentId,
                     Address = user.Address ?? string.Empty,
-                    Birthday = user.BirthDate != DateTime.MinValue ? user.BirthDate : DateTime.Today,
+                    Birthday = DateTime.TryParse(user.BirthDate, out var parsedBirthDate) && parsedBirthDate != DateTime.MinValue ? parsedBirthDate.ToString("yyyy-MM-dd") : DateTime.Today.ToString("yyyy-MM-dd"),
                     Telepono = user.PhoneNumber ?? string.Empty,
-                    Edad = appointment.AgeValue,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
+                    Edad = appointment.AgeValue.ToString(),
+                    CreatedAt = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),
+                    UpdatedAt = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")
                 };
 
                 _logger.LogInformation("Created new assessment: {@Assessment}", new
@@ -686,8 +687,8 @@ namespace Barangay.Controllers
                 }
 
                 assessment.UserId = user.Id;
-                assessment.CreatedAt = DateTime.UtcNow;
-                assessment.UpdatedAt = DateTime.UtcNow;
+                assessment.CreatedAt = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");
+                assessment.UpdatedAt = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");
 
                 _context.NCDRiskAssessments.Add(assessment);
                 await _context.SaveChangesAsync();
@@ -745,6 +746,20 @@ namespace Barangay.Controllers
             }
 
             return Json(availableSlots);
+        }
+
+        private int CalculateAge(DateTime dateOfBirth)
+        {
+            // Handle default/invalid birth dates
+            if (dateOfBirth == default(DateTime) || dateOfBirth == DateTime.MinValue || dateOfBirth.Year < 1900)
+            {
+                return 0; // Return 0 for invalid birth dates
+            }
+            
+            var today = DateTime.Today;
+            var age = today.Year - dateOfBirth.Year;
+            if (dateOfBirth.Date > today.AddYears(-age)) age--;
+            return age;
         }
     }
 

@@ -5,6 +5,8 @@ using Barangay.Models;
 using System.Threading.Tasks;
 using Barangay.Data;
 using Microsoft.EntityFrameworkCore;
+using Barangay.Services;
+using Barangay.Extensions;
 
 namespace Barangay.Pages.User
 {
@@ -12,13 +14,16 @@ namespace Barangay.Pages.User
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _context;
+        private readonly IDataEncryptionService _encryptionService;
 
         public ProfileModel(
             UserManager<ApplicationUser> userManager,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            IDataEncryptionService encryptionService)
         {
             _userManager = userManager;
             _context = context;
+            _encryptionService = encryptionService;
         }
 
         [BindProperty]
@@ -33,6 +38,19 @@ namespace Barangay.Pages.User
             if (user == null)
             {
                 return NotFound();
+            }
+
+            // Decrypt user data for authorized users
+            user = user.DecryptSensitiveData(_encryptionService, User);
+            
+            // Manually decrypt Email and PhoneNumber since they're not marked with [Encrypted] attribute
+            if (!string.IsNullOrEmpty(user.Email) && _encryptionService.IsEncrypted(user.Email))
+            {
+                user.Email = user.Email.DecryptForUser(_encryptionService, User);
+            }
+            if (!string.IsNullOrEmpty(user.PhoneNumber) && _encryptionService.IsEncrypted(user.PhoneNumber))
+            {
+                user.PhoneNumber = user.PhoneNumber.DecryptForUser(_encryptionService, User);
             }
 
             CurrentUser = user;

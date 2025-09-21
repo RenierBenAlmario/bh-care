@@ -1,0 +1,193 @@
+/* Admin Orange Theme - Scoped to body.admin */
+
+/* Color variables (scoped) */
+.admin {
+  --primary: #e76f2b;
+  --primary-hover: #cf5f1d;
+  --primary-dark: #b6551a;
+  --accent: #2bb673;
+  --bg: #f8f9fb;
+  --bg-surface: #ffffff;
+  --bg-surface-variant: #fff7f1;
+  --bg-input: #ffffff;
+  --bg-hover: rgba(231, 111, 43, 0.06);
+  --bg-active: rgba(231, 111, 43, 0.12);
+  --border-light: rgba(0,0,0,0.08);
+  --border-medium: rgba(0,0,0,0.12);
+  --text: #2c3e50;
+  --text-primary: #2c3e50;
+  --text-secondary: #4f5d6b;
+  --text-muted: #6c7a89;
+  --status-success: #28C76F;
+  --status-danger: #EA5455;
+  --status-warning: #FF9F43;
+  --row-alt: #FFF7F0;
+}
+
+/* Base page surface */
+.admin body, .admin #page-content-wrapper, .admin .container-fluid {
+  background: var(--bg);
+}
+
+/* Sidebar styling (uses existing #sidebar-wrapper + list-group markup) */
+.admin #sidebar-wrapper {
+  background: linear-gradient(180deg, #fff7f1 0%, #ffe9db 100%);
+  border-right: 1px solid var(--border-light);
+  min-height: 100vh;
+}
+
+.admin #sidebar-wrapper .sidebar-heading {
+  color: var(--text);
+  font-weight: 700;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+/* Sidebar menu items (Bootstrap list-group) */
+.admin #sidebar-wrapper .list-group-item {
+  background: transparent;
+  border: 0;
+  color: var(--text);
+  padding: 0.65rem 1rem;
+  margin: 0.25rem 0.75rem;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  transition: background-color .2s ease, color .2s ease, transform .15s ease;
+}
+
+.admin #sidebar-wrapper .list-group-item i {
+  color: var(--primary);
+  width: 1.1rem;
+  text-align: center;
+}
+
+.admin #sidebar-wrapper .list-group-item:hover {
+  background: var(--bg-hover);
+  color: var(--primary);
+}
+
+.admin #sidebar-wrapper .list-group-item.active,
+.admin #sidebar-wrapper .list-group-item.active:hover {
+  background: #ffffff;
+  color: var(--primary);
+  box-shadow: 0 2px 8px rgba(231, 111, 43, 0.18);
+}
+
+/* Navbar */
+.admin .navbar {
+  background: #ffffff !important;
+  border-bottom: 1px solid var(--border-light) !important;
+}
+
+.admin .navbar .btn#menu-toggle {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  border-radius: 8px;
+}
+
+.admin .navbar .btn#menu-toggle:hover {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+/* Content area */
+.admin #page-content-wrapper .container-fluid {
+  padding: 1.5rem;
+}
+
+.admin .card, .admin .admin-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+}
+
+.admin .card-header {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-light);
+}
+
+/* Tables and rows */
+.admin .table thead th {
+  background: var(--bg-surface);
+  border-bottom: 2px solid var(--border-medium);
+}
+
+.admin .table tbody tr:nth-of-type(odd) {
+  background-color: var(--row-alt);
+}
+
+.admin .table tbody tr:hover {
+  background-color: var(--bg-hover);
+}
+
+/* Buttons */
+.admin .btn-primary { background: var(--primary); border-color: var(--primary); }
+.admin .btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
+
+/* Pills and badges alignment with theme */
+.admin .badge, .admin .list-group-item.active {
+  color: var(--primary);
+}
+
+/* Ensure wrapper toggle layout keeps working; we only colorize */
+/* We intentionally do not change widths/positions to avoid regressions. */
+
+/* Optional small polish */
+.admin .dropdown-menu {
+  border: 1px solid var(--border-light);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+/* Remove unwanted gaps; ensure white content on cards */
+.admin .content-wrapper, .admin .main-content, .admin .admin-content {
+  background: var(--bg);
+}
+
+/* --- Admin Razor Pages Dashboard structure --- */
+/* Sidebar container used by Pages/Admin/AdminDashboard.cshtml */
+.admin .admin-layout .sidebar {
+  background: linear-gradient(180deg, #fff7f1 0%, #ffe9db 100%);
+  border-right: 1px solid var(--border-light);
+}
+
+/* Nav list links in the custom sidebar */
+.admin .admin-layout .nav-list .nav-link {
+  color: var(--text) !important;
+  border-radius: 999px;
+}
+
+.admin .admin-layout .nav-list .nav-link:hover {
+  background: var(--bg-hover);
+  color: var(--primary) !important;
+}
+
+.admin .admin-layout .nav-list .nav-link.active,
+.admin .admin-layout .nav-list .nav-link[aria-current="page"] {
+  background: #ffffff;
+  color: var(--primary) !important;
+  box-shadow: 0 2px 8px rgba(231, 111, 43, 0.18);
+}
+
+.admin .admin-layout .nav-list .nav-link i {
+  color: var(--primary);
+}
+
+/* Main content background polish */
+.admin .admin-layout .main-content {
+  background: var(--bg);
+}
+
+/* Cards and tables inside dashboard */
+.admin .admin-layout .card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+}
+
+.admin .admin-layout .table thead th {
+  background: var(--bg-surface);
+  border-bottom: 2px solid var(--border-medium);
+}

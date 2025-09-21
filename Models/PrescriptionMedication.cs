@@ -14,10 +14,17 @@ namespace Barangay.Models
         
         [Required]
         public int MedicationId { get; set; }
+
+        [Required]
+        public string MedicationName { get; set; }
         
         [Required]
         [StringLength(100)]
         public string Dosage { get; set; } = string.Empty;
+        
+        [Required]
+        [StringLength(50)]
+        public string Unit { get; set; } = string.Empty;
         
         [Required]
         [StringLength(100)]
@@ -28,8 +35,6 @@ namespace Barangay.Models
         
         // Existing properties
         public int MedicalRecordId { get; set; }
-        
-        public string MedicationName { get; set; } = string.Empty;
         
         public string Duration { get; set; } = string.Empty;
         

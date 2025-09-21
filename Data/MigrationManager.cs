@@ -125,10 +125,12 @@ namespace Barangay.Data
                         [FilePath] NVARCHAR(256) NOT NULL DEFAULT (''),
                         [Status] NVARCHAR(50) NOT NULL DEFAULT ('Pending'),
                         [ApprovedAt] DATETIME2 NULL,
-                        [ApprovedBy] NVARCHAR(256) NULL DEFAULT (''),
+                        [ApprovedBy] NVARCHAR(450) NULL,
                         [FileSize] BIGINT NOT NULL DEFAULT (0),
                         [ContentType] NVARCHAR(100) NOT NULL DEFAULT ('application/octet-stream'),
-                        [UploadDate] DATETIME2 NOT NULL DEFAULT GETDATE()
+                        [UploadDate] DATETIME2 NOT NULL DEFAULT GETDATE(),
+                        CONSTRAINT [FK_UserDocuments_AspNetUsers_UserId] FOREIGN KEY ([UserId]) REFERENCES [AspNetUsers] ([Id]) ON DELETE CASCADE,
+                        CONSTRAINT [FK_UserDocuments_AspNetUsers_ApprovedBy] FOREIGN KEY ([ApprovedBy]) REFERENCES [AspNetUsers] ([Id])
                     );
                     
                     PRINT 'UserDocuments table created';
@@ -149,7 +151,6 @@ namespace Barangay.Data
                     UPDATE [UserDocuments] SET [FileName] = '' WHERE [FileName] IS NULL;
                     UPDATE [UserDocuments] SET [FilePath] = '' WHERE [FilePath] IS NULL;
                     UPDATE [UserDocuments] SET [Status] = 'Pending' WHERE [Status] IS NULL;
-                    UPDATE [UserDocuments] SET [ApprovedBy] = '' WHERE [ApprovedBy] IS NULL;
                     UPDATE [UserDocuments] SET [ContentType] = 'application/octet-stream' WHERE [ContentType] IS NULL;
                     UPDATE [UserDocuments] SET [FileSize] = 0 WHERE [FileSize] IS NULL;
                     PRINT 'NULL values fixed in UserDocuments table';

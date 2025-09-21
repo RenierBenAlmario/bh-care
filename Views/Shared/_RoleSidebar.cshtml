@@ -1,0 +1,24 @@
+@model string
+@{
+    var role = (Model ?? "").Trim();
+    var roleLower = role.ToLowerInvariant();
+    var iconClass = roleLower == "nurse" ? "fa-user-nurse" : roleLower == "doctor" ? "fa-user-md" : "fa-user-circle";
+}
+
+<nav class="sidebar" id="sidebar">
+    <!-- Sidebar Toggle Button -->
+    <button id="sidebarToggle" class="btn" aria-label="Toggle Sidebar">
+        <i class="fas fa-chevron-left"></i>
+    </button>
+
+    <div class="sidebar-sticky">
+        <div class="sidebar-profile">
+            <i class="fas @iconClass fa-3x mb-2"></i>
+            <p class="user-name">@(User?.Identity?.Name ?? "User")</p>
+            <small class="text-white-50">@role</small>
+        </div>
+        <ul class="nav flex-column">
+            @await Component.InvokeAsync("SidebarMenu", new { role = role })
+        </ul>
+    </div>
+</nav>

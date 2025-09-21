@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\Barangay.csproj": {}
+    "D:\\Imbakan\\Last\\Last\\BHCARE-mainNgawngaw\\BHCARE-main\\Barangay.csproj": {}
   },
   "projects": {
-    "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\Barangay.csproj": {
+    "D:\\Imbakan\\Last\\Last\\BHCARE-mainNgawngaw\\BHCARE-main\\Barangay.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\Barangay.csproj",
+        "projectUniqueName": "D:\\Imbakan\\Last\\Last\\BHCARE-mainNgawngaw\\BHCARE-main\\Barangay.csproj",
         "projectName": "Barangay",
-        "projectPath": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\Barangay.csproj",
-        "packagesPath": "C:\\Users\\WIN 10\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\WIN 10\\OneDrive\\Desktop\\BHCARE-main\\obj\\",
+        "projectPath": "D:\\Imbakan\\Last\\Last\\BHCARE-mainNgawngaw\\BHCARE-main\\Barangay.csproj",
+        "packagesPath": "C:\\Users\\Ben\\.nuget\\packages\\",
+        "outputPath": "D:\\Imbakan\\Last\\Last\\BHCARE-mainNgawngaw\\BHCARE-main\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\WIN 10\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\Ben\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -63,6 +63,10 @@
               "target": "Package",
               "version": "[8.0.2, )"
             },
+            "Microsoft.CodeAnalysis.Common": {
+              "target": "Package",
+              "version": "[4.8.0-3.final, )"
+            },
             "Microsoft.Data.SqlClient": {
               "target": "Package",
               "version": "[6.0.2, )"
@@ -91,6 +95,10 @@
               "target": "Package",
               "version": "[8.6.0, )"
             },
+            "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
+              "target": "Package",
+              "version": "[8.0.1, )"
+            },
             "Portable.BouncyCastle": {
               "target": "Package",
               "version": "[1.9.0, )"
@@ -99,13 +107,13 @@
               "target": "Package",
               "version": "[8.6.0, )"
             },
+            "iText7.bouncy-castle-adapter": {
+              "target": "Package",
+              "version": "[9.3.0, )"
+            },
             "itext7": {
               "target": "Package",
-              "version": "[9.1.0, )"
-            },
-            "itext7.commons": {
-              "target": "Package",
-              "version": "[9.1.0, )"
+              "version": "[9.3.0, )"
             },
             "itext7.pdfhtml": {
               "target": "Package",
@@ -131,7 +139,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.310/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.414/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
