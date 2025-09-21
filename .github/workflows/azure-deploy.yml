@@ -9,7 +9,7 @@ on:
 
 env:
   DOTNET_VERSION: '8.0.x'
-  AZURE_WEBAPP_NAME: "bhcare-webapp"
+  AZURE_WEBAPP_NAME: 'bhcare-webapp-linux'   # Linux App Service
   AZURE_RESOURCE_GROUP: 'BHcare'
 
 jobs:
@@ -66,13 +66,13 @@ jobs:
         inlineScript: |
           echo "Checking if App Service exists..."
           if ! az webapp show --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} >/dev/null 2>&1; then
-            echo "Creating Windows App Service..."
+            echo "Creating Linux App Service..."
             az webapp create \
               --name ${{ env.AZURE_WEBAPP_NAME }} \
               --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-              --runtime "DOTNET|8.0" \
+              --runtime "DOTNETCORE|8.0" \
               --plan "ASP-BHcare-a3ad"
-            echo "Windows App Service created successfully!"
+            echo "Linux App Service created successfully!"
           else
             echo "App Service already exists!"
           fi
