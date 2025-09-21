@@ -99,7 +99,7 @@ jobs:
             --name ${{ env.AZURE_WEBAPP_NAME }} \
             --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
             --connection-string-type SQLServer \
-            --settings "DefaultConnection=${{ secrets.AZURE_SQL_CONNECTION_STRING }}"
+            --settings DefaultConnection="${{ secrets.AZURE_SQL_CONNECTION_STRING }}"
           echo "Database connection configured!"
     
     # -------------------------
