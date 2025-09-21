@@ -9,7 +9,7 @@ on:
 
 env:
   DOTNET_VERSION: '8.0.x'
-  AZURE_WEBAPP_NAME: 'bhcare-webapp-linux'   # Linux App Service
+  AZURE_WEBAPP_NAME: 'bhcare-webapp'   # Linux App Service
   AZURE_RESOURCE_GROUP: 'BHcare'
 
 jobs:
@@ -71,7 +71,8 @@ jobs:
               --name ${{ env.AZURE_WEBAPP_NAME }} \
               --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
               --runtime "DOTNETCORE|8.0" \
-              --plan "ASP-BHcare-a3ad"
+              --plan "ASP-BHcare-a3ad" \
+              --os-type "Linux"
             echo "Linux App Service created successfully!"
           else
             echo "App Service already exists!"
