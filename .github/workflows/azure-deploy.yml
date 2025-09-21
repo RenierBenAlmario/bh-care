@@ -9,7 +9,7 @@ on:
 
 env:
   DOTNET_VERSION: '8.0.x'
-  AZURE_WEBAPP_NAME: 'bhcare-webapp-linux'   # Updated for Linux App Service
+  AZURE_WEBAPP_NAME: 'bhcare-webapp'   # Updated for Linux App Service
   AZURE_RESOURCE_GROUP: 'BHcare'
 
 jobs:
@@ -53,7 +53,7 @@ jobs:
     # Azure Login
     # -------------------------
     - name: Azure Login
-      uses: azure/login@v2
+      uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
     
