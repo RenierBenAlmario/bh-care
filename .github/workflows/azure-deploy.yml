@@ -53,9 +53,29 @@ jobs:
     # Azure Login
     # -------------------------
     - name: Azure Login
-      uses: azure/login@v1
+      uses: azure/login@v2
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    # -------------------------
+    # Create App Service (if not exists)
+    # -------------------------
+    - name: Create App Service
+      uses: azure/CLI@v2
+      with:
+        inlineScript: |
+          echo "Checking if App Service exists..."
+          if ! az webapp show --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} >/dev/null 2>&1; then
+            echo "Creating App Service..."
+            az webapp create \
+              --name ${{ env.AZURE_WEBAPP_NAME }} \
+              --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+              --runtime "DOTNET|8.0" \
+              --plan "ASP-BHcare-a3ad"
+            echo "App Service created successfully!"
+          else
+            echo "App Service already exists!"
+          fi
     
     # -------------------------
     # Deploy to Azure Web App
@@ -64,7 +84,8 @@ jobs:
       uses: azure/webapps-deploy@v3
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          package: ./publish
+        resource-group: ${{ env.AZURE_RESOURCE_GROUP }}
+        package: ./publish
 
     
     # -------------------------
