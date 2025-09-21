@@ -9,7 +9,7 @@ on:
 
 env:
   DOTNET_VERSION: '8.0.x'
-  AZURE_WEBAPP_NAME: 'bhcare-webapp'
+  AZURE_WEBAPP_NAME: 'bhcare-webapp'   # Change if your app name is different
   AZURE_RESOURCE_GROUP: 'BHcare'
 
 jobs:
@@ -17,14 +17,23 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+    # -------------------------
+    # Checkout source code
+    # -------------------------
     - name: Checkout code
       uses: actions/checkout@v4
     
+    # -------------------------
+    # Setup .NET
+    # -------------------------
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     
+    # -------------------------
+    # Restore, Build, Test
+    # -------------------------
     - name: Restore dependencies
       run: dotnet restore
     
@@ -34,14 +43,23 @@ jobs:
     - name: Test
       run: dotnet test --no-build --configuration Release --verbosity normal --logger trx --results-directory ./TestResults
     
+    # -------------------------
+    # Publish for deployment
+    # -------------------------
     - name: Publish
       run: dotnet publish --no-build --configuration Release --output ./publish
     
+    # -------------------------
+    # Azure Login
+    # -------------------------
     - name: Azure Login
       uses: azure/login@v2
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
     
+    # -------------------------
+    # Deploy to Azure Web App
+    # -------------------------
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v3
       with:
@@ -49,38 +67,55 @@ jobs:
         resource-group: ${{ env.AZURE_RESOURCE_GROUP }}
         package: ./publish
     
+    # -------------------------
+    # Configure App Settings
+    # -------------------------
     - name: Configure App Settings
       uses: azure/CLI@v2
       with:
         inlineScript: |
           echo "Configuring app settings..."
-          az webapp config appsettings set --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --settings "ASPNETCORE_ENVIRONMENT=Production"
-          az webapp config appsettings set --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --settings "EncryptionKey=BHCARE_Production_Encryption_Key_2024_Secure_32Chars"
-          az webapp config appsettings set --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --settings "DataEncryption__Key=BHCARE_Production_DataEncryption_Key_2024_Secure_32Chars"
-          az webapp config appsettings set --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --settings "EmailSettings__SmtpHost=smtp.gmail.com"
-          az webapp config appsettings set --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --settings "EmailSettings__SmtpPort=587"
-          az webapp config appsettings set --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --settings "EmailSettings__SmtpUsername=barangayexample549@gmail.com"
-          az webapp config appsettings set --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --settings "EmailSettings__SmtpPassword=${{ secrets.EMAIL_PASSWORD }}"
-          az webapp config appsettings set --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --settings "EmailSettings__FromEmail=barangayexample549@gmail.com"
-          az webapp config appsettings set --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --settings "EmailSettings__EnableSsl=true"
+          az webapp config appsettings set --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --settings \
+            "ASPNETCORE_ENVIRONMENT=Production" \
+            "EncryptionKey=BHCARE_Production_Encryption_Key_2024_Secure_32Chars" \
+            "DataEncryption__Key=BHCARE_Production_DataEncryption_Key_2024_Secure_32Chars" \
+            "EmailSettings__SmtpHost=smtp.gmail.com" \
+            "EmailSettings__SmtpPort=587" \
+            "EmailSettings__SmtpUsername=barangayexample549@gmail.com" \
+            "EmailSettings__SmtpPassword=${{ secrets.EMAIL_PASSWORD }}" \
+            "EmailSettings__FromEmail=barangayexample549@gmail.com" \
+            "EmailSettings__EnableSsl=true"
           echo "App settings configured successfully!"
     
+    # -------------------------
+    # Configure Connection String
+    # -------------------------
     - name: Configure Connection String
       uses: azure/CLI@v2
       with:
         inlineScript: |
           echo "Configuring database connection..."
-          az webapp config connection-string set --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --connection-string-type SQLServer --settings "DefaultConnection=${{ secrets.AZURE_SQL_CONNECTION_STRING }}"
+          az webapp config connection-string set \
+            --name ${{ env.AZURE_WEBAPP_NAME }} \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --connection-string-type SQLServer \
+            --settings "DefaultConnection=${{ secrets.AZURE_SQL_CONNECTION_STRING }}"
           echo "Database connection configured!"
     
+    # -------------------------
+    # Run Database Migrations (if EF Core is used)
+    # -------------------------
     - name: Run Database Migrations
-      uses: azure/CLI@v2
-      with:
-        inlineScript: |
-          echo "Running database migrations..."
-          az webapp restart --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }}
-          echo "Application restarted successfully!"
+      run: |
+        echo "Running database migrations..."
+        dotnet tool install --global dotnet-ef
+        export PATH="$PATH:/home/runner/.dotnet/tools"
+        dotnet ef database update --project ./BHCARE.csproj
+        echo "Database migrations applied!"
     
+    # -------------------------
+    # Verify Deployment
+    # -------------------------
     - name: Verify Deployment
       uses: azure/CLI@v2
       with:
@@ -89,6 +124,9 @@ jobs:
           az webapp show --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --query "state" -o tsv
           echo "Deployment verification complete!"
     
+    # -------------------------
+    # Upload Test Results
+    # -------------------------
     - name: Upload Test Results
       uses: actions/upload-artifact@v4
       if: always()
