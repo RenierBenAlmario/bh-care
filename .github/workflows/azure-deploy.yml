@@ -117,13 +117,9 @@ jobs:
     # Verify Deployment
     # -------------------------
     - name: Verify Deployment
-      uses: azure/CLI@v2
+      uses: azure/login@v2
       with:
-        inlineScript: |
-          echo "Verifying deployment..."
-          az webapp show --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --query "state" -o tsv
-          echo "Deployment verification complete!"
-    
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
     # -------------------------
     # Upload Test Results
     # -------------------------
