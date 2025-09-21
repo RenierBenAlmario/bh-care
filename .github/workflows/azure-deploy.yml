@@ -9,7 +9,7 @@ on:
 
 env:
   DOTNET_VERSION: '8.0.x'
-  AZURE_WEBAPP_NAME: 'bhcare-webapp'   # Change if your app name is different
+  AZURE_WEBAPP_NAME: 'bhcare-webapp-linux'   # Updated for Linux App Service
   AZURE_RESOURCE_GROUP: 'BHcare'
 
 jobs:
