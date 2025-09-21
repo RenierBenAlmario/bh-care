@@ -70,9 +70,8 @@ jobs:
             az webapp create \
               --name ${{ env.AZURE_WEBAPP_NAME }} \
               --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-              --runtime "DOTNETCORE|8.0" \
               --plan "ASP-BHcare-a3ad" \
-              --os-type "Linux"
+              --deployment-container-image-name "mcr.microsoft.com/azure-appservice/dotnetcore:8.0"
             echo "Linux App Service created successfully!"
           else
             echo "App Service already exists!"
