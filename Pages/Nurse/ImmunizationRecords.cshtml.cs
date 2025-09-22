@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Barangay.Data;
 using Barangay.Models;
 using Barangay.Services;
+using Barangay.Extensions;
+using System;
 
 namespace Barangay.Pages.Nurse
 {
@@ -15,15 +17,18 @@ namespace Barangay.Pages.Nurse
         private readonly EncryptedDbContext _context;
         private readonly IImmunizationReminderService _immunizationReminderService;
         private readonly ILogger<ImmunizationRecordsModel> _logger;
+        private readonly IDataEncryptionService _encryptionService;
 
         public ImmunizationRecordsModel(
             EncryptedDbContext context,
             IImmunizationReminderService immunizationReminderService,
-            ILogger<ImmunizationRecordsModel> logger)
+            ILogger<ImmunizationRecordsModel> logger,
+            IDataEncryptionService encryptionService)
         {
             _context = context;
             _immunizationReminderService = immunizationReminderService;
             _logger = logger;
+            _encryptionService = encryptionService;
         }
 
         [BindProperty(SupportsGet = true)]
@@ -35,32 +40,50 @@ namespace Barangay.Pages.Nurse
         [BindProperty(SupportsGet = true)]
         public string FamilyNumber { get; set; } = string.Empty;
 
-        public IQueryable<ImmunizationRecord> Records { get; set; } = Enumerable.Empty<ImmunizationRecord>().AsQueryable();
+        public List<ImmunizationRecord> Records { get; set; } = new List<ImmunizationRecord>();
 
         public async Task OnGetAsync()
         {
+            // Clear any potential caching
+            _context.ChangeTracker.Clear();
+            
             var query = _context.ImmunizationRecords.AsQueryable();
 
-            // Apply search filters
+            // Order by most recent first and materialize the query first
+            Records = await query.OrderByDescending(r => r.CreatedAt).ToListAsync();
+
+            _logger.LogInformation($"Loaded {Records.Count} immunization records from database");
+
+            // Decrypt all records for authorized users BEFORE applying search filters
+            foreach (var record in Records)
+            {
+                _logger.LogInformation($"Before decryption - Record ID: {record.Id}, ChildName: {record.ChildName?.Substring(0, Math.Min(20, record.ChildName?.Length ?? 0))}..., FamilyNumber: {record.FamilyNumber?.Substring(0, Math.Min(20, record.FamilyNumber?.Length ?? 0))}...");
+                
+                // Force decryption by calling the method directly
+                record.DecryptImmunizationData(_encryptionService, User);
+                
+                _logger.LogInformation($"After decryption - Record ID: {record.Id}, ChildName: {record.ChildName?.Substring(0, Math.Min(20, record.ChildName?.Length ?? 0))}..., FamilyNumber: {record.FamilyNumber?.Substring(0, Math.Min(20, record.FamilyNumber?.Length ?? 0))}...");
+            }
+
+            // Apply search filters AFTER decryption
             if (!string.IsNullOrEmpty(SearchTerm))
             {
-                query = query.Where(r => r.ChildName.Contains(SearchTerm) || 
-                                        r.MotherName.Contains(SearchTerm) ||
-                                        r.FatherName.Contains(SearchTerm));
+                Records = Records.Where(r => r.ChildName.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase) || 
+                                           r.MotherName.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase) ||
+                                           r.FatherName.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
             }
 
             if (!string.IsNullOrEmpty(SelectedBarangay))
             {
-                query = query.Where(r => r.Barangay == SelectedBarangay);
+                Records = Records.Where(r => r.Barangay == SelectedBarangay).ToList();
             }
 
             if (!string.IsNullOrEmpty(FamilyNumber))
             {
-                query = query.Where(r => r.FamilyNumber.Contains(FamilyNumber));
+                Records = Records.Where(r => r.FamilyNumber.Contains(FamilyNumber, StringComparison.OrdinalIgnoreCase)).ToList();
             }
 
-            // Order by most recent first
-            Records = query.OrderByDescending(r => r.CreatedAt);
+            _logger.LogInformation($"Final filtered records count: {Records.Count}");
         }
 
         public async Task<IActionResult> OnPostDeleteAsync(int id)

@@ -30,6 +30,7 @@ namespace Barangay.Pages.Doctor
         }
 
         public Patient? Patient { get; set; }
+        public ApplicationUser? CurrentUser { get; set; }
         public List<MedicalRecordViewModel> MedicalRecords { get; set; } = new();
         public List<PrescriptionMedicationViewModel> Medications { get; set; } = new();
         public GuardianInformation? Guardian { get; set; }
@@ -50,6 +51,13 @@ namespace Barangay.Pages.Doctor
             {
                 _logger.LogWarning("Doctor ID not found");
                 return Unauthorized();
+            }
+
+            // Load current user (doctor) information
+            CurrentUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == doctorId);
+            if (CurrentUser != null)
+            {
+                CurrentUser.DecryptSensitiveData(_encryptionService, User);
             }
 
             try

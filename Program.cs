@@ -319,6 +319,7 @@ builder.Services.AddControllersWithViews(options =>
 // Add hosted services
 builder.Services.AddHostedService<SessionCleanupService>();
 builder.Services.AddHostedService<AppointmentReminderBackgroundService>();
+builder.Services.AddHostedService<TokenCleanupService>();
 
 // Register Notification Service
 builder.Services.AddScoped<INotificationService, NotificationService>();
@@ -329,8 +330,17 @@ builder.Services.AddScoped<IUserVerificationService, UserVerificationService>();
 // Register RBAC Permission Service
 builder.Services.AddScoped<IPermissionService, PermissionService>();
 
+// Register Token Service
+builder.Services.AddScoped<ITokenService, TokenService>();
+
+// Register Protected URL Service
+builder.Services.AddScoped<IProtectedUrlService, ProtectedUrlService>();
+
 // Register Database Seeder
 builder.Services.AddScoped<DatabaseSeeder>();
+
+// Register Database Initializer
+builder.Services.AddScoped<DatabaseInitializer>();
 
 // Register Permission Fix Service
 builder.Services.AddScoped<PermissionFixService>();
@@ -370,6 +380,11 @@ using (var scope = app.Services.CreateScope())
     {
         var seeder = services.GetRequiredService<DatabaseSeeder>();
         await seeder.SeedAllAsync();
+        
+        // Initialize UrlTokens table
+        var dbInitializer = services.GetRequiredService<DatabaseInitializer>();
+        await dbInitializer.InitializeAsync();
+        
         var logger = services.GetRequiredService<ILogger<Program>>();
         logger.LogInformation("Database seeding completed successfully");
     }
@@ -402,6 +417,8 @@ app.UseAuthentication();
 // Ensure verified user checks run for authenticated requests (returns 403 JSON for AJAX)
 app.UseVerifiedUserMiddleware();
 app.UseMiddleware<DataEncryptionMiddleware>();
+// Add token validation middleware for protected routes
+app.UseMiddleware<TokenValidationMiddleware>();
 app.UseAuthorization();
 
 app.MapRazorPages();

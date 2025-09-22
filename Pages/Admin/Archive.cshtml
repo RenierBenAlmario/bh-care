@@ -1,0 +1,2865 @@
+@page
+@model Barangay.Pages.Admin.ArchiveModel
+@{
+    ViewData["Title"] = "Family Health Archive";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-archive me-2"></i>Family Health Records Archive
+                    </h4>
+                    <p class="mb-0 mt-2">Comprehensive view of all family health records</p>
+                </div>
+                <div class="card-body">
+                    <!-- Family Records Grid -->
+                    <div class="row">
+                        @{
+                            // Group all records by family number - UNIFIED APPROACH
+                            var allFamilies = new Dictionary<string, object>();
+                            
+                            // First pass: Collect all unique family identifiers from all record types
+                            var familyIdentifiers = new HashSet<string>();
+                            
+                            foreach (var record in Model.ImmunizationRecords)
+                            {
+                                if (!string.IsNullOrEmpty(record.FamilyNumber))
+                                    familyIdentifiers.Add(record.FamilyNumber);
+                            }
+                            
+                            foreach (var record in Model.HEEADSSSAssessments)
+                            {
+                                if (!string.IsNullOrEmpty(record.FamilyNo))
+                                    familyIdentifiers.Add(record.FamilyNo);
+                            }
+                            
+                            foreach (var record in Model.NCDRiskAssessments)
+                            {
+                                if (!string.IsNullOrEmpty(record.FamilyNo))
+                                    familyIdentifiers.Add(record.FamilyNo);
+                            }
+                            
+                            foreach (var record in Model.VitalSigns)
+                            {
+                                if (!string.IsNullOrEmpty(record.PatientId))
+                                    familyIdentifiers.Add(record.PatientId);
+                            }
+                            
+                            // Second pass: Create unified family entries for each unique identifier
+                            foreach (var familyId in familyIdentifiers)
+                            {
+                                allFamilies[familyId] = new FamilyData
+                                {
+                                    FamilyNumber = familyId,
+                                    ImmunizationRecords = new List<object>(),
+                                    HEEADSSSRecords = new List<object>(),
+                                    NCDRecords = new List<object>(),
+                                    VitalSignsRecords = new List<object>(),
+                                    LastUpdated = "",
+                                    MotherName = "",
+                                    FatherName = "",
+                                    Address = "",
+                                    ContactNumber = ""
+                                };
+                            }
+                            
+                            // Third pass: Add records to their respective families and update family info
+                            foreach (var record in Model.ImmunizationRecords)
+                            {
+                                if (!string.IsNullOrEmpty(record.FamilyNumber) && allFamilies.ContainsKey(record.FamilyNumber))
+                                {
+                                    ((dynamic)allFamilies[record.FamilyNumber]).ImmunizationRecords.Add(record);
+                                    
+                                    // Update family info from immunization record (highest priority)
+                                    var family = (FamilyData)allFamilies[record.FamilyNumber];
+                                    if (!string.IsNullOrEmpty(record.MotherName))
+                                        family.MotherName = record.MotherName;
+                                    if (!string.IsNullOrEmpty(record.FatherName))
+                                        family.FatherName = record.FatherName;
+                                    if (!string.IsNullOrEmpty(record.Address))
+                                        family.Address = record.Address;
+                                    if (!string.IsNullOrEmpty(record.ContactNumber))
+                                        family.ContactNumber = record.ContactNumber;
+                                    if (string.IsNullOrEmpty(family.LastUpdated))
+                                        family.LastUpdated = record.UpdatedAt?.ToString() ?? record.CreatedAt?.ToString() ?? "";
+                                }
+                            }
+                            
+                            foreach (var record in Model.HEEADSSSAssessments)
+                            {
+                                if (!string.IsNullOrEmpty(record.FamilyNo) && allFamilies.ContainsKey(record.FamilyNo))
+                                {
+                                    ((dynamic)allFamilies[record.FamilyNo]).HEEADSSSRecords.Add(record);
+                                    
+                                    // Update family info from HEEADSSS record if not already set
+                                    var family = (FamilyData)allFamilies[record.FamilyNo];
+                                    if (string.IsNullOrEmpty(family.Address) && !string.IsNullOrEmpty(record.Address))
+                                        family.Address = record.Address;
+                                    if (string.IsNullOrEmpty(family.ContactNumber) && !string.IsNullOrEmpty(record.ContactNumber))
+                                        family.ContactNumber = record.ContactNumber;
+                                    if (string.IsNullOrEmpty(family.LastUpdated))
+                                        family.LastUpdated = record.CreatedAt.ToString();
+                                }
+                            }
+                            
+                            foreach (var record in Model.NCDRiskAssessments)
+                            {
+                                if (!string.IsNullOrEmpty(record.FamilyNo) && allFamilies.ContainsKey(record.FamilyNo))
+                                {
+                                    ((dynamic)allFamilies[record.FamilyNo]).NCDRecords.Add(record);
+                                    
+                                    // Update family info from NCD record if not already set
+                                    var family = (FamilyData)allFamilies[record.FamilyNo];
+                                    if (string.IsNullOrEmpty(family.Address) && !string.IsNullOrEmpty(record.Address))
+                                        family.Address = record.Address;
+                                    if (string.IsNullOrEmpty(family.ContactNumber) && !string.IsNullOrEmpty(record.Telepono))
+                                        family.ContactNumber = record.Telepono;
+                                    if (string.IsNullOrEmpty(family.LastUpdated))
+                                        family.LastUpdated = record.CreatedAt?.ToString() ?? record.UpdatedAt?.ToString() ?? "";
+                                }
+                            }
+                            
+                            foreach (var record in Model.VitalSigns)
+                            {
+                                if (!string.IsNullOrEmpty(record.PatientId) && allFamilies.ContainsKey(record.PatientId))
+                                {
+                                    ((dynamic)allFamilies[record.PatientId]).VitalSignsRecords.Add(record);
+                                    
+                                    // Update family info from Vital Signs record if not already set
+                                    var family = (FamilyData)allFamilies[record.PatientId];
+                                    if (string.IsNullOrEmpty(family.LastUpdated))
+                                        family.LastUpdated = record.RecordedAt.ToString();
+                                }
+                            }
+                        }
+                        
+                        @foreach (var family in allFamilies.Values)
+                        {
+                            var familyData = (FamilyData)family;
+                            var totalRecords = familyData.ImmunizationRecords.Count + 
+                                             familyData.HEEADSSSRecords.Count + 
+                                             familyData.NCDRecords.Count + 
+                                             familyData.VitalSignsRecords.Count;
+                            
+                            <div class="col-md-6 col-lg-4 mb-4">
+                                <div class="card h-100 family-card">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-users me-2"></i>Family @familyData.FamilyNumber
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <small class="text-muted">Total Records:</small>
+                                                <div class="fw-bold">@totalRecords</div>
+                                            </div>
+                                            <div class="col-6">
+                                                <small class="text-muted">Last Updated:</small>
+                                                <div class="fw-bold">@familyData.LastUpdated</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Record Type Counts -->
+                                        <div class="mt-3">
+                                            <small class="text-muted">Record Types:</small>
+                                            <div class="row mt-1">
+                                                <div class="col-6">
+                                                    <span class="badge bg-success me-1">💉 @familyData.ImmunizationRecords.Count</span>
+                                                    <span class="badge bg-info me-1">🧠 @familyData.HEEADSSSRecords.Count</span>
+                                                </div>
+                                                <div class="col-6">
+                                                    <span class="badge bg-warning me-1">❤️ @familyData.NCDRecords.Count</span>
+                                                    <span class="badge bg-danger me-1">📊 @familyData.VitalSignsRecords.Count</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mt-3">
+                                            <small class="text-muted">Family Info:</small>
+                                            <div class="small">
+                                                <div><strong>Mother:</strong> @(familyData.MotherName ?? "N/A")</div>
+                                                <div><strong>Father:</strong> @(familyData.FatherName ?? "N/A")</div>
+                                                <div><strong>Address:</strong> @(familyData.Address ?? "N/A")</div>
+                                                <div><strong>Contact:</strong> @(familyData.ContactNumber ?? "N/A")</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mt-3">
+                                            <button class="btn btn-primary btn-sm w-100" onclick="viewFamilyDetails('@familyData.FamilyNumber')">
+                                                <i class="fas fa-eye me-1"></i>View All Records
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    
+                    <!-- Family Details Modal -->
+                    <div class="modal fade" id="familyDetailsModal" tabindex="-1">
+                        <div class="modal-dialog modal-xl">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">
+                                        <i class="fas fa-users me-2"></i>Family Details
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div id="familyDetailsContent">
+                                        <div class="text-center">
+                                            <div class="spinner-border" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                            <p class="mt-2">Loading family details...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .family-card {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        border: 1px solid #e0e0e0;
+    }
+    
+    .family-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+    
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+    
+    .record-section {
+        border-left: 4px solid #007bff;
+        padding-left: 15px;
+        margin-bottom: 20px;
+        background-color: #f8f9fa;
+        border-radius: 0 8px 8px 0;
+    }
+    
+    .record-type-header {
+        font-weight: bold;
+        color: #007bff;
+        margin-bottom: 10px;
+    }
+    
+    .record-details {
+        background-color: white;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 10px;
+        border: 1px solid #e0e0e0;
+    }
+    
+    .record-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+    
+    .record-item {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #e0e0e0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .record-item:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        text-align: center;
+        color: #6b7280;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        border: 2px dashed #d1d5db;
+    }
+    
+    .empty-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    .empty-state h6 {
+        margin: 0 0 0.5rem 0;
+        color: #374151;
+        font-weight: 600;
+    }
+    
+    .empty-state p {
+        margin: 0;
+        font-size: 0.875rem;
+    }
+
+    /* Pre-Decryption View Styles */
+    .record-summary {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .summary-item:last-child {
+        border-bottom: none;
+    }
+
+    .summary-label {
+        font-weight: 500;
+        color: #6b7280;
+    }
+
+    .summary-value {
+        font-weight: 600;
+        color: #1f2937;
+    }
+
+    .record-types {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .record-type-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .record-type-item:last-child {
+        border-bottom: none;
+    }
+
+    .record-type-item i {
+        color: #6b7280;
+    }
+
+    .record-type-item span:first-of-type {
+        font-weight: 500;
+        color: #374151;
+    }
+
+    /* NCD Record Details Styles */
+    .ncd-record-details {
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 0.5rem 0;
+    }
+
+    .ncd-record-details h6 {
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+    }
+
+    .ncd-record-details .row {
+        margin-bottom: 0.5rem;
+    }
+
+    .ncd-record-details .row:last-child {
+        margin-bottom: 0;
+    }
+
+    .health-conditions-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+    }
+
+    .health-conditions-badges .badge {
+        font-size: 0.75rem;
+        padding: 0.375rem 0.75rem;
+    }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/node-rsa/1.1.1/node-rsa.min.js"></script>
+
+<script>
+    // Simple Passphrase Encryption System (AES with fixed key)
+    class PassphraseEncryption {
+        constructor() {
+            this.passphrase = null;
+            this.defaultPassphrase = "bhcare202420252026";
+        }
+
+        // Encrypt data using passphrase
+        encryptData(plaintext, passphrase = null) {
+            try {
+                const key = passphrase || this.defaultPassphrase;
+                
+                // Encrypt data with AES using passphrase
+                const encryptedData = CryptoJS.AES.encrypt(plaintext, key).toString();
+                
+                return {
+                    encryptedData: encryptedData,
+                    success: true
+                };
+            } catch (error) {
+                console.error('Encryption error:', error);
+                return { success: false, error: error.message };
+            }
+        }
+
+        // Decrypt data using passphrase
+        decryptData(encryptedData, passphrase = null) {
+            try {
+                const key = passphrase || this.defaultPassphrase;
+                
+                // Check if the data looks like it might be encrypted
+                if (!encryptedData || typeof encryptedData !== 'string' || encryptedData.trim() === '') {
+                    return { success: false, error: 'Empty or invalid data' };
+                }
+                
+                // Try multiple decryption methods
+                const methods = [
+                    // Method 1: Direct AES decryption
+                    () => {
+                        const decryptedBytes = CryptoJS.AES.decrypt(encryptedData, key);
+                        if (decryptedBytes.sigBytes <= 0) {
+                            throw new Error('Decryption failed - invalid key or corrupted data');
+                        }
+                        const decryptedData = decryptedBytes.toString(CryptoJS.enc.Utf8);
+                        return decryptedData;
+                    },
+                    // Method 2: AES with different key derivation
+                    () => {
+                        const derivedKey = CryptoJS.PBKDF2(key, CryptoJS.enc.Utf8.parse('salt'), {
+                            keySize: 256/32,
+                            iterations: 1000
+                        });
+                        const decryptedBytes = CryptoJS.AES.decrypt(encryptedData, derivedKey);
+                        if (decryptedBytes.sigBytes <= 0) {
+                            throw new Error('Decryption failed - invalid key or corrupted data');
+                        }
+                        const decryptedData = decryptedBytes.toString(CryptoJS.enc.Utf8);
+                        return decryptedData;
+                    },
+                    // Method 3: Try with different encoding
+                    () => {
+                        const decryptedBytes = CryptoJS.AES.decrypt(encryptedData, key);
+                        if (decryptedBytes.sigBytes <= 0) {
+                            throw new Error('Decryption failed - invalid key or corrupted data');
+                        }
+                        const decryptedData = decryptedBytes.toString(CryptoJS.enc.Latin1);
+                        return decryptedData;
+                    },
+                    // Method 4: Try with old hybrid encryption format (if it exists)
+                    () => {
+                        // This might be data from the old hybrid encryption system
+                        // Try to extract and decrypt if it's in the old format
+                        if (encryptedData.includes('|') && encryptedData.includes(':')) {
+                            const parts = encryptedData.split('|');
+                            if (parts.length >= 2) {
+                                const aesKey = parts[0];
+                                const encryptedDataPart = parts[1];
+                                // Try to decrypt with the extracted AES key
+                                const decryptedBytes = CryptoJS.AES.decrypt(encryptedDataPart, aesKey);
+                                const decryptedData = decryptedBytes.toString(CryptoJS.enc.Utf8);
+                                return decryptedData;
+                            }
+                        }
+                        return null;
+                    }
+                ];
+                
+                for (let i = 0; i < methods.length; i++) {
+                    try {
+                        const decryptedData = methods[i]();
+                        
+                        // Check if decryption was successful
+                        if (decryptedData && decryptedData.trim() !== '') {
+                            // Validate that the decrypted data looks reasonable
+                            if (this.isValidDecryptedData(decryptedData)) {
+                                return {
+                                    decryptedData: decryptedData,
+                                    success: true,
+                                    method: i + 1
+                                };
+                            } else {
+                                console.log(`Method ${i + 1} produced invalid data:`, decryptedData.substring(0, 50) + '...');
+                            }
+                        }
+                    } catch (methodError) {
+                        // Continue to next method
+                        console.log(`Method ${i + 1} failed:`, methodError.message);
+                        continue;
+                    }
+                }
+                
+                return { success: false, error: 'Decryption failed - data may be encrypted with different method or key' };
+            } catch (error) {
+                console.error('Decryption error:', error);
+                return { success: false, error: error.message };
+            }
+        }
+
+        // Validate decrypted data
+        isValidDecryptedData(data) {
+            if (!data || typeof data !== 'string') return false;
+            
+            // Check for garbled text patterns
+            if (this.isGarbledText(data)) {
+                return false;
+            }
+            
+            // Check if it looks like reasonable decrypted data
+            // Should not contain only special characters or be too short
+            const hasReasonableContent = /[a-zA-Z0-9\s]/.test(data);
+            const notTooShort = data.length >= 2;
+            const notTooLong = data.length <= 1000; // Reasonable limit
+            
+            return hasReasonableContent && notTooShort && notTooLong;
+        }
+
+        // Check if text is garbled (contains invalid characters)
+        isGarbledText(value) {
+            if (!value || typeof value !== 'string') return false;
+
+            const totalChars = value.length;
+            if (totalChars === 0) return false;
+
+            let nonPrintableCount = 0;
+            let controlCharCount = 0;
+            let unicodeReplacementCharCount = 0; // U+FFFD
+
+            for (let i = 0; i < totalChars; i++) {
+                const charCode = value.charCodeAt(i);
+                if (charCode < 32 || charCode > 126) { // Not ASCII printable
+                    nonPrintableCount++;
+                    if (charCode === 65533) { // U+FFFD, replacement character for invalid Unicode
+                        unicodeReplacementCharCount++;
+                    }
+                    if (charCode < 32 || (charCode >= 127 && charCode <= 159)) { // ASCII control characters or C1 controls
+                        controlCharCount++;
+                    }
+                }
+            }
+
+            // Heuristics for garbled text:
+            // 1. Any Unicode replacement character (U+FFFD) in a string longer than 10 chars
+            // 2. More than 30% non-printable characters in a string longer than 10 chars
+            // 3. More than 10% control characters in a string longer than 10 chars
+            const nonPrintableRatio = nonPrintableCount / totalChars;
+            const controlCharRatio = controlCharCount / totalChars;
+
+            if (totalChars > 10) {
+                if (unicodeReplacementCharCount > 0) return true;
+                if (nonPrintableRatio > 0.3) return true;
+                if (controlCharRatio > 0.1) return true;
+            } else if (totalChars > 0 && unicodeReplacementCharCount > 0) {
+                // Even short strings with replacement chars are likely garbled
+                return true;
+            }
+
+            return false;
+        }
+
+        // Set custom passphrase
+        setPassphrase(passphrase) {
+            try {
+                this.passphrase = passphrase;
+                return { success: true };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+
+        // Clear passphrase from memory
+        clearPassphrase() {
+            this.passphrase = null;
+        }
+
+        // Get current passphrase (for display purposes)
+        getCurrentPassphrase() {
+            return this.passphrase || this.defaultPassphrase;
+        }
+    }
+
+    // Global encryption instance
+    const passphraseEncryption = new PassphraseEncryption();
+
+    // Check if records contain encrypted data
+    function checkForEncryptedRecords(data) {
+        const allRecords = [
+            ...(data.immunization || []),
+            ...(data.heeadsss || []),
+            ...(data.ncd || []),
+            ...(data.vitalSigns || [])
+        ];
+
+        return allRecords.some(record => {
+            // Check for encrypted field patterns
+            const fields = Object.values(record);
+            return fields.some(field => 
+                typeof field === 'string' && 
+                (field.includes('encrypted') || 
+                 field.length > 50 && /^[A-Za-z0-9+/=]+$/.test(field))
+            );
+        });
+    }
+
+    // Display encrypted family data with decryption option
+    function displayEncryptedFamilyData(data, familyId) {
+        const content = document.getElementById('familyDetailsContent');
+        
+        // Calculate record counts from encrypted metadata (no decryption needed)
+        const getRecordCounts = (data) => {
+            const counts = {
+                total: 0,
+                ncd: 0,
+                headsess: 0,
+                immunization: 0,
+                vitalSigns: 0
+            };
+
+            // Parse encrypted data to count records without decrypting
+            if (data?.ncd) counts.ncd = data.ncd.length;
+            if (data?.heeadsss) counts.headsess = data.heeadsss.length;
+            if (data?.immunization) counts.immunization = data.immunization.length;
+            if (data?.vitalSigns) counts.vitalSigns = data.vitalSigns.length;
+            
+            counts.total = counts.ncd + counts.headsess + counts.immunization + counts.vitalSigns;
+            return counts;
+        };
+
+        const recordCounts = getRecordCounts(data.data);
+        
+        let html = `
+            <div class="row">
+                <div class="col-12">
+                    <div class="alert alert-warning">
+                        <h6><i class="fas fa-lock me-2"></i>Encrypted Family Records Detected</h6>
+                        <p class="mb-2">This family's records are encrypted for security. Enter your passphrase to decrypt and view the data.</p>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-primary btn-sm" onclick="showDecryptionModal('${familyId}')">
+                                <i class="fas fa-key me-1"></i>Decrypt Records
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Show clean record summary without exposing encrypted data
+        html += `
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fas fa-family me-2"></i>Family Overview - ${familyId}</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-chart-bar me-2"></i>Record Summary</h6>
+                                    <div class="record-summary">
+                                        <div class="summary-item">
+                                            <span class="summary-label">Total Records:</span>
+                                            <span class="summary-value">${recordCounts.total}</span>
+                                        </div>
+                                        <div class="summary-item">
+                                            <span class="summary-label">Last Updated:</span>
+                                            <span class="summary-value">${data.stats?.lastUpdated || 'Unknown'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-list me-2"></i>Record Types</h6>
+                                    <div class="record-types">
+                                        <div class="record-type-item">
+                                            <i class="fas fa-syringe me-2"></i>
+                                            <span>Immunization:</span>
+                                            <span class="badge bg-info">${recordCounts.immunization}</span>
+                                        </div>
+                                        <div class="record-type-item">
+                                            <i class="fas fa-brain me-2"></i>
+                                            <span>HEEADSSS:</span>
+                                            <span class="badge bg-info">${recordCounts.headsess}</span>
+                                        </div>
+                                        <div class="record-type-item">
+                                            <i class="fas fa-heart me-2"></i>
+                                            <span>NCD:</span>
+                                            <span class="badge bg-info">${recordCounts.ncd}</span>
+                                        </div>
+                                        <div class="record-type-item">
+                                            <i class="fas fa-heartbeat me-2"></i>
+                                            <span>Vital Signs:</span>
+                                            <span class="badge bg-info">${recordCounts.vitalSigns}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Show record type cards with clean placeholders
+        html += `
+            <div class="row mt-3">
+                <div class="col-12">
+                    <h6><i class="fas fa-th-large me-2"></i>Available Records</h6>
+                    <div class="row">
+        `;
+
+        // Generate clean record type cards
+        const recordTypes = [
+            { type: 'immunization', label: 'Immunization Records', icon: 'fas fa-syringe', count: recordCounts.immunization, color: 'success' },
+            { type: 'heeadsss', label: 'HEEADSSS Assessments', icon: 'fas fa-brain', count: recordCounts.headsess, color: 'warning' },
+            { type: 'ncd', label: 'NCD Risk Assessments', icon: 'fas fa-heart', count: recordCounts.ncd, color: 'danger' },
+            { type: 'vitalSigns', label: 'Vital Signs', icon: 'fas fa-heartbeat', count: recordCounts.vitalSigns, color: 'info' }
+        ];
+
+        recordTypes.forEach(recordType => {
+            html += `
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <div class="mb-3">
+                                <i class="${recordType.icon} fa-2x text-${recordType.color}"></i>
+                            </div>
+                            <h6 class="card-title">${recordType.label}</h6>
+                            <div class="mb-2">
+                                <span class="badge bg-${recordType.color} fs-6">${recordType.count} ${recordType.count === 1 ? 'Record' : 'Records'}</span>
+                            </div>
+                            <p class="card-text small text-muted">
+                                ${recordType.count > 0 ? 'Encrypted data available' : 'No records found'}
+                            </p>
+                            ${recordType.count > 0 ? `
+                                <div class="mt-2">
+                                    <i class="fas fa-lock text-warning"></i>
+                                    <small class="text-muted">Requires decryption</small>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        html += `
+                    </div>
+                </div>
+            </div>
+        `;
+
+        content.innerHTML = html;
+    }
+
+    // Show decryption modal
+    function showDecryptionModal(familyId) {
+        const modal = new bootstrap.Modal(document.getElementById('decryptionModal'));
+        modal.show();
+        
+        // Store family ID for decryption
+        document.getElementById('decryptionModal').setAttribute('data-family-id', familyId);
+    }
+
+    // Perform bulk decryption
+    async function performBulkDecryption() {
+        const passphraseInput = document.getElementById('passphraseInput');
+        const passphrase = passphraseInput.value.trim();
+        
+        if (!passphrase) {
+            showDecryptionError('Please enter your passphrase');
+            return;
+        }
+
+        // Set passphrase
+        const keyResult = passphraseEncryption.setPassphrase(passphrase);
+        if (!keyResult.success) {
+            showDecryptionError('Invalid passphrase: ' + keyResult.error);
+            return;
+        }
+
+        const familyId = document.getElementById('decryptionModal').getAttribute('data-family-id');
+        const progressContainer = document.getElementById('decryptionProgress');
+        const resultsContainer = document.getElementById('decryptionResults');
+
+        // Show progress
+        progressContainer.innerHTML = `
+            <div class="progress mb-3">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+            </div>
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Decrypting...</span>
+                </div>
+                <p class="mt-2">Decrypting family records...</p>
+            </div>
+        `;
+
+        try {
+            // Fetch family data
+            const response = await fetch(`/Admin/Archive?handler=FamilyDetails&familyId=${encodeURIComponent(familyId)}`);
+            const data = await response.json();
+
+            if (!data.success) {
+                throw new Error(data.error);
+            }
+
+            // Validate data structure
+            if (!data.data || typeof data.data !== 'object') {
+                throw new Error('Invalid data structure received from server');
+            }
+
+            // Ensure data has the expected structure
+            const processedData = {
+                immunization: Array.isArray(data.data.immunization) ? data.data.immunization : [],
+                heeadsss: Array.isArray(data.data.heeadsss) ? data.data.heeadsss : [],
+                ncd: Array.isArray(data.data.ncd) ? data.data.ncd : [],
+                vitalSigns: Array.isArray(data.data.vitalSigns) ? data.data.vitalSigns : []
+            };
+
+            console.log('Processed data structure:', processedData);
+
+            // Decrypt all record types
+            const decryptionResults = await decryptAllRecordTypes(processedData, progressContainer);
+            
+            // Display results
+            displayDecryptionResults(decryptionResults, familyId);
+            
+            // Clear passphrase from memory
+            passphraseEncryption.clearPassphrase();
+            passphraseInput.value = '';
+
+        } catch (error) {
+            console.error('Bulk decryption error:', error);
+            showDecryptionError('Decryption failed: ' + error.message);
+        }
+    }
+
+    // Decrypt all record types
+    async function decryptAllRecordTypes(data, progressContainer) {
+        // Ensure data is valid
+        if (!data || typeof data !== 'object') {
+            throw new Error('Invalid data provided for decryption');
+        }
+
+        const results = {
+            immunization: { success: [], failed: [] },
+            heeadsss: { success: [], failed: [] },
+            ncd: { success: [], failed: [] },
+            vitalSigns: { success: [], failed: [] }
+        };
+
+        // Safely calculate total records with proper null checks
+        const totalRecords = (Array.isArray(data.immunization) ? data.immunization.length : 0) + 
+                           (Array.isArray(data.heeadsss) ? data.heeadsss.length : 0) + 
+                           (Array.isArray(data.ncd) ? data.ncd.length : 0) + 
+                           (Array.isArray(data.vitalSigns) ? data.vitalSigns.length : 0);
+
+        let processedRecords = 0;
+        let decryptionStats = {
+            totalFields: 0,
+            successfulFields: 0,
+            failedFields: 0,
+            plainTextFields: 0
+        };
+
+        // Decrypt each record type
+        for (const [recordType, records] of Object.entries(data)) {
+            // Skip if not a valid array
+            if (!Array.isArray(records) || records.length === 0) {
+                console.log(`Skipping ${recordType}: not a valid array or empty`);
+                continue;
+            }
+
+            // Ensure results object has the record type
+            if (!results[recordType]) {
+                results[recordType] = { success: [], failed: [] };
+            }
+
+            for (const record of records) {
+                try {
+                    // Validate record before processing
+                    if (!record || typeof record !== 'object') {
+                        throw new Error('Invalid record format');
+                    }
+
+                    const decryptedRecord = await decryptRecord(record);
+                    
+                    // Count field statistics
+                    const fieldStats = countFieldDecryptionStats(record, decryptedRecord);
+                    decryptionStats.totalFields += fieldStats.total;
+                    decryptionStats.successfulFields += fieldStats.successful;
+                    decryptionStats.failedFields += fieldStats.failed;
+                    decryptionStats.plainTextFields += fieldStats.plainText;
+                    
+                    results[recordType].success.push(decryptedRecord);
+                } catch (error) {
+                    console.error(`Error processing ${recordType} record:`, error);
+                    results[recordType].failed.push({
+                        original: record,
+                        error: error.message
+                    });
+                }
+
+                processedRecords++;
+                const progress = (processedRecords / totalRecords) * 100;
+                updateProgress(progressContainer, progress, processedRecords, totalRecords);
+            }
+        }
+
+        // Add decryption statistics to results
+        results.decryptionStats = decryptionStats;
+        
+        console.log('Decryption Statistics:', decryptionStats);
+        return results;
+    }
+
+    // Count field decryption statistics
+    function countFieldDecryptionStats(originalRecord, decryptedRecord) {
+        const stats = { total: 0, successful: 0, failed: 0, plainText: 0 };
+        
+        // Validate inputs
+        if (!originalRecord || typeof originalRecord !== 'object') {
+            console.warn('Invalid originalRecord in countFieldDecryptionStats');
+            return stats;
+        }
+        
+        if (!decryptedRecord || typeof decryptedRecord !== 'object') {
+            console.warn('Invalid decryptedRecord in countFieldDecryptionStats');
+            return stats;
+        }
+        
+        for (const [key, value] of Object.entries(originalRecord)) {
+            if (typeof value === 'string' && value.trim() !== '') {
+                stats.total++;
+                
+                if (isLikelyEncrypted(value)) {
+                    if (decryptedRecord[key] && 
+                        decryptedRecord[key] !== value && 
+                        !decryptedRecord[key].includes('[Encrypted')) {
+                        stats.successful++;
+                    } else {
+                        stats.failed++;
+                    }
+                } else {
+                    stats.plainText++;
+                }
+            }
+        }
+        
+        return stats;
+    }
+
+    // Decrypt individual record
+    async function decryptRecord(record) {
+        // Validate input
+        if (!record || typeof record !== 'object') {
+            throw new Error('Invalid record provided for decryption');
+        }
+
+        const decryptedRecord = { ...record };
+        console.log('Decrypting record:', record);
+
+        // Define fields that should be decrypted (exclude system fields)
+        const systemFields = ['Id', 'CreatedAt', 'UpdatedAt', 'UserId', 'AppointmentId', 'id', 'createdAt', 'updatedAt', 'userId', 'appointmentId'];
+        
+        for (const [key, value] of Object.entries(record)) {
+            if (typeof value === 'string' && value.trim() !== '' && !systemFields.includes(key)) {
+                console.log(`Processing field: ${key} = ${value}`);
+                
+                // Check if the value looks like it might be encrypted
+                if (isLikelyEncrypted(value)) {
+                    try {
+                        const result = passphraseEncryption.decryptData(value);
+                        console.log(`Decryption result for ${key}:`, result);
+                        
+                        if (result.success && result.decryptedData && result.decryptedData.trim() !== '') {
+                            // Only use decrypted value if it's not empty
+                            decryptedRecord[key] = result.decryptedData;
+                            console.log(`✓ Successfully decrypted ${key} (method ${result.method}): ${result.decryptedData}`);
+                        } else {
+                            // If decryption fails, try to show a more user-friendly value
+                            if (value.length > 50) {
+                                decryptedRecord[key] = '[Encrypted - Decryption Failed]';
+                            } else {
+                                decryptedRecord[key] = value;
+                            }
+                            console.log(`✗ Failed to decrypt ${key}, showing placeholder: ${value.substring(0, 20)}...`);
+                        }
+                    } catch (error) {
+                        // If decryption throws error, show placeholder
+                        decryptedRecord[key] = '[Encrypted - Decryption Error]';
+                        console.log(`✗ Error decrypting ${key}:`, error.message);
+                    }
+                } else {
+                    // Value doesn't look encrypted, keep as is
+                    decryptedRecord[key] = value;
+                    console.log(`→ Keeping plain text ${key}: ${value}`);
+                }
+            }
+        }
+
+        console.log('Final decrypted record:', decryptedRecord);
+        return decryptedRecord;
+    }
+
+    // Check if a value looks like it might be encrypted
+    function isLikelyEncrypted(value) {
+        if (!value || typeof value !== 'string') return false;
+        
+        // Check for common encrypted data patterns
+        const encryptedPatterns = [
+            /^[A-Za-z0-9+/]{20,}={0,2}$/, // Base64-like pattern
+            /^[A-Za-z0-9+/]{50,}={0,2}$/, // Longer Base64-like pattern
+            /^[A-Za-z0-9+/]{100,}={0,2}$/ // Very long Base64-like pattern
+        ];
+        
+        return encryptedPatterns.some(pattern => pattern.test(value)) && value.length > 20;
+    }
+
+    // Check if field is encrypted
+    function isEncryptedField(value) {
+        return typeof value === 'string' && 
+               value.length > 50 &&
+               /^[A-Za-z0-9+/=]+$/.test(value) &&
+               !value.includes(' ') &&
+               !value.includes('@@') &&
+               !value.includes('.');
+    }
+
+    // Update progress bar
+    function updateProgress(container, progress, current, total) {
+        const progressBar = container.querySelector('.progress-bar');
+        if (progressBar) {
+            progressBar.style.width = `${progress}%`;
+            progressBar.textContent = `${current}/${total}`;
+        }
+    }
+
+    // Display decryption results
+    function displayDecryptionResults(results, familyId) {
+        const progressContainer = document.getElementById('decryptionProgress');
+        const resultsContainer = document.getElementById('decryptionResults');
+
+        // Hide progress
+        progressContainer.innerHTML = '';
+
+        // Validate results
+        if (!results || typeof results !== 'object') {
+            showDecryptionError('Invalid decryption results received');
+            return;
+        }
+
+        // Calculate statistics
+        const stats = {
+            total: 0,
+            successful: 0,
+            failed: 0
+        };
+
+        Object.values(results).forEach(typeResults => {
+            if (typeResults && typeof typeResults === 'object' && Array.isArray(typeResults.success) && Array.isArray(typeResults.failed)) {
+                stats.total += typeResults.success.length + typeResults.failed.length;
+                stats.successful += typeResults.success.length;
+                stats.failed += typeResults.failed.length;
+            }
+        });
+
+        // Get field-level decryption statistics
+        const fieldStats = results.decryptionStats || { totalFields: 0, successfulFields: 0, failedFields: 0, plainTextFields: 0 };
+
+        // Display results with tabs
+        let html = `
+            <div class="row">
+                <div class="col-12">
+                    <div class="alert alert-success">
+                        <h6><i class="fas fa-check-circle me-2"></i>Decryption Complete</h6>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <strong>Total Records:</strong> ${stats.total}
+                            </div>
+                            <div class="col-md-3">
+                                <strong>Successfully Decrypted:</strong> ${stats.successful}
+                            </div>
+                            <div class="col-md-3">
+                                <strong>Failed:</strong> ${stats.failed}
+                            </div>
+                            <div class="col-md-3">
+                                <strong>Field Success Rate:</strong> ${fieldStats.totalFields > 0 ? Math.round((fieldStats.successfulFields / fieldStats.totalFields) * 100) : 0}%
+                            </div>
+                        </div>
+                        ${fieldStats.failedFields > 0 ? `
+                            <div class="mt-2">
+                                <small class="text-muted">
+                                    <strong>Field Details:</strong> ${fieldStats.successfulFields} fields decrypted successfully, 
+                                    ${fieldStats.failedFields} fields failed to decrypt, 
+                                    ${fieldStats.plainTextFields} fields were already plain text.
+                                </small>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Tab navigation
+        html += `
+            <div class="row">
+                <div class="col-12">
+                    <ul class="nav nav-tabs" id="decryptionTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab">
+                                <i class="fas fa-chart-pie me-1"></i>Overview
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="immunization-tab" data-bs-toggle="tab" data-bs-target="#immunization" type="button" role="tab">
+                                <i class="fas fa-syringe me-1"></i>Immunization (${results.immunization.success.length})
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="heeadsss-tab" data-bs-toggle="tab" data-bs-target="#heeadsss" type="button" role="tab">
+                                <i class="fas fa-brain me-1"></i>HEEADSSS (${results.heeadsss.success.length})
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="ncd-tab" data-bs-toggle="tab" data-bs-target="#ncd" type="button" role="tab">
+                                <i class="fas fa-heart me-1"></i>NCD (${results.ncd.success.length})
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="vitals-tab" data-bs-toggle="tab" data-bs-target="#vitals" type="button" role="tab">
+                                <i class="fas fa-heartbeat me-1"></i>Vital Signs (${results.vitalSigns.success.length})
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        `;
+
+        // Tab content
+        html += `
+            <div class="tab-content mt-3" id="decryptionTabContent">
+                <div class="tab-pane fade show active" id="overview" role="tabpanel">
+                    ${generateOverviewTab(results, stats)}
+                </div>
+                <div class="tab-pane fade" id="immunization" role="tabpanel">
+                    ${generateRecordTypeTab(results.immunization, 'immunization')}
+                </div>
+                <div class="tab-pane fade" id="heeadsss" role="tabpanel">
+                    ${generateRecordTypeTab(results.heeadsss, 'heeadsss')}
+                </div>
+                <div class="tab-pane fade" id="ncd" role="tabpanel">
+                    ${generateRecordTypeTab(results.ncd, 'ncd')}
+                </div>
+                <div class="tab-pane fade" id="vitals" role="tabpanel">
+                    ${generateRecordTypeTab(results.vitalSigns, 'vitalSigns')}
+                </div>
+            </div>
+        `;
+
+        resultsContainer.innerHTML = html;
+    }
+
+    // Generate overview tab
+    function generateOverviewTab(results, stats) {
+        return `
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6><i class="fas fa-chart-bar me-2"></i>Decryption Statistics</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-4">
+                                    <div class="h4 text-primary">${stats.total}</div>
+                                    <small>Total Records</small>
+                                </div>
+                                <div class="col-4">
+                                    <div class="h4 text-success">${stats.successful}</div>
+                                    <small>Decrypted</small>
+                                </div>
+                                <div class="col-4">
+                                    <div class="h4 text-danger">${stats.failed}</div>
+                                    <small>Failed</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6><i class="fas fa-list me-2"></i>Record Type Summary</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="list-group list-group-flush">
+                                <div class="list-group-item d-flex justify-content-between">
+                                    <span><i class="fas fa-syringe me-2"></i>Immunization</span>
+                                    <span class="badge bg-success">${results.immunization.success.length}</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between">
+                                    <span><i class="fas fa-brain me-2"></i>HEEADSSS</span>
+                                    <span class="badge bg-info">${results.heeadsss.success.length}</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between">
+                                    <span><i class="fas fa-heart me-2"></i>NCD</span>
+                                    <span class="badge bg-warning">${results.ncd.success.length}</span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between">
+                                    <span><i class="fas fa-heartbeat me-2"></i>Vital Signs</span>
+                                    <span class="badge bg-danger">${results.vitalSigns.success.length}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Generate record type tab
+    function generateRecordTypeTab(typeResults, recordType) {
+        if (typeResults.success.length === 0 && typeResults.failed.length === 0) {
+            return `
+                <div class="empty-state">
+                    <div class="empty-icon">📋</div>
+                    <h6>No ${recordType} Records</h6>
+                    <p>No records found for this type.</p>
+                </div>
+            `;
+        }
+
+        let html = '';
+
+        // Successful records
+        if (typeResults.success.length > 0) {
+            html += `
+                <div class="mb-4">
+                    <h6><i class="fas fa-check-circle text-success me-2"></i>Successfully Decrypted (${typeResults.success.length})</h6>
+                    <div class="row">
+            `;
+
+            typeResults.success.forEach((record, index) => {
+                html += generateRecordCard(record, recordType, index + 1);
+            });
+
+            html += `
+                    </div>
+                </div>
+            `;
+        }
+
+        // Failed records
+        if (typeResults.failed.length > 0) {
+            html += `
+                <div class="mb-4">
+                    <h6><i class="fas fa-exclamation-triangle text-danger me-2"></i>Failed to Decrypt (${typeResults.failed.length})</h6>
+                    <div class="row">
+            `;
+
+            typeResults.failed.forEach((failedRecord, index) => {
+                html += `
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-danger">
+                            <div class="card-header bg-danger text-white">
+                                <h6 class="mb-0">Record #${index + 1} - Decryption Failed</h6>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-danger"><strong>Error:</strong> ${failedRecord.error}</p>
+                                <button class="btn btn-sm btn-outline-danger" onclick="showFailedRecordDetails(${JSON.stringify(failedRecord).replace(/"/g, '&quot;')})">
+                                    <i class="fas fa-eye me-1"></i>View Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `
+                    </div>
+                </div>
+            `;
+        }
+
+        return html;
+    }
+
+    // Generate record card
+    function generateRecordCard(record, recordType, index) {
+        const typeConfig = {
+            immunization: { icon: 'fas fa-syringe', color: 'success', title: 'Immunization Record' },
+            heeadsss: { icon: 'fas fa-brain', color: 'info', title: 'HEEADSSS Assessment' },
+            ncd: { icon: 'fas fa-heart', color: 'warning', title: 'NCD Assessment' },
+            vitalSigns: { icon: 'fas fa-heartbeat', color: 'danger', title: 'Vital Signs' }
+        };
+
+        const config = typeConfig[recordType] || { icon: 'fas fa-file', color: 'secondary', title: 'Record' };
+
+        return `
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-header bg-${config.color} text-white">
+                        <h6 class="mb-0"><i class="${config.icon} me-2"></i>${config.title} #${index}</h6>
+                    </div>
+                    <div class="card-body">
+                        ${generateRecordDetails(record, recordType)}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Generate record details
+    function generateRecordDetails(record, recordType) {
+        let html = '';
+
+        if (recordType === 'ncd') {
+            // Special handling for NCD records with better organization
+            html += generateNCDRecordDetails(record);
+        } else {
+            // Show key fields based on record type
+            const keyFields = getKeyFieldsForRecordType(recordType);
+            
+            keyFields.forEach(field => {
+                if (record[field] && record[field] !== 'N/A') {
+                    html += `
+                        <div class="mb-2">
+                            <small class="text-muted">${field}:</small>
+                            <div class="fw-bold">${record[field]}</div>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        return html;
+    }
+
+    // Generate detailed NCD record display
+    function generateNCDRecordDetails(record) {
+        let html = '';
+
+        // Basic Information Section
+        html += `
+            <div class="mb-3">
+                <h6 class="text-primary"><i class="fas fa-user me-2"></i>Basic Information</h6>
+                <div class="row">
+        `;
+
+        // Name fields
+        if (record.FirstName || record.LastName) {
+            html += `
+                <div class="col-md-6 mb-2">
+                    <small class="text-muted">Full Name:</small>
+                    <div class="fw-bold">${record.FirstName || ''} ${record.LastName || ''} ${record.MiddleName ? `(${record.MiddleName})` : ''}</div>
+                </div>
+            `;
+        }
+
+        // Age and Gender
+        if (record.Edad) {
+            html += `
+                <div class="col-md-3 mb-2">
+                    <small class="text-muted">Age:</small>
+                    <div class="fw-bold">${record.Edad}</div>
+                </div>
+            `;
+        }
+
+        if (record.Kasarian) {
+            html += `
+                <div class="col-md-3 mb-2">
+                    <small class="text-muted">Gender:</small>
+                    <div class="fw-bold">${record.Kasarian}</div>
+                </div>
+            `;
+        }
+
+        // Address and Contact
+        if (record.Address) {
+            html += `
+                <div class="col-md-6 mb-2">
+                    <small class="text-muted">Address:</small>
+                    <div class="fw-bold">${record.Address}${record.Barangay ? `, ${record.Barangay}` : ''}</div>
+                </div>
+            `;
+        }
+
+        if (record.Telepono) {
+            html += `
+                <div class="col-md-6 mb-2">
+                    <small class="text-muted">Phone:</small>
+                    <div class="fw-bold">${record.Telepono}</div>
+                </div>
+            `;
+        }
+
+        // Additional fields
+        if (record.CivilStatus) {
+            html += `
+                <div class="col-md-4 mb-2">
+                    <small class="text-muted">Civil Status:</small>
+                    <div class="fw-bold">${record.CivilStatus}</div>
+                </div>
+            `;
+        }
+
+        if (record.Occupation) {
+            html += `
+                <div class="col-md-4 mb-2">
+                    <small class="text-muted">Occupation:</small>
+                    <div class="fw-bold">${record.Occupation}</div>
+                </div>
+            `;
+        }
+
+        if (record.Relihiyon) {
+            html += `
+                <div class="col-md-4 mb-2">
+                    <small class="text-muted">Religion:</small>
+                    <div class="fw-bold">${record.Relihiyon}</div>
+                </div>
+            `;
+        }
+
+        html += `
+                </div>
+            </div>
+        `;
+
+        // Health Information Section
+        html += `
+            <div class="mb-3">
+                <h6 class="text-success"><i class="fas fa-heart me-2"></i>Health Information</h6>
+                <div class="row">
+        `;
+
+        if (record.HealthFacility) {
+            html += `
+                <div class="col-md-6 mb-2">
+                    <small class="text-muted">Health Facility:</small>
+                    <div class="fw-bold">${record.HealthFacility}</div>
+                </div>
+            `;
+        }
+
+        if (record.AppointmentId) {
+            html += `
+                <div class="col-md-3 mb-2">
+                    <small class="text-muted">Appointment ID:</small>
+                    <div class="fw-bold">${record.AppointmentId}</div>
+                </div>
+            `;
+        }
+
+        if (record.RiskStatus) {
+            html += `
+                <div class="col-md-3 mb-2">
+                    <small class="text-muted">Risk Status:</small>
+                    <div class="fw-bold">
+                        <span class="badge bg-${getRiskStatusColor(record.RiskStatus)}">${record.RiskStatus}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        html += `
+                </div>
+            </div>
+        `;
+
+        // Health Conditions Section
+        const healthConditions = [];
+        if (record.HasDiabetes === 'true' || record.HasDiabetes === true) healthConditions.push('Diabetes');
+        if (record.HasHypertension === 'true' || record.HasHypertension === true) healthConditions.push('Hypertension');
+        if (record.HasCancer === 'true' || record.HasCancer === true) healthConditions.push('Cancer');
+        if (record.HasCOPD === 'true' || record.HasCOPD === true) healthConditions.push('COPD');
+        if (record.HasLungDisease === 'true' || record.HasLungDisease === true) healthConditions.push('Lung Disease');
+        if (record.HasEyeDisease === 'true' || record.HasEyeDisease === true) healthConditions.push('Eye Disease');
+
+        if (healthConditions.length > 0) {
+            html += `
+                <div class="mb-3">
+                    <h6 class="text-warning"><i class="fas fa-stethoscope me-2"></i>Health Conditions</h6>
+                    <div class="d-flex flex-wrap gap-1">
+            `;
+            
+            healthConditions.forEach(condition => {
+                html += `<span class="badge bg-warning">${condition}</span>`;
+            });
+
+            html += `
+                    </div>
+                </div>
+            `;
+        }
+
+        return html;
+    }
+
+    // Get risk status color
+    function getRiskStatusColor(riskStatus) {
+        if (!riskStatus) return 'secondary';
+        
+        const status = riskStatus.toLowerCase();
+        if (status.includes('low')) return 'success';
+        if (status.includes('medium') || status.includes('moderate')) return 'warning';
+        if (status.includes('high')) return 'danger';
+        return 'secondary';
+    }
+
+    // Get key fields for each record type
+    function getKeyFieldsForRecordType(recordType) {
+        const fieldMappings = {
+            immunization: ['ChildName', 'MotherName', 'FatherName', 'Address', 'ContactNumber'],
+            heeadsss: ['FullName', 'Age', 'Gender', 'Address', 'ContactNumber'],
+            ncd: ['FirstName', 'LastName', 'Edad', 'Kasarian', 'Address', 'Telepono', 'MiddleName', 'CivilStatus', 'Occupation', 'Relihiyon', 'Barangay', 'HealthFacility', 'AppointmentId', 'RiskStatus'],
+            vitalSigns: ['BloodPressure', 'HeartRate', 'Temperature', 'RecordedAt']
+        };
+
+        return fieldMappings[recordType] || [];
+    }
+
+    // Show decryption error
+    function showDecryptionError(message) {
+        const errorContainer = document.getElementById('decryptionError');
+        errorContainer.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>${message}
+            </div>
+        `;
+    }
+
+    // Show failed record details
+    function showFailedRecordDetails(failedRecord) {
+        const modal = new bootstrap.Modal(document.getElementById('failedRecordModal'));
+        modal.show();
+        
+        const content = document.getElementById('failedRecordContent');
+        content.innerHTML = `
+            <div class="alert alert-danger">
+                <h6><i class="fas fa-exclamation-triangle me-2"></i>Decryption Failed</h6>
+                <p><strong>Error:</strong> ${failedRecord.error}</p>
+            </div>
+            <div class="mt-3">
+                <h6>Original Record Data:</h6>
+                <pre class="bg-light p-3 rounded">${JSON.stringify(failedRecord.original, null, 2)}</pre>
+            </div>
+        `;
+    }
+
+
+    // Toggle passphrase visibility
+    function togglePassphraseVisibility() {
+        const passphraseInput = document.getElementById('passphraseInput');
+        const toggleIcon = document.getElementById('passphraseToggleIcon');
+        
+        if (passphraseInput.type === 'password') {
+            passphraseInput.type = 'text';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash');
+        } else {
+            passphraseInput.type = 'password';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye');
+        }
+    }
+
+    // Use default passphrase
+    function useDefaultPassphrase() {
+        const passphraseInput = document.getElementById('passphraseInput');
+        passphraseInput.value = 'bhcare202420252026';
+        
+        // Show success message
+        showDecryptionError(''); // Clear any existing errors
+        const errorContainer = document.getElementById('decryptionError');
+        errorContainer.innerHTML = `
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle me-2"></i>Default passphrase loaded successfully! You can now decrypt records.
+            </div>
+        `;
+    }
+
+    // Utility function to encrypt text with passphrase (for testing)
+    function encryptTextWithPassphrase(text, passphrase = 'bhcare202420252026') {
+        try {
+            const result = passphraseEncryption.encryptData(text, passphrase);
+            if (result.success) {
+                console.log('Encrypted text:', result.encryptedData);
+                return result.encryptedData;
+            } else {
+                console.error('Encryption failed:', result.error);
+                return null;
+            }
+        } catch (error) {
+            console.error('Encryption error:', error);
+            return null;
+        }
+    }
+
+    // Utility function to decrypt text with passphrase (for testing)
+    function decryptTextWithPassphrase(encryptedText, passphrase = 'bhcare202420252026') {
+        try {
+            const result = passphraseEncryption.decryptData(encryptedText, passphrase);
+            if (result.success) {
+                console.log('Decrypted text:', result.decryptedData);
+                return result.decryptedData;
+            } else {
+                console.error('Decryption failed:', result.error);
+                return null;
+            }
+        } catch (error) {
+            console.error('Decryption error:', error);
+            return null;
+        }
+    }
+
+    // Debug function to test decryption on specific fields
+    function debugDecryption(record) {
+        console.log('=== DEBUGGING DECRYPTION ===');
+        console.log('Original record:', record);
+        
+        for (const [key, value] of Object.entries(record)) {
+            if (typeof value === 'string' && value.trim() !== '') {
+                console.log(`\nField: ${key}`);
+                console.log(`Original value: ${value}`);
+                
+                const result = passphraseEncryption.decryptData(value);
+                if (result.success) {
+                    console.log(`Decrypted value: ${result.decryptedData}`);
+                } else {
+                    console.log(`Decryption failed: ${result.error}`);
+                }
+            }
+        }
+        console.log('=== END DEBUG ===');
+    }
+</script>
+
+<script>
+    // Enhanced family details viewer
+    async function viewFamilyDetails(familyId) {
+        console.log('Viewing family details for:', familyId);
+        
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('familyDetailsModal'));
+        modal.show();
+        
+        try {
+            // Fetch family data
+            const response = await fetch(`/Admin/Archive?handler=FamilyDetails&familyId=${encodeURIComponent(familyId)}`);
+            const data = await response.json();
+            
+            if (data.success) {
+                console.log('Family data received:', data);
+                
+                // Always show the data with decryption option
+                // This way users can see the data and choose to decrypt if needed
+                displayFamilyDataWithDecryptionOption(data, familyId);
+            } else {
+                showError('Failed to load family data: ' + data.error);
+            }
+        } catch (error) {
+            console.error('Error loading family details:', error);
+            showError('Error loading family details: ' + error.message);
+        }
+    }
+
+    // Display family data with decryption option
+    function displayFamilyDataWithDecryptionOption(data, familyId) {
+        const content = document.getElementById('familyDetailsContent');
+        
+        // Calculate record counts
+        const getRecordCounts = (data) => {
+            const counts = {
+                total: 0,
+                ncd: 0,
+                headsess: 0,
+                immunization: 0,
+                vitalSigns: 0
+            };
+
+            if (data?.ncd) counts.ncd = data.ncd.length;
+            if (data?.heeadsss) counts.headsess = data.heeadsss.length;
+            if (data?.immunization) counts.immunization = data.immunization.length;
+            if (data?.vitalSigns) counts.vitalSigns = data.vitalSigns.length;
+            
+            counts.total = counts.ncd + counts.headsess + counts.immunization + counts.vitalSigns;
+            return counts;
+        };
+
+        const recordCounts = getRecordCounts(data.data);
+        
+        let html = `
+            <div class="row">
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle me-2"></i>Family Information</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Family Number:</strong> ${familyId}</p>
+                                <p><strong>Total Records:</strong> ${recordCounts.total}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Record Types:</strong></p>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <span class="badge bg-success">Immunization: ${recordCounts.immunization}</span>
+                                    <span class="badge bg-warning">HEEADSSS: ${recordCounts.headsess}</span>
+                                    <span class="badge bg-danger">NCD: ${recordCounts.ncd}</span>
+                                    <span class="badge bg-info">Vital Signs: ${recordCounts.vitalSigns}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <button class="btn btn-primary btn-sm" onclick="showDecryptionModal('${familyId}')">
+                                <i class="fas fa-key me-1"></i>Decrypt Records (if encrypted)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Show all record types
+        html += generateAllRecordSections(data.data, familyId);
+        
+        content.innerHTML = html;
+    }
+
+    // Generate all record sections
+    function generateAllRecordSections(data, familyId) {
+        let html = '';
+
+        // NCD Records Section
+        if (data.ncd && data.ncd.length > 0) {
+            html += `
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header bg-danger text-white">
+                                <h6 class="mb-0"><i class="fas fa-heart me-2"></i>NCD Records (${data.ncd.length})</h6>
+                            </div>
+                            <div class="card-body">
+                                ${generateNCDRecordsDisplay(data.ncd)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // HEEADSSS Records Section
+        if (data.heeadsss && data.heeadsss.length > 0) {
+            html += `
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header bg-warning text-white">
+                                <h6 class="mb-0"><i class="fas fa-brain me-2"></i>HEEADSSS Records (${data.heeadsss.length})</h6>
+                            </div>
+                            <div class="card-body">
+                                ${generateHEEADSSSRecordsDisplay(data.heeadsss)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Immunization Records Section
+        if (data.immunization && data.immunization.length > 0) {
+            html += `
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header bg-success text-white">
+                                <h6 class="mb-0"><i class="fas fa-syringe me-2"></i>Immunization Records (${data.immunization.length})</h6>
+                            </div>
+                            <div class="card-body">
+                                ${generateImmunizationRecordsDisplay(data.immunization)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Vital Signs Records Section
+        if (data.vitalSigns && data.vitalSigns.length > 0) {
+            html += `
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header bg-info text-white">
+                                <h6 class="mb-0"><i class="fas fa-heartbeat me-2"></i>Vital Signs Records (${data.vitalSigns.length})</h6>
+                            </div>
+                            <div class="card-body">
+                                ${generateVitalSignsRecordsDisplay(data.vitalSigns)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        return html;
+    }
+
+    // Generate NCD records display
+    function generateNCDRecordsDisplay(ncdRecords) {
+        let html = '';
+        
+        ncdRecords.forEach((record, index) => {
+            html += `
+                <div class="record-item mb-3">
+                    <h6>NCD Assessment #${index + 1}</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <small class="text-muted">Name:</small>
+                                <div class="fw-bold">${record.FirstName || 'N/A'} ${record.LastName || ''} ${record.MiddleName ? `(${record.MiddleName})` : ''}</div>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">Age:</small>
+                                <div class="fw-bold">${record.Edad || 'N/A'}</div>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">Gender:</small>
+                                <div class="fw-bold">${record.Kasarian || 'N/A'}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <small class="text-muted">Address:</small>
+                                <div class="fw-bold">${record.Address || 'N/A'}${record.Barangay ? `, ${record.Barangay}` : ''}</div>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">Phone:</small>
+                                <div class="fw-bold">${record.Telepono || 'N/A'}</div>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">Risk Status:</small>
+                                <div class="fw-bold">
+                                    <span class="badge bg-${getRiskStatusColor(record.RiskStatus)}">${record.RiskStatus || 'N/A'}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        return html;
+    }
+
+    // Generate HEEADSSS records display
+    function generateHEEADSSSRecordsDisplay(heeadsssRecords) {
+        let html = '';
+        
+        heeadsssRecords.forEach((record, index) => {
+            html += `
+                <div class="record-item mb-3">
+                    <h6>HEEADSSS Assessment #${index + 1}</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <small class="text-muted">Name:</small>
+                                <div class="fw-bold">${record.FullName || 'N/A'}</div>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">Age:</small>
+                                <div class="fw-bold">${record.Age || 'N/A'}</div>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">Gender:</small>
+                                <div class="fw-bold">${record.Gender || 'N/A'}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <small class="text-muted">Address:</small>
+                                <div class="fw-bold">${record.Address || 'N/A'}</div>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">Contact:</small>
+                                <div class="fw-bold">${record.ContactNumber || 'N/A'}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        return html;
+    }
+
+    // Generate Immunization records display
+    function generateImmunizationRecordsDisplay(immunizationRecords) {
+        let html = '';
+        
+        immunizationRecords.forEach((record, index) => {
+            html += `
+                <div class="record-item mb-3">
+                    <h6>Immunization Record #${index + 1}</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <small class="text-muted">Child Name:</small>
+                                <div class="fw-bold">${record.ChildName || 'N/A'}</div>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">Mother:</small>
+                                <div class="fw-bold">${record.MotherName || 'N/A'}</div>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">Father:</small>
+                                <div class="fw-bold">${record.FatherName || 'N/A'}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <small class="text-muted">Address:</small>
+                                <div class="fw-bold">${record.Address || 'N/A'}${record.Barangay ? `, ${record.Barangay}` : ''}</div>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">Contact:</small>
+                                <div class="fw-bold">${record.ContactNumber || 'N/A'}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        return html;
+    }
+
+    // Generate Vital Signs records display
+    function generateVitalSignsRecordsDisplay(vitalSignsRecords) {
+        let html = '';
+        
+        vitalSignsRecords.forEach((record, index) => {
+            html += `
+                <div class="record-item mb-3">
+                    <h6>Vital Signs Record #${index + 1}</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <small class="text-muted">Blood Pressure:</small>
+                                <div class="fw-bold">${record.BloodPressure || 'N/A'}</div>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">Heart Rate:</small>
+                                <div class="fw-bold">${record.HeartRate || 'N/A'}</div>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">Temperature:</small>
+                                <div class="fw-bold">${record.Temperature || 'N/A'}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <small class="text-muted">Height:</small>
+                                <div class="fw-bold">${record.Height || 'N/A'}</div>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">Weight:</small>
+                                <div class="fw-bold">${record.Weight || 'N/A'}</div>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">Recorded At:</small>
+                                <div class="fw-bold">${record.RecordedAt || 'N/A'}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        return html;
+    }
+    
+    function displayFamilyData(data, familyId) {
+        const content = document.getElementById('familyDetailsContent');
+        
+        // Debug logging
+        console.log('Family data received:', data);
+        console.log('NCD records:', data.data?.ncd);
+        console.log('HEEADSSS records:', data.data?.heeadsss);
+        console.log('Vital Signs records:', data.data?.vitalSigns);
+        
+        let html = `
+            <div class="row">
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle me-2"></i>Family Information</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Family Number:</strong> ${familyId}</p>
+                                <p><strong>Total Records:</strong> ${data.stats?.total || 0}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Immunization:</strong> ${data.stats?.immunization || 0}</p>
+                                <p><strong>HEEADSSS:</strong> ${data.stats?.heeadsss || 0}</p>
+                                <p><strong>NCD:</strong> ${data.stats?.ncd || 0}</p>
+                                <p><strong>Vital Signs:</strong> ${data.stats?.vitalSigns || 0}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Display Immunization Records
+        if (data.data?.immunization?.length > 0) {
+            html += `
+                <div class="record-section">
+                    <h6 class="record-type-header">
+                        <i class="fas fa-syringe me-2"></i>Immunization Records (${data.data.immunization.length})
+                    </h6>
+                    <div class="record-grid">
+            `;
+            
+            data.data.immunization.forEach((record, index) => {
+                html += `
+                    <div class="record-item">
+                        <div class="card-header bg-success text-white mb-2">
+                            <h6 class="mb-0">Immunization Record #${record.id}</h6>
+                        </div>
+                        <div class="record-details">
+                            <div class="row">
+                                <div class="col-6">
+                                    <small class="text-muted">Child Name:</small>
+                                    <div class="fw-bold">${record.childName || 'N/A'}</div>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">Date of Birth:</small>
+                                    <div class="fw-bold">${record.dateOfBirth || 'N/A'}</div>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted">Mother:</small>
+                                <div class="fw-bold">${record.motherName || 'N/A'}</div>
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted">Father:</small>
+                                <div class="fw-bold">${record.fatherName || 'N/A'}</div>
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted">Address:</small>
+                                <div class="fw-bold">${record.address || 'N/A'}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Display HEEADSSS Records
+        html += `
+            <div class="record-section">
+                <h6 class="record-type-header">
+                    <i class="fas fa-brain me-2"></i>HEEADSSS Records (${data.data?.heeadsss?.length || 0})
+                </h6>
+        `;
+        
+        if (data.data?.heeadsss?.length > 0) {
+            html += `<div class="record-grid">`;
+            
+            data.data.heeadsss.forEach((record, index) => {
+                html += `
+                    <div class="record-item">
+                        <div class="card-header bg-info text-white mb-2">
+                            <h6 class="mb-0">HEEADSSS Assessment #${record.id}</h6>
+                        </div>
+                        <div class="record-details">
+                            <!-- Basic Information -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="text-primary mb-3">👤 Basic Information</h6>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <small class="text-muted">Full Name:</small>
+                                            <div class="fw-bold">${record.fullName || 'N/A'}</div>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Age:</small>
+                                            <div class="fw-bold">${record.age || 'N/A'}</div>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-6">
+                                            <small class="text-muted">Gender:</small>
+                                            <div class="fw-bold">${record.gender || 'N/A'}</div>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Contact:</small>
+                                            <div class="fw-bold">${record.contactNumber || 'N/A'}</div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Address:</small>
+                                        <div class="fw-bold">${record.address || 'N/A'}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-primary mb-3">🏠 Home Environment</h6>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Home Environment:</small>
+                                        <div class="fw-bold">${record.homeEnvironment || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Family Relationship:</small>
+                                        <div class="fw-bold">${record.familyRelationship || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Family Problems:</small>
+                                        <div class="fw-bold">${record.homeFamilyProblems || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Feels Safe at Home:</small>
+                                        <div class="fw-bold">${record.feelsSafeAtHome || 'N/A'}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Education & Career -->
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <h6 class="text-primary mb-3">🎓 Education & Career</h6>
+                                    <div class="mt-2">
+                                        <small class="text-muted">School Performance:</small>
+                                        <div class="fw-bold">${record.schoolPerformance || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Career Plans:</small>
+                                        <div class="fw-bold">${record.careerPlans || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Currently Studying:</small>
+                                        <div class="fw-bold">${record.educationCurrentlyStudying || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Attendance Issues:</small>
+                                        <div class="fw-bold">${record.attendanceIssues || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Bullying:</small>
+                                        <div class="fw-bold">${record.educationBullying || 'N/A'}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-primary mb-3">🍎 Eating & Diet</h6>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Diet Description:</small>
+                                        <div class="fw-bold">${record.dietDescription || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Body Image Satisfaction:</small>
+                                        <div class="fw-bold">${record.eatingBodyImageSatisfaction || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Weight Concerns:</small>
+                                        <div class="fw-bold">${record.weightConcerns || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Eating Disorder Symptoms:</small>
+                                        <div class="fw-bold">${record.eatingDisorderSymptoms || 'N/A'}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Activities & Substance Use -->
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <h6 class="text-primary mb-3">⚡ Activities & Lifestyle</h6>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Hobbies:</small>
+                                        <div class="fw-bold">${record.hobbies || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Physical Activity:</small>
+                                        <div class="fw-bold">${record.physicalActivity || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Screen Time:</small>
+                                        <div class="fw-bold">${record.screenTime || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Regular Exercise:</small>
+                                        <div class="fw-bold">${record.activitiesRegularExercise || 'N/A'}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-primary mb-3">⚠️ Substance Use & Safety</h6>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Substance Use:</small>
+                                        <div class="fw-bold">${record.substanceUse || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Tobacco Use:</small>
+                                        <div class="fw-bold">${record.drugsTobaccoUse || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Alcohol Use:</small>
+                                        <div class="fw-bold">${record.drugsAlcoholUse || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Illicit Drug Use:</small>
+                                        <div class="fw-bold">${record.drugsIllicitDrugUse || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Physical Abuse:</small>
+                                        <div class="fw-bold">${record.safetyPhysicalAbuse || 'N/A'}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Mental Health & Assessment -->
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <h6 class="text-primary mb-3">🧠 Mental Health</h6>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Mood Changes:</small>
+                                        <div class="fw-bold">${record.moodChanges || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Suicidal Thoughts:</small>
+                                        <div class="fw-bold">${record.suicidalThoughts || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Self-Harm Behavior:</small>
+                                        <div class="fw-bold">${record.selfHarmBehavior || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Depression Feelings:</small>
+                                        <div class="fw-bold">${record.suicideDepressionFeelings || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Personal Strengths:</small>
+                                        <div class="fw-bold">${record.personalStrengths || 'N/A'}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-primary mb-3">📋 Assessment & Follow-up</h6>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Assessment Notes:</small>
+                                        <div class="fw-bold">${record.assessmentNotes || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Recommended Actions:</small>
+                                        <div class="fw-bold">${record.recommendedActions || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Follow-up Plan:</small>
+                                        <div class="fw-bold">${record.followUpPlan || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Assessed By:</small>
+                                        <div class="fw-bold">${record.assessedBy || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Created At:</small>
+                                        <div class="fw-bold">${record.createdAt || 'N/A'}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `</div>`;
+        } else {
+            html += `
+                <div class="empty-state">
+                    <div class="empty-icon">🧠</div>
+                    <h6>No HEEADSSS Records</h6>
+                    <p class="text-muted">No HEEADSSS assessments found for this family.</p>
+                </div>
+            `;
+        }
+        
+        html += `</div>`;
+        
+        // Display NCD Records
+        html += `
+            <div class="record-section">
+                <h6 class="record-type-header">
+                    <i class="fas fa-heart me-2"></i>NCD Records (${data.data?.ncd?.length || 0})
+                </h6>
+        `;
+        
+        if (data.data?.ncd?.length > 0) {
+            html += `<div class="record-grid">`;
+            
+            data.data.ncd.forEach((record, index) => {
+                html += `
+                    <div class="record-item">
+                        <div class="card-header bg-warning text-dark mb-2">
+                            <h6 class="mb-0">NCD Assessment #${record.id}</h6>
+                        </div>
+                        <div class="record-details">
+                            <!-- Basic Information -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="text-primary mb-3">👤 Basic Information</h6>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <small class="text-muted">First Name:</small>
+                                            <div class="fw-bold">${record.firstName || 'N/A'}</div>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Last Name:</small>
+                                            <div class="fw-bold">${record.lastName || 'N/A'}</div>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-6">
+                                            <small class="text-muted">Middle Name:</small>
+                                            <div class="fw-bold">${record.middleName || 'N/A'}</div>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Age:</small>
+                                            <div class="fw-bold">${record.edad || 'N/A'}</div>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-6">
+                                            <small class="text-muted">Gender:</small>
+                                            <div class="fw-bold">${record.kasarian || 'N/A'}</div>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Birthday:</small>
+                                            <div class="fw-bold">${record.birthday || 'N/A'}</div>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-6">
+                                            <small class="text-muted">Religion:</small>
+                                            <div class="fw-bold">${record.relihiyon || 'N/A'}</div>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Civil Status:</small>
+                                            <div class="fw-bold">${record.civilStatus || 'N/A'}</div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Occupation:</small>
+                                        <div class="fw-bold">${record.occupation || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Address:</small>
+                                        <div class="fw-bold">${record.address || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Barangay:</small>
+                                        <div class="fw-bold">${record.barangay || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Phone:</small>
+                                        <div class="fw-bold">${record.telepono || 'N/A'}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-primary mb-3">🏥 Health Information</h6>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Health Facility:</small>
+                                        <div class="fw-bold">${record.healthFacility || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Appointment ID:</small>
+                                        <div class="fw-bold">${record.appointmentId || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Appointment Type:</small>
+                                        <div class="fw-bold">${record.appointmentType || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">User ID:</small>
+                                        <div class="fw-bold">${record.userId || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Family Number:</small>
+                                        <div class="fw-bold">${record.familyNo || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Created At:</small>
+                                        <div class="fw-bold">${record.createdAt || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Updated At:</small>
+                                        <div class="fw-bold">${record.updatedAt || 'N/A'}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Health Conditions -->
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <h6 class="text-primary mb-3">❤️ Health Conditions</h6>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <small class="text-muted">Diabetes:</small>
+                                            <div class="fw-bold">${record.hasDiabetes ? 'Yes' : 'No'}</div>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Hypertension:</small>
+                                            <div class="fw-bold">${record.hasHypertension ? 'Yes' : 'No'}</div>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-6">
+                                            <small class="text-muted">Cancer:</small>
+                                            <div class="fw-bold">${record.hasCancer ? 'Yes' : 'No'}</div>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">COPD:</small>
+                                            <div class="fw-bold">${record.hasCOPD ? 'Yes' : 'No'}</div>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-6">
+                                            <small class="text-muted">Lung Disease:</small>
+                                            <div class="fw-bold">${record.hasLungDisease ? 'Yes' : 'No'}</div>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Eye Disease:</small>
+                                            <div class="fw-bold">${record.hasEyeDisease ? 'Yes' : 'No'}</div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">No Regular Exercise:</small>
+                                        <div class="fw-bold">${record.hasNoRegularExercise ? 'Yes' : 'No'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Cancer Type:</small>
+                                        <div class="fw-bold">${record.cancerType || 'N/A'}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-primary mb-3">💊 Medications & Years</h6>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Diabetes Medication:</small>
+                                        <div class="fw-bold">${record.diabetesMedication || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Diabetes Year:</small>
+                                        <div class="fw-bold">${record.diabetesYear || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Hypertension Medication:</small>
+                                        <div class="fw-bold">${record.hypertensionMedication || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Hypertension Year:</small>
+                                        <div class="fw-bold">${record.hypertensionYear || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Cancer Medication:</small>
+                                        <div class="fw-bold">${record.cancerMedication || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Cancer Year:</small>
+                                        <div class="fw-bold">${record.cancerYear || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Lung Disease Medication:</small>
+                                        <div class="fw-bold">${record.lungDiseaseMedication || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Lung Disease Year:</small>
+                                        <div class="fw-bold">${record.lungDiseaseYear || 'N/A'}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Lifestyle Factors -->
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <h6 class="text-primary mb-3">⚡ Lifestyle Factors</h6>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Smoking Status:</small>
+                                        <div class="fw-bold">${record.smokingStatus || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">High Salt Intake:</small>
+                                        <div class="fw-bold">${record.highSaltIntake ? 'Yes' : 'No'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Alcohol Frequency:</small>
+                                        <div class="fw-bold">${record.alcoholFrequency || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Alcohol Consumption:</small>
+                                        <div class="fw-bold">${record.alcoholConsumption || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Exercise Duration:</small>
+                                        <div class="fw-bold">${record.exerciseDuration || 'N/A'}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-primary mb-3">🫀 Chest Pain & Breathing</h6>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Chest Pain:</small>
+                                        <div class="fw-bold">${record.chestPain ? 'Yes' : 'No'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Chest Pain Location:</small>
+                                        <div class="fw-bold">${record.chestPainLocation || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Chest Pain Value:</small>
+                                        <div class="fw-bold">${record.chestPainValue || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Difficulty Breathing:</small>
+                                        <div class="fw-bold">${record.hasDifficultyBreathing ? 'Yes' : 'No'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Asthma:</small>
+                                        <div class="fw-bold">${record.hasAsthma ? 'Yes' : 'No'}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Family History -->
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <h6 class="text-primary mb-3">👨‍👩‍👧‍👦 Family History - Parents</h6>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Father - Diabetes:</small>
+                                        <div class="fw-bold">${record.familyHistoryDiabetesFather ? 'Yes' : 'No'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Father - Cancer:</small>
+                                        <div class="fw-bold">${record.familyHistoryCancerFather ? 'Yes' : 'No'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Father - Heart Disease:</small>
+                                        <div class="fw-bold">${record.familyHistoryHeartDiseaseFather ? 'Yes' : 'No'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Father - Stroke:</small>
+                                        <div class="fw-bold">${record.familyHistoryStrokeFather ? 'Yes' : 'No'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Father - Lung Disease:</small>
+                                        <div class="fw-bold">${record.familyHistoryLungDiseaseFather ? 'Yes' : 'No'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Father - Other:</small>
+                                        <div class="fw-bold">${record.familyHistoryOtherFather ? 'Yes' : 'No'}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-primary mb-3">👨‍👩‍👧‍👦 Family History - Mother</h6>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Mother - Diabetes:</small>
+                                        <div class="fw-bold">${record.familyHistoryDiabetesMother ? 'Yes' : 'No'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Mother - Cancer:</small>
+                                        <div class="fw-bold">${record.familyHistoryCancerMother ? 'Yes' : 'No'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Mother - Heart Disease:</small>
+                                        <div class="fw-bold">${record.familyHistoryHeartDiseaseMother ? 'Yes' : 'No'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Mother - Stroke:</small>
+                                        <div class="fw-bold">${record.familyHistoryStrokeMother ? 'Yes' : 'No'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Mother - Lung Disease:</small>
+                                        <div class="fw-bold">${record.familyHistoryLungDiseaseMother ? 'Yes' : 'No'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Mother - Other:</small>
+                                        <div class="fw-bold">${record.familyHistoryOtherMother ? 'Yes' : 'No'}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Siblings & Assessment -->
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <h6 class="text-primary mb-3">👨‍👩‍👧‍👦 Family History - Siblings</h6>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Sibling - Diabetes:</small>
+                                        <div class="fw-bold">${record.familyHistoryDiabetesSibling ? 'Yes' : 'No'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Sibling - Cancer:</small>
+                                        <div class="fw-bold">${record.familyHistoryCancerSibling ? 'Yes' : 'No'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Sibling - Heart Disease:</small>
+                                        <div class="fw-bold">${record.familyHistoryHeartDiseaseSibling ? 'Yes' : 'No'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Sibling - Stroke:</small>
+                                        <div class="fw-bold">${record.familyHistoryStrokeSibling ? 'Yes' : 'No'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Sibling - Lung Disease:</small>
+                                        <div class="fw-bold">${record.familyHistoryLungDiseaseSibling ? 'Yes' : 'No'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Sibling - Other:</small>
+                                        <div class="fw-bold">${record.familyHistoryOtherSibling ? 'Yes' : 'No'}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-primary mb-3">📊 Assessment Results</h6>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Risk Status:</small>
+                                        <div class="fw-bold">${record.riskStatus || 'N/A'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Family Has Hypertension:</small>
+                                        <div class="fw-bold">${record.familyHasHypertension ? 'Yes' : 'No'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Family Has Heart Disease:</small>
+                                        <div class="fw-bold">${record.familyHasHeartDisease ? 'Yes' : 'No'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Family Has Stroke:</small>
+                                        <div class="fw-bold">${record.familyHasStroke ? 'Yes' : 'No'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Family Has Diabetes:</small>
+                                        <div class="fw-bold">${record.familyHasDiabetes ? 'Yes' : 'No'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Family Has Cancer:</small>
+                                        <div class="fw-bold">${record.familyHasCancer ? 'Yes' : 'No'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Family Has Kidney Disease:</small>
+                                        <div class="fw-bold">${record.familyHasKidneyDisease ? 'Yes' : 'No'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Family Has Other Disease:</small>
+                                        <div class="fw-bold">${record.familyHasOtherDisease ? 'Yes' : 'No'}</div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Other Disease Details:</small>
+                                        <div class="fw-bold">${record.familyOtherDiseaseDetails || 'N/A'}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `</div>`;
+        } else {
+            html += `
+                <div class="empty-state">
+                    <div class="empty-icon">❤️</div>
+                    <h6>No NCD Records</h6>
+                    <p class="text-muted">No NCD risk assessments found for this family.</p>
+                </div>
+            `;
+        }
+        
+        html += `</div>`;
+        
+        // Display Vital Signs Records
+        html += `
+            <div class="record-section">
+                <h6 class="record-type-header">
+                    <i class="fas fa-heartbeat me-2"></i>Vital Signs Records (${data.data?.vitalSigns?.length || 0})
+                </h6>
+        `;
+        
+        if (data.data?.vitalSigns?.length > 0) {
+            html += `<div class="record-grid">`;
+            
+            data.data.vitalSigns.forEach((record, index) => {
+                html += `
+                    <div class="record-item">
+                        <div class="card-header bg-danger text-white mb-2">
+                            <h6 class="mb-0">Vital Signs #${record.id}</h6>
+                        </div>
+                        <div class="record-details">
+                            <div class="row">
+                                <div class="col-6">
+                                    <small class="text-muted">Blood Pressure:</small>
+                                    <div class="fw-bold">${record.bloodPressure || 'N/A'}</div>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">Heart Rate:</small>
+                                    <div class="fw-bold">${record.heartRate || 'N/A'}</div>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted">Temperature:</small>
+                                <div class="fw-bold">${record.temperature || 'N/A'}</div>
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted">O2 Saturation:</small>
+                                <div class="fw-bold">${record.o2Saturation || 'N/A'}</div>
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted">Height:</small>
+                                <div class="fw-bold">${record.height || 'N/A'}</div>
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted">Weight:</small>
+                                <div class="fw-bold">${record.weight || 'N/A'}</div>
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted">Recorded At:</small>
+                                <div class="fw-bold">${record.recordedAt || 'N/A'}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `</div>`;
+        } else {
+            html += `
+                <div class="empty-state">
+                    <div class="empty-icon">📊</div>
+                    <h6>No Vital Signs Records</h6>
+                    <p class="text-muted">No vital signs measurements found for this family.</p>
+                </div>
+            `;
+        }
+        
+        html += `</div>`;
+        
+        content.innerHTML = html;
+    }
+    
+    function showError(message) {
+        const content = document.getElementById('familyDetailsContent');
+        content.innerHTML = `
+            <div class="alert alert-danger">
+                <h6><i class="fas fa-exclamation-triangle me-2"></i>Error</h6>
+                <p class="mb-0">${message}</p>
+            </div>
+        `;
+    }
+    
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Family Health Records Archive loaded successfully');       
+    });
+</script>
+
+<!-- Decryption Modal -->
+<div class="modal fade" id="decryptionModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-key me-2"></i>Decrypt Family Records
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-info-circle me-2"></i>Security Notice</h6>
+                    <p class="mb-0">Enter your passphrase to decrypt the family records. Your passphrase will be used only for decryption and will not be stored.</p>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="passphraseInput" class="form-label">
+                        <i class="fas fa-lock me-1"></i>Passphrase
+                    </label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="passphraseInput" 
+                               placeholder="Enter your passphrase..." 
+                               value="bhcare202420252026">
+                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassphraseVisibility()" title="Toggle Visibility">
+                            <i class="fas fa-eye" id="passphraseToggleIcon"></i>
+                        </button>
+                    </div>
+                    <div class="form-text">
+                        <i class="fas fa-shield-alt me-1"></i>Your passphrase is processed locally and never transmitted to the server.
+                        <button class="btn btn-link btn-sm p-0 ms-2" onclick="useDefaultPassphrase()">
+                            <i class="fas fa-key me-1"></i>Use Default Passphrase
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="decryptionError"></div>
+                
+                <div id="decryptionProgress"></div>
+                
+                <div id="decryptionResults"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-primary" onclick="performBulkDecryption()">
+                    <i class="fas fa-unlock me-1"></i>Decrypt All Records
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Failed Record Details Modal -->
+<div class="modal fade" id="failedRecordModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Decryption Failed
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="failedRecordContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

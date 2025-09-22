@@ -211,60 +211,599 @@ namespace Barangay.Extensions
         /// <summary>
         /// Decrypts VitalSign data using dual-column approach
         /// </summary>
-        public static Models.VitalSign DecryptVitalSignData(this Models.VitalSign vitalSign, IDataEncryptionService encryptionService, ClaimsPrincipal user)
+        public static Models.VitalSign DecryptVitalSignData(this Models.VitalSign vitalSign, IDataEncryptionService encryptionService, ClaimsPrincipal user, ILogger logger = null)
         {
             if (vitalSign == null || encryptionService == null || !encryptionService.CanUserDecrypt(user))
+            {
+                System.Diagnostics.Debug.WriteLine($"DecryptVitalSignData: Cannot decrypt - VitalSign: {vitalSign != null}, Service: {encryptionService != null}, CanDecrypt: {encryptionService?.CanUserDecrypt(user)}");
                 return vitalSign;
-
-            // Decrypt Temperature from regular field
-            if (!string.IsNullOrEmpty(vitalSign.Temperature))
-            {
-                vitalSign.Temperature = encryptionService.DecryptForUser(vitalSign.Temperature, user);
             }
 
-            // Decrypt BloodPressure from regular field
-            if (!string.IsNullOrEmpty(vitalSign.BloodPressure))
+            System.Diagnostics.Debug.WriteLine($"DecryptVitalSignData: Starting decryption for vital sign ID {vitalSign.Id}");
+
+            // Decrypt Temperature from encrypted field
+            if (!string.IsNullOrEmpty(vitalSign.EncryptedTemperature))
             {
-                vitalSign.BloodPressure = encryptionService.DecryptForUser(vitalSign.BloodPressure, user);
+                var originalValue = vitalSign.EncryptedTemperature;
+                try
+                {
+                    var decryptedValue = encryptionService.DecryptForUser(vitalSign.EncryptedTemperature, user);
+                    // Check if decryption actually worked (not just returned the original)
+                    if (decryptedValue != originalValue && !decryptedValue.Contains("[ACCESS DENIED]"))
+                    {
+                        vitalSign.Temperature = decryptedValue;
+                        logger?.LogInformation($"DecryptVitalSignData: Temperature - Original: {originalValue.Substring(0, Math.Min(20, originalValue.Length))}..., Decrypted: {vitalSign.Temperature?.Substring(0, Math.Min(20, vitalSign.Temperature?.Length ?? 0))}...");
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"DecryptVitalSignData: Temperature decryption failed or returned original for vital sign {vitalSign.Id} - Original: {originalValue.Substring(0, Math.Min(20, originalValue.Length))}..., Result: {decryptedValue?.Substring(0, Math.Min(20, decryptedValue?.Length ?? 0))}...");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger?.LogError(ex, $"DecryptVitalSignData: Exception decrypting Temperature for vital sign {vitalSign.Id}: {ex.Message}");
+                }
             }
 
-            // Decrypt HeartRate from regular field
-            if (!string.IsNullOrEmpty(vitalSign.HeartRate))
+            // Decrypt BloodPressure from encrypted field
+            if (!string.IsNullOrEmpty(vitalSign.EncryptedBloodPressure))
             {
-                vitalSign.HeartRate = encryptionService.DecryptForUser(vitalSign.HeartRate, user);
+                var originalValue = vitalSign.EncryptedBloodPressure;
+                try
+                {
+                    var decryptedValue = encryptionService.DecryptForUser(vitalSign.EncryptedBloodPressure, user);
+                    // Check if decryption actually worked (not just returned the original)
+                    if (decryptedValue != originalValue && !decryptedValue.Contains("[ACCESS DENIED]"))
+                    {
+                        vitalSign.BloodPressure = decryptedValue;
+                        System.Diagnostics.Debug.WriteLine($"DecryptVitalSignData: BloodPressure - Original: {originalValue.Substring(0, Math.Min(20, originalValue.Length))}..., Decrypted: {vitalSign.BloodPressure?.Substring(0, Math.Min(20, vitalSign.BloodPressure?.Length ?? 0))}...");
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"DecryptVitalSignData: BloodPressure decryption failed or returned original for vital sign {vitalSign.Id} - Original: {originalValue.Substring(0, Math.Min(20, originalValue.Length))}..., Result: {decryptedValue?.Substring(0, Math.Min(20, decryptedValue?.Length ?? 0))}...");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger?.LogError(ex, $"DecryptVitalSignData: Exception decrypting BloodPressure for vital sign {vitalSign.Id}: {ex.Message}");
+                }
             }
 
-            // Decrypt RespiratoryRate from regular field
-            if (!string.IsNullOrEmpty(vitalSign.RespiratoryRate))
+            // Decrypt HeartRate from encrypted field
+            if (!string.IsNullOrEmpty(vitalSign.EncryptedHeartRate))
             {
-                vitalSign.RespiratoryRate = encryptionService.DecryptForUser(vitalSign.RespiratoryRate, user);
+                var originalValue = vitalSign.EncryptedHeartRate;
+                try
+                {
+                    var decryptedValue = encryptionService.DecryptForUser(vitalSign.EncryptedHeartRate, user);
+                    // Check if decryption actually worked (not just returned the original)
+                    if (decryptedValue != originalValue && !decryptedValue.Contains("[ACCESS DENIED]"))
+                    {
+                        vitalSign.HeartRate = decryptedValue;
+                        System.Diagnostics.Debug.WriteLine($"DecryptVitalSignData: HeartRate - Original: {originalValue.Substring(0, Math.Min(20, originalValue.Length))}..., Decrypted: {vitalSign.HeartRate?.Substring(0, Math.Min(20, vitalSign.HeartRate?.Length ?? 0))}...");
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"DecryptVitalSignData: HeartRate decryption failed or returned original for vital sign {vitalSign.Id} - Original: {originalValue.Substring(0, Math.Min(20, originalValue.Length))}..., Result: {decryptedValue?.Substring(0, Math.Min(20, decryptedValue?.Length ?? 0))}...");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger?.LogError(ex, $"DecryptVitalSignData: Exception decrypting HeartRate for vital sign {vitalSign.Id}: {ex.Message}");
+                }
             }
 
-            // Decrypt SpO2 from regular field
-            if (!string.IsNullOrEmpty(vitalSign.SpO2))
+            // Decrypt RespiratoryRate from encrypted field
+            if (!string.IsNullOrEmpty(vitalSign.EncryptedRespiratoryRate))
             {
-                vitalSign.SpO2 = encryptionService.DecryptForUser(vitalSign.SpO2, user);
+                var originalValue = vitalSign.EncryptedRespiratoryRate;
+                try
+                {
+                    var decryptedValue = encryptionService.DecryptForUser(vitalSign.EncryptedRespiratoryRate, user);
+                    // Check if decryption actually worked (not just returned the original)
+                    if (decryptedValue != originalValue && !decryptedValue.Contains("[ACCESS DENIED]"))
+                    {
+                        vitalSign.RespiratoryRate = decryptedValue;
+                        System.Diagnostics.Debug.WriteLine($"DecryptVitalSignData: RespiratoryRate - Original: {originalValue.Substring(0, Math.Min(20, originalValue.Length))}..., Decrypted: {vitalSign.RespiratoryRate?.Substring(0, Math.Min(20, vitalSign.RespiratoryRate?.Length ?? 0))}...");
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"DecryptVitalSignData: RespiratoryRate decryption failed or returned original for vital sign {vitalSign.Id} - Original: {originalValue.Substring(0, Math.Min(20, originalValue.Length))}..., Result: {decryptedValue?.Substring(0, Math.Min(20, decryptedValue?.Length ?? 0))}...");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"DecryptVitalSignData: Exception decrypting RespiratoryRate for vital sign {vitalSign.Id}: {ex.Message}");
+                }
             }
 
-            // Decrypt Weight from regular field
-            if (!string.IsNullOrEmpty(vitalSign.Weight))
+            // Decrypt SpO2 from encrypted field
+            if (!string.IsNullOrEmpty(vitalSign.EncryptedSpO2))
             {
-                vitalSign.Weight = encryptionService.DecryptForUser(vitalSign.Weight, user);
+                var originalValue = vitalSign.EncryptedSpO2;
+                try
+                {
+                    var decryptedValue = encryptionService.DecryptForUser(vitalSign.EncryptedSpO2, user);
+                    // Check if decryption actually worked (not just returned the original)
+                    if (decryptedValue != originalValue && !decryptedValue.Contains("[ACCESS DENIED]"))
+                    {
+                        vitalSign.SpO2 = decryptedValue;
+                        System.Diagnostics.Debug.WriteLine($"DecryptVitalSignData: SpO2 - Original: {originalValue.Substring(0, Math.Min(20, originalValue.Length))}..., Decrypted: {vitalSign.SpO2?.Substring(0, Math.Min(20, vitalSign.SpO2?.Length ?? 0))}...");
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"DecryptVitalSignData: SpO2 decryption failed or returned original for vital sign {vitalSign.Id} - Original: {originalValue.Substring(0, Math.Min(20, originalValue.Length))}..., Result: {decryptedValue?.Substring(0, Math.Min(20, decryptedValue?.Length ?? 0))}...");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"DecryptVitalSignData: Exception decrypting SpO2 for vital sign {vitalSign.Id}: {ex.Message}");
+                }
             }
 
-            // Decrypt Height from regular field
-            if (!string.IsNullOrEmpty(vitalSign.Height))
+            // Decrypt Weight from encrypted field
+            if (!string.IsNullOrEmpty(vitalSign.EncryptedWeight))
             {
-                vitalSign.Height = encryptionService.DecryptForUser(vitalSign.Height, user);
+                var originalValue = vitalSign.EncryptedWeight;
+                try
+                {
+                    var decryptedValue = encryptionService.DecryptForUser(vitalSign.EncryptedWeight, user);
+                    // Check if decryption actually worked (not just returned the original)
+                    if (decryptedValue != originalValue && !decryptedValue.Contains("[ACCESS DENIED]"))
+                    {
+                        vitalSign.Weight = decryptedValue;
+                        System.Diagnostics.Debug.WriteLine($"DecryptVitalSignData: Weight - Original: {originalValue.Substring(0, Math.Min(20, originalValue.Length))}..., Decrypted: {vitalSign.Weight?.Substring(0, Math.Min(20, vitalSign.Weight?.Length ?? 0))}...");
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"DecryptVitalSignData: Weight decryption failed or returned original for vital sign {vitalSign.Id} - Original: {originalValue.Substring(0, Math.Min(20, originalValue.Length))}..., Result: {decryptedValue?.Substring(0, Math.Min(20, decryptedValue?.Length ?? 0))}...");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"DecryptVitalSignData: Exception decrypting Weight for vital sign {vitalSign.Id}: {ex.Message}");
+                }
+            }
+
+            // Decrypt Height from encrypted field
+            if (!string.IsNullOrEmpty(vitalSign.EncryptedHeight))
+            {
+                var originalValue = vitalSign.EncryptedHeight;
+                try
+                {
+                    var decryptedValue = encryptionService.DecryptForUser(vitalSign.EncryptedHeight, user);
+                    // Check if decryption actually worked (not just returned the original)
+                    if (decryptedValue != originalValue && !decryptedValue.Contains("[ACCESS DENIED]"))
+                    {
+                        vitalSign.Height = decryptedValue;
+                        System.Diagnostics.Debug.WriteLine($"DecryptVitalSignData: Height - Original: {originalValue.Substring(0, Math.Min(20, originalValue.Length))}..., Decrypted: {vitalSign.Height?.Substring(0, Math.Min(20, vitalSign.Height?.Length ?? 0))}...");
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"DecryptVitalSignData: Height decryption failed or returned original for vital sign {vitalSign.Id} - Original: {originalValue.Substring(0, Math.Min(20, originalValue.Length))}..., Result: {decryptedValue?.Substring(0, Math.Min(20, decryptedValue?.Length ?? 0))}...");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"DecryptVitalSignData: Exception decrypting Height for vital sign {vitalSign.Id}: {ex.Message}");
+                }
             }
 
             // Decrypt Notes
             if (!string.IsNullOrEmpty(vitalSign.Notes))
             {
-                vitalSign.Notes = encryptionService.DecryptForUser(vitalSign.Notes, user);
+                var originalValue = vitalSign.Notes;
+                try
+                {
+                    var decryptedValue = encryptionService.DecryptForUser(vitalSign.Notes, user);
+                    // Check if decryption actually worked (not just returned the original)
+                    if (decryptedValue != originalValue && !decryptedValue.Contains("[ACCESS DENIED]"))
+                    {
+                        vitalSign.Notes = decryptedValue;
+                        System.Diagnostics.Debug.WriteLine($"DecryptVitalSignData: Notes - Original: {originalValue.Substring(0, Math.Min(20, originalValue.Length))}..., Decrypted: {vitalSign.Notes?.Substring(0, Math.Min(20, vitalSign.Notes?.Length ?? 0))}...");
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"DecryptVitalSignData: Notes decryption failed or returned original for vital sign {vitalSign.Id} - Original: {originalValue.Substring(0, Math.Min(20, originalValue.Length))}..., Result: {decryptedValue?.Substring(0, Math.Min(20, decryptedValue?.Length ?? 0))}...");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"DecryptVitalSignData: Exception decrypting Notes for vital sign {vitalSign.Id}: {ex.Message}");
+                }
             }
 
             return vitalSign;
+        }
+
+        /// <summary>
+        /// Decrypts ImmunizationRecord data for authorized users
+        /// </summary>
+        public static Models.ImmunizationRecord DecryptImmunizationData(this Models.ImmunizationRecord record, IDataEncryptionService encryptionService, ClaimsPrincipal user)
+        {
+            if (record == null || encryptionService == null || !encryptionService.CanUserDecrypt(user))
+            {
+                System.Diagnostics.Debug.WriteLine($"DecryptImmunizationData: Cannot decrypt - Record: {record != null}, Service: {encryptionService != null}, CanDecrypt: {encryptionService?.CanUserDecrypt(user)}");
+                return record;
+            }
+
+            System.Diagnostics.Debug.WriteLine($"DecryptImmunizationData: Starting decryption for record ID {record.Id}");
+
+            // Decrypt basic information
+            if (!string.IsNullOrEmpty(record.ChildName))
+            {
+                var originalValue = record.ChildName;
+                try
+                {
+                    var decryptedValue = encryptionService.DecryptForUser(record.ChildName, user);
+                    // Check if decryption actually worked (not just returned the original)
+                    if (decryptedValue != originalValue && !decryptedValue.Contains("[ACCESS DENIED]"))
+                    {
+                        record.ChildName = decryptedValue;
+                        System.Diagnostics.Debug.WriteLine($"DecryptImmunizationData: ChildName - Original: {originalValue.Substring(0, Math.Min(20, originalValue.Length))}..., Decrypted: {record.ChildName?.Substring(0, Math.Min(20, record.ChildName?.Length ?? 0))}...");
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"DecryptImmunizationData: ChildName decryption failed or returned original for record {record.Id} - Original: {originalValue.Substring(0, Math.Min(20, originalValue.Length))}..., Result: {decryptedValue?.Substring(0, Math.Min(20, decryptedValue?.Length ?? 0))}...");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"DecryptImmunizationData: Exception decrypting ChildName for record {record.Id}: {ex.Message}");
+                }
+            }
+
+            if (!string.IsNullOrEmpty(record.FamilyNumber))
+            {
+                var originalValue = record.FamilyNumber;
+                try
+                {
+                    var decryptedValue = encryptionService.DecryptForUser(record.FamilyNumber, user);
+                    // Check if decryption actually worked (not just returned the original)
+                    if (decryptedValue != originalValue && !decryptedValue.Contains("[ACCESS DENIED]"))
+                    {
+                        record.FamilyNumber = decryptedValue;
+                        System.Diagnostics.Debug.WriteLine($"DecryptImmunizationData: FamilyNumber - Original: {originalValue.Substring(0, Math.Min(20, originalValue.Length))}..., Decrypted: {record.FamilyNumber?.Substring(0, Math.Min(20, record.FamilyNumber?.Length ?? 0))}...");
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"DecryptImmunizationData: FamilyNumber decryption failed or returned original for record {record.Id} - Original: {originalValue.Substring(0, Math.Min(20, originalValue.Length))}..., Result: {decryptedValue?.Substring(0, Math.Min(20, decryptedValue?.Length ?? 0))}...");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"DecryptImmunizationData: Exception decrypting FamilyNumber for record {record.Id}: {ex.Message}");
+                }
+            }
+
+            if (!string.IsNullOrEmpty(record.DateOfBirth))
+            {
+                try
+                {
+                    var decryptedDate = encryptionService.DecryptForUser(record.DateOfBirth, user);
+                    // Ensure the date is in the correct format for HTML date inputs
+                    if (DateTime.TryParse(decryptedDate, out DateTime parsedDate))
+                    {
+                        record.DateOfBirth = parsedDate.ToString("yyyy-MM-dd");
+                    }
+                    else
+                    {
+                        record.DateOfBirth = decryptedDate; // Keep original if parsing fails
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"DecryptImmunizationData: Failed to decrypt DateOfBirth for record {record.Id}: {ex.Message}");
+                    // Keep original value if decryption fails
+                }
+            }
+
+            if (!string.IsNullOrEmpty(record.MotherName))
+            {
+                var originalValue = record.MotherName;
+                try
+                {
+                    var decryptedValue = encryptionService.DecryptForUser(record.MotherName, user);
+                    // Check if decryption actually worked (not just returned the original)
+                    if (decryptedValue != originalValue && !decryptedValue.Contains("[ACCESS DENIED]"))
+                    {
+                        record.MotherName = decryptedValue;
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"DecryptImmunizationData: MotherName decryption failed or returned original for record {record.Id} - Original: {originalValue.Substring(0, Math.Min(20, originalValue.Length))}..., Result: {decryptedValue?.Substring(0, Math.Min(20, decryptedValue?.Length ?? 0))}...");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"DecryptImmunizationData: Exception decrypting MotherName for record {record.Id}: {ex.Message}");
+                }
+            }
+
+            if (!string.IsNullOrEmpty(record.FatherName))
+            {
+                record.FatherName = encryptionService.DecryptForUser(record.FatherName, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.Sex))
+            {
+                record.Sex = encryptionService.DecryptForUser(record.Sex, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.BirthHeight))
+            {
+                record.BirthHeight = encryptionService.DecryptForUser(record.BirthHeight, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.BirthWeight))
+            {
+                record.BirthWeight = encryptionService.DecryptForUser(record.BirthWeight, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.HealthCenter))
+            {
+                record.HealthCenter = encryptionService.DecryptForUser(record.HealthCenter, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.Barangay))
+            {
+                record.Barangay = encryptionService.DecryptForUser(record.Barangay, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.FamilyNumber))
+            {
+                record.FamilyNumber = encryptionService.DecryptForUser(record.FamilyNumber, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.Email))
+            {
+                record.Email = encryptionService.DecryptForUser(record.Email, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.ContactNumber))
+            {
+                record.ContactNumber = encryptionService.DecryptForUser(record.ContactNumber, user);
+            }
+
+            // Decrypt vaccine information
+            if (!string.IsNullOrEmpty(record.BCGVaccineDate))
+            {
+                record.BCGVaccineDate = encryptionService.DecryptForUser(record.BCGVaccineDate, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.BCGVaccineRemarks))
+            {
+                record.BCGVaccineRemarks = encryptionService.DecryptForUser(record.BCGVaccineRemarks, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.HepatitisBVaccineDate))
+            {
+                record.HepatitisBVaccineDate = encryptionService.DecryptForUser(record.HepatitisBVaccineDate, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.HepatitisBVaccineRemarks))
+            {
+                record.HepatitisBVaccineRemarks = encryptionService.DecryptForUser(record.HepatitisBVaccineRemarks, user);
+            }
+
+            // Decrypt Pentavalent doses
+            if (!string.IsNullOrEmpty(record.Pentavalent1Date))
+            {
+                record.Pentavalent1Date = encryptionService.DecryptForUser(record.Pentavalent1Date, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.Pentavalent1Remarks))
+            {
+                record.Pentavalent1Remarks = encryptionService.DecryptForUser(record.Pentavalent1Remarks, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.Pentavalent2Date))
+            {
+                record.Pentavalent2Date = encryptionService.DecryptForUser(record.Pentavalent2Date, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.Pentavalent2Remarks))
+            {
+                record.Pentavalent2Remarks = encryptionService.DecryptForUser(record.Pentavalent2Remarks, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.Pentavalent3Date))
+            {
+                record.Pentavalent3Date = encryptionService.DecryptForUser(record.Pentavalent3Date, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.Pentavalent3Remarks))
+            {
+                record.Pentavalent3Remarks = encryptionService.DecryptForUser(record.Pentavalent3Remarks, user);
+            }
+
+            // Decrypt OPV doses
+            if (!string.IsNullOrEmpty(record.OPV1Date))
+            {
+                record.OPV1Date = encryptionService.DecryptForUser(record.OPV1Date, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.OPV1Remarks))
+            {
+                record.OPV1Remarks = encryptionService.DecryptForUser(record.OPV1Remarks, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.OPV2Date))
+            {
+                record.OPV2Date = encryptionService.DecryptForUser(record.OPV2Date, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.OPV2Remarks))
+            {
+                record.OPV2Remarks = encryptionService.DecryptForUser(record.OPV2Remarks, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.OPV3Date))
+            {
+                record.OPV3Date = encryptionService.DecryptForUser(record.OPV3Date, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.OPV3Remarks))
+            {
+                record.OPV3Remarks = encryptionService.DecryptForUser(record.OPV3Remarks, user);
+            }
+
+            // Decrypt IPV doses
+            if (!string.IsNullOrEmpty(record.IPV1Date))
+            {
+                record.IPV1Date = encryptionService.DecryptForUser(record.IPV1Date, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.IPV1Remarks))
+            {
+                record.IPV1Remarks = encryptionService.DecryptForUser(record.IPV1Remarks, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.IPV2Date))
+            {
+                record.IPV2Date = encryptionService.DecryptForUser(record.IPV2Date, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.IPV2Remarks))
+            {
+                record.IPV2Remarks = encryptionService.DecryptForUser(record.IPV2Remarks, user);
+            }
+
+            // Decrypt PCV doses
+            if (!string.IsNullOrEmpty(record.PCV1Date))
+            {
+                record.PCV1Date = encryptionService.DecryptForUser(record.PCV1Date, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.PCV1Remarks))
+            {
+                record.PCV1Remarks = encryptionService.DecryptForUser(record.PCV1Remarks, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.PCV2Date))
+            {
+                record.PCV2Date = encryptionService.DecryptForUser(record.PCV2Date, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.PCV2Remarks))
+            {
+                record.PCV2Remarks = encryptionService.DecryptForUser(record.PCV2Remarks, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.PCV3Date))
+            {
+                record.PCV3Date = encryptionService.DecryptForUser(record.PCV3Date, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.PCV3Remarks))
+            {
+                record.PCV3Remarks = encryptionService.DecryptForUser(record.PCV3Remarks, user);
+            }
+
+            // Decrypt MMR doses
+            if (!string.IsNullOrEmpty(record.MMR1Date))
+            {
+                record.MMR1Date = encryptionService.DecryptForUser(record.MMR1Date, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.MMR1Remarks))
+            {
+                record.MMR1Remarks = encryptionService.DecryptForUser(record.MMR1Remarks, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.MMR2Date))
+            {
+                record.MMR2Date = encryptionService.DecryptForUser(record.MMR2Date, user);
+            }
+
+            if (!string.IsNullOrEmpty(record.MMR2Remarks))
+            {
+                record.MMR2Remarks = encryptionService.DecryptForUser(record.MMR2Remarks, user);
+            }
+
+            return record;
+        }
+
+        /// <summary>
+        /// Decrypts ImmunizationShortcutForm data for authorized users
+        /// </summary>
+        public static Models.ImmunizationShortcutForm DecryptImmunizationShortcutData(this Models.ImmunizationShortcutForm form, IDataEncryptionService encryptionService, ClaimsPrincipal user)
+        {
+            if (form == null || encryptionService == null || !encryptionService.CanUserDecrypt(user))
+                return form;
+
+            // Decrypt basic information
+            if (!string.IsNullOrEmpty(form.ChildName))
+            {
+                form.ChildName = encryptionService.DecryptForUser(form.ChildName, user);
+            }
+
+            if (!string.IsNullOrEmpty(form.MotherName))
+            {
+                form.MotherName = encryptionService.DecryptForUser(form.MotherName, user);
+            }
+
+            if (!string.IsNullOrEmpty(form.FatherName))
+            {
+                form.FatherName = encryptionService.DecryptForUser(form.FatherName, user);
+            }
+
+            if (!string.IsNullOrEmpty(form.Address))
+            {
+                form.Address = encryptionService.DecryptForUser(form.Address, user);
+            }
+
+            if (!string.IsNullOrEmpty(form.Barangay))
+            {
+                form.Barangay = encryptionService.DecryptForUser(form.Barangay, user);
+            }
+
+            if (!string.IsNullOrEmpty(form.Email))
+            {
+                form.Email = encryptionService.DecryptForUser(form.Email, user);
+            }
+
+            if (!string.IsNullOrEmpty(form.ContactNumber))
+            {
+                form.ContactNumber = encryptionService.DecryptForUser(form.ContactNumber, user);
+            }
+
+            if (!string.IsNullOrEmpty(form.PreferredDate))
+            {
+                form.PreferredDate = encryptionService.DecryptForUser(form.PreferredDate, user);
+            }
+
+            if (!string.IsNullOrEmpty(form.PreferredTime))
+            {
+                form.PreferredTime = encryptionService.DecryptForUser(form.PreferredTime, user);
+            }
+
+            if (!string.IsNullOrEmpty(form.Notes))
+            {
+                form.Notes = encryptionService.DecryptForUser(form.Notes, user);
+            }
+
+            if (!string.IsNullOrEmpty(form.CreatedAt))
+            {
+                form.CreatedAt = encryptionService.DecryptForUser(form.CreatedAt, user);
+            }
+
+            if (!string.IsNullOrEmpty(form.UpdatedAt))
+            {
+                form.UpdatedAt = encryptionService.DecryptForUser(form.UpdatedAt, user);
+            }
+
+            if (!string.IsNullOrEmpty(form.CreatedBy))
+            {
+                form.CreatedBy = encryptionService.DecryptForUser(form.CreatedBy, user);
+            }
+
+            if (!string.IsNullOrEmpty(form.Status))
+            {
+                form.Status = encryptionService.DecryptForUser(form.Status, user);
+            }
+
+            return form;
         }
     }
 }

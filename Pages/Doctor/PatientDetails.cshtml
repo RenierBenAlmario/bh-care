@@ -60,6 +60,42 @@
             border-top: none;
             padding: 15px;
         }
+        
+        /* Medical Certificate Styles */
+        .certificate-container {
+            background: white;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .certificate-header {
+            border-bottom: 2px solid #fd7e14;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .certificate-header h4 {
+            color: #fd7e14;
+            font-weight: bold;
+        }
+        .certificate-header h3 {
+            color: #333;
+            font-weight: bold;
+        }
+        .certificate-body {
+            line-height: 1.8;
+        }
+        .certificate-body .form-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        .certificate-body .form-control {
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+        .certificate-body .form-control:focus {
+            border-color: #fd7e14;
+            box-shadow: 0 0 0 0.2rem rgba(253, 126, 20, 0.25);
+        }
     </style>
 }
 
@@ -210,6 +246,9 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" data-bs-toggle="tab" href="#vital-signs">Vital Signs</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-bs-toggle="tab" href="#medical-certificate">Medical Certificate</a>
                             </li>
                         </ul>
                     </div>
@@ -395,6 +434,20 @@
                                     </div>
                                 }
                             </div>
+                            
+                            <!-- Medical Certificate Tab -->
+                            <div class="tab-pane fade" id="medical-certificate">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="mb-0">Medical Certificate</h5>
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#medicalCertificateModal">
+                                        <i class="bi bi-file-earmark-medical"></i> Generate Certificate
+                                    </button>
+                                </div>
+                                <div class="alert alert-info">
+                                    <i class="bi bi-info-circle"></i>
+                                    Click "Generate Certificate" to create a medical certificate for this patient. The certificate will be auto-filled with patient information but can be edited before printing.
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -483,6 +536,90 @@
     </div>
 </div>
 
+<!-- Medical Certificate Modal -->
+<div class="modal fade" id="medicalCertificateModal" tabindex="-1" aria-labelledby="medicalCertificateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="medicalCertificateModalLabel">Medical Certificate</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="certificate-container" id="certificateContent">
+                    <div class="certificate-header text-center mb-4">
+                        <h4 class="mb-1">BRGY. 161 BAESA HEALTH CENTER</h4>
+                        <p class="mb-1">356, ROSE CALOOCAN CITY</p>
+                        <p class="mb-3">baesahealthcenter2021@gmail.com</p>
+                        <h3 class="mb-4"><strong>MEDICAL CERTIFICATE</strong></h3>
+                        <div class="text-end mb-3">
+                            <strong>DATE: <span id="certificateDate">@DateTime.Now.ToString("MMMM dd, yyyy")</span></strong>
+                        </div>
+                    </div>
+                    
+                    <div class="certificate-body">
+                        <p class="mb-3">To whom it may concern:</p>
+                        <p class="mb-3">This is to certify that I have seen and examined</p>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="patientName" class="form-label">Patient Name:</label>
+                                <input type="text" class="form-control" id="patientName" value="@Model.Patient.FullName">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="patientAge" class="form-label">Age:</label>
+                                <input type="text" class="form-control" id="patientAge" value="@Model.Patient.Age">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="reason" class="form-label">Reason for Certificate:</label>
+                            <input type="text" class="form-control" id="reason" placeholder="Enter reason for medical certificate">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="impression" class="form-label">Impression:</label>
+                            <textarea class="form-control" id="impression" rows="3" placeholder="Enter medical impression"></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="remarks" class="form-label">Remarks:</label>
+                            <textarea class="form-control" id="remarks" rows="3" placeholder="Enter additional remarks"></textarea>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <p class="mb-2">This certification is being issued upon the request of the patient for whatever purpose it may serve except for medico-legal purposes.</p>
+                        </div>
+                        
+                        <div class="text-end">
+                            <p class="mb-1">Respectfully yours,</p>
+                            <div class="mb-3">
+                                <label for="doctorName" class="form-label">Doctor Name:</label>
+                                <input type="text" class="form-control" id="doctorName" value="@Model.CurrentUser?.FullName">
+                            </div>
+                            <div class="mb-3">
+                                <label for="doctorTitle" class="form-label">Title/Position:</label>
+                                <input type="text" class="form-control" id="doctorTitle" value="Medical Officer III">
+                            </div>
+                        </div>
+                        
+                        <div class="text-start mt-4">
+                            <p class="text-muted"><strong>NOT VALID WITHOUT ORIGINAL STAMP</strong></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Cancel
+                </button>
+                <button type="button" class="btn btn-success" id="printCertificate">
+                    <i class="bi bi-printer"></i> Print Certificate
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         $(document).ready(function() {
@@ -542,6 +679,206 @@
                 // Show the modal
                 medicalRecordModal.show();
             });
+            
+            // Handle print certificate button
+            $('#printCertificate').on('click', function() {
+                printCertificate();
+            });
+            
+            // Function to print the certificate
+            function printCertificate() {
+                // Get the certificate content
+                const certificateContent = document.getElementById('certificateContent');
+                
+                // Create a new window for printing
+                const printWindow = window.open('', '_blank');
+                
+                // Get the current values from the form
+                const patientName = document.getElementById('patientName').value;
+                const patientAge = document.getElementById('patientAge').value;
+                const reason = document.getElementById('reason').value;
+                const impression = document.getElementById('impression').value;
+                const remarks = document.getElementById('remarks').value;
+                const doctorName = document.getElementById('doctorName').value;
+                const doctorTitle = document.getElementById('doctorTitle').value;
+                const certificateDate = document.getElementById('certificateDate').textContent;
+                
+                // Create the printable HTML
+                const printHTML = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Medical Certificate</title>
+                        <style>
+                            body {
+                                font-family: 'Times New Roman', serif;
+                                margin: 0;
+                                padding: 20px;
+                                background: white;
+                                color: black;
+                            }
+                            .certificate-container {
+                                max-width: 800px;
+                                margin: 0 auto;
+                                background: white;
+                                padding: 40px;
+                                border: 2px solid #000;
+                            }
+                            .certificate-header {
+                                text-align: center;
+                                margin-bottom: 30px;
+                            }
+                            .certificate-header h4 {
+                                font-size: 18px;
+                                margin: 5px 0;
+                                font-weight: bold;
+                            }
+                            .certificate-header p {
+                                font-size: 14px;
+                                margin: 2px 0;
+                            }
+                            .certificate-header h3 {
+                                font-size: 24px;
+                                margin: 20px 0;
+                                font-weight: bold;
+                                text-decoration: underline;
+                            }
+                            .date-section {
+                                text-align: right;
+                                margin-bottom: 20px;
+                                font-weight: bold;
+                            }
+                            .certificate-body {
+                                line-height: 1.6;
+                                font-size: 14px;
+                            }
+                            .certificate-body p {
+                                margin: 10px 0;
+                            }
+                            .patient-info {
+                                margin: 20px 0;
+                                font-weight: bold;
+                            }
+                            .reason-section {
+                                margin: 20px 0;
+                                font-weight: bold;
+                            }
+                            .impression-section {
+                                margin: 20px 0;
+                            }
+                            .impression-section strong {
+                                text-decoration: underline;
+                            }
+                            .remarks-section {
+                                margin: 20px 0;
+                            }
+                            .remarks-section strong {
+                                text-decoration: underline;
+                            }
+                            .disclaimer {
+                                margin: 30px 0;
+                                font-style: italic;
+                            }
+                            .signature-section {
+                                text-align: right;
+                                margin-top: 40px;
+                            }
+                            .signature-section p {
+                                margin: 5px 0;
+                            }
+                            .doctor-info {
+                                margin-top: 20px;
+                                font-weight: bold;
+                            }
+                            .footer-note {
+                                text-align: left;
+                                margin-top: 30px;
+                                font-weight: bold;
+                                color: #666;
+                            }
+                            .watermark {
+                                position: absolute;
+                                top: 50%;
+                                left: 50%;
+                                transform: translate(-50%, -50%);
+                                font-size: 120px;
+                                color: rgba(0,0,0,0.1);
+                                z-index: -1;
+                                pointer-events: none;
+                            }
+                            @@media print {
+                                body { margin: 0; }
+                                .certificate-container { border: none; }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="watermark">SANG LUNGSOD NG CALOOCAN<br>KASAYSAYAN<br>PILIPINAS 1982</div>
+                        <div class="certificate-container">
+                            <div class="certificate-header">
+                                <h4>BRGY. 161 BAESA HEALTH CENTER</h4>
+                                <p>356, ROSE CALOOCAN CITY</p>
+                                <p>baesahealthcenter2021@gmail.com</p>
+                                <h3>MEDICAL CERTIFICATE</h3>
+                                <div class="date-section">
+                                    DATE: ${certificateDate}
+                                </div>
+                            </div>
+                            
+                            <div class="certificate-body">
+                                <p>To whom it may concern:</p>
+                                <p>This is to certify that I have seen and examined</p>
+                                
+                                <div class="patient-info">
+                                    <strong>${patientName}</strong>, ${patientAge} years old due to
+                                </div>
+                                
+                                <div class="reason-section">
+                                    ${reason}
+                                </div>
+                                
+                                <div class="impression-section">
+                                    <strong>Impression:</strong><br>
+                                    ${impression}
+                                </div>
+                                
+                                <div class="remarks-section">
+                                    <strong>Remarks:</strong><br>
+                                    ${remarks}
+                                </div>
+                                
+                                <div class="disclaimer">
+                                    This certification is being issued upon the request of the patient for whatever purpose it may serve except for medico-legal purposes.
+                                </div>
+                                
+                                <div class="signature-section">
+                                    <p>Respectfully yours,</p>
+                                    <div class="doctor-info">
+                                        ${doctorName}<br>
+                                        ${doctorTitle}
+                                    </div>
+                                </div>
+                                
+                                <div class="footer-note">
+                                    NOT VALID WITHOUT ORIGINAL STAMP
+                                </div>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                `;
+                
+                // Write the HTML to the print window
+                printWindow.document.write(printHTML);
+                printWindow.document.close();
+                
+                // Wait for the content to load, then print
+                printWindow.onload = function() {
+                    printWindow.focus();
+                    printWindow.print();
+                    printWindow.close();
+                };
+            }
         });
     </script>
 } 

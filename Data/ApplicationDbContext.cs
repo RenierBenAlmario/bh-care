@@ -61,6 +61,8 @@ namespace Barangay.Data
 
         public DbSet<DoctorAvailability> DoctorAvailabilities { get; set; }
 
+        public DbSet<UrlToken> UrlTokens { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -391,6 +393,31 @@ namespace Barangay.Data
                 .HasForeignKey(n => n.AppointmentId)
                 .IsRequired(false)  // Make AppointmentId nullable
                 .OnDelete(DeleteBehavior.SetNull);
+
+            // Configure UrlToken relationships
+            builder.Entity<UrlToken>()
+                .HasOne(ut => ut.User)
+                .WithMany()
+                .HasForeignKey(ut => ut.ResourceId)
+                .OnDelete(DeleteBehavior.NoAction)
+                .IsRequired(false);
+
+            // Configure indexes for UrlToken
+            builder.Entity<UrlToken>()
+                .HasIndex(ut => ut.Token)
+                .IsUnique();
+
+            builder.Entity<UrlToken>()
+                .HasIndex(ut => ut.ResourceType);
+
+            builder.Entity<UrlToken>()
+                .HasIndex(ut => ut.ResourceId);
+
+            builder.Entity<UrlToken>()
+                .HasIndex(ut => ut.ExpiresAt);
+
+            builder.Entity<UrlToken>()
+                .HasIndex(ut => ut.IsUsed);
         }
     }
 }

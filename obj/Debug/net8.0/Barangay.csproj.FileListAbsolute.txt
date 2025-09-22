@@ -34,6 +34,9 @@ D:\Imbakan\Last\Last\BHCARE-mainNgawngaw\BHCARE-main\bin\Debug\net8.0\SQL\Update
 D:\Imbakan\Last\Last\BHCARE-mainNgawngaw\BHCARE-main\bin\Debug\net8.0\SQL\UpdateConsultationTimeSlots.sql
 D:\Imbakan\Last\Last\BHCARE-mainNgawngaw\BHCARE-main\bin\Debug\net8.0\SQL\UpdateDepartmentSchema.sql
 D:\Imbakan\Last\Last\BHCARE-mainNgawngaw\BHCARE-main\bin\Debug\net8.0\SQL\UpdatedNCDRiskAssessment.sql
+D:\Imbakan\Last\Last\BHCARE-mainNgawngaw\BHCARE-main\bin\Debug\net8.0\SQL\UpdateImmunizationShortcutFormColumns.sql
+D:\Imbakan\Last\Last\BHCARE-mainNgawngaw\BHCARE-main\bin\Debug\net8.0\SQL\UpdateImmunizationTablesForEncryption.sql
+D:\Imbakan\Last\Last\BHCARE-mainNgawngaw\BHCARE-main\bin\Debug\net8.0\SQL\UpdateImmunizationTablesForEncryption_Fixed.sql
 D:\Imbakan\Last\Last\BHCARE-mainNgawngaw\BHCARE-main\bin\Debug\net8.0\SQL\UpdatePermissions.sql
 D:\Imbakan\Last\Last\BHCARE-mainNgawngaw\BHCARE-main\bin\Debug\net8.0\DataFixes\CreateDoctorAvailabilitiesTable.sql
 D:\Imbakan\Last\Last\BHCARE-mainNgawngaw\BHCARE-main\bin\Debug\net8.0\DataFixes\CreateStaffPermissionsTable.sql
@@ -642,6 +645,3 @@ D:\Imbakan\Last\Last\BHCARE-mainNgawngaw\BHCARE-main\obj\Debug\net8.0\refint\Bar
 D:\Imbakan\Last\Last\BHCARE-mainNgawngaw\BHCARE-main\obj\Debug\net8.0\Barangay.pdb
 D:\Imbakan\Last\Last\BHCARE-mainNgawngaw\BHCARE-main\obj\Debug\net8.0\Barangay.genruntimeconfig.cache
 D:\Imbakan\Last\Last\BHCARE-mainNgawngaw\BHCARE-main\obj\Debug\net8.0\ref\Barangay.dll
-D:\Imbakan\Last\Last\BHCARE-mainNgawngaw\BHCARE-main\bin\Debug\net8.0\SQL\UpdateImmunizationShortcutFormColumns.sql
-D:\Imbakan\Last\Last\BHCARE-mainNgawngaw\BHCARE-main\bin\Debug\net8.0\SQL\UpdateImmunizationTablesForEncryption.sql
-D:\Imbakan\Last\Last\BHCARE-mainNgawngaw\BHCARE-main\bin\Debug\net8.0\SQL\UpdateImmunizationTablesForEncryption_Fixed.sql

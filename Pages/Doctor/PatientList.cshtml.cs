@@ -120,7 +120,8 @@ namespace Barangay.Pages.Doctor
                     Email = p.User.Email,
                     PhoneNumber = p.User.PhoneNumber,
                     Barangay = string.IsNullOrEmpty(p.User.Barangay) ? "Not specified" : p.User.Barangay,
-                    Status = p.User.Status
+                    Status = p.User.Status,
+                    Age = p.User.Age
                 })
                 .ToListAsync();
 
@@ -138,6 +139,7 @@ namespace Barangay.Pages.Doctor
                     patient.FullName = user.FullName;
                     patient.Email = user.Email;
                     patient.PhoneNumber = user.PhoneNumber;
+                    patient.Age = user.Age;
                 }
             }
 
@@ -174,5 +176,6 @@ namespace Barangay.Pages.Doctor
         public string PhoneNumber { get; set; }
         public string Barangay { get; set; }
         public string Status { get; set; }
+        public string Age { get; set; }
     }
 } 

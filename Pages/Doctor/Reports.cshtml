@@ -52,13 +52,30 @@ else
 
     <div class="report-wrapper" id="report-root">
         <div class="toolbar">
-            <h2 class="title">Monthly Sickness Tracker</h2>
+            <h2 class="title" id="reportTitle">Monthly Sickness Tracker</h2>
             <div style="display:flex; gap:8px; align-items:center;">
-                <form method="get" id="monthForm">
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <label style="font-weight:600; color:var(--text);">View:</label>
+                    <select id="viewType" class="select" style="min-width:120px;" onchange="toggleViewType()">
+                        <option value="monthly" selected="@(Model.ViewType == "monthly")">Monthly</option>
+                        <option value="yearly" selected="@(Model.ViewType == "yearly")">Yearly</option>
+                    </select>
+                </div>
+                <form method="get" id="monthForm" style="display:@(Model.ViewType == "monthly" ? "block" : "none");">
+                    <input type="hidden" name="view" value="monthly" />
                     <select name="month" class="select" onchange="document.getElementById('monthForm').submit();">
                         @foreach (var m in Model.MonthOptions)
                         {
                             <option value="@m" selected="@(m == Model.SelectedMonthLabel ? "selected" : null)">@m</option>
+                        }
+                    </select>
+                </form>
+                <form method="get" id="yearForm" style="display:@(Model.ViewType == "yearly" ? "block" : "none");">
+                    <input type="hidden" name="view" value="yearly" />
+                    <select name="year" class="select" onchange="document.getElementById('yearForm').submit();">
+                        @foreach (var y in Model.YearOptions)
+                        {
+                            <option value="@y" selected="@(y == Model.SelectedYearLabel ? "selected" : null)">@y</option>
                         }
                     </select>
                 </form>
@@ -69,32 +86,32 @@ else
 
         <div class="grid">
             <div class="card">
-                <h5>Top Diagnosed Conditions (@Model.SelectedMonthLabel)</h5>
+                <h5 id="topConditionsTitle">Top Diagnosed Conditions (@Model.SelectedMonthLabel)</h5>
                 <canvas id="topConditionsChart" height="220"></canvas>
             </div>
             <div class="card">
-                <h5>Sickness Trend (Past Months)</h5>
+                <h5 id="trendTitle">Sickness Trend (Past Months)</h5>
                 <canvas id="trendChart" height="220"></canvas>
             </div>
         </div>
 
         <div class="card" style="margin-top:16px;">
-            <h5>Monthly Breakdown</h5>
+            <h5 id="breakdownTitle">Monthly Breakdown</h5>
             <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
                             <th>Condition</th>
-                            <th>Cases this Month</th>
+                            <th id="casesHeader">Cases this Month</th>
                             <th>% of Total</th>
-                            <th>Last Month Cases</th>
+                            <th id="comparisonHeader">Last Month Cases</th>
                             <th>Trend</th>
                         </tr>
                     </thead>
                     <tbody>
                         @if (Model.TopConditionStats.Count == 0)
                         {
-                            <tr><td colspan="5" class="muted">No records for @Model.SelectedMonthLabel</td></tr>
+                            <tr><td colspan="5" class="muted" id="noDataMessage">No records for @(Model.ViewType == "yearly" ? Model.SelectedYearLabel : Model.SelectedMonthLabel)</td></tr>
                         }
                         else
                         {
@@ -120,6 +137,55 @@ else
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script>
+        // Toggle between monthly and yearly views
+        function toggleViewType() {
+            const viewType = document.getElementById('viewType').value;
+            
+            // Submit the appropriate form to reload the page with the new view type
+            if (viewType === 'yearly') {
+                // Create a form to submit yearly view
+                const form = document.createElement('form');
+                form.method = 'get';
+                form.action = window.location.pathname;
+                
+                const viewInput = document.createElement('input');
+                viewInput.type = 'hidden';
+                viewInput.name = 'view';
+                viewInput.value = 'yearly';
+                form.appendChild(viewInput);
+                
+                const yearInput = document.createElement('input');
+                yearInput.type = 'hidden';
+                yearInput.name = 'year';
+                yearInput.value = '@Model.SelectedYearLabel';
+                form.appendChild(yearInput);
+                
+                document.body.appendChild(form);
+                form.submit();
+            } else {
+                // Create a form to submit monthly view
+                const form = document.createElement('form');
+                form.method = 'get';
+                form.action = window.location.pathname;
+                
+                const viewInput = document.createElement('input');
+                viewInput.type = 'hidden';
+                viewInput.name = 'view';
+                viewInput.value = 'monthly';
+                form.appendChild(viewInput);
+                
+                const monthInput = document.createElement('input');
+                monthInput.type = 'hidden';
+                monthInput.name = 'month';
+                monthInput.value = '@Model.SelectedMonthLabel';
+                form.appendChild(monthInput);
+                
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
     <script>
         const topLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TopConditionStats.Select(s => s.Condition)));
         const topValues = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TopConditionStats.Select(s => s.CasesThisMonth)));

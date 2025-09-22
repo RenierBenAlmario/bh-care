@@ -68,8 +68,6 @@
                                 </td>
                                 <td>
                                     <a asp-page="/Nurse/VitalSigns" asp-route-patientId="@appointment.PatientId" class="btn btn-primary btn-sm">Edit Vital Signs</a>
-                                    <a asp-page="/Nurse/MedicalHistory" asp-route-id="@appointment.Id" class="btn btn-info btn-sm">Medical History</a>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteAppointment(@appointment.Id)">Delete</button>
                                 </td>
                             </tr>
                             queueNumber++;

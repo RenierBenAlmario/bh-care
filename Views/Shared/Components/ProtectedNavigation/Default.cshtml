@@ -1,0 +1,74 @@
+@model Barangay.ViewComponents.ProtectedNavigationViewModel
+
+@{
+    var isAuthenticated = User.Identity?.IsAuthenticated ?? false;
+    var isAdmin = User.IsInRole("Admin");
+    var isDoctor = User.IsInRole("Doctor");
+    var isNurse = User.IsInRole("Nurse");
+    var isUser = User.IsInRole("User");
+}
+
+@if (isAuthenticated)
+{
+    <ul class="navbar-nav me-auto">
+        @if (isUser)
+        {
+            <li class="nav-item">
+                <a class="nav-link" href="@Model.UserDashboardUrl">
+                    <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                </a>
+            </li>
+        }
+        
+        @if (isDoctor || isAdmin)
+        {
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-user-md me-1"></i>Doctor
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="@Model.DoctorDashboardUrl">
+                        <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                    </a></li>
+                    <li><a class="dropdown-item" href="@Model.DoctorPatientListUrl">
+                        <i class="fas fa-users me-1"></i>Patient List
+                    </a></li>
+                </ul>
+            </li>
+        }
+        
+        @if (isNurse || isAdmin)
+        {
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-user-nurse me-1"></i>Nurse
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="@Model.NurseDashboardUrl">
+                        <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                    </a></li>
+                    <li><a class="dropdown-item" href="@Model.NursePatientQueueUrl">
+                        <i class="fas fa-list me-1"></i>Patient Queue
+                    </a></li>
+                </ul>
+            </li>
+        }
+        
+        @if (isAdmin)
+        {
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-cogs me-1"></i>Admin
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="@Model.AdminDashboardUrl">
+                        <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                    </a></li>
+                    <li><a class="dropdown-item" href="@Model.AdminUserManagementUrl">
+                        <i class="fas fa-users-cog me-1"></i>User Management
+                    </a></li>
+                </ul>
+            </li>
+        }
+    </ul>
+}

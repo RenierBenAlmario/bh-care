@@ -387,18 +387,18 @@ function addConfirmationDialogs() {
 
 // Add hover effects to table rows
 document.addEventListener('mouseover', function(e) {
-    if (e.target.tagName === 'TR' || e.target.parentElement.tagName === 'TR') {
+    if (e.target && e.target.tagName === 'TR' || (e.target && e.target.parentElement && e.target.parentElement.tagName === 'TR')) {
         const row = e.target.tagName === 'TR' ? e.target : e.target.parentElement;
-        if (row.parentElement.tagName === 'TBODY') {
+        if (row && row.parentElement && row.parentElement.tagName === 'TBODY') {
             row.classList.add('row-hover');
         }
     }
 });
 
 document.addEventListener('mouseout', function(e) {
-    if (e.target.tagName === 'TR' || e.target.parentElement.tagName === 'TR') {
+    if (e.target && e.target.tagName === 'TR' || (e.target && e.target.parentElement && e.target.parentElement.tagName === 'TR')) {
         const row = e.target.tagName === 'TR' ? e.target : e.target.parentElement;
-        if (row.parentElement.tagName === 'TBODY') {
+        if (row && row.parentElement && row.parentElement.tagName === 'TBODY') {
             row.classList.remove('row-hover');
         }
     }

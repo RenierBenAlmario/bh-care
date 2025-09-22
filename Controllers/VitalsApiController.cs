@@ -57,13 +57,14 @@ namespace Barangay.Controllers
                 var vitalSign = new VitalSign
                 {
                     PatientId = request.PatientId,
-                    Temperature = request.Temperature?.ToString(),
-                    BloodPressure = request.BloodPressure,
-                    HeartRate = request.HeartRate?.ToString(),
-                    RespiratoryRate = request.RespiratoryRate?.ToString(),
-                    SpO2 = request.SpO2?.ToString(),
-                    Weight = request.Weight?.ToString(),
-                    Height = request.Height?.ToString(),
+                    // Store encrypted data in encrypted columns
+                    EncryptedTemperature = !string.IsNullOrEmpty(request.Temperature?.ToString()) ? _encryptionService.Encrypt(request.Temperature.ToString()) : null,
+                    EncryptedBloodPressure = !string.IsNullOrEmpty(request.BloodPressure) ? _encryptionService.Encrypt(request.BloodPressure) : null,
+                    EncryptedHeartRate = !string.IsNullOrEmpty(request.HeartRate?.ToString()) ? _encryptionService.Encrypt(request.HeartRate.ToString()) : null,
+                    EncryptedRespiratoryRate = !string.IsNullOrEmpty(request.RespiratoryRate?.ToString()) ? _encryptionService.Encrypt(request.RespiratoryRate.ToString()) : null,
+                    EncryptedSpO2 = !string.IsNullOrEmpty(request.SpO2?.ToString()) ? _encryptionService.Encrypt(request.SpO2.ToString()) : null,
+                    EncryptedWeight = !string.IsNullOrEmpty(request.Weight?.ToString()) ? _encryptionService.Encrypt(request.Weight.ToString()) : null,
+                    EncryptedHeight = !string.IsNullOrEmpty(request.Height?.ToString()) ? _encryptionService.Encrypt(request.Height.ToString()) : null,
                     RecordedAt = DateTime.Now,
                     Notes = request.Notes
                 };

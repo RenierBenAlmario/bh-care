@@ -43,7 +43,13 @@
                     <ul class="navbar-nav ms-auto mb-2 mb-md-0">
                         @if (Context.Request.Path.Value?.Contains("/Account/ForgotPassword") == true || 
                              Context.Request.Path.Value?.Contains("/Account/VerifyOTP") == true || 
-                             Context.Request.Path.Value?.Contains("/Account/ResetPassword") == true)
+                             Context.Request.Path.Value?.Contains("/Account/OTPVerification") == true ||
+                             Context.Request.Path.Value?.Contains("/Account/ResetPassword") == true ||
+                             Context.Request.Path.Value?.Contains("/Account/Login") == true ||
+                             Context.Request.Path.Value?.Contains("/Account/SignUp") == true ||
+                             Context.Request.Path.Value?.Contains("/Account/VerifyEmail") == true ||
+                             Context.Request.Path.Value?.Contains("/Account/PendingApproval") == true ||
+                             Context.Request.Path.Value?.Contains("/Account/WaitingForApproval") == true)
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-white" href="/">

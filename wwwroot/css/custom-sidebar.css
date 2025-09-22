@@ -30,7 +30,7 @@
     transition: all var(--transition-speed) ease;
     z-index: 999;
     height: 100%;
-    position: relative;
+    position: sticky;
     top: 0;
     left: 0;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
@@ -176,7 +176,7 @@
         max-width: var(--sidebar-collapsed-width);
         text-align: center;
         margin-left: calc(-1 * var(--sidebar-collapsed-width));
-        position: relative;
+        position: fixed;
         height: 100vh;
         z-index: 1050;
     }
@@ -231,7 +231,7 @@
     }
     
     #sidebar {
-        position: relative;
+        position: fixed;
         top: var(--top-navbar-height); /* Adjust for navbar height */
         left: 0;
         height: calc(100vh - var(--top-navbar-height));
@@ -466,7 +466,7 @@
 /* Desktop layout adjustments */
 @media (min-width: 769px) {
     #sidebar {
-        position: relative;
+        position: sticky;
         top: 0;
         left: 0;
         height: 100vh;

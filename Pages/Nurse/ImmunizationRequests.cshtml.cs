@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Barangay.Data;
 using Barangay.Models;
 using Barangay.Services;
+using Barangay.Extensions;
+using System;
 using System.Linq;
 
 namespace Barangay.Pages.Nurse
@@ -13,18 +15,21 @@ namespace Barangay.Pages.Nurse
     [Authorize(Policy = "PatientList")]
     public class ImmunizationRequestsModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
+        private readonly EncryptedDbContext _context;
         private readonly ILogger<ImmunizationRequestsModel> _logger;
         private readonly IImmunizationReminderService _immunizationReminderService;
+        private readonly IDataEncryptionService _encryptionService;
 
         public ImmunizationRequestsModel(
-            ApplicationDbContext context,
+            EncryptedDbContext context,
             ILogger<ImmunizationRequestsModel> logger,
-            IImmunizationReminderService immunizationReminderService)
+            IImmunizationReminderService immunizationReminderService,
+            IDataEncryptionService encryptionService)
         {
             _context = context;
             _logger = logger;
             _immunizationReminderService = immunizationReminderService;
+            _encryptionService = encryptionService;
         }
 
         [BindProperty(SupportsGet = true)]
@@ -44,27 +49,34 @@ namespace Barangay.Pages.Nurse
             {
                 var query = _context.ImmunizationShortcutForms.AsQueryable();
 
-                // Apply search filters
+                // Order by most recent first and materialize the query first
+                Requests = await query
+                    .OrderByDescending(r => r.CreatedAt)
+                    .ToListAsync();
+
+                // Decrypt all requests for authorized users BEFORE applying search filters
+                foreach (var request in Requests)
+                {
+                    request.DecryptImmunizationShortcutData(_encryptionService, User);
+                }
+
+                // Apply search filters AFTER decryption
                 if (!string.IsNullOrWhiteSpace(SearchTerm))
                 {
-                    query = query.Where(r => r.ChildName.Contains(SearchTerm) || 
-                                           r.MotherName.Contains(SearchTerm) ||
-                                           r.FatherName.Contains(SearchTerm));
+                    Requests = Requests.Where(r => r.ChildName.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase) || 
+                                               r.MotherName.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase) ||
+                                               r.FatherName.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
                 }
 
                 if (!string.IsNullOrWhiteSpace(SelectedBarangay))
                 {
-                    query = query.Where(r => r.Barangay == SelectedBarangay);
+                    Requests = Requests.Where(r => r.Barangay == SelectedBarangay).ToList();
                 }
 
                 if (!string.IsNullOrWhiteSpace(SelectedStatus))
                 {
-                    query = query.Where(r => r.Status == SelectedStatus);
+                    Requests = Requests.Where(r => r.Status == SelectedStatus).ToList();
                 }
-
-                Requests = await query
-                    .OrderByDescending(r => r.CreatedAt)
-                    .ToListAsync();
 
                 return Page();
             }

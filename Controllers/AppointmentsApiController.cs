@@ -269,24 +269,24 @@ namespace Barangay.Controllers
                         {
                             using var command = new SqlCommand(@"
                                 UPDATE [Barangay].[dbo].[VitalSigns]
-                                SET Temperature = @Temperature,
-                                    RespiratoryRate = @RespiratoryRate,
-                                    OxygenSaturation = @OxygenSaturation,
-                                    Weight = @Weight,
-                                    Height = @Height,
-                                    BloodPressure = @BloodPressure,
+                                SET EncryptedTemperature = @Temperature,
+                                    EncryptedRespiratoryRate = @RespiratoryRate,
+                                    EncryptedSpO2 = @OxygenSaturation,
+                                    EncryptedWeight = @Weight,
+                                    EncryptedHeight = @Height,
+                                    EncryptedBloodPressure = @BloodPressure,
                                     Notes = @Notes,
                                     LastUpdatedBy = @LastEditedBy,
                                     LastUpdatedDate = GETDATE()
                                 WHERE AppointmentId = @AppointmentId", connection, transaction);
                             
-                            command.Parameters.AddWithValue("@Temperature", updateData.VitalSigns.Temperature);
-                            command.Parameters.AddWithValue("@RespiratoryRate", updateData.VitalSigns.RespiratoryRate);
-                            command.Parameters.AddWithValue("@OxygenSaturation", updateData.VitalSigns.OxygenSaturation);
-                            command.Parameters.AddWithValue("@Weight", updateData.VitalSigns.Weight);
-                            command.Parameters.AddWithValue("@Height", updateData.VitalSigns.Height);
-                            command.Parameters.AddWithValue("@BloodPressure", updateData.VitalSigns.BloodPressure ?? string.Empty);
-                            command.Parameters.AddWithValue("@Notes", updateData.VitalSigns.Notes ?? string.Empty);
+                            command.Parameters.AddWithValue("@Temperature", updateData.VitalSigns.Temperature != 0 ? _encryptionService.Encrypt(updateData.VitalSigns.Temperature.ToString()) : (object)DBNull.Value);
+                            command.Parameters.AddWithValue("@RespiratoryRate", updateData.VitalSigns.RespiratoryRate != 0 ? _encryptionService.Encrypt(updateData.VitalSigns.RespiratoryRate.ToString()) : (object)DBNull.Value);
+                            command.Parameters.AddWithValue("@OxygenSaturation", updateData.VitalSigns.OxygenSaturation != 0 ? _encryptionService.Encrypt(updateData.VitalSigns.OxygenSaturation.ToString()) : (object)DBNull.Value);
+                            command.Parameters.AddWithValue("@Weight", updateData.VitalSigns.Weight != 0 ? _encryptionService.Encrypt(updateData.VitalSigns.Weight.ToString()) : (object)DBNull.Value);
+                            command.Parameters.AddWithValue("@Height", updateData.VitalSigns.Height != 0 ? _encryptionService.Encrypt(updateData.VitalSigns.Height.ToString()) : (object)DBNull.Value);
+                            command.Parameters.AddWithValue("@BloodPressure", !string.IsNullOrEmpty(updateData.VitalSigns.BloodPressure) ? _encryptionService.Encrypt(updateData.VitalSigns.BloodPressure) : (object)DBNull.Value);
+                            command.Parameters.AddWithValue("@Notes", updateData.VitalSigns.Notes ?? (object)DBNull.Value);
                             command.Parameters.AddWithValue("@LastEditedBy", updateData.LastEditedBy);
                             command.Parameters.AddWithValue("@AppointmentId", updateData.AppointmentId);
                             

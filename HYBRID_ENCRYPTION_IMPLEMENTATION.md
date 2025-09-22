@@ -235,3 +235,6 @@ For issues or questions:
 **Note**: This implementation resolves the garbled text issue by properly separating AES and RSA encryption layers, ensuring clean decryption without corruption or overlapping encryption problems.
 
 
+
+
+

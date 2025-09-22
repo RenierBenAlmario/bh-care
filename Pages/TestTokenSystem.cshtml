@@ -1,0 +1,93 @@
+@page
+@model Barangay.Pages.TestTokenSystemModel
+@inject Barangay.Services.IProtectedUrlService ProtectedUrlService
+@{
+    ViewData["Title"] = "Token System Test";
+    Layout = "_Layout";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4><i class="fas fa-shield-alt me-2"></i>Token Protection System Test</h4>
+                </div>
+                <div class="card-body">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "";
+                        var resourceType = User.IsInRole("Admin") ? "Admin" : 
+                                         User.IsInRole("Doctor") ? "Doctor" : 
+                                         User.IsInRole("Nurse") ? "Nurse" : "User";
+                        
+                        var protectedUserUrl = await ProtectedUrlService.GenerateProtectedPageUrlAsync(resourceType, userId, "/User/UserDashboard");
+                        var protectedDoctorUrl = await ProtectedUrlService.GenerateProtectedPageUrlAsync(resourceType, userId, "/Doctor/PatientList");
+                        var protectedNurseUrl = await ProtectedUrlService.GenerateProtectedPageUrlAsync(resourceType, userId, "/Nurse/Dashboard");
+                        var protectedAdminUrl = await ProtectedUrlService.GenerateProtectedPageUrlAsync(resourceType, userId, "/Admin/Dashboard");
+                        
+                        <div class="alert alert-success">
+                            <h5><i class="fas fa-check-circle me-2"></i>Token System Active</h5>
+                            <p>You are logged in as: <strong>@User.Identity.Name</strong></p>
+                            <p>User ID: <strong>@userId</strong></p>
+                            <p>Resource Type: <strong>@resourceType</strong></p>
+                        </div>
+                        
+                        <h5>Generated Protected URLs:</h5>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Page</th>
+                                        <th>Protected URL</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><i class="fas fa-user me-2"></i>User Dashboard</td>
+                                        <td><code class="text-break">@protectedUserUrl</code></td>
+                                        <td><a href="@protectedUserUrl" class="btn btn-sm btn-primary" target="_blank">Test</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="fas fa-user-md me-2"></i>Doctor Patient List</td>
+                                        <td><code class="text-break">@protectedDoctorUrl</code></td>
+                                        <td><a href="@protectedDoctorUrl" class="btn btn-sm btn-primary" target="_blank">Test</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="fas fa-user-nurse me-2"></i>Nurse Dashboard</td>
+                                        <td><code class="text-break">@protectedNurseUrl</code></td>
+                                        <td><a href="@protectedNurseUrl" class="btn btn-sm btn-primary" target="_blank">Test</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="fas fa-cogs me-2"></i>Admin Dashboard</td>
+                                        <td><code class="text-break">@protectedAdminUrl</code></td>
+                                        <td><a href="@protectedAdminUrl" class="btn btn-sm btn-primary" target="_blank">Test</a></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-info-circle me-2"></i>How to Test:</h6>
+                            <ol>
+                                <li>Click on any "Test" button to access the protected page</li>
+                                <li>Try accessing the same URL without the token parameter - it should be blocked</li>
+                                <li>Try using the token twice - the second attempt should fail</li>
+                                <li>Wait 24 hours and try again - the token should be expired</li>
+                            </ol>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            <h5><i class="fas fa-exclamation-triangle me-2"></i>Authentication Required</h5>
+                            <p>Please log in to test the token protection system.</p>
+                            <a href="/Account/Login" class="btn btn-primary">Login</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

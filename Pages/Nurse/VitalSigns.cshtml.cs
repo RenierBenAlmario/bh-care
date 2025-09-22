@@ -172,9 +172,10 @@ namespace Barangay.Pages.Nurse
             return Page();
         }
 
-        // New method to load today's appointments
+        // New method to load today's appointments (excluding those with vital signs already recorded)
         private async Task LoadTodayAppointmentsAsync()
         {
+            // Get all appointments for today
             var todayAppointments = await _context.Appointments
                 .Where(a => a.AppointmentDate.Date == Today)
                 .OrderBy(a => a.AppointmentTime)
@@ -191,12 +192,24 @@ namespace Barangay.Pages.Nurse
                 })
                 .ToListAsync();
 
-            TodayAppointments = todayAppointments;
+            // Get patient IDs that already have vital signs recorded today
+            var patientsWithVitalSignsToday = await _context.VitalSigns
+                .Where(v => v.RecordedAt.Date == Today)
+                .Select(v => v.PatientId)
+                .Distinct()
+                .ToListAsync();
+
+            // Filter out appointments for patients who already have vital signs recorded today
+            var filteredAppointments = todayAppointments
+                .Where(a => !patientsWithVitalSignsToday.Contains(a.PatientId))
+                .ToList();
+
+            TodayAppointments = filteredAppointments;
             
-            _logger.LogInformation($"Loaded {todayAppointments.Count} appointments for today ({Today:yyyy-MM-dd})");
+            _logger.LogInformation($"Loaded {todayAppointments.Count} total appointments for today ({Today:yyyy-MM-dd}), filtered to {filteredAppointments.Count} appointments (excluding {patientsWithVitalSignsToday.Count} patients with vital signs already recorded)");
         }
         
-        // New method to load patients with today's appointments for the dropdown
+        // New method to load patients with today's appointments for the dropdown (excluding those with vital signs already recorded)
         private async Task LoadPatientsWithTodayAppointmentsAsync()
         {
             // Get patients with today's appointments
@@ -207,16 +220,28 @@ namespace Barangay.Pages.Nurse
                 .Select(a => new { PatientId = a.PatientId, PatientName = a.PatientName })
                 .Distinct()
                 .ToListAsync();
+
+            // Get patient IDs that already have vital signs recorded today
+            var patientsWithVitalSignsToday = await _context.VitalSigns
+                .Where(v => v.RecordedAt.Date == Today)
+                .Select(v => v.PatientId)
+                .Distinct()
+                .ToListAsync();
+
+            // Filter out patients who already have vital signs recorded today
+            var filteredPatientsWithTodayAppointments = patientsWithTodayAppointments
+                .Where(p => !patientsWithVitalSignsToday.Contains(p.PatientId))
+                .ToList();
                 
-            // If there are no appointments today, load patients as usual
-            if (!patientsWithTodayAppointments.Any())
+            // If there are no appointments today (after filtering), load patients as usual
+            if (!filteredPatientsWithTodayAppointments.Any())
             {
                 await LoadPatientsAsync();
                 return;
             }
             
             // Set these as the patient select list
-            PatientSelectList = patientsWithTodayAppointments
+            PatientSelectList = filteredPatientsWithTodayAppointments
                 .Select(p => new SelectListItem
                 {
                     Value = p.PatientId.ToString(),
@@ -235,14 +260,14 @@ namespace Barangay.Pages.Nurse
                 
             // Add other patients to the select list
             PatientSelectList.AddRange(otherPatients
-                .Where(op => !patientsWithTodayAppointments.Any(p => p.PatientId == op.PatientId))
+                .Where(op => !filteredPatientsWithTodayAppointments.Any(p => p.PatientId == op.PatientId))
                 .Select(p => new SelectListItem
                 {
                     Value = p.PatientId.ToString(),
                     Text = p.PatientName
                 }));
                 
-            _logger.LogInformation($"Loaded {patientsWithTodayAppointments.Count} patients with today's appointments and {otherPatients.Count} other patients");
+            _logger.LogInformation($"Loaded {filteredPatientsWithTodayAppointments.Count} patients with today's appointments (excluding {patientsWithVitalSignsToday.Count} with vital signs already recorded) and {otherPatients.Count} other patients");
         }
 
         // New method to load patient appointments
@@ -329,6 +354,9 @@ namespace Barangay.Pages.Nurse
 
         private async Task LoadVitalSignsForPatientAsync(string patientId)
         {
+            // Clear any potential caching
+            _context.ChangeTracker.Clear();
+            
             // Get the patient name from the latest appointment
             var patientName = await _context.Appointments
                 .Where(a => a.PatientId == patientId)
@@ -342,10 +370,21 @@ namespace Barangay.Pages.Nurse
                 .OrderByDescending(v => v.RecordedAt)
                 .ToListAsync();
 
-            // Manually decrypt vital signs data
+            _logger.LogInformation($"Loaded {vitalSigns.Count} vital signs for patient {patientId}");
+
+            // Manually decrypt vital signs data with detailed logging
             foreach (var vitalSign in vitalSigns)
             {
-                vitalSign.DecryptVitalSignData(_encryptionService, User);
+                _logger.LogInformation($"Before decryption - VitalSign ID: {vitalSign.Id}, EncryptedTemperature: {vitalSign.EncryptedTemperature?.Substring(0, Math.Min(20, vitalSign.EncryptedTemperature?.Length ?? 0))}..., EncryptedBloodPressure: {vitalSign.EncryptedBloodPressure?.Substring(0, Math.Min(20, vitalSign.EncryptedBloodPressure?.Length ?? 0))}..., EncryptedHeartRate: {vitalSign.EncryptedHeartRate?.Substring(0, Math.Min(20, vitalSign.EncryptedHeartRate?.Length ?? 0))}...");
+                
+                // Check if user can decrypt
+                var canDecrypt = _encryptionService.CanUserDecrypt(User);
+                _logger.LogInformation($"User can decrypt: {canDecrypt}, User roles: {string.Join(", ", User.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).Select(c => c.Value))}");
+                
+                // Force decryption by calling the method directly
+                vitalSign.DecryptVitalSignData(_encryptionService, User, _logger);
+                
+                _logger.LogInformation($"After decryption - VitalSign ID: {vitalSign.Id}, Temperature: {vitalSign.Temperature}, BloodPressure: {vitalSign.BloodPressure}, HeartRate: {vitalSign.HeartRate}");
             }
 
             var records = vitalSigns.Select(v => new VitalSignViewModel
@@ -369,6 +408,9 @@ namespace Barangay.Pages.Nurse
 
         private async Task LoadVitalSignsAsync()
         {
+            // Clear any potential caching
+            _context.ChangeTracker.Clear();
+            
             // First get the latest appointment names for each patient
             var patientNames = await _context.Appointments
                 .Where(a => a.PatientName != "System Administrator" && a.PatientId != "0e03f06e-ba88-46ed-b047-4974d8b8252a")
@@ -383,10 +425,21 @@ namespace Barangay.Pages.Nurse
                 .OrderByDescending(v => v.RecordedAt)
                 .ToListAsync();
 
-            // Manually decrypt vital signs data
+            _logger.LogInformation($"Loaded {vitalSigns.Count} vital signs from database");
+
+            // Manually decrypt vital signs data with detailed logging
             foreach (var vitalSign in vitalSigns)
             {
-                vitalSign.DecryptVitalSignData(_encryptionService, User);
+                _logger.LogInformation($"Before decryption - VitalSign ID: {vitalSign.Id}, EncryptedTemperature: {vitalSign.EncryptedTemperature?.Substring(0, Math.Min(20, vitalSign.EncryptedTemperature?.Length ?? 0))}..., EncryptedBloodPressure: {vitalSign.EncryptedBloodPressure?.Substring(0, Math.Min(20, vitalSign.EncryptedBloodPressure?.Length ?? 0))}..., EncryptedHeartRate: {vitalSign.EncryptedHeartRate?.Substring(0, Math.Min(20, vitalSign.EncryptedHeartRate?.Length ?? 0))}...");
+                
+                // Check if user can decrypt
+                var canDecrypt = _encryptionService.CanUserDecrypt(User);
+                _logger.LogInformation($"User can decrypt: {canDecrypt}, User roles: {string.Join(", ", User.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).Select(c => c.Value))}");
+                
+                // Force decryption by calling the method directly
+                vitalSign.DecryptVitalSignData(_encryptionService, User, _logger);
+                
+                _logger.LogInformation($"After decryption - VitalSign ID: {vitalSign.Id}, Temperature: {vitalSign.Temperature}, BloodPressure: {vitalSign.BloodPressure}, HeartRate: {vitalSign.HeartRate}");
             }
 
             var records = vitalSigns.Select(v => new VitalSignViewModel
@@ -452,16 +505,19 @@ namespace Barangay.Pages.Nurse
                 var vitalSign = new VitalSign
                 {
                     PatientId = NewVitalSign.PatientId,
-                    Temperature = NewVitalSign.Temperature,
-                    BloodPressure = NewVitalSign.BloodPressure,
-                    HeartRate = NewVitalSign.HeartRate,
-                    RespiratoryRate = NewVitalSign.RespiratoryRate,
-                    SpO2 = NewVitalSign.SpO2,
-                    Weight = NewVitalSign.Weight,
-                    Height = NewVitalSign.Height,
+                    // Store encrypted data in encrypted columns
+                    EncryptedTemperature = !string.IsNullOrEmpty(NewVitalSign.Temperature) ? _encryptionService.Encrypt(NewVitalSign.Temperature) : null,
+                    EncryptedBloodPressure = !string.IsNullOrEmpty(NewVitalSign.BloodPressure) ? _encryptionService.Encrypt(NewVitalSign.BloodPressure) : null,
+                    EncryptedHeartRate = !string.IsNullOrEmpty(NewVitalSign.HeartRate) ? _encryptionService.Encrypt(NewVitalSign.HeartRate) : null,
+                    EncryptedRespiratoryRate = !string.IsNullOrEmpty(NewVitalSign.RespiratoryRate) ? _encryptionService.Encrypt(NewVitalSign.RespiratoryRate) : null,
+                    EncryptedSpO2 = !string.IsNullOrEmpty(NewVitalSign.SpO2) ? _encryptionService.Encrypt(NewVitalSign.SpO2) : null,
+                    EncryptedWeight = !string.IsNullOrEmpty(NewVitalSign.Weight) ? _encryptionService.Encrypt(NewVitalSign.Weight) : null,
+                    EncryptedHeight = !string.IsNullOrEmpty(NewVitalSign.Height) ? _encryptionService.Encrypt(NewVitalSign.Height) : null,
                     RecordedAt = DateTime.Now,
                     Notes = NewVitalSign.Notes
                 };
+
+                _logger.LogInformation($"Saving vital sign - PatientId: {vitalSign.PatientId}, EncryptedTemperature: {vitalSign.EncryptedTemperature?.Substring(0, Math.Min(20, vitalSign.EncryptedTemperature?.Length ?? 0))}..., EncryptedBloodPressure: {vitalSign.EncryptedBloodPressure?.Substring(0, Math.Min(20, vitalSign.EncryptedBloodPressure?.Length ?? 0))}...");
 
                 // EncryptedDbContext will handle encryption automatically
                 _context.VitalSigns.Add(vitalSign);
@@ -469,6 +525,10 @@ namespace Barangay.Pages.Nurse
 
                 _logger.LogInformation($"Successfully saved vital signs for patient {NewVitalSign.PatientId}");
                 TempData["SuccessMessage"] = "Vital signs recorded successfully!";
+                
+                // Reload today's appointments to hide the one we just processed
+                await LoadTodayAppointmentsAsync();
+                await LoadPatientsWithTodayAppointmentsAsync();
                 
                 return RedirectToPage(new { patientId = NewVitalSign.PatientId });
             }

@@ -40,17 +40,7 @@ namespace Barangay.Pages.User
             public double? Height { get; set; }
         }
 
-        public class MedicalHistoryRecord
-        {
-            public int Id { get; set; }
-            public DateTime Date { get; set; }
-            public string Doctor { get; set; }
-            public string Diagnosis { get; set; }
-            public string Treatment { get; set; }
-        }
-
         public List<VitalSignRecord> VitalSigns { get; set; } = new List<VitalSignRecord>();
-        public List<MedicalHistoryRecord> MedicalHistory { get; set; } = new List<MedicalHistoryRecord>();
         public List<Barangay.Models.LabResult> LabResults { get; set; } = new List<Barangay.Models.LabResult>();
 
         private string TryDecrypt(string encryptedValue)
@@ -153,74 +143,11 @@ namespace Barangay.Pages.User
                     Weight = !string.IsNullOrEmpty(v.Weight) && double.TryParse(TryDecrypt(v.Weight), out var weight) ? weight : null,
                     Height = !string.IsNullOrEmpty(v.Height) && double.TryParse(TryDecrypt(v.Height), out var height) ? height : null
                 }).ToList();
-
-                // Load medical records from database
-                var medicalRecords = await _context.MedicalRecords
-                    .Where(m => m.PatientId == userId)
-                    .Include(m => m.Doctor)
-                    .OrderByDescending(m => m.Date)
-                    .ToListAsync();
-
-                // Decrypt medical records before creating view model
-                foreach (var record in medicalRecords)
-                {
-                    _logger.LogInformation($"Before decryption - Diagnosis: {record.Diagnosis}, Treatment: {record.Treatment}");
-                    record.DecryptSensitiveData(_encryptionService, User);
-                    _logger.LogInformation($"After decryption - Diagnosis: {record.Diagnosis}, Treatment: {record.Treatment}");
-                }
-
-                MedicalHistory = medicalRecords.Select(m => new MedicalHistoryRecord
-                {
-                    Id = m.Id,
-                    Date = m.Date,
-                    Doctor = m.Doctor?.FullName ?? "Unknown",
-                    Diagnosis = TryDecrypt(m.Diagnosis),
-                    Treatment = TryDecrypt(m.Treatment)
-                }).ToList();
-
                 
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error loading medical records");
-            }
-        }
-
-        public async Task<IActionResult> OnPostDeleteMedicalRecordAsync(int id)
-        {
-            try
-            {
-                var userId = User.GetUserId();
-                if (string.IsNullOrEmpty(userId))
-                {
-                    _logger.LogWarning("User ID not found during medical record deletion");
-                    return NotFound();
-                }
-
-                // Find the medical record and verify it belongs to the current user
-                var medicalRecord = await _context.MedicalRecords
-                    .FirstOrDefaultAsync(m => m.Id == id && m.PatientId == userId);
-
-                if (medicalRecord == null)
-                {
-                    _logger.LogWarning("Medical record {Id} not found or doesn't belong to user {UserId}", id, userId);
-                    return NotFound();
-                }
-
-                // Delete the medical record
-                _context.MedicalRecords.Remove(medicalRecord);
-                await _context.SaveChangesAsync();
-
-                _logger.LogInformation("Medical record {Id} deleted successfully for user {UserId}", id, userId);
-                TempData["SuccessMessage"] = "Medical record deleted successfully.";
-                
-                return RedirectToPage();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error deleting medical record {Id}", id);
-                TempData["ErrorMessage"] = "Error deleting medical record. Please try again.";
-                return RedirectToPage();
             }
         }
     }

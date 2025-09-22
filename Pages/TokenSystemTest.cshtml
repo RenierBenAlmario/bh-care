@@ -1,0 +1,189 @@
+@page
+@model Barangay.Pages.TokenSystemTestModel
+@{
+    ViewData["Title"] = "Token System Test";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">🔐 Token Protection System Test</h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h5>System Status Check</h5>
+                        <p>This page will test if the token protection system is working correctly.</p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h6>Test 1: Token Creation</h6>
+                                </div>
+                                <div class="card-body">
+                                    <button id="testTokenCreation" class="btn btn-primary btn-sm">Create Test Token</button>
+                                    <div id="tokenResult" class="mt-2"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h6>Test 2: Protected URL</h6>
+                                </div>
+                                <div class="card-body">
+                                    <button id="testProtectedUrl" class="btn btn-success btn-sm">Create Protected URL</button>
+                                    <div id="urlResult" class="mt-2"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6>Test 3: Token Validation</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="input-group mb-2">
+                                        <input type="text" id="tokenInput" class="form-control" placeholder="Enter token to validate">
+                                        <button id="validateToken" class="btn btn-warning btn-sm">Validate Token</button>
+                                    </div>
+                                    <div id="validationResult" class="mt-2"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <div class="alert alert-warning">
+                            <h6>Expected Results:</h6>
+                            <ul class="mb-0">
+                                <li><strong>Token Creation:</strong> Should return a base64-encoded token</li>
+                                <li><strong>Protected URL:</strong> Should return a URL with embedded token</li>
+                                <li><strong>Token Validation:</strong> Should validate the token and return token data</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('testTokenCreation').addEventListener('click', async function() {
+            const resultDiv = document.getElementById('tokenResult');
+            resultDiv.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"></div> Testing...';
+            
+            try {
+                const response = await fetch('/TokenTest/TestTokenCreation');
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-success">
+                            <strong>Success!</strong><br>
+                            <small>Token: ${data.token.substring(0, 50)}...</small><br>
+                            <small>User ID: ${data.userId}</small><br>
+                            <small>Original URL: ${data.originalUrl}</small>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-danger">
+                            <strong>Error:</strong> ${data.message}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <strong>Error:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        });
+
+        document.getElementById('testProtectedUrl').addEventListener('click', async function() {
+            const resultDiv = document.getElementById('urlResult');
+            resultDiv.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"></div> Testing...';
+            
+            try {
+                const response = await fetch('/TokenTest/TestProtectedUrl');
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-success">
+                            <strong>Success!</strong><br>
+                            <a href="${data.protectedUrl}" target="_blank" class="btn btn-sm btn-outline-primary">Test Protected URL</a><br>
+                            <small>URL: ${data.protectedUrl}</small>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-danger">
+                            <strong>Error:</strong> ${data.message}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <strong>Error:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        });
+
+        document.getElementById('validateToken').addEventListener('click', async function() {
+            const token = document.getElementById('tokenInput').value;
+            const resultDiv = document.getElementById('validationResult');
+            
+            if (!token) {
+                resultDiv.innerHTML = '<div class="alert alert-warning">Please enter a token to validate</div>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"></div> Validating...';
+            
+            try {
+                const response = await fetch(`/TokenTest/TestTokenValidation?token=${encodeURIComponent(token)}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-success">
+                            <strong>Token is Valid!</strong><br>
+                            <small>Resource Type: ${data.tokenData.resourceType}</small><br>
+                            <small>Resource ID: ${data.tokenData.resourceId}</small><br>
+                            <small>Original URL: ${data.tokenData.originalUrl}</small><br>
+                            <small>Created: ${new Date(data.tokenData.createdAt).toLocaleString()}</small><br>
+                            <small>Expires: ${new Date(data.tokenData.expiresAt).toLocaleString()}</small><br>
+                            <small>Used: ${data.tokenData.isUsed ? 'Yes' : 'No'}</small>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-danger">
+                            <strong>Token Invalid:</strong> ${data.message}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <strong>Error:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        });
+    </script>
+}

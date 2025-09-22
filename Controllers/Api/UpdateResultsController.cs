@@ -7,6 +7,7 @@ using System.Data;
 using Microsoft.Extensions.Configuration;
 using System.Text.Json.Serialization;
 using System.Security.Claims;
+using Barangay.Services;
 
 namespace Barangay.Controllers.Api
 {
@@ -16,10 +17,12 @@ namespace Barangay.Controllers.Api
     public class UpdateResultsController : ControllerBase
     {
         private readonly string _connectionString;
+        private readonly IDataEncryptionService _encryptionService;
 
-        public UpdateResultsController(IConfiguration configuration)
+        public UpdateResultsController(IConfiguration configuration, IDataEncryptionService encryptionService)
         {
             _connectionString = configuration.GetConnectionString("DefaultConnection");
+            _encryptionService = encryptionService;
         }
 
         [HttpPatch("results")]
@@ -61,24 +64,24 @@ namespace Barangay.Controllers.Api
                                 // Update existing record
                                 using var command = new SqlCommand(@"
                                     UPDATE [Barangay].[dbo].[VitalSigns]
-                                    SET Temperature = @Temperature,
-                                        RespiratoryRate = @RespiratoryRate,
-                                        OxygenSaturation = @OxygenSaturation,
-                                        Weight = @Weight,
-                                        Height = @Height,
-                                        BloodPressure = @BloodPressure,
+                                    SET EncryptedTemperature = @Temperature,
+                                        EncryptedRespiratoryRate = @RespiratoryRate,
+                                        EncryptedSpO2 = @OxygenSaturation,
+                                        EncryptedWeight = @Weight,
+                                        EncryptedHeight = @Height,
+                                        EncryptedBloodPressure = @BloodPressure,
                                         Notes = @Notes,
                                         LastEditedBy = @LastEditedBy,
                                         LastEditedDate = @LastEditedDate
                                     WHERE AppointmentId = @AppointmentId", connection, transaction);
                                 
                                 command.Parameters.AddWithValue("@AppointmentId", updateData.AppointmentId);
-                                command.Parameters.AddWithValue("@Temperature", updateData.VitalSigns.Temperature ?? (object)DBNull.Value);
-                                command.Parameters.AddWithValue("@RespiratoryRate", updateData.VitalSigns.RespiratoryRate ?? (object)DBNull.Value);
-                                command.Parameters.AddWithValue("@OxygenSaturation", updateData.VitalSigns.OxygenSaturation ?? (object)DBNull.Value);
-                                command.Parameters.AddWithValue("@Weight", updateData.VitalSigns.Weight ?? (object)DBNull.Value);
-                                command.Parameters.AddWithValue("@Height", updateData.VitalSigns.Height ?? (object)DBNull.Value);
-                                command.Parameters.AddWithValue("@BloodPressure", updateData.VitalSigns.BloodPressure ?? (object)DBNull.Value);
+                                command.Parameters.AddWithValue("@Temperature", updateData.VitalSigns.Temperature.HasValue ? _encryptionService.Encrypt(updateData.VitalSigns.Temperature.Value.ToString()) : (object)DBNull.Value);
+                                command.Parameters.AddWithValue("@RespiratoryRate", updateData.VitalSigns.RespiratoryRate.HasValue ? _encryptionService.Encrypt(updateData.VitalSigns.RespiratoryRate.Value.ToString()) : (object)DBNull.Value);
+                                command.Parameters.AddWithValue("@OxygenSaturation", updateData.VitalSigns.OxygenSaturation.HasValue ? _encryptionService.Encrypt(updateData.VitalSigns.OxygenSaturation.Value.ToString()) : (object)DBNull.Value);
+                                command.Parameters.AddWithValue("@Weight", updateData.VitalSigns.Weight.HasValue ? _encryptionService.Encrypt(updateData.VitalSigns.Weight.Value.ToString()) : (object)DBNull.Value);
+                                command.Parameters.AddWithValue("@Height", updateData.VitalSigns.Height.HasValue ? _encryptionService.Encrypt(updateData.VitalSigns.Height.Value.ToString()) : (object)DBNull.Value);
+                                command.Parameters.AddWithValue("@BloodPressure", !string.IsNullOrEmpty(updateData.VitalSigns.BloodPressure) ? _encryptionService.Encrypt(updateData.VitalSigns.BloodPressure) : (object)DBNull.Value);
                                 command.Parameters.AddWithValue("@Notes", updateData.VitalSigns.Notes ?? (object)DBNull.Value);
                                 command.Parameters.AddWithValue("@LastEditedBy", doctorName);
                                 command.Parameters.AddWithValue("@LastEditedDate", DateTime.Now);
@@ -90,19 +93,19 @@ namespace Barangay.Controllers.Api
                                 // Insert new record
                                 using var command = new SqlCommand(@"
                                     INSERT INTO [Barangay].[dbo].[VitalSigns]
-                                    (AppointmentId, Temperature, RespiratoryRate, OxygenSaturation, 
-                                     Weight, Height, BloodPressure, Notes, RecordedBy, RecordedAt)
+                                    (AppointmentId, EncryptedTemperature, EncryptedRespiratoryRate, EncryptedSpO2, 
+                                     EncryptedWeight, EncryptedHeight, EncryptedBloodPressure, Notes, RecordedBy, RecordedAt)
                                     VALUES
                                     (@AppointmentId, @Temperature, @RespiratoryRate, @OxygenSaturation,
                                      @Weight, @Height, @BloodPressure, @Notes, @RecordedBy, @RecordedAt)", connection, transaction);
                                 
                                 command.Parameters.AddWithValue("@AppointmentId", updateData.AppointmentId);
-                                command.Parameters.AddWithValue("@Temperature", updateData.VitalSigns.Temperature ?? (object)DBNull.Value);
-                                command.Parameters.AddWithValue("@RespiratoryRate", updateData.VitalSigns.RespiratoryRate ?? (object)DBNull.Value);
-                                command.Parameters.AddWithValue("@OxygenSaturation", updateData.VitalSigns.OxygenSaturation ?? (object)DBNull.Value);
-                                command.Parameters.AddWithValue("@Weight", updateData.VitalSigns.Weight ?? (object)DBNull.Value);
-                                command.Parameters.AddWithValue("@Height", updateData.VitalSigns.Height ?? (object)DBNull.Value);
-                                command.Parameters.AddWithValue("@BloodPressure", updateData.VitalSigns.BloodPressure ?? (object)DBNull.Value);
+                                command.Parameters.AddWithValue("@Temperature", updateData.VitalSigns.Temperature.HasValue ? _encryptionService.Encrypt(updateData.VitalSigns.Temperature.Value.ToString()) : (object)DBNull.Value);
+                                command.Parameters.AddWithValue("@RespiratoryRate", updateData.VitalSigns.RespiratoryRate.HasValue ? _encryptionService.Encrypt(updateData.VitalSigns.RespiratoryRate.Value.ToString()) : (object)DBNull.Value);
+                                command.Parameters.AddWithValue("@OxygenSaturation", updateData.VitalSigns.OxygenSaturation.HasValue ? _encryptionService.Encrypt(updateData.VitalSigns.OxygenSaturation.Value.ToString()) : (object)DBNull.Value);
+                                command.Parameters.AddWithValue("@Weight", updateData.VitalSigns.Weight.HasValue ? _encryptionService.Encrypt(updateData.VitalSigns.Weight.Value.ToString()) : (object)DBNull.Value);
+                                command.Parameters.AddWithValue("@Height", updateData.VitalSigns.Height.HasValue ? _encryptionService.Encrypt(updateData.VitalSigns.Height.Value.ToString()) : (object)DBNull.Value);
+                                command.Parameters.AddWithValue("@BloodPressure", !string.IsNullOrEmpty(updateData.VitalSigns.BloodPressure) ? _encryptionService.Encrypt(updateData.VitalSigns.BloodPressure) : (object)DBNull.Value);
                                 command.Parameters.AddWithValue("@Notes", updateData.VitalSigns.Notes ?? (object)DBNull.Value);
                                 command.Parameters.AddWithValue("@RecordedBy", doctorName);
                                 command.Parameters.AddWithValue("@RecordedAt", DateTime.Now);

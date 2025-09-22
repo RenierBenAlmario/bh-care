@@ -71,7 +71,7 @@ namespace Barangay.Services
 
                 // Right side - Rx symbol and prescription
                 var rightCell = new Cell().SetBorder(iText.Layout.Borders.Border.NO_BORDER);
-                rightCell.SetTextAlignment(TextAlignment.RIGHT);
+                rightCell.SetTextAlignment(TextAlignment.LEFT);
                 
                 // Rx symbol
                 rightCell.Add(new Paragraph("Rx").SetFontSize(20));

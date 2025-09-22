@@ -1,0 +1,312 @@
+@page
+@model Barangay.Pages.User.UserDashboardModel
+@using Barangay.Models
+@inject Barangay.Services.IProtectedUrlService ProtectedUrlService
+@{
+    ViewData["Title"] = "Dashboard";
+    ViewData["ShowDashboardNav"] = true;
+    Layout = "_UserLayout";
+    var isActive = (string routeValue) => 
+        ViewContext.RouteData.Values["page"]?.ToString().ToLower().EndsWith(routeValue.ToLower()) == true ? "active" : "";
+    
+    // Generate protected URLs for this user
+                        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "";
+    var resourceType = "User";
+    var protectedDashboardUrl = await ProtectedUrlService.GenerateProtectedPageUrlAsync(resourceType, userId, "/User/UserDashboard");
+    var protectedProfileUrl = await ProtectedUrlService.GenerateProtectedPageUrlAsync(resourceType, userId, "/User/Profile");
+    var protectedAppointmentsUrl = await ProtectedUrlService.GenerateProtectedPageUrlAsync(resourceType, userId, "/User/Appointments");
+}
+
+<style>
+    /* Enhanced Modern Dashboard Styles */
+    body {
+        background-color: #f8f9fa;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    /* Hide the top header */
+    .top-header {
+        display: none !important;
+    }
+    
+    /* Main content styling without sidebar */
+    .main-content {
+        padding: 20px;
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    /* Page title styling */
+    .page-title-wrapper {
+        padding: 0.5rem 0 1rem 0;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        margin-bottom: 1.5rem !important;
+    }
+    
+    .page-title {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: #212529;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Card styling */
+    .card {
+        margin-bottom: 1.5rem;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+    
+    .card-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px 12px 0 0 !important;
+        padding: 1.25rem;
+        border: none;
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    /* Quick actions grid */
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .quick-action-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .quick-action-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        border-color: #667eea;
+    }
+    
+    .quick-action-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: #667eea;
+    }
+    
+    .quick-action-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+    
+    .quick-action-description {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+    
+    .quick-action-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+    }
+    
+    .quick-action-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+    
+    /* Protected URL indicator */
+    .protected-url-indicator {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .protected-url-indicator i {
+        margin-right: 0.5rem;
+    }
+    
+    /* Stats cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        border-left: 4px solid #667eea;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        color: #666;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Responsive design */
+    @@media (max-width: 768px) {
+        .main-content {
+            padding: 15px;
+        }
+        
+        .quick-actions {
+            grid-template-columns: 1fr;
+        }
+        
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+
+<div class="main-content">
+    <!-- Protected URL Indicator -->
+    <div class="protected-url-indicator">
+        <i class="fas fa-shield-alt"></i>
+        This page is protected with secure token authentication
+    </div>
+    
+    <!-- Page Title -->
+    <div class="page-title-wrapper">
+        <h1 class="page-title">
+            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+        </h1>
+        <p class="text-muted">Welcome back! Here's what's happening with your health records.</p>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <div class="quick-action-card">
+            <div class="quick-action-icon">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <div class="quick-action-title">View Profile</div>
+            <div class="quick-action-description">Update your personal information and health details</div>
+            <a href="@protectedProfileUrl" class="quick-action-btn">
+                <i class="fas fa-arrow-right me-1"></i>Go to Profile
+            </a>
+        </div>
+        
+        <div class="quick-action-card">
+            <div class="quick-action-icon">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="quick-action-title">My Appointments</div>
+            <div class="quick-action-description">View and manage your upcoming appointments</div>
+            <a href="@protectedAppointmentsUrl" class="quick-action-btn">
+                <i class="fas fa-arrow-right me-1"></i>View Appointments
+            </a>
+        </div>
+        
+        <div class="quick-action-card">
+            <div class="quick-action-icon">
+                <i class="fas fa-file-medical"></i>
+            </div>
+            <div class="quick-action-title">Health Records</div>
+            <div class="quick-action-description">Access your medical history and reports</div>
+            <a href="@protectedDashboardUrl" class="quick-action-btn">
+                <i class="fas fa-arrow-right me-1"></i>View Records
+            </a>
+        </div>
+    </div>
+
+    <!-- Your existing dashboard content goes here -->
+    <!-- The rest of your UserDashboard.cshtml content -->
+    
+    <!-- Example: Copy Protected URL Button -->
+    <div class="card">
+        <div class="card-header">
+            <h5><i class="fas fa-shield-alt me-2"></i>Security Information</h5>
+        </div>
+        <div class="card-body">
+            <p class="mb-3">This dashboard is protected with a secure token. You can share this protected link with authorized personnel:</p>
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" id="protectedUrl" value="@protectedDashboardUrl" readonly>
+                <button class="btn btn-outline-primary" type="button" onclick="copyProtectedUrl()">
+                    <i class="fas fa-copy me-1"></i>Copy Link
+                </button>
+            </div>
+            <small class="text-muted">
+                <i class="fas fa-info-circle me-1"></i>
+                This link will expire in 24 hours and can only be used once for security.
+            </small>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyProtectedUrl() {
+    var protectedUrl = document.getElementById('protectedUrl').value;
+    navigator.clipboard.writeText(protectedUrl).then(function() {
+        // Show success message
+        var toast = document.createElement('div');
+        toast.className = 'toast align-items-center text-white bg-success border-0';
+        toast.style.position = 'fixed';
+        toast.style.top = '20px';
+        toast.style.right = '20px';
+        toast.style.zIndex = '9999';
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas fa-check-circle me-2"></i>Protected URL copied to clipboard!
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        `;
+        document.body.appendChild(toast);
+        var bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+        
+        // Remove toast after it's hidden
+        toast.addEventListener('hidden.bs.toast', function() {
+            document.body.removeChild(toast);
+        });
+    }).catch(function(err) {
+        console.error('Could not copy text: ', err);
+        alert('Failed to copy URL to clipboard');
+    });
+}
+</script>

@@ -1,0 +1,121 @@
+@page
+@model Barangay.Pages.Doctor.PatientListModel
+@inject Barangay.Services.IProtectedUrlService ProtectedUrlService
+@{
+    ViewData["Title"] = "Patient List";
+    Layout = "_DoctorLayout";
+}
+
+<!-- Example of how to use protected URLs in your existing Doctor PatientList page -->
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-users me-2"></i>Patient List</h2>
+                
+                <!-- Example: Generate protected URL for this page -->
+                @{
+                        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "";
+                    var resourceType = "Doctor";
+                    var currentPageProtectedUrl = await ProtectedUrlService.GenerateProtectedPageUrlAsync(
+                        resourceType, userId, "/Doctor/PatientList");
+                }
+                
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-primary" onclick="copyProtectedUrl()">
+                        <i class="fas fa-copy me-1"></i>Copy Protected Link
+                    </button>
+                    <a href="@currentPageProtectedUrl" class="btn btn-primary">
+                        <i class="fas fa-refresh me-1"></i>Refresh with Token
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Your existing filter and patient list content goes here -->
+    <!-- The rest of your existing PatientList.cshtml content -->
+    
+    <!-- Example: Protected navigation links -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-shield-alt me-2"></i>Protected Navigation</h5>
+                </div>
+                <div class="card-body">
+                    <div class="btn-group" role="group">
+                        @{
+                            var doctorDashboardUrl = await ProtectedUrlService.GenerateProtectedPageUrlAsync(
+                                resourceType, userId, "/Doctor/Dashboard");
+                            var doctorConsultationUrl = await ProtectedUrlService.GenerateProtectedPageUrlAsync(
+                                resourceType, userId, "/Doctor/Consultation");
+                        }
+                        
+                        <a href="@doctorDashboardUrl" class="btn btn-outline-primary">
+                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                        </a>
+                        <a href="@doctorConsultationUrl" class="btn btn-outline-primary">
+                            <i class="fas fa-stethoscope me-1"></i>Consultation
+                        </a>
+                        <a href="@currentPageProtectedUrl" class="btn btn-primary">
+                            <i class="fas fa-users me-1"></i>Patient List
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyProtectedUrl() {
+    var protectedUrl = '@currentPageProtectedUrl';
+    navigator.clipboard.writeText(protectedUrl).then(function() {
+        // Show success message
+        var toast = document.createElement('div');
+        toast.className = 'toast align-items-center text-white bg-success border-0';
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas fa-check-circle me-2"></i>Protected URL copied to clipboard!
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        `;
+        document.body.appendChild(toast);
+        var bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+        
+        // Remove toast after it's hidden
+        toast.addEventListener('hidden.bs.toast', function() {
+            document.body.removeChild(toast);
+        });
+    }).catch(function(err) {
+        console.error('Could not copy text: ', err);
+        alert('Failed to copy URL to clipboard');
+    });
+}
+</script>
+
+<!-- Your existing styles and scripts -->
+<style>
+    .filter-card {
+        border: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        margin-bottom: 1.5rem;
+    }
+
+    .patient-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+        border: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        margin-bottom: 1rem;
+    }
+
+    .patient-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+</style>

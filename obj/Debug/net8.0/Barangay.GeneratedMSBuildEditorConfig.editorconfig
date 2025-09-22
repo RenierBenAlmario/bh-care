@@ -102,12 +102,12 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQWRtaW5EYXNoYm9hcmQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/Imbakan/Last/Last/BHCARE-mainNgawngaw/BHCARE-main/Pages/Admin/AssignRoles.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQXNzaWduUm9sZXMuY3NodG1s
+[D:/Imbakan/Last/Last/BHCARE-mainNgawngaw/BHCARE-main/Pages/Admin/Archive.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQXJjaGl2ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/Imbakan/Last/Last/BHCARE-mainNgawngaw/BHCARE-main/Pages/Admin/Dashboard.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cRGFzaGJvYXJkLmNzaHRtbA==
+[D:/Imbakan/Last/Last/BHCARE-mainNgawngaw/BHCARE-main/Pages/Admin/AssignRoles.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQXNzaWduUm9sZXMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/Imbakan/Last/Last/BHCARE-mainNgawngaw/BHCARE-main/Pages/Admin/DeleteStaffMember.cshtml]
@@ -140,14 +140,6 @@ build_metadata.AdditionalFiles.CssScope =
 
 [D:/Imbakan/Last/Last/BHCARE-mainNgawngaw/BHCARE-main/Pages/Admin/HEEADSSSFormManagement.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cSEVFQURTU1NGb3JtTWFuYWdlbWVudC5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[D:/Imbakan/Last/Last/BHCARE-mainNgawngaw/BHCARE-main/Pages/Admin/HybridEncryptionDemo.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cSHlicmlkRW5jcnlwdGlvbkRlbW8uY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[D:/Imbakan/Last/Last/BHCARE-mainNgawngaw/BHCARE-main/Pages/Admin/ImmunizationArchive.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cSW1tdW5pemF0aW9uQXJjaGl2ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/Imbakan/Last/Last/BHCARE-mainNgawngaw/BHCARE-main/Pages/Admin/ListPermissions.cshtml]
@@ -256,6 +248,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [D:/Imbakan/Last/Last/BHCARE-mainNgawngaw/BHCARE-main/Pages/Doctor/PatientList.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRG9jdG9yXFBhdGllbnRMaXN0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/Last/Last/BHCARE-mainNgawngaw/BHCARE-main/Pages/Doctor/PatientList_Protected_Example.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRG9jdG9yXFBhdGllbnRMaXN0X1Byb3RlY3RlZF9FeGFtcGxlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/Imbakan/Last/Last/BHCARE-mainNgawngaw/BHCARE-main/Pages/Doctor/PatientRecords.cshtml]
@@ -514,6 +510,14 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVGVzdExvZ2luLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/Imbakan/Last/Last/BHCARE-mainNgawngaw/BHCARE-main/Pages/TestTokenSystem.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVGVzdFRva2VuU3lzdGVtLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/Last/Last/BHCARE-mainNgawngaw/BHCARE-main/Pages/TokenSystemTest.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVG9rZW5TeXN0ZW1UZXN0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/Imbakan/Last/Last/BHCARE-mainNgawngaw/BHCARE-main/Pages/User/Appointment.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVXNlclxBcHBvaW50bWVudC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -580,6 +584,14 @@ build_metadata.AdditionalFiles.CssScope =
 
 [D:/Imbakan/Last/Last/BHCARE-mainNgawngaw/BHCARE-main/Pages/User/UserDashboard.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVXNlclxVc2VyRGFzaGJvYXJkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/Last/Last/BHCARE-mainNgawngaw/BHCARE-main/Pages/User/UserDashboard_Protected_Example.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVXNlclxVc2VyRGFzaGJvYXJkX1Byb3RlY3RlZF9FeGFtcGxlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/Last/Last/BHCARE-mainNgawngaw/BHCARE-main/Pages/User/UserDashboard_With_Token_Protection.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVXNlclxVc2VyRGFzaGJvYXJkX1dpdGhfVG9rZW5fUHJvdGVjdGlvbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/Imbakan/Last/Last/BHCARE-mainNgawngaw/BHCARE-main/Pages/User/VitalDetail.cshtml]
@@ -668,6 +680,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [D:/Imbakan/Last/Last/BHCARE-mainNgawngaw/BHCARE-main/Views/Shared/Components/NavMenu/Default.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXENvbXBvbmVudHNcTmF2TWVudVxEZWZhdWx0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/Last/Last/BHCARE-mainNgawngaw/BHCARE-main/Views/Shared/Components/ProtectedNavigation/Default.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXENvbXBvbmVudHNcUHJvdGVjdGVkTmF2aWdhdGlvblxEZWZhdWx0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/Imbakan/Last/Last/BHCARE-mainNgawngaw/BHCARE-main/Views/Shared/Components/SidebarMenu/Default.cshtml]

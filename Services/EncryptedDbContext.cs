@@ -46,38 +46,35 @@ namespace Barangay.Services
 
             foreach (var entry in entries)
             {
-                // Special handling for VitalSign entities
-                if (entry.Entity is Models.VitalSign vitalSign)
+                // Skip VitalSign entities - we handle encryption manually in controllers
+                if (entry.Entity is Models.VitalSign)
                 {
-                    Console.WriteLine($"Encrypting VitalSign entity - Temperature: {vitalSign.Temperature}, BloodPressure: {vitalSign.BloodPressure}");
-                    vitalSign.EncryptVitalSignData(_encryptionService);
-                    Console.WriteLine($"After encryption - EncryptedTemperature: {vitalSign.EncryptedTemperature}, EncryptedBloodPressure: {vitalSign.EncryptedBloodPressure}");
+                    Console.WriteLine($"Skipping VitalSign encryption - handled manually in controllers");
+                    continue;
+                }
+                
+                // Special handling for ImmunizationRecord entities
+                if (entry.Entity is Models.ImmunizationRecord immunizationRecord)
+                {
+                    Console.WriteLine($"Encrypting ImmunizationRecord entity - ChildName: {immunizationRecord.ChildName}, DateOfBirth: {immunizationRecord.DateOfBirth}");
+                    immunizationRecord.EncryptSensitiveData(_encryptionService);
+                    Console.WriteLine($"After encryption - ChildName: {immunizationRecord.ChildName}, DateOfBirth: {immunizationRecord.DateOfBirth}");
+                }
+                else if (entry.Entity is Models.ImmunizationShortcutForm shortcutForm)
+                {
+                    Console.WriteLine($"Encrypting ImmunizationShortcutForm entity - ChildName: {shortcutForm.ChildName}, PreferredDate: {shortcutForm.PreferredDate}");
+                    shortcutForm.EncryptSensitiveData(_encryptionService);
+                    Console.WriteLine($"After encryption - ChildName: {shortcutForm.ChildName}, PreferredDate: {shortcutForm.PreferredDate}");
+                }
+                else if (entry.Entity is Models.HEEADSSSAssessment heeadsss)
+                {
+                    Console.WriteLine($"Encrypting HEEADSSS entity - FullName: {heeadsss.FullName}, Gender: {heeadsss.Gender}");
+                    heeadsss.EncryptSensitiveData(_encryptionService);
+                    Console.WriteLine($"After encryption - FullName: {heeadsss.FullName}, Gender: {heeadsss.Gender}");
                 }
                 else
                 {
-                    // Use the standard encryption for other entities
-                    if (entry.Entity is Models.ImmunizationRecord immunizationRecord)
-                    {
-                        Console.WriteLine($"Encrypting ImmunizationRecord entity - ChildName: {immunizationRecord.ChildName}, DateOfBirth: {immunizationRecord.DateOfBirth}");
-                        immunizationRecord.EncryptSensitiveData(_encryptionService);
-                        Console.WriteLine($"After encryption - ChildName: {immunizationRecord.ChildName}, DateOfBirth: {immunizationRecord.DateOfBirth}");
-                    }
-                    else if (entry.Entity is Models.ImmunizationShortcutForm shortcutForm)
-                    {
-                        Console.WriteLine($"Encrypting ImmunizationShortcutForm entity - ChildName: {shortcutForm.ChildName}, PreferredDate: {shortcutForm.PreferredDate}");
-                        shortcutForm.EncryptSensitiveData(_encryptionService);
-                        Console.WriteLine($"After encryption - ChildName: {shortcutForm.ChildName}, PreferredDate: {shortcutForm.PreferredDate}");
-                    }
-                    else if (entry.Entity is Models.HEEADSSSAssessment heeadsss)
-                    {
-                        Console.WriteLine($"Encrypting HEEADSSS entity - FullName: {heeadsss.FullName}, Gender: {heeadsss.Gender}");
-                        heeadsss.EncryptSensitiveData(_encryptionService);
-                        Console.WriteLine($"After encryption - FullName: {heeadsss.FullName}, Gender: {heeadsss.Gender}");
-                    }
-                    else
-                    {
-                        entry.Entity.EncryptSensitiveData(_encryptionService);
-                    }
+                    entry.Entity.EncryptSensitiveData(_encryptionService);
                 }
             }
         }
@@ -112,11 +109,27 @@ namespace Barangay.Services
                 {
                     vitalSign.DecryptVitalSignData(_encryptionService, user);
                 }
+                // Special handling for ImmunizationRecord entities
+                else if (entity is Models.ImmunizationRecord immunizationRecord)
+                {
+                    System.Diagnostics.Debug.WriteLine($"EncryptedDbContext: Decrypting ImmunizationRecord ID {immunizationRecord.Id}");
+                    immunizationRecord.DecryptImmunizationData(_encryptionService, user);
+                }
+                // Special handling for ImmunizationShortcutForm entities
+                else if (entity is Models.ImmunizationShortcutForm immunizationShortcut)
+                {
+                    System.Diagnostics.Debug.WriteLine($"EncryptedDbContext: Decrypting ImmunizationShortcutForm ID {immunizationShortcut.Id}");
+                    immunizationShortcut.DecryptImmunizationShortcutData(_encryptionService, user);
+                }
                 else
                 {
                     // Use the standard decryption for other entities
                     entity.DecryptSensitiveData(_encryptionService, user);
                 }
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"EncryptedDbContext: User cannot decrypt - User: {user?.Identity?.Name}, CanDecrypt: {user != null && _encryptionService.CanUserDecrypt(user)}");
             }
         }
     }

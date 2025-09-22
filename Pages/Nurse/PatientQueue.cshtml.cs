@@ -236,31 +236,5 @@ namespace Barangay.Pages.Nurse
                 return RedirectToPage();
             }
         }
-
-        public async Task<IActionResult> OnPostDeleteAsync(int id)
-        {
-            try
-            {
-                var appointment = await _context.Appointments.FindAsync(id);
-                if (appointment == null)
-                {
-                    return NotFound();
-                }
-
-                // Set UpdatedAt before removing
-                appointment.UpdatedAt = DateTime.Now;
-                _context.Appointments.Remove(appointment);
-                await _context.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = "Appointment deleted successfully.";
-                return RedirectToPage();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error deleting appointment {AppointmentId}", id);
-                TempData["ErrorMessage"] = "Error deleting appointment. Please try again.";
-                return RedirectToPage();
-            }
-        }
     }
 }

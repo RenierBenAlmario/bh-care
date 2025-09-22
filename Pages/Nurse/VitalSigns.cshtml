@@ -26,7 +26,13 @@
         <div class="card-header bg-primary text-white">
             <div class="d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Today's Appointments - @Model.Today.ToString("MMMM dd, yyyy")</h5>
-                    <span class="badge bg-light text-dark">@Model.TodayAppointments.Count appointment(s)</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-light text-dark">@Model.TodayAppointments.Count appointment(s)</span>
+                        @if (Model.TodayAppointments.Count == 0)
+                        {
+                            <small class="text-light">All appointments have vital signs recorded</small>
+                        }
+                    </div>
                 </div>
             </div>
             <div class="card-body p-0">
@@ -77,9 +83,18 @@
     }
     else
     {
-        <div class="alert alert-info mb-4">
-            <i class="bi bi-info-circle me-2"></i>
-            No appointments scheduled for today (@Model.Today.ToString("MMMM dd, yyyy")).
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Today's Appointments - @Model.Today.ToString("MMMM dd, yyyy")</h5>
+                    <span class="badge bg-light text-dark">All completed</span>
+                </div>
+            </div>
+            <div class="card-body text-center py-4">
+                <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
+                <h5 class="text-success">All appointments have vital signs recorded!</h5>
+                <p class="text-muted mb-0">Great job! All patients scheduled for today have had their vital signs recorded.</p>
+            </div>
         </div>
     }
 </div>
@@ -141,7 +156,7 @@
             <div class="row mb-3">
                 <div class="col-md-6">
                                 <label class="form-label">Blood Pressure (mmHg)</label>
-                    <input asp-for="NewVitalSign.BloodPressure" class="form-control" placeholder="e.g. 120/80" pattern="[0-9\/]+" title="Only numbers and forward slash allowed" />
+                    <input asp-for="NewVitalSign.BloodPressure" class="form-control" placeholder="e.g. 120/80" title="Enter blood pressure in format like 120/80" />
                 </div>
                 <div class="col-md-6">
                                 <label class="form-label">Heart Rate (bpm)</label>
@@ -1033,13 +1048,14 @@
             return false;
         }
 
-        // Blood pressure validation
+        // Blood pressure validation - more permissive
         function validateBloodPressure(input) {
             const value = input.value;
-            const pattern = /^[0-9\/]*$/;
+            // Allow numbers, letters, spaces, and common punctuation
+            const pattern = /^[0-9a-zA-Z\s\/\-\.\,]*$/;
             
             if (!pattern.test(value)) {
-                input.setCustomValidity('Only numbers and forward slash (/) are allowed');
+                input.setCustomValidity('Please enter a valid blood pressure reading');
                 input.reportValidity();
                 return false;
             } else {
@@ -1052,11 +1068,16 @@
         document.addEventListener('DOMContentLoaded', function() {
             const bloodPressureInput = document.getElementById('NewVitalSign_BloodPressure');
             if (bloodPressureInput) {
-                bloodPressureInput.addEventListener('input', function() {
+                // Remove any existing event listeners by cloning the element
+                const newInput = bloodPressureInput.cloneNode(true);
+                bloodPressureInput.parentNode.replaceChild(newInput, bloodPressureInput);
+                
+                // Add new event listeners to the fresh element
+                newInput.addEventListener('input', function() {
                     validateBloodPressure(this);
                 });
                 
-                bloodPressureInput.addEventListener('keypress', function(e) {
+                newInput.addEventListener('keypress', function(e) {
                     // Allow: backspace, delete, tab, escape, enter
                     if ([8, 9, 27, 13, 46].indexOf(e.keyCode) !== -1 ||
                         // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
@@ -1066,10 +1087,19 @@
                         (e.keyCode === 88 && e.ctrlKey === true)) {
                         return;
                     }
-                    // Ensure that it is a number or forward slash
-                    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && e.keyCode !== 191) {
+                    // Allow most printable characters - only block very specific problematic ones
+                    // Block only control characters and very specific symbols that might cause issues
+                    if (e.keyCode < 32 || e.keyCode === 127) {
                         e.preventDefault();
                     }
+                    // Allow everything else including letters, numbers, punctuation, etc.
+                });
+                
+                // Also allow paste events
+                newInput.addEventListener('paste', function(e) {
+                    setTimeout(() => {
+                        validateBloodPressure(this);
+                    }, 10);
                 });
             }
         });

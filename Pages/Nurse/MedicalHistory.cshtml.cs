@@ -457,13 +457,14 @@ namespace Barangay.Pages.Nurse
                 var newVitalSign = new VitalSign
                 {
                     PatientId = patientId,
-                    Temperature = InputVitalSign.Temperature,
-                    BloodPressure = InputVitalSign.BloodPressure?.Trim(),
-                    HeartRate = InputVitalSign.HeartRate,
-                    RespiratoryRate = InputVitalSign.RespiratoryRate,
-                    SpO2 = InputVitalSign.SpO2,
-                    Weight = InputVitalSign.Weight,
-                    Height = InputVitalSign.Height,
+                    // Store encrypted data in encrypted columns
+                    EncryptedTemperature = !string.IsNullOrEmpty(InputVitalSign.Temperature) ? _encryptionService.Encrypt(InputVitalSign.Temperature) : null,
+                    EncryptedBloodPressure = !string.IsNullOrEmpty(InputVitalSign.BloodPressure?.Trim()) ? _encryptionService.Encrypt(InputVitalSign.BloodPressure.Trim()) : null,
+                    EncryptedHeartRate = !string.IsNullOrEmpty(InputVitalSign.HeartRate) ? _encryptionService.Encrypt(InputVitalSign.HeartRate) : null,
+                    EncryptedRespiratoryRate = !string.IsNullOrEmpty(InputVitalSign.RespiratoryRate) ? _encryptionService.Encrypt(InputVitalSign.RespiratoryRate) : null,
+                    EncryptedSpO2 = !string.IsNullOrEmpty(InputVitalSign.SpO2) ? _encryptionService.Encrypt(InputVitalSign.SpO2) : null,
+                    EncryptedWeight = !string.IsNullOrEmpty(InputVitalSign.Weight) ? _encryptionService.Encrypt(InputVitalSign.Weight) : null,
+                    EncryptedHeight = !string.IsNullOrEmpty(InputVitalSign.Height) ? _encryptionService.Encrypt(InputVitalSign.Height) : null,
                     Notes = InputVitalSign.Notes?.Trim(),
                     RecordedAt = DateTime.Now
                 };
@@ -508,13 +509,14 @@ namespace Barangay.Pages.Nurse
                 var vitalSign = new VitalSign
                 {
                     PatientId = patientId,
-                    Temperature = InputVitalSign.Temperature,
-                    BloodPressure = InputVitalSign.BloodPressure,
-                    HeartRate = InputVitalSign.HeartRate,
-                    RespiratoryRate = InputVitalSign.RespiratoryRate,
-                    SpO2 = InputVitalSign.SpO2,
-                    Weight = InputVitalSign.Weight,
-                    Height = InputVitalSign.Height,
+                    // Store in encrypted columns
+                    EncryptedTemperature = InputVitalSign.Temperature,
+                    EncryptedBloodPressure = InputVitalSign.BloodPressure,
+                    EncryptedHeartRate = InputVitalSign.HeartRate,
+                    EncryptedRespiratoryRate = InputVitalSign.RespiratoryRate,
+                    EncryptedSpO2 = InputVitalSign.SpO2,
+                    EncryptedWeight = InputVitalSign.Weight,
+                    EncryptedHeight = InputVitalSign.Height,
                     RecordedAt = InputVitalSign.RecordedAt,
                     Notes = InputVitalSign.Notes
                 };

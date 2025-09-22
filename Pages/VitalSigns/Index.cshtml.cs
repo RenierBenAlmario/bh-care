@@ -213,13 +213,14 @@ namespace Barangay.Pages.VitalSigns
                 var vitalSign = new VitalSign
                 {
                     PatientId = NewVitalSign.PatientId,
-                    Temperature = NewVitalSign.Temperature,
-                    BloodPressure = NewVitalSign.BloodPressure,
-                    HeartRate = NewVitalSign.HeartRate,
-                    RespiratoryRate = NewVitalSign.RespiratoryRate,
-                    SpO2 = NewVitalSign.SpO2,
-                    Weight = NewVitalSign.Weight,
-                    Height = NewVitalSign.Height,
+                    // Store encrypted data in encrypted columns
+                    EncryptedTemperature = !string.IsNullOrEmpty(NewVitalSign.Temperature) ? _encryptionService.Encrypt(NewVitalSign.Temperature) : null,
+                    EncryptedBloodPressure = !string.IsNullOrEmpty(NewVitalSign.BloodPressure) ? _encryptionService.Encrypt(NewVitalSign.BloodPressure) : null,
+                    EncryptedHeartRate = !string.IsNullOrEmpty(NewVitalSign.HeartRate) ? _encryptionService.Encrypt(NewVitalSign.HeartRate) : null,
+                    EncryptedRespiratoryRate = !string.IsNullOrEmpty(NewVitalSign.RespiratoryRate) ? _encryptionService.Encrypt(NewVitalSign.RespiratoryRate) : null,
+                    EncryptedSpO2 = !string.IsNullOrEmpty(NewVitalSign.SpO2) ? _encryptionService.Encrypt(NewVitalSign.SpO2) : null,
+                    EncryptedWeight = !string.IsNullOrEmpty(NewVitalSign.Weight) ? _encryptionService.Encrypt(NewVitalSign.Weight) : null,
+                    EncryptedHeight = !string.IsNullOrEmpty(NewVitalSign.Height) ? _encryptionService.Encrypt(NewVitalSign.Height) : null,
                     RecordedAt = DateTime.Now,
                     Notes = NewVitalSign.Notes
                 };

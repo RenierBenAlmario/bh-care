@@ -162,13 +162,14 @@ namespace Barangay.Controllers
                 var vitalSign = new VitalSign
                 {
                     PatientId = model.PatientId,
-                    BloodPressure = model.BloodPressure,
-                    HeartRate = model.HeartRate,
-                    Temperature = model.Temperature,
-                    RespiratoryRate = model.RespiratoryRate,
-                    SpO2 = model.SpO2,
-                    Weight = model.Weight,
-                    Height = model.Height,
+                    // Store encrypted data in encrypted columns
+                    EncryptedBloodPressure = !string.IsNullOrEmpty(model.BloodPressure) ? _encryptionService.Encrypt(model.BloodPressure) : null,
+                    EncryptedHeartRate = !string.IsNullOrEmpty(model.HeartRate) ? _encryptionService.Encrypt(model.HeartRate) : null,
+                    EncryptedTemperature = !string.IsNullOrEmpty(model.Temperature) ? _encryptionService.Encrypt(model.Temperature) : null,
+                    EncryptedRespiratoryRate = !string.IsNullOrEmpty(model.RespiratoryRate) ? _encryptionService.Encrypt(model.RespiratoryRate) : null,
+                    EncryptedSpO2 = !string.IsNullOrEmpty(model.SpO2) ? _encryptionService.Encrypt(model.SpO2) : null,
+                    EncryptedWeight = !string.IsNullOrEmpty(model.Weight) ? _encryptionService.Encrypt(model.Weight) : null,
+                    EncryptedHeight = !string.IsNullOrEmpty(model.Height) ? _encryptionService.Encrypt(model.Height) : null,
                     Notes = model.Notes,
                     RecordedAt = DateTime.Now
                 };

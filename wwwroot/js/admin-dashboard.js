@@ -6,6 +6,16 @@
 // Global charts collection for theme toggling
 window.charts = window.charts || {};
 
+// Initialize charts function (fallback for pages that don't need charts)
+function initializeCharts() {
+    console.log('📊 Charts initialization not needed for this page');
+}
+
+// Initialize interactions function (fallback for pages that don't need interactions)
+function initializeInteractions() {
+    console.log('🔗 Interactions initialization not needed for this page');
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize all interactive elements
     initializeTooltips();
