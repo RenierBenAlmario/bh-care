@@ -1,7 +1,9 @@
 @page
 @model Barangay.Pages.Doctor.ReportsModel
 @{
-    ViewData["Title"] = "Monthly Sickness Tracker";
+    var isYearly = Model.ViewType == "yearly";
+    ViewData["Title"] = isYearly ? "Yearly Sickness Tracker" : "Monthly Sickness Tracker";
+    var periodLabel = isYearly ? Model.SelectedYearLabel : Model.SelectedMonthLabel;
 }
 
 @if (!Model.CanAccessReports)
@@ -52,7 +54,7 @@ else
 
     <div class="report-wrapper" id="report-root">
         <div class="toolbar">
-            <h2 class="title" id="reportTitle">Monthly Sickness Tracker</h2>
+            <h2 class="title" id="reportTitle">@(isYearly ? "Yearly Sickness Tracker" : "Monthly Sickness Tracker")</h2>
             <div style="display:flex; gap:8px; align-items:center;">
                 <div style="display:flex; gap:8px; align-items:center;">
                     <label style="font-weight:600; color:var(--text);">View:</label>
@@ -86,25 +88,25 @@ else
 
         <div class="grid">
             <div class="card">
-                <h5 id="topConditionsTitle">Top Diagnosed Conditions (@Model.SelectedMonthLabel)</h5>
+                <h5 id="topConditionsTitle">Top Diagnosed Conditions (@periodLabel)</h5>
                 <canvas id="topConditionsChart" height="220"></canvas>
             </div>
             <div class="card">
-                <h5 id="trendTitle">Sickness Trend (Past Months)</h5>
+                <h5 id="trendTitle">@(isYearly ? "Sickness Trend (Past Years)" : "Sickness Trend (Past Months)")</h5>
                 <canvas id="trendChart" height="220"></canvas>
             </div>
         </div>
 
         <div class="card" style="margin-top:16px;">
-            <h5 id="breakdownTitle">Monthly Breakdown</h5>
+            <h5 id="breakdownTitle">@(isYearly ? "Yearly Breakdown" : "Monthly Breakdown")</h5>
             <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
                             <th>Condition</th>
-                            <th id="casesHeader">Cases this Month</th>
+                            <th id="casesHeader">@(isYearly ? "Cases this Year" : "Cases this Month")</th>
                             <th>% of Total</th>
-                            <th id="comparisonHeader">Last Month Cases</th>
+                            <th id="comparisonHeader">@(isYearly ? "Last Year Cases" : "Last Month Cases")</th>
                             <th>Trend</th>
                         </tr>
                     </thead>
@@ -191,6 +193,8 @@ else
         const topValues = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TopConditionStats.Select(s => s.CasesThisMonth)));
         const trendLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TrendLabels));
         const trendValues = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TrendValues));
+        const isYearly = '@Model.ViewType' === 'yearly';
+        const periodLabel = isYearly ? '@Model.SelectedYearLabel' : '@Model.SelectedMonthLabel';
 
         const primary = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
         const gray200 = getComputedStyle(document.documentElement).getPropertyValue('--gray-200').trim();
@@ -227,8 +231,10 @@ else
         // Export Excel with enhanced formatting
         document.getElementById('btnExportExcel').addEventListener('click', () => {
             // Create a more comprehensive Excel-compatible CSV
-            const reportTitle = 'Monthly Sickness Tracker - @Model.SelectedMonthLabel';
+            const reportTitle = (isYearly ? 'Yearly Sickness Tracker - ' : 'Monthly Sickness Tracker - ') + periodLabel;
             const generatedDate = new Date().toLocaleDateString();
+            const casesLabel = isYearly ? 'Cases This Year' : 'Cases This Month';
+            const prevCasesLabel = isYearly ? 'Last Year Cases' : 'Last Month Cases';
             
             const csvContent = [
                 // Header section
@@ -236,15 +242,15 @@ else
                 [`Generated on: ${generatedDate}`],
                 [''],
                 ['TOP DIAGNOSED CONDITIONS'],
-                ['Condition', 'Cases This Month', '% of Total', 'Last Month Cases', 'Trend'],
+                ['Condition', casesLabel, '% of Total', prevCasesLabel, 'Trend'],
                 // Data rows
                 @foreach (var r in Model.TopConditionStats)
                 {
                     <text>["@r.Condition", "@r.CasesThisMonth", "@r.PercentOfTotal.ToString("0.0")%", "@r.LastMonthCases", "@r.TrendDirection"],</text>
                 }
                 [''],
-                ['SICKNESS TREND (PAST MONTHS)'],
-                ['Month', 'Total Cases'],
+                [isYearly ? 'SICKNESS TREND (PAST YEARS)' : 'SICKNESS TREND (PAST MONTHS)'],
+                [isYearly ? 'Year' : 'Month', 'Total Cases'],
                 @for (int i = 0; i < Model.TrendLabels.Count; i++)
                 {
                     <text>["@Model.TrendLabels[i]", "@Model.TrendValues[i]"],</text>
@@ -253,11 +259,11 @@ else
                 ['SUMMARY STATISTICS'],
                 ['Metric', 'Value'],
                 ['Total Conditions Tracked', '@Model.TopConditionStats.Count'],
-                ['Total Cases This Month', '@Model.TopConditionStats.Sum(c => c.CasesThisMonth)'],
+                ['Total Cases ' + (isYearly ? 'This Year' : 'This Month'), '@Model.TopConditionStats.Sum(c => c.CasesThisMonth)'],
                 ['Average Cases per Condition', '@(Model.TopConditionStats.Count > 0 ? (Model.TopConditionStats.Sum(c => c.CasesThisMonth) / (double)Model.TopConditionStats.Count).ToString("0.0") : "0")'],
                 [''],
                 ['NOTES'],
-                ['This report contains sickness tracking data for @Model.SelectedMonthLabel.'],
+                ['This report contains sickness tracking data for ' + periodLabel + '.'],
                 ['Trend indicators: up = increasing, down = decreasing, flat = no change.'],
                 ['Generated by Barangay Health Care System.']
             ];
@@ -279,219 +285,169 @@ else
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `SicknessReport-@Model.SelectedMonthLabel`.replace(/\s+/g,'_') + '.csv';
+            const csvFileBase = 'SicknessReport-' + (isYearly ? 'Yearly-' : 'Monthly-') + periodLabel;
+            a.download = csvFileBase.replace(/\s+/g,'_') + '.csv';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
         });
 
-        // Export PDF with professional layout
+        // Export PDF with Minimal Pro layout
         document.getElementById('btnExportPdf').addEventListener('click', async () => {
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF('p', 'mm', 'a4');
-            
-            // Set up fonts and colors
+
+            // Colors and fonts
             pdf.setFont('helvetica');
-            const primaryColor = [255, 122, 0]; // Orange
-            const darkGray = [43, 47, 51];
-            const lightGray = [107, 114, 128];
-            
-            // Header
-            pdf.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-            pdf.rect(0, 0, 210, 25, 'F');
-            
+            const primary = [255, 122, 0];
+            const text = [43, 47, 51];
+            const muted = [107, 114, 128];
+            const soft = [248, 249, 250];
+
+            // Header (minimal)
+            pdf.setFillColor(primary[0], primary[1], primary[2]);
+            pdf.rect(0, 0, 210, 20, 'F');
             pdf.setTextColor(255, 255, 255);
-            pdf.setFontSize(18);
+            pdf.setFontSize(16);
             pdf.setFont('helvetica', 'bold');
-            pdf.text('Monthly Sickness Tracker', 15, 17);
-            
-            pdf.setFontSize(10);
+            pdf.text(isYearly ? 'Yearly Sickness Tracker' : 'Monthly Sickness Tracker', 15, 14);
+            pdf.setFontSize(9);
             pdf.setFont('helvetica', 'normal');
-            pdf.text('@Model.SelectedMonthLabel', 15, 22);
-            
+            pdf.text(periodLabel, 15, 18);
+            pdf.text(`Generated on: ${new Date().toLocaleDateString()}`, 150, 18);
+
             // Reset text color
-            pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-            
-            // Report date
-            pdf.setFontSize(8);
-            pdf.text(`Generated on: ${new Date().toLocaleDateString()}`, 150, 22);
-            
-            let yPosition = 35;
-            
-            // Top Diagnosed Conditions Section
-            pdf.setFontSize(14);
-            pdf.setFont('helvetica', 'bold');
-            pdf.text('Top Diagnosed Conditions', 15, yPosition);
-            
-            yPosition += 10;
-            
-            // Create pie chart data
-            const conditions = @Html.Raw(Json.Serialize(Model.TopConditionStats.Take(5).Select(c => new { 
-                name = c.Condition, 
-                value = c.CasesThisMonth,
-                percentage = c.PercentOfTotal
-            })));
-            
-            if (conditions.length > 0) {
-                // Draw simple pie chart representation
-                const centerX = 50;
-                const centerY = yPosition + 20;
-                const radius = 25;
-                
-                let currentAngle = 0;
-                const colors = [
-                    [255, 122, 0], [46, 125, 50], [198, 40, 40], [156, 39, 176], [33, 150, 243]
-                ];
-                
-                conditions.forEach((condition, index) => {
-                    const sliceAngle = (condition.value / conditions.reduce((sum, c) => sum + c.value, 0)) * 360;
-                    
-                    pdf.setFillColor(colors[index % colors.length][0], colors[index % colors.length][1], colors[index % colors.length][2]);
-                    pdf.circle(centerX, centerY, radius, 'F');
-                    
-                    // Add legend
-                    const legendY = yPosition + (index * 8);
-                    pdf.setFillColor(colors[index % colors.length][0], colors[index % colors.length][1], colors[index % colors.length][2]);
-                    pdf.rect(120, legendY - 2, 4, 4, 'F');
-                    pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-                    pdf.setFontSize(9);
-                    pdf.setFont('helvetica', 'normal');
-                    pdf.text(`${condition.name}: ${condition.value} cases (${condition.percentage.toFixed(1)}%)`, 128, legendY);
-                    
-                    currentAngle += sliceAngle;
-                });
-                
-                yPosition += 60;
-            } else {
-                pdf.setFontSize(10);
-                pdf.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-                pdf.text('No data available for this month', 15, yPosition + 20);
-                yPosition += 40;
-            }
-            
-            // Sickness Trend Section
-            pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-            pdf.setFontSize(14);
-            pdf.setFont('helvetica', 'bold');
-            pdf.text('Sickness Trend (Past Months)', 15, yPosition);
-            
-            yPosition += 10;
-            
-            // Draw trend chart
-            const trendData = @Html.Raw(Json.Serialize(Model.TrendValues));
-            const trendLabels = @Html.Raw(Json.Serialize(Model.TrendLabels));
-            
-            if (trendData.length > 0) {
-                const chartWidth = 100;
-                const chartHeight = 40;
-                const chartX = 15;
-                const chartY = yPosition;
-                
-                // Draw axes
-                pdf.setDrawColor(200, 200, 200);
-                pdf.line(chartX, chartY, chartX + chartWidth, chartY); // X-axis
-                pdf.line(chartX, chartY, chartX, chartY - chartHeight); // Y-axis
-                
-                // Draw trend line
-                const maxValue = Math.max(...trendData);
-                const minValue = Math.min(...trendData);
-                const valueRange = maxValue - minValue || 1;
-                
-                pdf.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-                pdf.setLineWidth(2);
-                
-                for (let i = 0; i < trendData.length - 1; i++) {
-                    const x1 = chartX + (i / (trendData.length - 1)) * chartWidth;
-                    const y1 = chartY - ((trendData[i] - minValue) / valueRange) * chartHeight;
-                    const x2 = chartX + ((i + 1) / (trendData.length - 1)) * chartWidth;
-                    const y2 = chartY - ((trendData[i + 1] - minValue) / valueRange) * chartHeight;
-                    
+            pdf.setTextColor(text[0], text[1], text[2]);
+            let y = 28;
+
+            // Metrics (KPIs)
+            const stats = @Html.Raw(Json.Serialize(Model.TopConditionStats.Select(s => new { condition = s.Condition, cases = s.CasesThisMonth, pct = s.PercentOfTotal, last = s.LastMonthCases, trend = s.TrendDirection })));
+            const trendVals = @Html.Raw(Json.Serialize(Model.TrendValues));
+            const totalCases = stats.reduce((sum, s) => sum + s.cases, 0);
+            const uniqueConditions = stats.length;
+            const topCondition = stats.length ? stats.slice().sort((a,b)=>b.cases-a.cases)[0].condition : 'N/A';
+            const currentTotal = trendVals.length ? trendVals[trendVals.length - 1] : totalCases;
+            const previousTotal = trendVals.length > 1 ? trendVals[trendVals.length - 2] : 0;
+            const changePct = previousTotal ? ((currentTotal - previousTotal) / previousTotal) * 100 : 0;
+            const changeText = (changePct >= 0 ? '▲ ' : '▼ ') + Math.abs(changePct).toFixed(1) + '% ' + (isYearly ? '(vs last year)' : '(vs last month)');
+
+            const kpi = [
+                { label: 'Total Cases', value: String(totalCases) },
+                { label: 'Unique Conditions', value: String(uniqueConditions) },
+                { label: 'Top Condition', value: topCondition || 'N/A' },
+                { label: 'Change', value: changeText }
+            ];
+
+            const kpiW = 45, kpiH = 18, gap = 5; let x = 15;
+            kpi.forEach((item, idx) => {
+                pdf.setFillColor(soft[0], soft[1], soft[2]);
+                pdf.rect(x, y, kpiW, kpiH, 'F');
+                pdf.setFontSize(7); pdf.setTextColor(muted[0], muted[1], muted[2]);
+                pdf.text(item.label, x + 3, y + 6);
+                pdf.setFont('helvetica', 'bold'); pdf.setFontSize(11); pdf.setTextColor(text[0], text[1], text[2]);
+                const val = item.value.length > 26 ? item.value.substring(0, 24) + '…' : item.value;
+                pdf.text(val, x + 3, y + 13);
+                pdf.setFont('helvetica', 'normal');
+                x += kpiW + gap;
+            });
+            y += kpiH + 10;
+
+            // Top Diagnosed Conditions (table with progress)
+            pdf.setFont('helvetica', 'bold'); pdf.setFontSize(12);
+            pdf.text('Top Diagnosed Conditions', 15, y);
+            y += 7;
+            pdf.setFillColor(soft[0], soft[1], soft[2]);
+            pdf.rect(15, y - 5, 180, 7, 'F');
+            pdf.setFontSize(9); pdf.setTextColor(muted[0], muted[1], muted[2]);
+            pdf.text('Condition', 17, y);
+            pdf.text('Cases', 97, y);
+            pdf.text('% of Total', 122, y);
+            pdf.text('Progress', 152, y);
+            y += 6; pdf.setTextColor(text[0], text[1], text[2]);
+
+            const top5 = stats.slice().sort((a,b)=>b.cases-a.cases).slice(0,5);
+            top5.forEach(s => {
+                pdf.setFontSize(9);
+                pdf.text(String(s.condition), 17, y);
+                pdf.text(String(s.cases), 97, y);
+                pdf.text(`${(s.pct || 0).toFixed(1)}%`, 122, y);
+                // progress bar
+                const barX = 150, barY = y - 3, barW = 42, barH = 4;
+                pdf.setFillColor(235, 236, 240); pdf.rect(barX, barY, barW, barH, 'F');
+                const fillW = Math.max(0, Math.min(barW, (s.pct || 0) / 100 * barW));
+                pdf.setFillColor(primary[0], primary[1], primary[2]); pdf.rect(barX, barY, fillW, barH, 'F');
+                y += 7;
+            });
+
+            y += 4;
+            // Trend sparkline (minimal)
+            pdf.setFont('helvetica', 'bold'); pdf.setFontSize(12);
+            pdf.text(isYearly ? 'Sickness Trend (Past Years)' : 'Sickness Trend (Past Months)', 15, y);
+            y += 6;
+            const sparkX = 15, sparkW = 180, sparkH = 22, sparkY = y + sparkH;
+            if (trendVals.length > 0) {
+                const maxV = Math.max(...trendVals), minV = Math.min(...trendVals);
+                const range = (maxV - minV) || 1;
+                pdf.setDrawColor(primary[0], primary[1], primary[2]);
+                pdf.setLineWidth(1.2);
+                for (let i = 0; i < trendVals.length - 1; i++) {
+                    const x1 = sparkX + (i / (trendVals.length - 1)) * sparkW;
+                    const y1 = sparkY - ((trendVals[i] - minV) / range) * sparkH;
+                    const x2 = sparkX + ((i + 1) / (trendVals.length - 1)) * sparkW;
+                    const y2 = sparkY - ((trendVals[i + 1] - minV) / range) * sparkH;
                     pdf.line(x1, y1, x2, y2);
                 }
-                
-                // Add labels
-                pdf.setFontSize(8);
-                pdf.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-                for (let i = 0; i < trendLabels.length; i++) {
-                    const x = chartX + (i / (trendLabels.length - 1)) * chartWidth;
-                    pdf.text(trendLabels[i], x - 10, chartY + 8);
-                }
-                
-                yPosition += 60;
             } else {
-                pdf.setFontSize(10);
-                pdf.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-                pdf.text('No trend data available', 15, yPosition + 20);
-                yPosition += 40;
+                pdf.setFontSize(9); pdf.setTextColor(muted[0], muted[1], muted[2]);
+                pdf.text('No trend data available', 15, y + 10);
+                pdf.setTextColor(text[0], text[1], text[2]);
             }
-            
-            // Monthly Breakdown Table
-            pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-            pdf.setFontSize(14);
-            pdf.setFont('helvetica', 'bold');
-            pdf.text('Monthly Breakdown', 15, yPosition);
-            
-            yPosition += 15;
-            
-            // Table headers
-            pdf.setFillColor(248, 249, 250);
-            pdf.rect(15, yPosition - 5, 180, 8, 'F');
-            
-            pdf.setFontSize(9);
-            pdf.setFont('helvetica', 'bold');
-            pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-            
-            const headers = ['Condition', 'Cases This Month', '% of Total', 'Last Month Cases', 'Trend'];
-            const colWidths = [60, 30, 25, 30, 20];
-            let xPos = 15;
-            
-            headers.forEach((header, index) => {
-                pdf.text(header, xPos + 2, yPosition);
-                xPos += colWidths[index];
-            });
-            
-            yPosition += 8;
-            
-            // Table data
-            pdf.setFont('helvetica', 'normal');
-            pdf.setFontSize(8);
-            
-            @foreach (var row in Model.TopConditionStats)
-            {
-                <text>
-                pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-                pdf.text('@row.Condition', 17, yPosition);
-                pdf.text('@row.CasesThisMonth', 77, yPosition);
-                pdf.text('@row.PercentOfTotal.ToString("0.0")%', 107, yPosition);
-                pdf.text('@row.LastMonthCases', 135, yPosition);
-                
-                // Trend indicator
-                pdf.setFontSize(10);
-                if ('@row.TrendDirection' === 'up') {
-                    pdf.setTextColor(46, 125, 50);
-                    pdf.text('↗', 165, yPosition);
-                } else if ('@row.TrendDirection' === 'down') {
-                    pdf.setTextColor(198, 40, 40);
-                    pdf.text('↘', 165, yPosition);
-                } else {
-                    pdf.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-                    pdf.text('→', 165, yPosition);
+            y += sparkH + 10;
+
+            // Breakdown table (detailed)
+            pdf.setFont('helvetica', 'bold'); pdf.setFontSize(12);
+            pdf.text(isYearly ? 'Yearly Breakdown' : 'Monthly Breakdown', 15, y);
+            y += 8;
+            pdf.setFillColor(soft[0], soft[1], soft[2]); pdf.rect(15, y - 5, 180, 7, 'F');
+            pdf.setFontSize(9); pdf.setTextColor(muted[0], muted[1], muted[2]);
+            const headers = ['Condition', (isYearly ? 'Cases This Year' : 'Cases This Month'), '% of Total', (isYearly ? 'Last Year Cases' : 'Last Month Cases'), 'Trend'];
+            const widths = [60, 30, 25, 30, 20]; let colX = 15;
+            headers.forEach((h) => { pdf.text(h, colX + 2, y); colX += widths.shift(); });
+            // Reset widths for rows
+            const rw = [60, 30, 25, 30, 20];
+            y += 7; pdf.setTextColor(text[0], text[1], text[2]); pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8);
+
+            stats.forEach((r) => {
+                let cx = 15; const rowH = 6;
+                pdf.text(String(r.condition), cx + 2, y); cx += rw[0];
+                pdf.text(String(r.cases), cx + 2, y); cx += rw[1];
+                pdf.text(`${(r.pct || 0).toFixed(1)}%`, cx + 2, y); cx += rw[2];
+                pdf.text(String(r.last ?? 0), cx + 2, y); cx += rw[3];
+                // arrow
+                if (r.trend === 'up') { pdf.setTextColor(46, 125, 50); pdf.text('↗', cx + 8, y); }
+                else if (r.trend === 'down') { pdf.setTextColor(198, 40, 40); pdf.text('↘', cx + 8, y); }
+                else { pdf.setTextColor(muted[0], muted[1], muted[2]); pdf.text('→', cx + 8, y); }
+                pdf.setTextColor(text[0], text[1], text[2]);
+                y += rowH;
+                if (y > 270) { // new page if needed
+                    pdf.addPage(); y = 20;
                 }
-                pdf.setFontSize(8);
-                
-                yPosition += 6;
-                </text>
+            });
+
+            // Footer + page numbers
+            const pageCount = pdf.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                pdf.setPage(i);
+                pdf.setFontSize(8); pdf.setTextColor(muted[0], muted[1], muted[2]);
+                pdf.text('This report was generated automatically by the Barangay Health Care System.', 15, 285);
+                pdf.text('For questions or concerns, please contact the system administrator.', 15, 290);
+                pdf.text(`Page ${i} of ${pageCount}`, 195, 290, { align: 'right' });
             }
-            
-            // Footer
-            pdf.setFontSize(8);
-            pdf.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-            pdf.text('This report was generated automatically by the Barangay Health Care System.', 15, 280);
-            pdf.text('For questions or concerns, please contact the system administrator.', 15, 285);
-            
-            // Save the PDF
-            pdf.save(`SicknessReport-@Model.SelectedMonthLabel`.replace(/\s+/g,'_') + '.pdf');
+
+            // Save
+            const fileBase = 'SicknessReport-' + (isYearly ? 'Yearly-' : 'Monthly-') + periodLabel;
+            pdf.save(fileBase.replace(/\s+/g,'_') + '.pdf');
         });
     </script>
 }

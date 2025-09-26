@@ -17,6 +17,7 @@ using System.Security.Claims;
 using Microsoft.Extensions.Logging;
 using System.Linq;
 using Barangay.Extensions;
+using System.Text.RegularExpressions;
 
 namespace Barangay.Pages
 {
@@ -373,10 +374,18 @@ namespace Barangay.Pages
                     _logger.LogWarning("FullName not received from form");
                 }
                 
-                if (Request.Form.TryGetValue("age", out var age) && int.TryParse(age, out int ageValue))
+                if (Request.Form.TryGetValue("age", out var age))
                 {
-                    bookingModel.Age = ageValue;
-                    _logger.LogInformation("Received age from form: {Age}", ageValue);
+                    if (int.TryParse(age, out int ageValue))
+                    {
+                        bookingModel.Age = ageValue;
+                        _logger.LogInformation("Received age from form: {Age}", ageValue);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Invalid age value from form: {AgeRaw}", age.ToString());
+                        return new JsonResult(new { success = false, error = "Please enter a valid age (0-120)." });
+                    }
                 }
                 
                 if (Request.Form.TryGetValue("birthday", out var birthday) && DateTime.TryParse(birthday, out DateTime birthdayValue))
@@ -422,6 +431,32 @@ namespace Barangay.Pages
                 if (bookingForOther)
                 {
                     bookingModel.Relationship = relationship;
+                }
+
+                // Server-side validation for age, phone number, and profanity in reason
+                if (bookingModel.Age < 0 || bookingModel.Age > 120)
+                {
+                    return new JsonResult(new { success = false, error = "Age must be between 0 and 120." });
+                }
+
+                if (string.IsNullOrWhiteSpace(bookingModel.PhoneNumber) || !Regex.IsMatch(bookingModel.PhoneNumber, "^09[0-9]{9}$"))
+                {
+                    return new JsonResult(new { success = false, error = "Phone number must be 11 digits and start with 09." });
+                }
+
+                if (!string.IsNullOrWhiteSpace(bookingModel.ReasonForVisit))
+                {
+                    // Basic profanity filter (EN/TL)
+                    var badWords = new[] { "fuck","shit","bitch","asshole","bastard","damn","puta","putang ina","pakyu","ulol","gago","tarantado","tangina" };
+                    var containsBad = badWords.Any(w => Regex.IsMatch(bookingModel.ReasonForVisit, $"(^|\\b){Regex.Escape(w)}(\\b|$)", RegexOptions.IgnoreCase));
+                    if (containsBad)
+                    {
+                        return new JsonResult(new { success = false, error = "Please remove inappropriate language from the Reason for Visit." });
+                    }
+                    if (bookingModel.ReasonForVisit.Length > 400)
+                    {
+                        return new JsonResult(new { success = false, error = "Reason for Visit must be 400 characters or less." });
+                    }
                 }
 
                 // Verify that the selected time slot is still available

@@ -92,6 +92,7 @@ namespace Barangay.Pages.Nurse
         public List<TodayAppointmentViewModel> TodayAppointments { get; set; } = new();
         public DateTime Today { get; set; } = DateTime.Today;
         public bool HasTodayAppointments => TodayAppointments.Any();
+        public int? SelectedAppointmentId { get; set; }
 
         // Additional info for Patient Information panel
         public string? SelectedPatientBarangay { get; set; }
@@ -161,6 +162,22 @@ namespace Barangay.Pages.Nurse
                         FilledFormType = "HEEADSSS Assessment";
                         IsFormFilled = await _context.HEEADSSSAssessments.AnyAsync(h => h.UserId == SelectedPatient.UserId);
                     }
+                }
+
+                // Determine the appointment to use for assessment links
+                if (PatientAppointments != null && PatientAppointments.Any())
+                {
+                    SelectedAppointmentId = PatientAppointments.First().Id; // latest by ordering
+                }
+                else
+                {
+                    // Fallback: fetch latest appointment id directly
+                    SelectedAppointmentId = await _context.Appointments
+                        .Where(a => a.PatientId == patientId)
+                        .OrderByDescending(a => a.AppointmentDate)
+                        .ThenByDescending(a => a.AppointmentTime)
+                        .Select(a => (int?)a.Id)
+                        .FirstOrDefaultAsync();
                 }
             }
             else

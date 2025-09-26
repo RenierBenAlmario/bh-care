@@ -7,6 +7,7 @@ using Barangay.Models;
 using Barangay.Services;
 using Barangay.Extensions;
 using System;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Barangay.Pages.Nurse
 {
@@ -41,12 +42,23 @@ namespace Barangay.Pages.Nurse
         public string FamilyNumber { get; set; } = string.Empty;
 
         public List<ImmunizationRecord> Records { get; set; } = new List<ImmunizationRecord>();
+        public List<SelectListItem> BarangayOptions { get; set; } = new();
 
         public async Task OnGetAsync()
         {
             // Clear any potential caching
             _context.ChangeTracker.Clear();
             
+            // Prepare barangay dropdown (158–161)
+            BarangayOptions = new List<SelectListItem>
+            {
+                new SelectListItem("All Barangays", ""),
+                new SelectListItem("158", "158"),
+                new SelectListItem("159", "159"),
+                new SelectListItem("160", "160"),
+                new SelectListItem("161", "161"),
+            };
+
             var query = _context.ImmunizationRecords.AsQueryable();
 
             // Order by most recent first and materialize the query first
@@ -75,7 +87,10 @@ namespace Barangay.Pages.Nurse
 
             if (!string.IsNullOrEmpty(SelectedBarangay))
             {
-                Records = Records.Where(r => r.Barangay == SelectedBarangay).ToList();
+                // Normalize to handle both "161" and "Barangay 161"
+                string norm(string? b) => (b ?? string.Empty).Trim().Replace("Barangay ", "", StringComparison.OrdinalIgnoreCase);
+                var target = norm(SelectedBarangay);
+                Records = Records.Where(r => norm(r.Barangay) == target).ToList();
             }
 
             if (!string.IsNullOrEmpty(FamilyNumber))

@@ -38,23 +38,16 @@
                 <div class="card-body">
                     <form method="get" class="row g-3">
                         <div class="col-md-4">
-                            <label for="searchTerm" class="form-label">Search Child Name</label>
-                            <input type="text" class="form-control" id="searchTerm" name="searchTerm" 
-                                   value="@Model.SearchTerm" placeholder="Enter child name...">
+                            <label asp-for="SearchTerm" class="form-label">Search Child Name</label>
+                            <input asp-for="SearchTerm" class="form-control" placeholder="Enter child name..." />
                         </div>
                         <div class="col-md-3">
-                            <label for="barangay" class="form-label">Barangay</label>
-                            <select class="form-select" id="barangay" name="barangay">
-                                <option value="">All Barangays</option>
-                                <option value="161" selected="@(Model.SelectedBarangay == "161")">161</option>
-                                <option value="162" selected="@(Model.SelectedBarangay == "162")">162</option>
-                                <option value="163" selected="@(Model.SelectedBarangay == "163")">163</option>
-                            </select>
+                            <label asp-for="SelectedBarangay" class="form-label">Barangay</label>
+                            <select asp-for="SelectedBarangay" asp-items="Model.BarangayOptions" class="form-select"></select>
                         </div>
                         <div class="col-md-3">
-                            <label for="familyNumber" class="form-label">Family Number</label>
-                            <input type="text" class="form-control" id="familyNumber" name="familyNumber" 
-                                   value="@Model.FamilyNumber" placeholder="Enter family number...">
+                            <label asp-for="FamilyNumber" class="form-label">Family Number</label>
+                            <input asp-for="FamilyNumber" class="form-control" placeholder="Enter family number..." />
                         </div>
                         <div class="col-md-2">
                             <label class="form-label">&nbsp;</label>

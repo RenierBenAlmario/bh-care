@@ -142,22 +142,20 @@
                 <div class="col-md-4">
                     <div class="search-box">
                         <i class="fas fa-search"></i>
-                        <input type="text" class="form-control" id="searchQuery" name="searchQuery" 
-                               value="@Model.SearchQuery" placeholder="Search by name, email, or ID...">
+                        <input asp-for="SearchQuery" class="form-control" placeholder="Search by name, email, or ID...">
                     </div>
                 </div>
 
                 <!-- Barangay Filter -->
                 <div class="col-md-3">
-                    <select class="form-select" id="barangay" name="barangay" asp-for="@Model.SelectedBarangay"
-                            asp-items="@Model.BarangayList">
+                    <select asp-for="SelectedBarangay" asp-items="Model.BarangayList" class="form-select">
                         <option value="">All Barangays</option>
                     </select>
                 </div>
 
                 <!-- Status Filter -->
                 <div class="col-md-3">
-                    <select class="form-select" id="status" name="status" asp-for="@Model.SelectedStatus">
+                    <select asp-for="SelectedStatus" class="form-select">
                         <option value="">All Status</option>
                         <option value="Active">Active</option>
                         <option value="Pending">Pending</option>

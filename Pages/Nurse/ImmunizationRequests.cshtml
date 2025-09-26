@@ -25,27 +25,16 @@
         <div class="card-body">
             <form method="get" class="row g-3">
                 <div class="col-md-4">
-                    <label for="searchTerm" class="form-label">Search Child Name</label>
-                    <input type="text" class="form-control" id="searchTerm" name="searchTerm" value="@Model.SearchTerm" placeholder="Enter child's name...">
+                    <label asp-for="SearchTerm" class="form-label">Search Child Name</label>
+                    <input asp-for="SearchTerm" class="form-control" placeholder="Enter child's name..." />
                 </div>
                 <div class="col-md-3">
-                    <label for="barangay" class="form-label">Barangay</label>
-                    <select class="form-control" id="barangay" name="barangay">
-                        <option value="">All Barangays</option>
-                        <option value="Barangay 158" selected="@(Model.SelectedBarangay == "Barangay 158")">Barangay 158</option>
-                        <option value="Barangay 159" selected="@(Model.SelectedBarangay == "Barangay 159")">Barangay 159</option>
-                        <option value="Barangay 160" selected="@(Model.SelectedBarangay == "Barangay 160")">Barangay 160</option>
-                        <option value="Barangay 161" selected="@(Model.SelectedBarangay == "Barangay 161")">Barangay 161</option>
-                    </select>
+                    <label asp-for="SelectedBarangay" class="form-label">Barangay</label>
+                    <select asp-for="SelectedBarangay" asp-items="Model.BarangayOptions" class="form-select"></select>
                 </div>
                 <div class="col-md-3">
-                    <label for="status" class="form-label">Status</label>
-                    <select class="form-control" id="status" name="status">
-                        <option value="">All Status</option>
-                        <option value="Pending" selected="@(Model.SelectedStatus == "Pending")">Pending</option>
-                        <option value="Scheduled" selected="@(Model.SelectedStatus == "Scheduled")">Scheduled</option>
-                        <option value="Completed" selected="@(Model.SelectedStatus == "Completed")">Completed</option>
-                    </select>
+                    <label asp-for="SelectedStatus" class="form-label">Status</label>
+                    <select asp-for="SelectedStatus" asp-items="Model.StatusOptions" class="form-select"></select>
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">&nbsp;</label>

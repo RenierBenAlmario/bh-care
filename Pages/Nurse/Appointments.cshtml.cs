@@ -87,9 +87,11 @@ namespace Barangay.Pages.Nurse
                     Description = a.Description
                 }).ToList();
                 
-                // Filter today's appointments
+                // Filter today's appointments (exclude Draft and Cancelled)
                 TodayAppointments = Appointments
-                    .Where(a => a.AppointmentDate.Date == today)
+                    .Where(a => a.AppointmentDate.Date == today
+                                && a.Status != AppointmentStatus.Draft
+                                && a.Status != AppointmentStatus.Cancelled)
                     .OrderBy(a => a.AppointmentTime)
                     .ToList();
                 

@@ -51,6 +51,10 @@
             background-color: #fd7e14;
             border-color: #fd7e14 #fd7e14 transparent;
         }
+        /* Ensure tabs are visible on smaller widths */
+        .patient-tabs { display:flex; flex-wrap: wrap; overflow-x: auto; gap: 2px; }
+        .patient-tabs::-webkit-scrollbar { height: 6px; }
+        .patient-tabs::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 3px; }
         .card-header.bg-warning {
             border-bottom: 0;
         }

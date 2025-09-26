@@ -35,6 +35,18 @@
   color:#fff !important;
 }
 
+/* Logout button should never look active */
+.sidebar .btn-link.sidebar-logout,
+.sidebar .btn-link.sidebar-logout:hover,
+.sidebar .btn-link.sidebar-logout:focus,
+.sidebar .btn-link.sidebar-logout:active,
+.sidebar .btn-link.sidebar-logout.active{
+  background: transparent !important;
+  color: rgba(255,255,255,.85) !important;
+  box-shadow: none !important;
+  border: 0 !important;
+}
+
 /* Active: white pill with accent text/icon */
 .sidebar .nav-link.active{
   background: #fff !important;

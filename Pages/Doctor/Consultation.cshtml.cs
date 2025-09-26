@@ -125,25 +125,23 @@ namespace Barangay.Pages.Doctor
                     _logger.LogInformation("Loading consultation queue for doctor: {DoctorId}", doctorId);
                     _logger.LogInformation("Today's date: {Today}", DateTime.Now.Date);
 
-                    // Enhanced query with better logging - Include tomorrow for testing
+                    // Filter: today and upcoming only, exclude draft/cancelled/completed, and only for current doctor
                     var today = DateTime.Now.Date;
-                    var tomorrow = today.AddDays(1);
-                    var validStatuses = new[] { AppointmentStatus.Pending, AppointmentStatus.Confirmed, AppointmentStatus.InProgress, AppointmentStatus.Draft };
-                    
-                    _logger.LogInformation("Looking for appointments with Status IN: {Statuses}", string.Join(", ", validStatuses.Select(s => (int)s)));
-                    _logger.LogInformation("Searching for appointments on: Today ({Today}) and Tomorrow ({Tomorrow})", today, tomorrow);
+                    var validStatuses = new[] { AppointmentStatus.Pending, AppointmentStatus.Confirmed, AppointmentStatus.InProgress };
 
-                    // Show all appointments for today AND tomorrow (for testing purposes)
+                    _logger.LogInformation("Looking for appointments for doctor {DoctorId} with Status IN: {Statuses} starting from {Today}", doctorId, string.Join(", ", validStatuses.Select(s => (int)s)), today);
+
                     ConsultationQueue = await _context.Appointments
                         .Include(a => a.Patient)
                             .ThenInclude(p => p.User)
-                        .Where(a => (a.AppointmentDate.Date == today || a.AppointmentDate.Date == tomorrow) && 
-                                  validStatuses.Contains(a.Status))
+                        .Where(a => a.DoctorId == doctorId
+                                    && a.AppointmentDate.Date >= today
+                                    && validStatuses.Contains(a.Status))
                         .OrderBy(a => a.AppointmentDate)
                         .ThenBy(a => a.AppointmentTime)
                         .ToListAsync();
 
-                    _logger.LogInformation("Found {Count} appointments for today and tomorrow", ConsultationQueue.Count);
+                    _logger.LogInformation("Found {Count} appointments for today and upcoming", ConsultationQueue.Count);
 
                     // Log each appointment found for debugging
                     foreach (var appointment in ConsultationQueue)
@@ -155,31 +153,27 @@ namespace Barangay.Pages.Doctor
                             appointment.AppointmentTime);
                     }
 
-                    // If no appointments found, check if there are any appointments for today and tomorrow
+                    // If no appointments found, provide some context for today/upcoming
                     if (ConsultationQueue.Count == 0)
                     {
                         var totalAppointmentsToday = await _context.Appointments
                             .Where(a => a.AppointmentDate.Date == today)
                             .CountAsync();
-                            
-                        var totalAppointmentsTomorrow = await _context.Appointments
-                            .Where(a => a.AppointmentDate.Date == tomorrow)
-                            .CountAsync();
-                            
+
                         var appointmentsForOtherDoctors = await _context.Appointments
-                            .Where(a => (a.AppointmentDate.Date == today || a.AppointmentDate.Date == tomorrow) && a.DoctorId != doctorId)
+                            .Where(a => a.AppointmentDate.Date >= today && a.DoctorId != doctorId)
                             .CountAsync();
-                            
-                        _logger.LogInformation("No appointments found for doctor {DoctorId}. Total appointments today: {TotalToday}, Tomorrow: {TotalTomorrow}, Appointments for other doctors: {OtherDoctors}", 
-                            doctorId, totalAppointmentsToday, totalAppointmentsTomorrow, appointmentsForOtherDoctors);
-                            
-                        if (totalAppointmentsToday > 0 || totalAppointmentsTomorrow > 0)
+
+                        _logger.LogInformation("No appointments found for doctor {DoctorId}. Total appointments today: {TotalToday}, Appointments for other doctors today or upcoming: {OtherDoctors}", 
+                            doctorId, totalAppointmentsToday, appointmentsForOtherDoctors);
+
+                        if (totalAppointmentsToday > 0)
                         {
-                            TempData["InfoMessage"] = $"No appointments found for you today or tomorrow. Today: {totalAppointmentsToday}, Tomorrow: {totalAppointmentsTomorrow}, Assigned to other doctors: {appointmentsForOtherDoctors}.";
+                            TempData["InfoMessage"] = $"No appointments found for you today. Today: {totalAppointmentsToday}, Assigned to other doctors (today or upcoming): {appointmentsForOtherDoctors}.";
                         }
                         else
                         {
-                            TempData["InfoMessage"] = "No appointments scheduled for today or tomorrow.";
+                            TempData["InfoMessage"] = "No appointments scheduled for today.";
                         }
                     }
 

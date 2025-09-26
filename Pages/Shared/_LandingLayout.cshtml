@@ -12,6 +12,69 @@
     <link rel="stylesheet" href="~/css/custom.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/theme-orange.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" crossorigin="anonymous" />
+    <style>
+        /* Landing-specific Navbar */
+        .landing-nav {
+            background: #F97316 !important; /* Solid orange, override gradients */
+            background-image: none !important; /* Ensure no gradient remains */
+            border-bottom: none !important; /* Remove bottom border/line */
+            box-shadow: none !important; /* Remove any shadow line */
+        }
+        .landing-nav .navbar-brand,
+        .landing-nav .nav-link,
+        .landing-nav .navbar-text {
+            color: #FFFFFF !important; /* Keep links white */
+        }
+        .landing-nav .nav-link:hover,
+        .landing-nav .nav-link:focus {
+            text-decoration: underline; /* Hover underline instead of bg */
+            text-underline-offset: 4px;
+            font-weight: 600; /* Optional bold on hover */
+            background-color: transparent !important;
+        }
+
+        /* Landing-specific Footer */
+        .landing-footer {
+            background-color: #1E293B !important; /* Solid dark background */
+            color: #E5E7EB !important; /* Light gray text */
+            padding: 20px 0 !important; /* Breathing space */
+        }
+        .landing-footer a,
+        .landing-footer .text-primary {
+            color: #FFFFFF !important; /* Links white */
+        }
+        .landing-footer a:hover {
+            color: #F97316 !important; /* Orange hover */
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+        .landing-footer h5,
+        .landing-footer .heading-accent {
+            color: #E5E7EB !important; /* Remove accent, keep readable */
+        }
+        .landing-footer .text-muted {
+            color: #E5E7EB !important; /* Remove semi-transparent look */
+            opacity: 1 !important;
+        }
+        .landing-footer hr {
+            border-top-color: rgba(255, 255, 255, 0.12) !important;
+        }
+        /* Modal-specific styling for fetched policy content */
+        .policy-modal .data-privacy-act {
+            border-left: 4px solid #0EA5E9;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .policy-modal h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .policy-modal .container {
+            padding: 0 !important;
+        }
+        .policy-modal .card {
+            margin-bottom: 1rem;
+        }
+    </style>
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
@@ -46,7 +109,7 @@
         @RenderBody()
     </main>
 
-    <footer class="footer py-4 bg-soft">
+    <footer class="footer landing-footer">
         <div class="container">
             <div class="row">
                 <div class="col-md-4 mb-3 mb-md-0">
@@ -66,9 +129,9 @@
                 <div class="col-md-4">
                     <h5 class="mb-3">Legal</h5>
                     <ul class="list-unstyled">
-                        <li><a href="/Privacy" class="text-primary">Privacy Policy</a></li>
-                        <li><a href="/Terms" class="text-primary">Terms of Service</a></li>
-                        <li><a href="/DataPrivacy" class="text-primary">Data Privacy</a></li>
+                        <li><a href="#" class="text-primary policy-link" data-policy="privacy">Privacy Policy</a></li>
+                        <li><a href="#" class="text-primary policy-link" data-policy="terms">Terms of Service</a></li>
+                        <li><a href="#" class="text-primary policy-link" data-policy="data">Data Privacy</a></li>
                     </ul>
                 </div>
             </div>
@@ -79,12 +142,165 @@
         </div>
     </footer>
 
+    <!-- Policy/Terms Modal -->
+    <div class="modal fade" id="policyModal" tabindex="-1" aria-labelledby="policyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content policy-modal">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="policyModalLabel">Information</h5>
+                    <small class="text-muted ms-2" id="policyStepIndicator"></small>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="policyModalContent">
+                    <p>Loading...</p>
+                </div>
+                <div class="modal-footer d-flex justify-content-between">
+                    <div>
+                        <button type="button" class="btn btn-outline-secondary" id="policyPrevBtn" disabled>Back</button>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-primary" id="policyNextBtn">Next</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        // Multi-step policy modal: fetch page HTML, split into steps by headings, no scrolling
+        document.addEventListener('DOMContentLoaded', function () {
+            const pageMap = { privacy: '/Privacy', terms: '/Terms', data: '/DataPrivacy' };
+            const stepsCache = {}; // key -> array of {title, html}
+
+            const labelEl = document.getElementById('policyModalLabel');
+            const stepEl = document.getElementById('policyStepIndicator');
+            const bodyEl = document.getElementById('policyModalContent');
+            const prevBtn = document.getElementById('policyPrevBtn');
+            const nextBtn = document.getElementById('policyNextBtn');
+            const modalEl = document.getElementById('policyModal');
+            let currentSteps = [];
+            let currentIndex = 0;
+            let policyTitlePrefix = '';
+
+            function normalize(str) { return (str || '').toLowerCase().replace(/\s+/g, ' ').trim(); }
+
+            function extractByHeadings(doc, headings) {
+                const htmlParts = [];
+                headings.forEach(hText => {
+                    const target = Array.from(doc.querySelectorAll('h1, h2, h3, h4, h5'))
+                        .find(h => normalize(h.textContent) === normalize(hText));
+                    if (target) {
+                        const section = target.closest('.card') || target.parentElement;
+                        if (section) htmlParts.push(section.outerHTML);
+                    }
+                });
+                return htmlParts.join('\n');
+            }
+
+            function buildSteps(key, doc) {
+                // Define groupings per page
+                if (key === 'privacy') {
+                    return [
+                        { title: 'Overview & Information Collection', html: extractByHeadings(doc, ['Information Collection']) },
+                        { title: 'Use of Info & Sharing', html: extractByHeadings(doc, ['Use of Information', 'Information Sharing and Disclosure']) },
+                        { title: 'Data Privacy Act & Security', html: extractByHeadings(doc, ['Data Privacy Act Compliance', 'Security']) }
+                    ];
+                }
+                if (key === 'terms') {
+                    return [
+                        { title: 'Overview & Accounts', html: extractByHeadings(doc, ['Acceptance of Terms', 'User Accounts', 'Service Availability']) },
+                        { title: 'Privacy & Usage', html: extractByHeadings(doc, ['Data Privacy Act Compliance', 'Prohibited Uses']) },
+                        { title: 'Liability & Law', html: extractByHeadings(doc, ['Limitation of Liability', 'Governing Law']) }
+                    ];
+                }
+                // data privacy page
+                return [
+                    { title: 'Overview', html: extractByHeadings(doc, ['Republic Act 10173 - Data Privacy Act of 2012']) },
+                    { title: 'How We Comply', html: extractByHeadings(doc, ['How We Comply with the Data Privacy Act']) },
+                    { title: 'Your Rights', html: extractByHeadings(doc, ['Your Rights as a Data Subject']) },
+                    { title: 'Contact Information', html: extractByHeadings(doc, ['Contact Information']) }
+                ];
+            }
+
+            async function getSteps(key) {
+                if (stepsCache[key]) return stepsCache[key];
+                const url = pageMap[key];
+                const res = await fetch(url, { credentials: 'same-origin' });
+                const html = await res.text();
+                const doc = new DOMParser().parseFromString(html, 'text/html');
+                const steps = buildSteps(key, doc);
+                // Fallback: if any step is empty, use full container once
+                const allEmpty = steps.every(s => !s.html || !s.html.trim());
+                if (allEmpty) {
+                    const container = doc.querySelector('.container.py-4') || doc.querySelector('main') || doc.body;
+                    stepsCache[key] = [{ title: 'Overview', html: container.innerHTML }];
+                } else {
+                    stepsCache[key] = steps.filter(s => s.html && s.html.trim().length > 0);
+                }
+                return stepsCache[key];
+            }
+
+            function renderStep(titlePrefix) {
+                const step = currentSteps[currentIndex];
+                bodyEl.innerHTML = step.html;
+                stepEl.textContent = `(${currentIndex + 1} / ${currentSteps.length})`;
+                // Update Next/Back states and label
+                prevBtn.disabled = currentIndex === 0;
+                nextBtn.textContent = currentIndex === currentSteps.length - 1 ? 'Done' : 'Next';
+                // Show as "Policy – Step Title"
+                labelEl.textContent = `${titlePrefix} – ${step.title}`;
+            }
+
+            prevBtn.addEventListener('click', () => {
+                if (currentIndex > 0) {
+                    currentIndex -= 1;
+                    renderStep(policyTitlePrefix);
+                }
+            });
+            nextBtn.addEventListener('click', () => {
+                if (currentIndex < currentSteps.length - 1) {
+                    currentIndex += 1;
+                    renderStep(policyTitlePrefix);
+                } else {
+                    // Close modal when done
+                    const instance = bootstrap.Modal.getOrCreateInstance(modalEl);
+                    instance.hide();
+                }
+            });
+
+            document.querySelectorAll('.policy-link').forEach(function (link) {
+                link.addEventListener('click', async function (e) {
+                    e.preventDefault();
+                    const key = this.getAttribute('data-policy');
+                    const title = key === 'privacy' ? 'Privacy Policy' : (key === 'terms' ? 'Terms of Service' : 'Data Privacy');
+                    policyTitlePrefix = title;
+                    labelEl.textContent = title; // Temporary while loading
+                    bodyEl.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+                    stepEl.textContent = '';
+                    prevBtn.disabled = true;
+                    nextBtn.textContent = 'Next';
+                    currentIndex = 0;
+                    try {
+                        currentSteps = await getSteps(key);
+                        renderStep(policyTitlePrefix);
+                        const modal = new bootstrap.Modal(modalEl);
+                        modal.show();
+                    } catch (err) {
+                        bodyEl.innerHTML = '<p class="text-danger">Failed to load content. Please try again later.</p>';
+                        const modal = new bootstrap.Modal(modalEl);
+                        modal.show();
+                    }
+                });
+            });
+        });
+    </script>
     
     @await Html.PartialAsync("_ValidationScriptsPartial")
     
     @await RenderSectionAsync("Scripts", required: false)
 </body>
-</html> 
+</html>

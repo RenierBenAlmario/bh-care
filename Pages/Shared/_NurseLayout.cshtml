@@ -76,9 +76,26 @@
         }
 
         .sidebar .nav-link.active {
-            background-color: #ffffff;
-            color: var(--color-accent);
+            background-color: rgba(0, 0, 0, 0.18); /* darker overlay for visibility */
+            color: #ffffff;
+            border-left: 3px solid #ffffff;
         }
+
+        /* Simplified color palette overrides for Nurse area */
+        .nurse .btn-info,
+        .nurse .btn-info:hover,
+        .nurse .btn-info:focus {
+            background-color: var(--color-primary) !important;
+            border-color: var(--color-primary) !important;
+            color: #fff !important;
+        }
+        .nurse .badge.bg-primary,
+        .nurse .badge.bg-info {
+            background-color: var(--color-primary) !important;
+        }
+        .nurse .badge.bg-warning { background-color: #F6C445 !important; color: #1f2a37; }
+        .nurse .badge.bg-danger { background-color: #9CA3AF !important; color: #111827; }
+        .nurse .badge.bg-secondary { background-color: #9CA3AF !important; color: #111827; }
 
         .sidebar .nav-link i {
             margin-right: 0.5rem;
@@ -118,42 +135,16 @@
             display: none;
         }
 
-        #sidebarToggle {
-            position: absolute;
-            left: 250px;
-            top: 10px;
-            z-index: 99;
-            background-color: var(--color-primary);
-            border: none;
-            color: #ffffff;
-            padding: 8px;
-            border-radius: 0 4px 4px 0;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-        }
+        /* Hide expand/collapse button (not required) */
+        #sidebarToggle { display: none !important; }
 
-        .sidebar.collapsed + #sidebarToggle {
-            left: 60px;
-        }
+        .sidebar.collapsed + #sidebarToggle { left: 60px; }
 
-        #sidebarToggle:hover {
-            background-color: var(--color-primary-hover);
-        }
+        #sidebarToggle:hover { }
 
-        #sidebarToggle i {
-            transition: transform 0.3s ease;
-            font-size: 14px;
-        }
+        #sidebarToggle i { }
 
-        .sidebar.collapsed + #sidebarToggle i {
-            transform: rotate(180deg);
-        }
+        .sidebar.collapsed + #sidebarToggle i { }
 
         .main-content {
             margin-left: 250px;
@@ -228,15 +219,11 @@
 
     @await RenderSectionAsync("Styles", required: false)
 </head>
-<body>
+<body class="nurse">
 
 <div class="wrapper d-flex">
     <!-- Sidebar -->
     <nav class="sidebar" id="sidebar">
-        <!-- Sidebar Toggle Button -->
-        <button id="sidebarToggle" class="btn" aria-label="Toggle Sidebar">
-            <i class="fas fa-chevron-left"></i>
-        </button>
         
         <div class="sidebar-sticky overflow-y-auto h-screen">
             <div class="sidebar-profile">
@@ -278,8 +265,18 @@
 
 <!-- Bootstrap JS -->
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Custom JS -->
-<script src="~/js/doctor-layout.js" asp-append-version="true"></script>
+<!-- Active link highlighter for nurse sidebar -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const path = (location.pathname || '').toLowerCase();
+    document.querySelectorAll('#sidebar .nav-link').forEach(a => {
+        const href = (a.getAttribute('href') || '').toLowerCase();
+        if (href && path.startsWith(href)) {
+            a.classList.add('active');
+        }
+    });
+});
+</script>
 @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

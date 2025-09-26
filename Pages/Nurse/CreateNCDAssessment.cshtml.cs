@@ -80,49 +80,21 @@ namespace Barangay.Pages.Nurse
 
                 if (existingAssessment != null)
                 {
-                    _logger.LogWarning("Assessment already exists for appointment ID {AppointmentId}", appointmentId);
-                    StatusMessage = "An assessment already exists for this appointment.";
-                    return RedirectToPage("/Nurse/AppointmentDetails", new { id = appointmentId });
-                }
-
-                // Initialize assessment with appointment data
-                Assessment.AppointmentId = appointmentId.Value;
-                
-                if (appointment.Patient != null)
-                {
-                    PatientName = appointment.Patient.FullName;
-                    Assessment.UserId = appointment.Patient.UserId;
-                    Assessment.Birthday = appointment.Patient.BirthDate != DateTime.MinValue ? appointment.Patient.BirthDate.ToString("yyyy-MM-dd") : null;
-                    PatientAddress = appointment.Patient.Address;
-                    PatientPhone = appointment.Patient.ContactNumber;
-                    
-                    // Extract barangay from address if possible
-                    if (!string.IsNullOrEmpty(appointment.Patient.Address))
-                    {
-                        var addressParts = appointment.Patient.Address.Split(',', StringSplitOptions.RemoveEmptyEntries);
-                        if (addressParts.Length > 1)
-                        {
-                            PatientBarangay = addressParts[1].Trim();
-                        }
-                    }
-                    
-                    // Calculate age
-                    PatientAge = appointment.Patient.Age;
-                    Assessment.Edad = PatientAge.ToString();
-
-                    // Get family number from associated user if available
-                    if (appointment.Patient.User != null)
-                    {
-                        FamilyNo = await GetOrGenerateFamilyNumber(appointment.Patient.User);
-                    }
+                    _logger.LogInformation("Existing assessment found for appointment ID {AppointmentId}. Loading for editing.", appointmentId);
+                    // Decrypt and load into bound model for editing
+                    existingAssessment.DecryptSensitiveData(_encryptionService, User);
+                    Assessment = existingAssessment;
+                    // Go straight to page for editing
+                    return Page();
                 }
                 else
                 {
-                    PatientName = appointment.PatientName ?? "Unknown";
-                    Assessment.UserId = appointment.PatientId;
+                    _logger.LogWarning("No existing NCD assessment for appointment {AppointmentId}", appointmentId);
+                    StatusMessage = "No existing NCD assessment to edit for this appointment.";
+                    return RedirectToPage("/Nurse/AppointmentDetails", new { id = appointmentId });
                 }
 
-                return Page();
+                // Edit-only flow: method has already returned in branches above
             }
             catch (Exception ex)
             {
@@ -172,7 +144,28 @@ namespace Barangay.Pages.Nurse
                 Assessment.EncryptSensitiveData(_encryptionService);
 
                 // Save assessment
-                _context.NCDRiskAssessments.Add(Assessment);
+                // Upsert logic: update if exists, otherwise create
+var existing = await _context.NCDRiskAssessments.FirstOrDefaultAsync(a => a.AppointmentId == Assessment.AppointmentId);
+if (existing != null)
+{
+    // Map posted values onto existing entity
+    _context.Entry(existing).CurrentValues.SetValues(Assessment);
+    // Preserve original CreatedAt if any, update UpdatedAt
+    existing.CreatedAt = string.IsNullOrWhiteSpace(existing.CreatedAt) ? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") : existing.CreatedAt;
+    existing.UpdatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+    // Ensure cancer type cleared when not applicable
+    if (existing.HasCancer != "true") { existing.CancerType = null; }
+    // Encrypt before saving
+    existing.EncryptSensitiveData(_encryptionService);
+}
+else
+{
+    Assessment.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+    Assessment.UpdatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+    if (Assessment.HasCancer != "true") { Assessment.CancerType = null; }
+    Assessment.EncryptSensitiveData(_encryptionService);
+    _context.NCDRiskAssessments.Add(Assessment);
+}
                 await _context.SaveChangesAsync();
                 
                 _logger.LogInformation("Successfully saved NCD Risk Assessment for appointment ID: {Id}", Assessment.AppointmentId);

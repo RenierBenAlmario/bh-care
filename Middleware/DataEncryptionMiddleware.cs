@@ -125,24 +125,37 @@ namespace Barangay.Middleware
                     foreach (var property in element.EnumerateObject())
                     {
                         var key = property.Name;
-                        var value = DecryptJsonElement(property.Value, user, encryptionService);
-                        
-                        // Check if this is a sensitive field that should be decrypted
-                        if (IsSensitiveField(key))
+                        var propVal = property.Value;
+
+                        // If the value is a string, prefer generic detection by ciphertext pattern
+                        if (propVal.ValueKind == JsonValueKind.String)
                         {
-                            if (value.ValueKind == JsonValueKind.String)
+                            var raw = propVal.GetString() ?? string.Empty;
+
+                            if (!string.IsNullOrEmpty(raw) && encryptionService.IsEncrypted(raw))
                             {
-                                var decryptedValue = encryptionService.DecryptForUser(value.GetString() ?? "", user);
-                                obj[key] = decryptedValue;
+                                // Looks like ciphertext -> decrypt for authorized users
+                                obj[key] = encryptionService.DecryptForUser(raw, user);
+                            }
+                            else if (IsSensitiveField(key))
+                            {
+                                // Fallback: decrypt based on known sensitive field name
+                                obj[key] = encryptionService.DecryptForUser(raw, user);
                             }
                             else
                             {
-                                obj[key] = value;
+                                obj[key] = raw; // keep as-is
                             }
+                        }
+                        else if (propVal.ValueKind == JsonValueKind.Object || propVal.ValueKind == JsonValueKind.Array)
+                        {
+                            // Recurse into objects/arrays
+                            obj[key] = DecryptJsonElement(propVal, user, encryptionService);
                         }
                         else
                         {
-                            obj[key] = value;
+                            // Numbers, booleans, null
+                            obj[key] = propVal;
                         }
                     }
                     return JsonSerializer.SerializeToElement(obj);

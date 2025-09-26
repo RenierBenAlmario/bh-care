@@ -20,8 +20,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize all interactive elements
     initializeTooltips();
     initializeNotifications();
-    initializeCharts();
-    initializeInteractions();
+    // Guard optional initializers to avoid hard failures on pages that don't include all libs
+    try { initializeCharts(); } catch (e) { console.warn('initializeCharts failed:', e); }
+    try { initializeInteractions(); } catch (e) { console.warn('initializeInteractions failed:', e); }
     initializeDropdowns();
     initializeStatCards();
     initializeResponsiveUI();
@@ -32,8 +33,8 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeQuickActions();
     initializeUserDropdown();
     initializeNavGroups();
-    initializeDashboardCharts();
-    initializeChartActions();
+    try { initializeDashboardCharts(); } catch (e) { console.warn('Charts init skipped:', e); }
+    try { initializeChartActions(); } catch (e) { console.warn('Chart actions init skipped:', e); }
     handleLogoutButton();
     initializeSubmenus();
     initializeMobileMenu();
@@ -1518,6 +1519,11 @@ function initializeNavGroups() {
  * Initialize dashboard charts and analytics
  */
 function initializeDashboardCharts() {
+    // Skip entirely if Chart.js is not present
+    if (typeof window.Chart === 'undefined') {
+        console.warn('Chart.js not found on page; skipping chart initialization');
+        return;
+    }
     // Check if the chart container exists
     const staffDistributionChart = document.getElementById('staffDistributionChart');
     const activityTrendChart = document.getElementById('activityTrendChart');

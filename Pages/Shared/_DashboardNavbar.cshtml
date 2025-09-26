@@ -70,22 +70,16 @@
                 <!-- "Provide Feedback" link removed as requested -->
             </ul>
             
-            <!-- User Menu Dropdown -->
+            <!-- User link (no dropdown): goes straight to Settings; logout removed (exists in sidebar) -->
             <ul class="navbar-nav">
-                <li class="nav-item dropdown user-dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <li class="nav-item user-link">
+                    <a class="nav-link d-flex align-items-center" href="/User/Settings" title="Go to Settings">
                         <img src="@(string.IsNullOrEmpty(currentUser?.ProfileImage) ? "/images/default-profile.png" : $"/images/profiles/{currentUser.ProfileImage}?v={currentUser.UpdatedAt.Ticks}")" 
-                         alt="Profile" 
-                         class="user-profile-picture me-2">
-                    <span>@displayName</span>
+                             alt="Profile" 
+                             class="user-profile-picture me-2">
+                        <span>@displayName</span>
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                        <li><a class="dropdown-item" href="/User/Settings"><i class="fa-solid fa-gear"></i>Settings</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="javascript:document.getElementById('logoutForm').submit();"><i class="fa-solid fa-right-from-bracket"></i>Logout</a></li>
-                    </ul>
                 </li>
-
             </ul>
         </div>
     </div>

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Barangay.Data;
 using Barangay.Models;
@@ -43,10 +44,32 @@ namespace Barangay.Pages.Nurse
 
         public List<ImmunizationShortcutForm> Requests { get; set; } = new();
 
+        // Dropdown options for Tag Helpers
+        public List<SelectListItem> BarangayOptions { get; set; } = new();
+        public List<SelectListItem> StatusOptions { get; set; } = new();
+
         public async Task<IActionResult> OnGetAsync()
         {
             try
             {
+                // Build dropdown options (Tag Helpers use Selected* model values to mark selection)
+                BarangayOptions = new List<SelectListItem>
+                {
+                    new SelectListItem("All Barangays", ""),
+                    new SelectListItem("Barangay 158", "Barangay 158"),
+                    new SelectListItem("Barangay 159", "Barangay 159"),
+                    new SelectListItem("Barangay 160", "Barangay 160"),
+                    new SelectListItem("Barangay 161", "Barangay 161"),
+                };
+
+                StatusOptions = new List<SelectListItem>
+                {
+                    new SelectListItem("All Status", ""),
+                    new SelectListItem("Pending", "Pending"),
+                    new SelectListItem("Scheduled", "Scheduled"),
+                    new SelectListItem("Completed", "Completed"),
+                };
+
                 var query = _context.ImmunizationShortcutForms.AsQueryable();
 
                 // Order by most recent first and materialize the query first

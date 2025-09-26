@@ -131,7 +131,7 @@ jobs:
         echo "Running database migrations..."
         dotnet tool install --global dotnet-ef
         export PATH="$PATH:/home/runner/.dotnet/tools"
-        dotnet ef database update --project ./BHCARE.csproj
+        dotnet ef database update --project ./Barangay.csproj
         echo "Database migrations applied!"
     
     # -------------------------

@@ -36,23 +36,19 @@ body.nurse .sidebar .nav-link:focus{
   color:#fff !important;
 }
 
-/* Active: white pill with accent icon/text */
+/* Active: high-contrast band on orange with white icon/text */
 body.nurse .sidebar .nav-link.active{
-  background: #fff !important;
-  color: var(--nurse-accent) !important;
+  background: rgba(0,0,0,.24) !important;
+  color: #fff !important;
+  border-left: 3px solid #fff !important;
 }
-body.nurse .sidebar .nav-link.active i{ color: var(--nurse-accent) !important; }
+body.nurse .sidebar .nav-link.active i{ color: #fff !important; }
 
 /* Optional health accent on hover for icons */
 body.nurse .sidebar .nav-link:hover i{ color: var(--health-green) !important; }
 
-/* Toggle button */
-#sidebarToggle{
-  background: var(--nurse-primary) !important;
-  color:#fff !important;
-  border-radius: 0 6px 6px 0;
-}
-#sidebarToggle:hover{ background: var(--nurse-hover) !important; }
+/* Toggle button (unused/hidden in Nurse layout, keep neutral) */
+#sidebarToggle{ display:none !important; }
 
 /* Collapsed behavior keeps icons centered; labels hidden (handled in layout CSS) */
 .sidebar.collapsed .nav-link{ justify-content:center; }
@@ -65,8 +61,36 @@ body.nurse .sidebar .nav-link:hover i{ color: var(--health-green) !important; }
 .card, .alert, .table{ border-radius:12px; }
 .card-header{ background: var(--color-bg-soft) !important; }
 
-/* Replace any primary-blue .bg-primary in nurse pages to accent orange */
+/* Replace any primary-blue to consistent orange theme */
 .nurse .bg-primary{ background: var(--nurse-accent) !important; }
+.nurse .text-primary{ color: var(--nurse-accent) !important; }
+
+/* Ensure primary buttons follow theme (override gradients) */
+.nurse .btn-primary,
+.nurse .btn-primary:hover,
+.nurse .btn-primary:focus{
+  background: var(--nurse-primary) !important;
+  border-color: var(--nurse-primary) !important;
+  color: #fff !important;
+  background-image: none !important;
+}
+.nurse .btn-info,
+.nurse .btn-info:hover,
+.nurse .btn-info:focus{
+  background: var(--nurse-primary) !important;
+  border-color: var(--nurse-primary) !important;
+  color: #fff !important;
+  background-image: none !important;
+}
+.nurse .btn-outline-primary{
+  color: var(--nurse-primary) !important;
+  border-color: var(--nurse-primary) !important;
+}
+.nurse .btn-outline-primary:hover,
+.nurse .btn-outline-primary:focus{
+  background: var(--nurse-primary) !important;
+  color:#fff !important;
+}
 
 /* Accessibility: ensure focus ring visible on orange */
 .sidebar .nav-link:focus{ outline: 2px solid rgba(255,255,255,.5); outline-offset: 2px; }

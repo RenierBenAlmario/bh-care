@@ -73,11 +73,13 @@
         }
 
         .sidebar .nav-link.active {
-            background-color: rgba(255, 255, 255, 0.2);
+            background-color: rgba(0, 0, 0, 0.24) !important; /* enforce and slightly darker */
             color: #ffffff !important;
             text-decoration: none;
-            border-left: 3px solid #ffffff;
+            border-left: 3px solid #ffffff !important;
         }
+        .sidebar .nav-link.active i,
+        .sidebar .nav-link.active span { color: #ffffff !important; }
 
         .sidebar.collapsed .nav-link {
             padding: 1rem 0;
@@ -160,42 +162,16 @@
             color: #ffffff !important;
         }
 
-        #sidebarToggle {
-            position: fixed;
-            left: 250px;
-            top: 10px;
-            z-index: 1001;
-            background-color: #0D6EFD;
-            border: none;
-            color: #ffffff;
-            padding: 8px;
-            border-radius: 0 4px 4px 0;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-        }
+        /* Hide expand/collapse button per request */
+        #sidebarToggle { display: none !important; }
 
-        .sidebar.collapsed + #sidebarToggle {
-            left: 60px;
-        }
+        .sidebar.collapsed + #sidebarToggle { left: 60px; }
 
-        #sidebarToggle:hover {
-            background-color: #0B5ED7;
-        }
+        #sidebarToggle:hover { }
 
-        #sidebarToggle i {
-            transition: transform 0.3s ease;
-            font-size: 14px;
-        }
+        #sidebarToggle i { }
 
-        .sidebar.collapsed + #sidebarToggle i {
-            transform: rotate(180deg);
-        }
+        .sidebar.collapsed + #sidebarToggle i { }
 
         .main-content {
             margin-left: 250px;
@@ -205,9 +181,41 @@
             background-color: #f8f9fa;
         }
 
-        .sidebar.collapsed ~ .main-content {
-            margin-left: 60px;
+        .sidebar.collapsed ~ .main-content { margin-left: 60px; }
+
+        /* Simplify colors within nurse area */
+        .nurse .btn-primary,
+        .nurse .btn-primary:hover,
+        .nurse .btn-primary:focus {
+            background-color: var(--color-primary) !important;
+            border-color: var(--color-primary) !important;
+            color: #fff !important;
         }
+        .nurse .btn-info,
+        .nurse .btn-info:hover,
+        .nurse .btn-info:focus {
+            background-color: var(--color-primary) !important;
+            border-color: var(--color-primary) !important;
+            color: #fff !important;
+        }
+        .nurse .btn-outline-primary {
+            color: var(--color-primary) !important;
+            border-color: var(--color-primary) !important;
+        }
+        .nurse .btn-outline-primary:hover,
+        .nurse .btn-outline-primary:focus {
+            background-color: var(--color-primary) !important;
+            color: #fff !important;
+        }
+        .nurse .bg-primary { background-color: var(--color-primary) !important; }
+        .nurse .text-primary { color: var(--color-primary) !important; }
+        .nurse .badge.bg-primary,
+        .nurse .badge.bg-info { 
+            background-color: var(--color-primary) !important; 
+        }
+        .nurse .badge.bg-warning { background-color: #F6C445 !important; color: #1f2a37; }
+        .nurse .badge.bg-danger { background-color: #9CA3AF !important; color: #111827; } /* make cancelled neutral */
+        .nurse .badge.bg-secondary { background-color: #9CA3AF !important; color: #111827; }
 
         @@media screen and (max-width: 768px) {
             .sidebar {
@@ -264,10 +272,6 @@
 <div class="wrapper">
     <!-- Sidebar -->
     <nav class="sidebar" id="sidebar">
-        <!-- Sidebar Toggle Button -->
-        <button id="sidebarToggle" class="btn" aria-label="Toggle Sidebar">
-            <i class="fas fa-chevron-left"></i>
-        </button>
         
         <div class="sidebar-sticky">
             <div class="sidebar-profile">
@@ -308,76 +312,12 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const sidebar = document.getElementById('sidebar');
-    const mainContent = document.getElementById('mainContent');
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const sidebarOverlay = document.getElementById('sidebarOverlay');
-    const isMobile = window.innerWidth <= 768;
-    let isCollapsed = localStorage.getItem('nurseSidebarCollapsed') === 'true';
-
-    // Dark mode functionality removed
-
-    function updateSidebarState() {
-        if (sidebar) {
-            if (isCollapsed) {
-                sidebar.classList.add('collapsed');
-            } else {
-                sidebar.classList.remove('collapsed');
-            }
-            localStorage.setItem('nurseSidebarCollapsed', isCollapsed);
-        }
-    }
-
-    // Initialize sidebar state
-    updateSidebarState();
-
-    function toggleSidebar() {
-        if (isMobile) {
-            if (sidebar) sidebar.classList.toggle('show');
-            if (sidebarToggle) sidebarToggle.classList.toggle('show');
-            if (sidebarOverlay) sidebarOverlay.classList.toggle('show');
-        } else {
-            isCollapsed = !isCollapsed;
-            updateSidebarState();
-        }
-    }
-
-    function closeSidebar() {
-        if (sidebar) sidebar.classList.remove('show');
-        if (sidebarToggle) sidebarToggle.classList.remove('show');
-        if (sidebarOverlay) sidebarOverlay.classList.remove('show');
-    }
-
-    // Dark mode functionality removed
-
-    if (sidebarToggle) {
-        sidebarToggle.addEventListener('click', function(e) {
-            e.stopPropagation();
-            toggleSidebar();
-        });
-    }
-
-    // Dark mode functionality removed
-
-    // Close sidebar when clicking outside on mobile
-    if (isMobile) {
-        if (sidebarOverlay) {
-            sidebarOverlay.addEventListener('click', closeSidebar);
-        }
-        document.addEventListener('click', function(event) {
-            if (sidebar && !sidebar.contains(event.target) && 
-                sidebarToggle && !sidebarToggle.contains(event.target) && 
-                sidebar.classList.contains('show')) {
-                closeSidebar();
-            }
-        });
-    }
-
-    // Handle window resize
-    window.addEventListener('resize', function() {
-        const newIsMobile = window.innerWidth <= 768;
-        if (newIsMobile !== isMobile) {
-            location.reload();
+    // Set active state on nurse sidebar links
+    const path = (location.pathname || '').toLowerCase();
+    document.querySelectorAll('#sidebar .nav-link').forEach(a => {
+        const href = (a.getAttribute('href') || '').toLowerCase();
+        if (href && path.startsWith(href)) {
+            a.classList.add('active');
         }
     });
 });

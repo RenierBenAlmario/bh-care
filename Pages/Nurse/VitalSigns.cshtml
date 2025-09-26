@@ -8,16 +8,6 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="m-0">Vital Signs</h2>
-        <div>
-            <a href="/Nurse/NurseDashboard" class="btn btn-outline-secondary me-2">
-            <i class="fas fa-arrow-left me-1"></i>
-                Dashboard
-        </a>
-            <a href="/Nurse/Appointments" class="btn btn-outline-primary">
-                <i class="fas fa-calendar-check me-1"></i>
-                Appointments
-            </a>
-        </div>
     </div>
 
     @if (Model.HasTodayAppointments)
@@ -304,12 +294,21 @@
                                 </div>
                                 @if (!string.IsNullOrEmpty(Model.SelectedPatientId))
                                 {
-                                    var targetUrl = Model.SelectedPatientAge >= 20
-                                        ? $"/Nurse/CreateNCDAssessment?patientId={Model.SelectedPatientId}"
-                                        : $"/Nurse/CreateHEEADSSSAssessment?patientId={Model.SelectedPatientId}";
-                                    <a class="btn btn-primary" href="@targetUrl">
-                                        @(Model.IsFormFilled ? "Update Assessment" : "Fill Out Assessment")
-                                    </a>
+                                    if (Model.SelectedAppointmentId != null)
+                                    {
+                                        var targetUrl = Model.SelectedPatientAge >= 20
+                                            ? $"/Nurse/CreateNCDAssessment?appointmentId={Model.SelectedAppointmentId}"
+                                            : $"/Nurse/CreateHEEADSSSAssessment?appointmentId={Model.SelectedAppointmentId}";
+                                        <a class="btn btn-primary" href="@targetUrl">
+                                            @(Model.IsFormFilled ? "Update Assessment" : "Fill Out Assessment")
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-secondary" type="button" disabled title="No appointment found">
+                                            Select an appointment first
+                                        </button>
+                                    }
                                 }
                             </div>
                         </div>
@@ -367,7 +366,7 @@
                                 <td>@(!string.IsNullOrEmpty(record.Weight) ? $"{record.Weight} kg" : "N/A")</td>
                                 <td>@(!string.IsNullOrEmpty(record.Height) ? $"{record.Height} cm" : "N/A")</td>
                                 <td>
-                                    <button type="button" class="btn btn-sm btn-info" onclick='showVitalSignDetails(@Json.Serialize(new
+                                    <button type="button" class="btn btn-sm btn-primary" title="View" onclick='showVitalSignDetails(@Json.Serialize(new
                                     {
                                         patientName = record.PatientName,
                                         recordedAt = record.RecordedAt.ToString("MMM dd, yyyy hh:mm tt"),
@@ -378,7 +377,7 @@
                                         height = record.Height,
                                         notes = record.Notes
                                     }))'>
-                                        <i class="bi bi-eye"></i>
+                                        <i class="bi bi-eye me-1"></i> View
                                     </button>
                                 </td>
                             </tr>

@@ -54,11 +54,14 @@ namespace Barangay.Pages.Doctor
             var today = DateTime.Now.Date;
 
             var appointmentsQuery = _context.Appointments
-                                          .Where(a => a.DoctorId == user.Id && a.AppointmentDate.Date == today);
+                                          .Where(a => a.DoctorId == user.Id 
+                                                   && a.AppointmentDate.Date == today
+                                                   && a.Status != AppointmentStatus.Draft
+                                                   && a.Status != AppointmentStatus.Cancelled);
 
             TotalPatients = await appointmentsQuery.CountAsync();
             Consulted = await appointmentsQuery.CountAsync(a => a.Status == AppointmentStatus.Completed);
-            Pending = await appointmentsQuery.CountAsync(a => a.Status == AppointmentStatus.Confirmed || a.Status == AppointmentStatus.InProgress);
+            Pending = await appointmentsQuery.CountAsync(a => a.Status == AppointmentStatus.Confirmed || a.Status == AppointmentStatus.InProgress || a.Status == AppointmentStatus.Pending);
             UrgentCases = 0; // Placeholder for urgent cases logic
 
             var appointments = await appointmentsQuery.Include(a => a.Patient).OrderBy(a => a.AppointmentTime).ToListAsync();

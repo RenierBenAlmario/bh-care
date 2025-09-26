@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Barangay")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+787e524cd13616a27238ad7b602fdf522163560c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+43d41216afb0968d131f156a1175925d953dbf9c")]
 [assembly: System.Reflection.AssemblyProductAttribute("Barangay")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Barangay")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -80,6 +80,7 @@
             white-space: nowrap;
             overflow: hidden;
             color: #ffffff;
+            position: relative; /* required for ::before active indicator */
         }
         
         .minimal-sidebar .nav-link span {
@@ -132,9 +133,33 @@
         }
         
         .minimal-sidebar .nav-link.active {
-            background-color: rgba(255, 255, 255, 0.15);
+            background-color: rgba(0, 0, 0, 0.15); /* darker band for contrast on orange */
             color: #ffffff;
             font-weight: 500;
+        }
+
+        /* Add visible active indicator */
+        .minimal-sidebar .nav-link.active::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background-color: #ffffff;
+        }
+
+        /* Ensure the active icon is clearly visible */
+        .minimal-sidebar .nav-link .nav-icon i {
+            color: inherit;
+        }
+        .minimal-sidebar .nav-link.active .nav-icon {
+            background-color: #ffffff;
+            color: #E76F2B;
+            box-shadow: 0 0 0 2px rgba(255,255,255,0.85);
+        }
+        .minimal-sidebar .nav-link.active .nav-icon i {
+            color: #E76F2B !important;
         }
         
         /* Content area - maximize space */
@@ -348,6 +373,9 @@
     <script>
         // Dark mode functionality removed
 
+        (function(){
+            const body = document.body;
+
             // Sidebar expand/collapse with persistence
             const sidebar = document.getElementById('sidebar');
             const sidebarToggle = document.getElementById('sidebarToggle');
@@ -375,7 +403,7 @@
                 sidebarToggle.setAttribute('aria-controls', 'sidebar');
                 sidebarToggle.addEventListener('click', function(e){
                     e.preventDefault();
-                                        const nowExpanded = !body.classList.contains('sidebar-expanded');
+                    const nowExpanded = !body.classList.contains('sidebar-expanded');
                     setSidebarState(nowExpanded);
                     localStorage.setItem(STORAGE_KEY_SIDEBAR, nowExpanded ? 'true' : 'false');
                 });
@@ -414,6 +442,25 @@
                     new bootstrap.Tooltip(tooltipTriggerEl, { container: 'body' });
                 });
             }
+
+            // Highlight active sidebar item based on current path
+            try {
+                const path = window.location.pathname.toLowerCase();
+                const map = [
+                    { id: 'dashboard-link', match: ['/user/userdashboard'] },
+                    { id: 'appointments-link', match: ['/user/appointments', '/bookappointment'] },
+                    { id: 'records-link', match: ['/user/records'] },
+                    { id: 'help-link', match: ['/user/help'] },
+                    { id: 'settings-link', match: ['/user/settings'] }
+                ];
+                map.forEach(m => {
+                    const el = document.getElementById(m.id);
+                    if (!el) return;
+                    const isActive = m.match.some(x => path.startsWith(x));
+                    el.classList.toggle('active', isActive);
+                });
+            } catch(e) { /* no-op */ }
+
         })();
     </script>
 

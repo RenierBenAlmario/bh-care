@@ -34,15 +34,7 @@
         <div style="width: 135px;"></div>
     </div>
 
-    <!-- Current Queue Alert -->
-    <div class="alert alert-info d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <strong>Current Queue:</strong> 5 patients waiting (Est. wait time: 15 mins)
-        </div>
-        <div>
-            <strong>Health Tip:</strong> Stay hydrated and bring your ID to appointments.
-        </div>
-    </div>
+    <!-- Removed queue/tip alert for cleaner UI -->
 
     <form method="post" id="appointmentForm" asp-antiforgery="true" enctype="multipart/form-data">
         <div id="step1" class="booking-step">
@@ -68,7 +60,8 @@
                                 </div>
                                 <div class="col-md-2">
                                     <label for="age" class="form-label">Age</label>
-                                    <input type="number" class="form-control" id="age" name="age" required>
+                                    <input type="text" class="form-control" id="age" name="age" required inputmode="numeric" pattern="^[0-9]{1,3}$" minlength="1" maxlength="3" aria-describedby="ageHelp">
+                                    <div id="ageHelp" class="form-text">Enter a whole number between 0 and 120</div>
                                 </div>
                                 <div class="col-md-3">
                                     <label for="birthday" class="form-label">Birthday</label>
@@ -76,7 +69,7 @@
                                 </div>
                                 <div class="col-md-3">
                                     <label for="phoneNumber" class="form-label">Phone Number</label>
-                                    <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" placeholder="09123456789" pattern="09[0-9]{9}" inputmode="numeric" required>
+                                    <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" placeholder="09123456789" pattern="^09[0-9]{9}$" minlength="11" maxlength="11" inputmode="numeric" required>
                                     <div class="form-text">Enter 11-digit mobile number starting with 09</div>
                                 </div>
                             </div>
@@ -143,7 +136,8 @@
                             
                             <div class="mb-3">
                                 <label for="reasonForVisit" class="form-label">Reason for Visit</label>
-                                <textarea class="form-control" id="reasonForVisit" name="reasonForVisit" rows="4" required></textarea>
+                                <textarea class="form-control" id="reasonForVisit" name="reasonForVisit" rows="4" required maxlength="400" aria-describedby="reasonHelp"></textarea>
+                                <div id="reasonHelp" class="form-text">Please be specific and respectful. Max 400 characters.</div>
                             </div>
                             
                             <button type="button" id="toStep2Button" class="btn btn-primary" onclick="console.log('[BookAppointment] Next button clicked')">Next</button>
@@ -242,13 +236,16 @@
                 }
             });
 
-            // Handle age input changes to automatically calculate birthday (optional)
+            // Enforce digits-only for age and 0-120 range; auto-calc birthday when sensible
             $('#age').on('input', function() {
-                const age = parseInt($(this).val());
+                // Strip non-digits and limit to 3 chars
+                let v = $(this).val().replace(/[^0-9]/g, '').slice(0, 3);
+                $(this).val(v);
+                const age = parseInt(v, 10);
                 const birthdayField = $('#birthday');
                 
                 // Only auto-calculate if birthday field is empty or user hasn't manually entered one
-                if (age && age > 0 && age <= 120) {
+                if (!isNaN(age) && age >= 0 && age <= 120) {
                     if (!birthdayField.val()) {
                         calculateBirthdayFromAge(age);
                     }
@@ -258,6 +255,15 @@
                         birthdayField.val('');
                     }
                 }
+            });
+
+            // Enforce digits-only and format for phone number; ensure starts with 09 and 11 digits
+            $('#phoneNumber').on('input', function(){
+                let v = $(this).val().replace(/[^0-9]/g, '');
+                if (v.length > 0 && !v.startsWith('09')) {
+                    v = '09' + v.replace(/^0+/, '').replace(/^9?/, '');
+                }
+                $(this).val(v.slice(0, 11));
             });
 
             // Handle birthday input changes to calculate age
@@ -558,6 +564,17 @@
                     }
                 });
                 
+                // Validate age strictly 0-120
+                const ageStr = $('#age').val();
+                const ageNum = parseInt(ageStr, 10);
+                if (isNaN(ageNum) || ageNum < 0 || ageNum > 120) {
+                    $('#age').addClass('is-invalid');
+                    isValid = false;
+                    console.warn('[BookAppointment] Invalid field: age out of range');
+                } else {
+                    $('#age').removeClass('is-invalid');
+                }
+
                 // Additional validation for relationship field when booking for someone else
                 if ($('#bookingForOther').is(':checked') && !$('#relationship').val()) {
                     $('#relationship').addClass('is-invalid');
@@ -594,6 +611,25 @@
                 } else {
                     $('#phoneNumber').removeClass('is-invalid');
                     console.log('[BookAppointment] Valid field: phoneNumber =', phoneNumber);
+                }
+
+                // Profanity filter for reason for visit (basic EN/TL list)
+                const reason = $('#reasonForVisit').val() || '';
+                const badWords = [
+                    'fuck','shit','bitch','asshole','bastard','damn',
+                    'puta','putang ina','pakyu','ulol','gago','tarantado','tangina'
+                ];
+                const containsBadWord = badWords.some(w => {
+                    const escaped = w.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+                    const pattern = new RegExp(`(^|\\b)${escaped}(\\b|$)`, 'i');
+                    return pattern.test(reason);
+                });
+                if (containsBadWord) {
+                    $('#reasonForVisit').addClass('is-invalid');
+                    isValid = false;
+                    alert('Please remove inappropriate language from the Reason for Visit.');
+                } else {
+                    $('#reasonForVisit').removeClass('is-invalid');
                 }
                 
                 // Always validate time slot

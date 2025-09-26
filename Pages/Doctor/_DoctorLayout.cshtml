@@ -47,6 +47,14 @@
         .sidebar.collapsed .nav-link i{ margin-right: 0; }
         .sidebar.collapsed .nav-link span{ display: none; }
 
+        /* Ensure logout button never appears highlighted like active nav link */
+        .sidebar .sidebar-logout { color: rgba(255,255,255,.85); text-decoration: none; width: 100%; text-align: left; padding: 1rem; border-radius: 10px; }
+        .sidebar .sidebar-logout:hover,
+        .sidebar .sidebar-logout:focus,
+        .sidebar .sidebar-logout:active,
+        .sidebar .sidebar-logout.active { color: #fff !important; background: transparent !important; box-shadow: none !important; border: 0 !important; }
+        .sidebar .sidebar-logout i { margin-right: .5rem; width: 20px; text-align: center; font-size: 1.1rem; }
+
         .sidebar-profile{
             padding: 1.5rem; text-align: center; color: #fff;
             border-bottom: 1px solid rgba(255,255,255,.1); margin-bottom: 1rem; transition: all .3s;
@@ -112,7 +120,7 @@
                 @await Component.InvokeAsync("SidebarMenu", new { role = "doctor" })
                 <li class="nav-item mt-3">
                     <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/Index", new { area = "" })" method="post">
-                        <button type="submit" class="nav-link w-100 btn btn-link text-left">
+                        <button type="submit" class="btn btn-link sidebar-logout">
                             <i class="fas fa-sign-out-alt"></i>
                             <span>Logout</span>
                         </button>
