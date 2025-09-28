@@ -1,0 +1,515 @@
+@page
+@model Barangay.Pages.Nurse.PrintHEEADSSSAssessmentModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HEEADSSS Assessment - Print</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+            margin: 0;
+            padding: 20px;
+            color: #000;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 20px;
+        }
+        
+        .header h1 {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0 0 10px 0;
+        }
+        
+        .header h2 {
+            font-size: 14px;
+            font-weight: bold;
+            margin: 0;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+            page-break-inside: avoid;
+        }
+        
+        .section-title {
+            font-size: 14px;
+            font-weight: bold;
+            background-color: #f0f0f0;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #000;
+        }
+        
+        .form-row {
+            display: flex;
+            margin-bottom: 8px;
+        }
+        
+        .form-group {
+            flex: 1;
+            margin-right: 15px;
+        }
+        
+        .form-group:last-child {
+            margin-right: 0;
+        }
+        
+        .form-label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 3px;
+        }
+        
+        .form-value {
+            border-bottom: 1px solid #000;
+            padding: 2px 0;
+            min-height: 18px;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        
+        .table th,
+        .table td {
+            border: 1px solid #000;
+            padding: 5px;
+            text-align: left;
+        }
+        
+        .table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            border-top: 1px solid #000;
+            padding-top: 20px;
+        }
+        
+        .signature-section {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        
+        .signature-box {
+            width: 200px;
+            text-align: center;
+        }
+        
+        .signature-line {
+            border-bottom: 1px solid #000;
+            height: 40px;
+            margin-bottom: 5px;
+        }
+        
+        .hope-section {
+            margin-top: 30px;
+            text-align: center;
+            border: 2px solid #000;
+            padding: 15px;
+        }
+        
+        .hope-title {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .hope-subtitle {
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+        
+        .hope-numbers {
+            font-size: 13px;
+            font-weight: bold;
+        }
+        
+        .no-print {
+            display: none;
+        }
+        
+        @@media print {
+            body {
+                margin: 0;
+                padding: 15px;
+            }
+            
+            .no-print {
+                display: none !important;
+            }
+            
+            .page-break {
+                page-break-before: always;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>REPUBLIC OF THE PHILIPPINES</h1>
+        <h2>HEEADSSS HEALTH ASSESSMENT FORM</h2>
+        <h2>(For 10-19 years old)</h2>
+        <p><strong>Assessment Date:</strong> @DateTime.Now.ToString("MMMM dd, yyyy")</p>
+        
+        <!-- Update Button -->
+        <div class="no-print" style="margin-top: 20px; text-align: center;">
+            <a href="/Nurse/EditHEEADSSSAssessment?appointmentId=@Model.HEEADSSSAssessment.AppointmentId" class="btn btn-primary">
+                <i class="fas fa-edit me-1"></i>
+                Update Assessment
+            </a>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">A. PERSONAL INFORMATION</div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Health Facility:</span>
+                <div class="form-value">Baesa Health Center</div>
+            </div>
+            <div class="form-group">
+                <span class="form-label">Family No:</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.FamilyNo</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Name:</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.FullName</div>
+            </div>
+            <div class="form-group">
+                <span class="form-label">Age:</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.Age years</div>
+            </div>
+            <div class="form-group">
+                <span class="form-label">Gender:</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.Gender</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Address:</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.Address</div>
+            </div>
+            <div class="form-group">
+                <span class="form-label">Contact Number:</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.ContactNumber</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">C. PSYCHOSOCIAL HISTORY AND ASSESSMENT</div>
+        <p><em>Ang matatapat mong kasagutan ay makakatulong upang makapagbigay ng tamang pangangalaga.</em></p>
+    </div>
+
+    <div class="section">
+        <div class="section-title">HOME</div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Meron bang problema sa inyong pamilya na maaring makaapekto sa iyo?</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.HomeFamilyProblems</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Pinakikitaan ka ba ng iyong mga magulang o guardian sa tuwing may problema ka?</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.HomeParentalListening</div>
+            </div>
+        </div>
+        
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Sa nakaraang taon, may pagbabago ba sa loob ng iyong pamilya?</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.HomeFamilyChanges</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">EDUCATION</div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Ikaw ba ay kasalukuyang nag-aaral?</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.EducationCurrentlyStudying</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Ikaw ba ay nagtatrabaho? Kung oo, anong trabaho?</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.EducationWorking</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">May problema ka ba sa iskuwela o trabaho?</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.EducationSchoolWorkProblems</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Nakaranas ka bang ma-api (bully) sa iskuwela o ibang pagkakataon?</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.EducationBullying</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">EATING HABITS</div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Kuntento ka ba sa iyong itsura, anyo, o kasalukuyang timbang?</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.EatingBodyImageSatisfaction</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">May nagpuna na ba na ikaw ay tumaba o pumayat?</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.EatingWeightComments</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">ACTIVITIES</div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Mayroon ka bang sinasalihang sports/libangan sa iskuwela, trabaho o bahay?</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.ActivitiesParticipation</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Madalas ka bang nag-e-ehersisyo?</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.ActivitiesRegularExercise</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Madalas ka bang gumamit ng internet/computer o gadgets?</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.ActivitiesScreenTime</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">DRUGS</div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Naranasan mo na bang gumamit ng mga sumusunod:</span>
+                <div class="form-value">
+                    @{
+                        var drugUse = new List<string>();
+                        if (Model.HEEADSSSAssessment.DrugsTobaccoUse == "true") drugUse.Add("Tobacco (Sigarilyo)");
+                        if (Model.HEEADSSSAssessment.DrugsAlcoholUse == "true") drugUse.Add("Alcohol (Alak)");
+                        if (Model.HEEADSSSAssessment.DrugsIllicitDrugUse == "true") drugUse.Add("Street/Prohibited drugs");
+                    }
+                    @(drugUse.Any() ? string.Join(", ", drugUse) : "None")
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">SEXUALITY</div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Nababalisa ka ba tungkol sa iyong kalusugan o mga pagbabago sa katawan?</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.SexualityBodyConcerns</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Ikaw ba ay may karanasan na sa pakikipagtalik?</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.SexualityIntimateRelationships</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Kung Oo, ilan na ang nakatalik mo sa nakaraang taon?</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.SexualityPartners</div>
+            </div>
+        </div>
+        
+    </div>
+
+    <div class="section">
+        <div class="section-title">SAFETY / WEAPONS / VIOLENCE</div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Ikaw ba ay nakaranas na masaktan (masampal, matulak, masunot) ng kahit sino?</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.SafetyPhysicalAbuse</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Nakaranas ka na bang masaktan o takutin ng iyong karelasyon?</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.SafetyRelationshipViolence</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Gumagamit ka ba ng helmet o protective gear kapag sumasakay ng motor/iba pang sasakyan?</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.SafetyProtectiveGear</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">May kasamahan ka bang nagmamay-ari ng baril o rifle?</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.SafetyGunsAtHome</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">SUICIDE / DEPRESSION</div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Ikaw ba ay nakaranas na ng matinding pagkabalisa o depresyon?</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.SuicideDepressionFeelings</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Naisip mo na bang saktan ang sarili o tapusin ang buhay?</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.SuicideSelfHarmThoughts</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">May miyembro ba ng pamilya na nagtangkang magpakamatay o nakaranas ng matinding depresyon?</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.SuicideFamilyHistory</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">NOTES</div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Notes:</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.Notes</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Assessed by:</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.AssessedBy</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">RISK ASSESSMENT</div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Risk Areas:</span>
+                <div class="form-value">
+                    @{
+                        var riskAreas = new List<string>();
+                        if (Model.HEEADSSSAssessment.SubstanceUse == "True") riskAreas.Add("Substance Use");
+                        if (Model.HEEADSSSAssessment.SexualActivity == "True") riskAreas.Add("Sexual Activity");
+                        if (Model.HEEADSSSAssessment.MoodChanges == "True") riskAreas.Add("Mood Changes");
+                        if (Model.HEEADSSSAssessment.SuicidalThoughts == "True") riskAreas.Add("Suicidal Thoughts");
+                        if (Model.HEEADSSSAssessment.SelfHarmBehavior == "True") riskAreas.Add("Self-Harm");
+                    }
+                    @(riskAreas.Any() ? string.Join(", ", riskAreas) : "None identified")
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Safety Concerns:</span>
+                <div class="form-value">
+                    @{
+                        var safetyConcerns = new List<string>();
+                        if (Model.HEEADSSSAssessment.FeelsSafeAtHome != "True") safetyConcerns.Add("Home Safety");
+                        if (Model.HEEADSSSAssessment.FeelsSafeAtSchool != "True") safetyConcerns.Add("School Safety");
+                        if (Model.HEEADSSSAssessment.ExperiencedBullying == "True") safetyConcerns.Add("Bullying");
+                    }
+                    @(safetyConcerns.Any() ? string.Join(", ", safetyConcerns) : "None identified")
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="hope-section">
+        <div class="hope-title">HOPE line</div>
+        <div class="hope-subtitle">for suicide prevention and emotional crisis</div>
+        <div class="hope-numbers">804-4673 (HOPE)/ 0917-558-4673 (HOPE)</div>
+    </div>
+
+    <div class="footer">
+        <div class="signature-section">
+            <div class="signature-box">
+                <div class="signature-line"></div>
+                <div>Patient Signature</div>
+            </div>
+            <div class="signature-box">
+                <div class="signature-line"></div>
+                <div>Interviewer/Assessor Signature</div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 20px; text-align: center;">
+            <p><strong>Date:</strong> @DateTime.Now.ToString("MMMM dd, yyyy")</p>
+        </div>
+    </div>
+
+    <script>
+        // Auto-print when page loads
+        window.onload = function() {
+            window.print();
+        };
+    </script>
+</body>
+</html>

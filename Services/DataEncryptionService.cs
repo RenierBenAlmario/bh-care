@@ -95,8 +95,14 @@ namespace Barangay.Services
 
             try
             {
+                Console.WriteLine($"Decrypt called with: {cipherText?.Substring(0, Math.Min(20, cipherText?.Length ?? 0))}...");
+                Console.WriteLine($"IsEncrypted: {IsEncrypted(cipherText)}");
+                
                 if (!IsEncrypted(cipherText))
+                {
+                    Console.WriteLine("Decrypt: Not encrypted, returning original");
                     return cipherText;
+                }
                     
                 var encryptedBytes = Convert.FromBase64String(cipherText);
 
@@ -116,7 +122,9 @@ namespace Barangay.Services
                     using (var decryptor = aes.CreateDecryptor())
                     {
                         var decryptedBytes = decryptor.TransformFinalBlock(encryptedData, 0, encryptedData.Length);
-                        return Encoding.UTF8.GetString(decryptedBytes);
+                        var result = Encoding.UTF8.GetString(decryptedBytes);
+                        Console.WriteLine($"Decrypt successful: {result?.Substring(0, Math.Min(20, result?.Length ?? 0))}...");
+                        return result;
                     }
                 }
             }
@@ -140,10 +148,18 @@ namespace Barangay.Services
 
         public string DecryptForUser(string cipherText, ClaimsPrincipal user)
         {
+            Console.WriteLine($"DecryptForUser called with cipherText: {cipherText?.Substring(0, Math.Min(20, cipherText?.Length ?? 0))}...");
+            Console.WriteLine($"CanUserDecrypt: {CanUserDecrypt(user)}");
+            
             if (!CanUserDecrypt(user))
+            {
+                Console.WriteLine("DecryptForUser: Access denied");
                 return "[ACCESS DENIED]";
+            }
 
-            return Decrypt(cipherText);
+            var result = Decrypt(cipherText);
+            Console.WriteLine($"DecryptForUser result: {result?.Substring(0, Math.Min(20, result?.Length ?? 0))}...");
+            return result;
         }
 
         public bool IsEncrypted(string text)

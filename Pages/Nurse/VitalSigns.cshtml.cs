@@ -257,7 +257,7 @@ namespace Barangay.Pages.Nurse
                 return;
             }
             
-            // Set these as the patient select list
+            // Set these as the patient select list - only today's appointments
             PatientSelectList = filteredPatientsWithTodayAppointments
                 .Select(p => new SelectListItem
                 {
@@ -266,25 +266,7 @@ namespace Barangay.Pages.Nurse
                 })
                 .ToList();
                 
-            // Also load other patients in case nurse needs to record vitals for someone else
-            var otherPatients = await _context.Appointments
-                .Where(a => a.AppointmentDate.Date != Today &&
-                       a.PatientName != "System Administrator" && 
-                       a.PatientId != "0e03f06e-ba88-46ed-b047-4974d8b8252a")
-                .Select(a => new { PatientId = a.PatientId, PatientName = a.PatientName })
-                .Distinct()
-                .ToListAsync();
-                
-            // Add other patients to the select list
-            PatientSelectList.AddRange(otherPatients
-                .Where(op => !filteredPatientsWithTodayAppointments.Any(p => p.PatientId == op.PatientId))
-                .Select(p => new SelectListItem
-                {
-                    Value = p.PatientId.ToString(),
-                    Text = p.PatientName
-                }));
-                
-            _logger.LogInformation($"Loaded {filteredPatientsWithTodayAppointments.Count} patients with today's appointments (excluding {patientsWithVitalSignsToday.Count} with vital signs already recorded) and {otherPatients.Count} other patients");
+            _logger.LogInformation($"Loaded {filteredPatientsWithTodayAppointments.Count} patients with today's appointments (excluding {patientsWithVitalSignsToday.Count} with vital signs already recorded)");
         }
 
         // New method to load patient appointments

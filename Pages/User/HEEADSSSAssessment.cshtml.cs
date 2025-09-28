@@ -92,13 +92,27 @@ namespace Barangay.Pages.User
                 var appointment = await _context.Appointments.FindAsync(appointmentId);
                 if (appointment != null)
                 {
+                    // Calculate age from DateOfBirth if available, otherwise use AgeValue
+                    int calculatedAge = 19;
+                    if (appointment.DateOfBirth.HasValue)
+                    {
+                        var today = DateTime.Today;
+                        calculatedAge = today.Year - appointment.DateOfBirth.Value.Year;
+                        if (appointment.DateOfBirth.Value.Date > today.AddYears(-calculatedAge))
+                            calculatedAge--;
+                    }
+                    else if (appointment.AgeValue > 0)
+                    {
+                        calculatedAge = appointment.AgeValue;
+                    }
+                    
                     // Use appointment patient information
                     ViewData["PatientName"] = appointment.PatientName ?? user.FullName;
-                    ViewData["PatientAge"] = appointment.AgeValue > 0 ? appointment.AgeValue : 19;
+                    ViewData["PatientAge"] = calculatedAge;
                     ViewData["PatientPhone"] = appointment.ContactNumber ?? user.PhoneNumber ?? string.Empty;
-                    ViewData["PatientBirthdate"] = appointment.DateOfBirth?.ToString("yyyy-MM-dd") ?? DateTime.Today.AddYears(-19).ToString("yyyy-MM-dd");
+                    ViewData["PatientBirthdate"] = appointment.DateOfBirth?.ToString("yyyy-MM-dd") ?? DateTime.Today.AddYears(-calculatedAge).ToString("yyyy-MM-dd");
                     
-                    _logger.LogInformation($"Using appointment patient info: Name={appointment.PatientName}, Age={appointment.AgeValue}, Phone={appointment.ContactNumber}");
+                    _logger.LogInformation($"Using appointment patient info: Name={appointment.PatientName}, CalculatedAge={calculatedAge}, AgeValue={appointment.AgeValue}, DateOfBirth={appointment.DateOfBirth}, Phone={appointment.ContactNumber}");
                 }
                 else
                 {
@@ -137,7 +151,7 @@ namespace Barangay.Pages.User
             Assessment.HealthFacility = HealthFacility;
             Assessment.FamilyNo = FamilyNo;
             Assessment.AppointmentId = AppointmentId;
-            Assessment.Age = (ViewData["PatientAge"] as int? ?? 19); // Use patient age from appointment
+            Assessment.Age = (ViewData["PatientAge"] as int? ?? 19).ToString(); // Use patient age from appointment
             Assessment.Birthday = DateTime.Parse(ViewData["PatientBirthdate"] as string ?? DateTime.Today.AddYears(-19).ToString("yyyy-MM-dd")); // Use patient birthdate from appointment
             Assessment.FullName = ViewData["PatientName"] as string ?? user.FullName; // Use patient name from appointment
             
@@ -554,6 +568,130 @@ namespace Barangay.Pages.User
             {
                 _logger.LogError(ex, "Error generating next family number");
                 return new JsonResult(new { success = false, error = "Error generating next family number" });
+            }
+        }
+
+        // Request model for family number generation
+        public class GenerateFamilyNumberRequest
+        {
+            public string LastName { get; set; }
+        }
+
+        // Handler for AJAX calls to generate family number
+        public async Task<IActionResult> OnPostGenerateFamilyNumberAsync([FromBody] GenerateFamilyNumberRequest request)
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return new JsonResult(new { success = false, error = "User not found" });
+                }
+
+                // Get the patient from the appointment
+                string patientId = null;
+                if (AppointmentId.HasValue)
+                {
+                    var appointment = await _context.Appointments
+                        .Include(a => a.Patient)
+                        .FirstOrDefaultAsync(a => a.Id == AppointmentId.Value);
+                    
+                    if (appointment?.Patient != null)
+                    {
+                        patientId = appointment.Patient.UserId;
+                    }
+                }
+
+                // Use patient ID if available, otherwise use current user ID
+                string targetUserId = patientId ?? user.Id;
+
+                // Check if patient already has a family number
+                var existingAssessment = await _context.HEEADSSSAssessments
+                    .Where(a => a.UserId == targetUserId && !string.IsNullOrEmpty(a.FamilyNo))
+                    .OrderByDescending(a => a.CreatedAt)
+                    .FirstOrDefaultAsync();
+
+                if (existingAssessment != null)
+                {
+                    // Decrypt FamilyNo if it's encrypted
+                    var decryptedFamilyNo = existingAssessment.FamilyNo;
+                    if (!string.IsNullOrEmpty(decryptedFamilyNo) && _encryptionService.CanUserDecrypt(User))
+                    {
+                        try
+                        {
+                            decryptedFamilyNo = _encryptionService.Decrypt(decryptedFamilyNo);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning(ex, "Failed to decrypt FamilyNo, using encrypted value");
+                        }
+                    }
+                    return new JsonResult(new { 
+                        success = true, 
+                        familyNo = decryptedFamilyNo, 
+                        isPreexisting = true 
+                    });
+                }
+
+                // Get patient name for family number generation
+                string patientLastName = null;
+                if (AppointmentId.HasValue)
+                {
+                    var appointment = await _context.Appointments
+                        .Include(a => a.Patient)
+                        .FirstOrDefaultAsync(a => a.Id == AppointmentId.Value);
+                    
+                    if (appointment?.Patient != null)
+                    {
+                        // Extract last name from FullName
+                        var fullNameParts = appointment.Patient.FullName?.Split(' ');
+                        patientLastName = fullNameParts?.Length > 0 ? fullNameParts.Last() : null;
+                    }
+                }
+
+                // Use patient's last name if available, otherwise use current user's last name
+                string targetLastName = patientLastName ?? user.LastName;
+
+                // Generate new family number based on first letter of last name
+                string lastNameInitial = (targetLastName?.Length > 0) ? targetLastName.Substring(0, 1).ToUpper() : "X";
+                
+                // Find the next sequential number for this letter
+                var existingFamilyNumbers = await _context.HEEADSSSAssessments
+                    .Where(a => !string.IsNullOrEmpty(a.FamilyNo) && a.FamilyNo.StartsWith($"{lastNameInitial}."))
+                    .Select(a => a.FamilyNo)
+                    .ToListAsync();
+
+                int nextNumber = 1;
+                if (existingFamilyNumbers.Any())
+                {
+                    var numbers = existingFamilyNumbers
+                        .Where(fn => fn.StartsWith($"{lastNameInitial}."))
+                        .Select(fn => 
+                        {
+                            var parts = fn.Split('.');
+                            if (parts.Length == 2 && int.TryParse(parts[1], out int num))
+                                return num;
+                            return 0;
+                        })
+                        .Where(num => num > 0)
+                        .OrderByDescending(num => num)
+                        .ToList();
+
+                    nextNumber = numbers.Any() ? numbers.First() + 1 : 1;
+                }
+
+                string newFamilyNo = $"{lastNameInitial}.{nextNumber:D3}";
+                
+                return new JsonResult(new { 
+                    success = true, 
+                    familyNo = newFamilyNo, 
+                    isPreexisting = false 
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating family number");
+                return new JsonResult(new { success = false, error = "Error generating family number" });
             }
         }
 

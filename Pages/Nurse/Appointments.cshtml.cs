@@ -71,21 +71,23 @@ namespace Barangay.Pages.Nurse
                 // Get today's date
                 var today = DateTime.Today;
                 
-                // Convert to view models
-                Appointments = appointments.Select(a => new AppointmentViewModel
-                {
-                    Id = a.Id,
-                    PatientId = a.PatientId,
-                    PatientName = string.IsNullOrEmpty(a.PatientName) ? 
-                        (a.Patient != null ? a.Patient.FullName : "Unknown") : a.PatientName,
-                    AppointmentDate = a.AppointmentDate,
-                    AppointmentTime = a.AppointmentTime,
-                    DoctorId = a.DoctorId,
-                    DoctorName = a.Doctor?.FullName ?? "Not Assigned",
-                    Status = a.Status,
-                    Type = a.Type ?? "General",
-                    Description = a.Description
-                }).ToList();
+                // Convert to view models (exclude Draft appointments)
+                Appointments = appointments
+                    .Where(a => a.Status != AppointmentStatus.Draft)
+                    .Select(a => new AppointmentViewModel
+                    {
+                        Id = a.Id,
+                        PatientId = a.PatientId,
+                        PatientName = string.IsNullOrEmpty(a.PatientName) ? 
+                            (a.Patient != null ? a.Patient.FullName : "Unknown") : a.PatientName,
+                        AppointmentDate = a.AppointmentDate,
+                        AppointmentTime = a.AppointmentTime,
+                        DoctorId = a.DoctorId,
+                        DoctorName = a.Doctor?.FullName ?? "Not Assigned",
+                        Status = a.Status,
+                        Type = a.Type ?? "General",
+                        Description = a.Description
+                    }).ToList();
                 
                 // Filter today's appointments (exclude Draft and Cancelled)
                 TodayAppointments = Appointments

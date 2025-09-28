@@ -82,6 +82,8 @@ namespace Barangay.Pages.Doctor
         public Patient? Patient { get; set; }
         public VitalSign? LatestVitalSigns { get; set; }
         public Barangay.Models.Appointment? Appointment { get; set; }
+        public HEEADSSSAssessment? HEEADSSSAssessment { get; set; }
+        public NCDRiskAssessment? NCDRiskAssessment { get; set; }
         
         [BindProperty]
         public int? AppointmentId { get; set; }
@@ -281,8 +283,32 @@ namespace Barangay.Pages.Doctor
                     record.DecryptSensitiveData(_encryptionService, User);
                 }
 
-                _logger.LogInformation("Loaded {MedicalRecordsCount} medical records and vital signs: {HasVitalSigns}", 
-                    MedicalRecords.Count, LatestVitalSigns != null);
+                // Load HEEADSSS Assessment data
+                HEEADSSSAssessment = await _context.HEEADSSSAssessments
+                    .Where(h => h.UserId == patientId)
+                    .OrderByDescending(h => h.CreatedAt)
+                    .FirstOrDefaultAsync();
+
+                // Decrypt HEEADSSS assessment data for display
+                if (HEEADSSSAssessment != null)
+                {
+                    HEEADSSSAssessment.DecryptSensitiveData(_encryptionService, User);
+                }
+
+                // Load NCD Risk Assessment data
+                NCDRiskAssessment = await _context.NCDRiskAssessments
+                    .Where(n => n.UserId == patientId)
+                    .OrderByDescending(n => n.CreatedAt)
+                    .FirstOrDefaultAsync();
+
+                // Decrypt NCD assessment data for display
+                if (NCDRiskAssessment != null)
+                {
+                    NCDRiskAssessment.DecryptSensitiveData(_encryptionService, User);
+                }
+
+                _logger.LogInformation("Loaded {MedicalRecordsCount} medical records, vital signs: {HasVitalSigns}, HEEADSSS: {HasHEEADSSS}, NCD: {HasNCD}", 
+                    MedicalRecords.Count, LatestVitalSigns != null, HEEADSSSAssessment != null, NCDRiskAssessment != null);
 
                 // For pending appointments, it's normal to have no medical records yet
                 if (MedicalRecords.Count == 0)

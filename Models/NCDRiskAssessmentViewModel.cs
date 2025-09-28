@@ -5,6 +5,7 @@ namespace Barangay.Models
 {
     public class NCDRiskAssessmentViewModel
     {
+        public int? Id { get; set; }
         public int? AppointmentId { get; set; }
         public string? UserId { get; set; }
         
@@ -60,25 +61,18 @@ namespace Barangay.Models
         public bool EatsSaltyFood { get; set; }
         public bool EatsSweetFood { get; set; }
         public bool EatsFattyFood { get; set; }
-        public bool HasHighSaltIntake { get; set; }
 
         // B.2 Alcohol
-        public bool DrinksAlcohol { get; set; }
         public string? AlcoholStoppedDuration { get; set; }
-        public bool DrinksBeer { get; set; }
-        public bool DrinksWine { get; set; }
         public bool DrinksHardLiquor { get; set; }
         public string? BeerAmount { get; set; }
         public string? WineAmount { get; set; }
         public string? HardLiquorAmount { get; set; }
-        public string? AlcoholFrequency { get; set; }
         public string? AlcoholPerOccasion { get; set; }
-        public bool IsBingeDrinker { get; set; }
 
         // B.3 Exercise
         public bool HasRegularExercise { get; set; }
         public string? ExerciseType { get; set; }
-        public string? ExerciseDuration { get; set; }
 
         // B.4 Smoking
         public bool IsSmoker { get; set; }
@@ -95,45 +89,14 @@ namespace Barangay.Models
 
         // Part IV: Risk Screening
         // 4.1 Anthropometric Measurement
-        public decimal? Weight { get; set; }
-        public decimal? Height { get; set; }
-        public decimal? BMI { get; set; }
-        public string? BMIStatus { get; set; }
-
-        // 4.2 Blood Pressure
-        public int? SystolicBP { get; set; }
-        public int? DiastolicBP { get; set; }
-        public string? BPStatus { get; set; }
-
-        // 4.3 Blood Sugar
-        public decimal? FastingBloodSugar { get; set; }
-        public decimal? RandomBloodSugar { get; set; }
-        public string? BloodSugarStatus { get; set; }
+        public decimal? SystolicBP { get; set; }
+        public decimal? DiastolicBP { get; set; }
 
         // 4.4 Cholesterol
         public decimal? TotalCholesterol { get; set; }
         public decimal? HDLCholesterol { get; set; }
         public decimal? LDLCholesterol { get; set; }
         public decimal? Triglycerides { get; set; }
-        public string? CholesterolStatus { get; set; }
-
-        // 4.5 Urine Dipstick Test
-        public string? UrineProtein { get; set; }
-        public string? UrineKetones { get; set; }
-
-        // 4.6 Risk Profile For Doctors Only
-        public string? RiskPercentage { get; set; }
-
-        // 4.7 Cancer Screening (Women 30 years old and above)
-        public bool BreastCancerScreened { get; set; }
-        public bool CervicalCancerScreened { get; set; }
-        public string? CancerScreeningStatus { get; set; }
-
-        // Assessment Information
-        public string? InterviewedBy { get; set; }
-        public string? Designation { get; set; }
-        public DateTime? AssessmentDate { get; set; }
-        public string? PatientSignature { get; set; }
 
         // Risk Status Summary
         public string? RiskStatus { get; set; }
@@ -190,5 +153,109 @@ namespace Barangay.Models
         public string? ChestPainLocationString { get; set; }
         
         public string? ChestPainValue { get; set; }
+        
+        // Additional properties for comprehensive form
+        public string? IDNumber { get; set; }
+        public string? DateOfAssessmentString { get; set; }
+        
+        // Chest Pain Details (Q2.1-2.7)
+        public string? ChestPainSpreadsToArm { get; set; } = "false";
+        public string? NumbnessWhenWalkingFast { get; set; } = "false";
+        public string? LossOfConsciousnessLessThan10Min { get; set; } = "false";
+        public string? PainLastsMoreThan30Min { get; set; } = "false";
+        public string? SeeDoctorIfYes { get; set; } = "false";
+        public string? DoctorName { get; set; }
+        
+        // Nutrition Details
+        public string? EatsVegetablesDaily { get; set; } = "false";
+        public string? EatsFruitsDaily { get; set; } = "false";
+        public string? EatsFishDaily { get; set; } = "false";
+        public string? EatsMeatDaily { get; set; } = "false";
+        public string? HasUnhealthyDiet { get; set; } = "false";
+        public string? EatsFattyFoodMoreThan2TimesPerWeek { get; set; } = "false";
+        public string? EatsSweetFoodMoreThan2TimesPerWeek { get; set; } = "false";
+        public string? EatsOilyFoodMoreThan2TimesPerWeek { get; set; } = "false";
+        
+        // Alcohol Details
+        public string? DrinksAlcohol { get; set; } = "false";
+        public string? DrinksBeer { get; set; } = "false";
+        public string? DrinksWine { get; set; } = "false";
+        public string? DrinksWhiskyGinBrandy { get; set; } = "false";
+        public string? AlcoholAmount1Bottle320ml { get; set; } = "false";
+        public string? AlcoholAmount2Bottle640ml { get; set; } = "false";
+        public string? AlcoholAmountLessThan3Shot45ml { get; set; } = "false";
+        public string? AlcoholAmount3to4WineGlasses300ml { get; set; } = "false";
+        public string? AlcoholAmountMoreThan4Shots75ml { get; set; } = "false";
+        public string? AlcoholFrequency1to3TimesPerWeek { get; set; } = "false";
+        public string? AlcoholFrequencyMoreThan4TimesPerWeek { get; set; } = "false";
+        public string? IsBingeDrinker { get; set; } = "false";
+        
+        // Physical Activity Details
+        public string? ModerateIntensityExercise { get; set; } = "false";
+        public string? VigorousIntensityExercise { get; set; } = "false";
+        public string? CombinationExercise { get; set; } = "false";
+        public string? InsufficientPhysicalActivity { get; set; } = "false";
+        
+        // Smoking Details
+        public string? FormerSmoker { get; set; } = "false";
+        public string? NeverSmokedButExposedToSmoke { get; set; } = "false";
+        public string? HasHistoryOfSmoking { get; set; } = "false";
+        
+        // Stress
+        public string? HasStress { get; set; } = "false";
+        
+        // Anthropometric Measurements
+        public string? Weight { get; set; }
+        public string? Height { get; set; }
+        public string? BMI { get; set; }
+        public string? Waist { get; set; }
+        public string? Hip { get; set; }
+        public string? WHRatio { get; set; }
+        public string? BMIStatus { get; set; }
+        public string? WHStatus { get; set; }
+        
+        // Blood Sugar
+        public string? FastingBloodSugar { get; set; }
+        public string? RandomBloodSugar { get; set; }
+        public string? BloodSugarStatus { get; set; }
+        public string? HasPolyuria { get; set; } = "false";
+        public string? HasPolydipsia { get; set; } = "false";
+        public string? HasPolyphagia { get; set; } = "false";
+        public string? HasWeightLoss { get; set; } = "false";
+        
+        // Blood Pressure
+        public string? LeftArmMeanBP { get; set; }
+        public string? RightArmMeanBP { get; set; }
+        public string? BaselineBP { get; set; }
+        public string? BPStatus { get; set; }
+        
+        // Cholesterol
+        public string? CholesterolResult { get; set; }
+        public string? CholesterolStatus { get; set; }
+        
+        // Urine Dipstick Test
+        public string? UrineProtein { get; set; }
+        public string? UrineKetones { get; set; }
+        public string? HasUrineProtein { get; set; } = "false";
+        public string? HasUrineKetones { get; set; } = "false";
+        
+        // Risk Profile (For Doctors Only)
+        public string? RiskPercentage { get; set; }
+        
+        // Cancer Screening (Women 30 years old and above)
+        public string? BreastCancerScreened { get; set; } = "false";
+        public string? CervicalCancerScreened { get; set; } = "false";
+        public string? CancerScreeningStatus { get; set; }
+        
+        // Assessment Information
+        public string? InterviewedBy { get; set; }
+        public string? Designation { get; set; }
+        public string? AssessmentDate { get; set; }
+        public string? PatientSignature { get; set; }
+        
+        // Additional properties for compatibility
+        public string? ExerciseDuration { get; set; }
+        public string? AlcoholFrequency { get; set; }
+        public string? HasHighSaltIntake { get; set; } = "false";
     }
 }

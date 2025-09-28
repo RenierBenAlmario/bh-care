@@ -16,6 +16,21 @@ namespace Barangay.Models
         [Display(Name = "Family No")]
         public string? FamilyNo { get; set; }
         
+        [Display(Name = "Referred by")]
+        public string? ReferredBy { get; set; }
+        
+        [Display(Name = "Is NHPTS")]
+        public bool IsNHPTS { get; set; }
+        
+        [Display(Name = "Is PhilHealth Beneficiary Only")]
+        public bool IsPhilHealthBeneficiaryOnly { get; set; }
+        
+        [Display(Name = "Is Own PhilHealth")]
+        public bool IsOwnPhilHealth { get; set; }
+        
+        [Display(Name = "PhilHealth PIN")]
+        public string? PhilHealthPIN { get; set; }
+        
         // Personal Information 
         [Display(Name = "Full Name")]
         public string? FullName { get; set; }
@@ -71,6 +86,9 @@ namespace Barangay.Models
         [Display(Name = "Sa nakaraang taon, meron bang pagbabagong naganap sa loob ng iyong pamilya?")]
         public string? HomeFamilyChanges { get; set; }
         
+        [Display(Name = "May pagkakataon bang naisip mong maglayas?")]
+        public string? HomeRunawayThoughts { get; set; }
+        
         // EDUCATION
         [Display(Name = "School Performance")]
         public string? SchoolPerformance { get; set; }
@@ -92,6 +110,9 @@ namespace Barangay.Models
         
         [Display(Name = "Nakaranas ka bang ma-api (bully) sa iskwela o sa iba pang pagkakataon?")]
         public string? EducationBullying { get; set; }
+        
+        [Display(Name = "Nakaranas ka bang ma-api (bully) sa iskuwela o ibang pagkakataon?")]
+        public string? EducationBullyingExperience { get; set; }
         
         [Display(Name = "Education/Employment")]
         public string? EducationEmployment { get; set; }
@@ -115,6 +136,18 @@ namespace Barangay.Models
         [Display(Name = "May nagpuna na ba na ikaw ay tumataba o pumapayat?")]
         public string? EatingWeightComments { get; set; }
         
+        [Display(Name = "Eating Vomiting")]
+        public bool EatingVomiting { get; set; }
+        
+        [Display(Name = "Eating Diet Pills")]
+        public bool EatingDietPills { get; set; }
+        
+        [Display(Name = "Eating Laxatives")]
+        public bool EatingLaxatives { get; set; }
+        
+        [Display(Name = "Eating Starvation")]
+        public bool EatingStarvation { get; set; }
+        
         // ACTIVITIES
         [Display(Name = "Hobbies")]
         public string? Hobbies { get; set; }
@@ -134,6 +167,9 @@ namespace Barangay.Models
         [Display(Name = "Madalas ka bang gumamit ng mga gadgets/internet/computer?")]
         public string? ActivitiesScreenTime { get; set; }
         
+        [Display(Name = "Madalas ka bang gumamit ng internet/computer o gadgets?")]
+        public string? ActivitiesInternetGadgetUse { get; set; }
+        
         // DRUGS
         [Display(Name = "Substance Use")]
         public string? SubstanceUse { get; set; }
@@ -142,13 +178,16 @@ namespace Barangay.Models
         public string? SubstanceType { get; set; }
 
         [Display(Name = "Naranasan mo na bang gumamit ng mga sumusunod: Tobacco (Sigarilyo)?")]
-        public string? DrugsTobaccoUse { get; set; }
+        public bool DrugsTobaccoUse { get; set; }
         
         [Display(Name = "Naranasan mo na bang gumamit ng mga sumusunod: Alcohol (Alak)?")]
-        public string? DrugsAlcoholUse { get; set; }
+        public bool DrugsAlcoholUse { get; set; }
         
         [Display(Name = "Naranasan mo na bang gumamit ng mga sumusunod: Street drugs/prohibited drugs?")]
-        public string? DrugsIllicitDrugUse { get; set; }
+        public bool DrugsIllicitDrugUse { get; set; }
+        
+        [Display(Name = "Drugs Street Drugs")]
+        public bool DrugsStreetDrugs { get; set; }
         
         // SEXUALITY
         [Display(Name = "Dating Relationships")]
@@ -163,14 +202,29 @@ namespace Barangay.Models
         [Display(Name = "Nababahala ka ba sa iyong kalusugan o mga pagbabago ng iyong pangangatawan?")]
         public string? SexualityBodyConcerns { get; set; }
         
+        [Display(Name = "Nababalisa ka ba tungkol sa iyong kalusugan o mga pagbabago sa katawan?")]
+        public string? SexualityHealthConcerns { get; set; }
+        
         [Display(Name = "Ikaw ba ay may karanasan na sa pakikipagtalik?")]
         public string? SexualityIntimateRelationships { get; set; }
         
         [Display(Name = "Kung oo, ilan na ang taong nakatalik mo sa nakaraang taon?")]
         public string? SexualityPartners { get; set; }
         
+        [Display(Name = "Sexuality Partners Count")]
+        public string? SexualityPartnersCount { get; set; }
+        
         [Display(Name = "Iniisip mo ba na ikaw ay gay, lesbian, o bisexual?")]
         public string? SexualitySexualOrientation { get; set; }
+        
+        [Display(Name = "Sexuality Gay")]
+        public bool SexualityGay { get; set; }
+        
+        [Display(Name = "Sexuality Lesbian")]
+        public bool SexualityLesbian { get; set; }
+        
+        [Display(Name = "Sexuality Bisexual")]
+        public bool SexualityBisexual { get; set; }
         
         [Display(Name = "Ikaw ba ay nakaranas nang magbuntis o makabuntis?")]
         public string? SexualityPregnancy { get; set; }
@@ -180,6 +234,9 @@ namespace Barangay.Models
         
         [Display(Name = "May ginagamit ka bang proteksiyon kapag sa tuwing nakikipagtalik?")]
         public string? SexualityProtection { get; set; }
+        
+        [Display(Name = "May nakaranas ba na magbunot o maglunsad laban sa iyo?")]
+        public string? SexualityHarassment { get; set; }
         
         // SUICIDE/DEPRESSION
         [Display(Name = "Mood Changes")]
@@ -223,6 +280,9 @@ namespace Barangay.Models
         
         [Display(Name = "May kasambahay ka bang nagmamay-ari ng baril o rifle?")]
         public string? SafetyGunsAtHome { get; set; }
+        
+        [Display(Name = "May kasamahan ka bang nagmamay-ari ng baril o rifle?")]
+        public string? SafetyWeaponAccess { get; set; }
         
         // SUICIDE/DEPRESSION
         [Display(Name = "Ikaw ba ay nakakaranas na ng pagkalisa o pagkamalungkutin?")]

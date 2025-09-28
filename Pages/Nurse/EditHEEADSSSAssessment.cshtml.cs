@@ -52,30 +52,19 @@ namespace Barangay.Pages.Nurse
                 }
 
                 // Get existing HEEADSSS assessment
-                // Since AppointmentId is encrypted, we need to check all records and decrypt them
-                var allHEEADSSSAssessments = await _context.HEEADSSSAssessments
-                    .AsNoTracking()
-                    .ToListAsync();
-
+                // Get HEEADSSS assessment by UserId (same logic as AppointmentDetails)
                 HEEADSSSAssessment existingAssessment = null;
-
-                foreach (var assessment in allHEEADSSSAssessments)
+                
+                if (appointment.Patient != null)
                 {
-                    try
-                    {
-                        // Decrypt the AppointmentId to check if it matches
-                        var decryptedAppointmentId = _encryptionService.DecryptForUser(assessment.AppointmentId, User);
-                        if (decryptedAppointmentId == appointmentId.ToString())
-                        {
-                            existingAssessment = assessment;
-                            break;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogWarning(ex, "Failed to decrypt AppointmentId for HEEADSSS assessment {Id}", assessment.Id);
-                        // Continue checking other assessments
-                    }
+                    // Decrypt patient data first
+                    appointment.Patient.DecryptSensitiveData(_encryptionService, User);
+                    
+                    // Look for HEEADSSS assessment by UserId
+                    existingAssessment = await _context.HEEADSSSAssessments
+                        .Where(a => a.UserId == appointment.Patient.UserId)
+                        .OrderByDescending(a => a.CreatedAt)
+                        .FirstOrDefaultAsync();
                 }
 
                 if (existingAssessment == null)
@@ -93,7 +82,7 @@ namespace Barangay.Pages.Nurse
                     AppointmentId = appointmentId,
                     UserId = appointment.PatientId,
                     FullName = appointment.Patient?.FullName,
-                    Age = appointment.AgeValue,
+                    Age = appointment.AgeValue.ToString(),
                     Birthday = appointment.DateOfBirth ?? DateTime.Today.AddYears(-19),
                     HealthFacility = "Baesa Health Center",
                     FamilyNo = "C-001",
@@ -114,8 +103,8 @@ namespace Barangay.Pages.Nurse
                     ActivitiesParticipation = existingAssessment.ActivitiesParticipation,
                     ActivitiesRegularExercise = existingAssessment.ActivitiesRegularExercise,
                     
-                    DrugsTobaccoUse = existingAssessment.DrugsTobaccoUse,
-                    DrugsAlcoholUse = existingAssessment.DrugsAlcoholUse,
+                    DrugsTobaccoUse = existingAssessment.DrugsTobaccoUse == "True",
+                    DrugsAlcoholUse = existingAssessment.DrugsAlcoholUse == "True",
                     
                     SexualityIntimateRelationships = existingAssessment.SexualityIntimateRelationships,
                     SexualityProtection = existingAssessment.SexualityProtection,
@@ -198,8 +187,8 @@ namespace Barangay.Pages.Nurse
                 existingAssessment.ActivitiesParticipation = Assessment.ActivitiesParticipation;
                 existingAssessment.ActivitiesRegularExercise = Assessment.ActivitiesRegularExercise;
                 
-                existingAssessment.DrugsTobaccoUse = Assessment.DrugsTobaccoUse;
-                existingAssessment.DrugsAlcoholUse = Assessment.DrugsAlcoholUse;
+                existingAssessment.DrugsTobaccoUse = Assessment.DrugsTobaccoUse ? "True" : "False";
+                existingAssessment.DrugsAlcoholUse = Assessment.DrugsAlcoholUse ? "True" : "False";
                 
                 existingAssessment.SexualityIntimateRelationships = Assessment.SexualityIntimateRelationships;
                 existingAssessment.SexualityProtection = Assessment.SexualityProtection;

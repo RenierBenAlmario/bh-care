@@ -1203,9 +1203,9 @@ namespace Barangay.Pages
                 ActivitiesParticipation = model.ActivitiesParticipation,
                 ActivitiesRegularExercise = model.ActivitiesRegularExercise,
                 ActivitiesScreenTime = model.ActivitiesScreenTime,
-                DrugsTobaccoUse = model.DrugsTobaccoUse,
-                DrugsAlcoholUse = model.DrugsAlcoholUse,
-                DrugsIllicitDrugUse = model.DrugsIllicitDrugUse,
+                DrugsTobaccoUse = model.DrugsTobaccoUse ? "True" : "False",
+                DrugsAlcoholUse = model.DrugsAlcoholUse ? "True" : "False",
+                DrugsIllicitDrugUse = model.DrugsIllicitDrugUse ? "True" : "False",
                 SexualityBodyConcerns = model.SexualityBodyConcerns,
                 SexualityIntimateRelationships = model.SexualityIntimateRelationships,
                 SexualityPartners = model.SexualityPartners,
@@ -1358,51 +1358,4 @@ namespace Barangay.Pages
     }
 
 
-    public class HEEADSSSAssessmentViewModel
-    {
-        public string? UserId { get; set; }
-        public string? HealthFacility { get; set; }
-        public string? FamilyNo { get; set; }
-        public int? AppointmentId { get; set; }
-        public string? FullName { get; set; }
-        public int Age { get; set; }
-        public DateTime Birthday { get; set; }
-        public string? Gender { get; set; }
-        public string? Address { get; set; }
-        public string? ContactNumber { get; set; }
-        public string? HomeFamilyProblems { get; set; }
-        public string? HomeParentalListening { get; set; }
-        public string? HomeParentalBlame { get; set; }
-        public string? HomeFamilyChanges { get; set; }
-        public string? EducationCurrentlyStudying { get; set; }
-        public string? EducationWorking { get; set; }
-        public string? EducationSchoolWorkProblems { get; set; }
-        public string? EducationBullying { get; set; }
-        public string? EatingBodyImageSatisfaction { get; set; }
-        public string? EatingDisorderedEatingBehaviors { get; set; } //eating disorders
-        public string? EatingWeightComments { get; set; }
-        public string? ActivitiesParticipation { get; set; }
-        public string? ActivitiesRegularExercise { get; set; }
-        public string? ActivitiesScreenTime { get; set; }
-        public string? DrugsTobaccoUse { get; set; }
-        public string? DrugsAlcoholUse { get; set; }
-        public string? DrugsIllicitDrugUse { get; set; }
-        public string? SexualityBodyConcerns { get; set; }
-        public string? SexualityIntimateRelationships { get; set; }
-        public string? SexualityPartners { get; set; }
-        public string? SexualitySexualOrientation { get; set; }
-        public string? SexualityPregnancy { get; set; }
-        public string? SexualitySTI { get; set; }
-        public string? SexualityProtection { get; set; }
-        public string? SuicideDepressionFeelings { get; set; }
-        public string? SuicideSelfHarmThoughts { get; set; }
-        public string? SuicideFamilyHistory { get; set; }
-        public string? SafetyPhysicalAbuse { get; set; }
-        public string? SafetyRelationshipViolence { get; set; }
-        public string? SafetyProtectiveGear { get; set; }
-        public string? SafetyGunsAtHome { get; set; }
-        public string? Notes { get; set; }
-        public string? RecommendedActions { get; set; }
-        public string? AssessedBy { get; set; }
-    }
 }

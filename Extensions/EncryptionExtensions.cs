@@ -84,19 +84,53 @@ namespace Barangay.Extensions
         public static T DecryptSensitiveData<T>(this T obj, IDataEncryptionService encryptionService, ClaimsPrincipal user) where T : class
         {
             if (obj == null || encryptionService == null || !encryptionService.CanUserDecrypt(user))
-                return obj;
-
-            var properties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            
-            foreach (var property in properties)
             {
-                if (property.GetCustomAttribute<EncryptedAttribute>() != null && property.CanWrite)
+                Console.WriteLine($"DecryptSensitiveData: Cannot decrypt - Object: {obj != null}, Service: {encryptionService != null}, CanDecrypt: {encryptionService?.CanUserDecrypt(user)}");
+                return obj;
+            }
+
+            Console.WriteLine($"DecryptSensitiveData: Starting decryption for {typeof(T).Name}");
+            var properties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            var encryptedProperties = properties.Where(p => p.GetCustomAttribute<EncryptedAttribute>() != null).ToList();
+            Console.WriteLine($"DecryptSensitiveData: Found {encryptedProperties.Count} encrypted properties");
+            
+            // Debug: Log user info
+            Console.WriteLine($"DecryptSensitiveData: User: {user?.Identity?.Name}, IsAuthenticated: {user?.Identity?.IsAuthenticated}");
+            Console.WriteLine($"DecryptSensitiveData: User roles: {string.Join(", ", user?.Claims?.Where(c => c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Select(c => c.Value) ?? new string[0])}");
+            
+            foreach (var property in encryptedProperties)
+            {
+                if (property.CanWrite)
                 {
                     var value = property.GetValue(obj)?.ToString();
+                    Console.WriteLine($"DecryptSensitiveData: Processing {property.Name} = {value?.Substring(0, Math.Min(20, value?.Length ?? 0))}...");
+                    
                     if (!string.IsNullOrEmpty(value) && encryptionService.IsEncrypted(value))
                     {
-                        var decryptedValue = encryptionService.DecryptForUser(value, user);
-                        property.SetValue(obj, decryptedValue);
+                        Console.WriteLine($"DecryptSensitiveData: {property.Name} is encrypted, attempting decryption");
+                        try
+                        {
+                            var decryptedValue = encryptionService.DecryptForUser(value, user);
+                            Console.WriteLine($"DecryptSensitiveData: {property.Name} decrypted to: {decryptedValue?.Substring(0, Math.Min(20, decryptedValue?.Length ?? 0))}...");
+                            
+                            if (decryptedValue != value && !decryptedValue.Contains("[ACCESS DENIED]"))
+                            {
+                                property.SetValue(obj, decryptedValue);
+                                Console.WriteLine($"DecryptSensitiveData: Successfully decrypted {property.Name}");
+                            }
+                            else
+                            {
+                                Console.WriteLine($"DecryptSensitiveData: Failed to decrypt {property.Name} - returned original or access denied");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"DecryptSensitiveData: Exception decrypting {property.Name}: {ex.Message}");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"DecryptSensitiveData: {property.Name} is not encrypted or empty");
                     }
                 }
             }
