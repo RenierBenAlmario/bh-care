@@ -207,14 +207,14 @@
             <!-- Part II: Past Medical History -->
             <section class="form-section wizard-step" data-step="2">
                 <h2>Part II. Past Medical History</h2>
-                <h3>1. Karamdamang Naranasan</h3>
+                <h3>1. ikaw ba ay may sumusunod nakaramdaman? </h3>
                 <table>
                     <thead>
                         <tr>
-                            <th>Karamdaman</th>
-                            <th>1.2 Lagyan ng tsek</th>
+                            <th>1.1Karamdaman</th>
+                            <th>1.2 Lagyan ng tsek/ kung may karamdaman</th>
                             <th>1.3 Taon nalaman ang sakit</th>
-                            <th>1.4 Ininom na gamot / Wala</th>
+                            <th>1.4 Ininom na gamot. ang "Wala" kung walang iniinom</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -240,10 +240,16 @@
                             <td><input type="text" name="CancerMedication"></td>
                         </tr>
                         <tr>
-                            <td><label><input type="checkbox" name="HasCOPD" value="true"> COPD</label></td>
+                            <td><label><input type="checkbox" name="Sakit sa baga hindu nakakahawa" value="true"> Sakit sa baga hindu nakakahawa</label></td>
                             <td></td>
                             <td><input type="text" name="LungDiseaseYear"></td>
                             <td><input type="text" name="LungDiseaseMedication"></td>
+                        </tr>
+                        <tr>
+                            <td><label><input type="checkbox" name="Sakit sa mata" value="true"> Sakit sa mata</label></td>
+                            <td></td>
+                            <td><input type="text" name="EyeDiseaseYear"></td>
+                            <td><input type="text" name="EyeDiseaseMedication"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -264,14 +270,14 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>2.3 Nararamdamanmobaaito kung nagmamadali o naglalakad ng mabilis o pakiramdam na paakyat?</label>
+                    <label>2.3 Nararamdaman mo ba ito kung nagmamadali o naglalakad ng mabilis o pakiramdam na paakyat?</label>
                     <div class="radio-group">
                         <label><input type="radio" name="pananakit_2_3" value="Oo"> Oo</label>
                         <label><input type="radio" name="pananakit_2_3" value="Hindi"> Hindi</label>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>2.4 apapatigil ka ba sa paglalakad kapag sumasakit ang iyong dibdib?</label>
+                    <label>2.4 Napapatigil ka ba sa paglalakad kapag sumasakit ang iyong dibdib?</label>
                     <div class="radio-group">
                         <label><input type="radio" name="pananakit_2_4" value="Oo"> Oo</label>
                         <label><input type="radio" name="pananakit_2_4" value="Hindi"> Hindi</label>
@@ -299,7 +305,7 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>2.8 Biglaang panghihina ng kalahating bahagi ng katawan?</label>
+                    <label>2.8 Nakakaramdam ka ba hirap sa pagsasalita, panghihina ng braso at/o binti o pamamanhid sa kalahating bahagi ng katawan? kung Oo,dalhin agad ang pasyente sa Doktor.</label>
                     <div class="radio-group">
                         <label><input type="radio" name="pananakit_2_8" value="Oo"> Oo</label>
                         <label><input type="radio" name="pananakit_2_8" value="Hindi"> Hindi</label>
@@ -329,6 +335,18 @@
                         </thead>
                         <tbody>
                             <tr>
+                                <td>Mataas na presyon</td>
+                                <td><input type="checkbox" name="FamilyHistoryHypertensionFather" value="true"></td>
+                                <td><input type="checkbox" name="FamilyHistoryHypertensionMother" value="true"></td>
+                                <td><input type="checkbox" name="FamilyHistoryHypertensionSibling" value="true"></td>
+                            </tr>
+                            <tr>
+                                <td>Sakit sa puso</td>
+                                <td><input type="checkbox" name="FamilyHistoryHeartDiseaseFather" value="true"></td>
+                                <td><input type="checkbox" name="FamilyHistoryHeartDiseaseMother" value="true"></td>
+                                <td><input type="checkbox" name="FamilyHistoryHeartDiseaseSibling" value="true"></td>
+                            </tr>
+                            <tr>
                                 <td>Stroke</td>
                                 <td><input type="checkbox" name="FamilyHistoryStrokeFather" value="true"></td>
                                 <td><input type="checkbox" name="FamilyHistoryStrokeMother" value="true"></td>
@@ -347,16 +365,16 @@
                                 <td><input type="checkbox" name="FamilyHistoryCancerSibling" value="true"></td>
                             </tr>
                             <tr>
-                                <td>Sakit sa puso</td>
-                                <td><input type="checkbox" name="FamilyHistoryHeartDiseaseFather" value="true"></td>
-                                <td><input type="checkbox" name="FamilyHistoryHeartDiseaseMother" value="true"></td>
-                                <td><input type="checkbox" name="FamilyHistoryHeartDiseaseSibling" value="true"></td>
-                            </tr>
-                            <tr>
                                 <td>Sakit sa baga na hindi nakakahawa</td>
                                 <td><input type="checkbox" name="FamilyHistoryLungDiseaseFather" value="true"></td>
                                 <td><input type="checkbox" name="FamilyHistoryLungDiseaseMother" value="true"></td>
                                 <td><input type="checkbox" name="FamilyHistoryLungDiseaseSibling" value="true"></td>
+                            </tr>
+                            <tr>
+                                <td>Sakit sa bato</td>
+                                <td><input type="checkbox" name="FamilyHistoryKidneyDiseaseFather" value="true"></td>
+                                <td><input type="checkbox" name="FamilyHistoryKidneyDiseaseMother" value="true"></td>
+                                <td><input type="checkbox" name="FamilyHistoryKidneyDiseaseSibling" value="true"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -382,7 +400,7 @@
                     <div class="checkbox-group">
                         <label><input type="checkbox" name="nutrisyon_kumakain" value="matatamis"> Matatamis na pagkain</label>
                         <label><input type="checkbox" name="HighSaltIntake" value="true"> Maaalat na pagkain</label>
-                        <label><input type="checkbox" name="nutrisyon_kumakain" value="matataba"> Matatabang pagkain</label>
+                        <label><input type="checkbox" name="nutrisyon_kumakain" value="matataba"> Mamamantika pagkain</label>
                     </div>
                 </div>
 
@@ -394,21 +412,50 @@
                         <label><input type="radio" name="alcohol_inom" value="Hindi"> Hindi</label>
                     </div>
                 </div>
-                <div class="form-group conditional-section" id="alcohol-questions">
-                    <label>Anong klase?</label>
-                    <div class="checkbox-group">
-                        <label><input type="checkbox" name="alcohol_klase" value="Beer"> Beer</label>
-                        <label><input type="checkbox" name="alcohol_klase" value="Wine"> Wine</label>
-                        <label><input type="checkbox" name="alcohol_klase" value="Whisky/Gin/Brandy"> Whisky/Gin/Brandy</label>
+                <div class="form-group conditional-section" id="alcohol-stopped-questions">
+                    <label>Kung hindi, gaano katagal ka na tumigil sa pag-inom?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="AlcoholStoppedDuration" value="wala pang 1 taon"> Wala pang 1 taon</label>
+                        <label><input type="radio" name="AlcoholStoppedDuration" value="≥ 1 taon"> ≥ 1 taon</label>
                     </div>
                 </div>
-                <div class="form-group conditional-section" id="alcohol-questions-2">
+                <div class="form-group conditional-section" id="alcohol-questions">
                     <label>Gaano karami sa isang araw?</label>
-                    <div class="checkbox-group">
-                        <label><input type="radio" name="AlcoholConsumption" value="1 bote"> 1 bote</label>
-                        <label><input type="radio" name="AlcoholConsumption" value="2 bote"> 2 bote</label>
-                        <label><input type="radio" name="AlcoholConsumption" value=">=3 bote"> ≥ 3 bote</label>
-                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Beer</th>
+                                <th>Wine</th>
+                                <th>Whisky/Gin/Brandy</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <label><input type="checkbox" name="AlchoholTypeBeer" value="true"> Beer</label>
+                                    <div style="margin-top: 10px;">
+                                    <label style="display: block;"><input type="checkbox" name="BeerConsumption1" value="true"> 1 bote (320 ml)</label>
+                                    <label style="display: block;"><input type="checkbox" name="BeerConsumption2" value="true"> 2 bote (640 ml)</label>
+                                    <label style="display: block;"><input type="checkbox" name="BeerConsumption3" value="true"> ≥ 3 bote</label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <label><input type="checkbox" name="AlchoholTypeWine" value="true"> Wine</label>
+                                    <div style="margin-top: 10px;">
+                                    <label style="display: block;"><input type="checkbox" name="WineConsumption1" value="true"> ≤ 3 wine glasses (300 ml)</label>
+                                    <label style="display: block;"><input type="checkbox" name="WineConsumption2" value="true"> > 4 wine glasses</label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <label><input type="checkbox" name="AlchoholTypeWhisky" value="true"> Whisky/Gin/Brandy</label>
+                                    <div style="margin-top: 10px;">
+                                    <label style="display: block;"><input type="checkbox" name="WhiskyConsumption1" value="true"> ≤ 3 shots/jigger (75 ml)</label>
+                                    <label style="display: block;"><input type="checkbox" name="WhiskyConsumption2" value="true"> ≥ 4 shots / jigger</label>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
                 <div class="form-group conditional-section" id="alcohol-questions-3">
                     <label>Gaano kadalas sa isang linggo?</label>
@@ -428,17 +475,10 @@
 
                 <h4>B.3 Ehersisyo</h4>
                 <div class="form-group">
-                    <label>May regular ka bang ehersisyo (30 minuto, 3-5 beses sa isang linggo)?</label>
+                    <label>1. May sapat ka bang ehersisyo? (150 minuto sa loob ng isang linggo na hindi lalampas ng 2 araw na pagitan)</label>
                     <div class="radio-group">
                         <label><input type="radio" name="ehersisyo_regular" value="mayroon"> Mayroon</label>
                         <label><input type="radio" name="ehersisyo_regular" value="wala"> Wala</label>
-                    </div>
-                </div>
-                <div class="form-group conditional-section" id="exercise-questions">
-                    <label>Gaano katagal sa isang araw?</label>
-                    <div class="radio-group">
-                        <label><input type="radio" name="ExerciseDuration" value="<30 minuto"> Wala pang 30 minuto</label>
-                        <label><input type="radio" name="ExerciseDuration" value=">=30 minuto"> 30 minuto o higit</label>
                     </div>
                 </div>
 
@@ -794,6 +834,7 @@
                 ['Hypertension', document.querySelector('input[name="HasHypertension"]')?.checked ? 'Yes' : 'No'],
                 ['Cancer', document.querySelector('input[name="HasCancer"]')?.checked ? `Yes (${document.querySelector('input[name="CancerType"]').value})` : 'No'],
                 ['COPD', document.querySelector('input[name="HasCOPD"]')?.checked ? 'Yes' : 'No'],
+                ['Eye Disease', document.querySelector('input[name="Sakit sa mata"]')?.checked ? 'Yes' : 'No'],
                 ['Alcohol Frequency', document.querySelector('input[name="AlcoholFrequency"]:checked')?.value || 'None'],
                 ['Alcohol Consumption', document.querySelector('input[name="AlcoholConsumption"]:checked')?.value || 'None'],
                 ['Exercise Duration', document.querySelector('input[name="ExerciseDuration"]:checked')?.value || 'None'],
@@ -900,12 +941,20 @@
             data.LungDiseaseYear = document.querySelector('input[name="LungDiseaseYear"]')?.value || '';
             data.LungDiseaseMedication = document.querySelector('input[name="LungDiseaseMedication"]')?.value || '';
 
+            data.HasEyeDisease = document.querySelector('input[name="Sakit sa mata"]')?.checked || false;
+            data.EyeDiseaseYear = document.querySelector('input[name="EyeDiseaseYear"]')?.value || '';
+            data.EyeDiseaseMedication = document.querySelector('input[name="EyeDiseaseMedication"]')?.value || '';
+
             // Part III: Assessment of Risk Factors
             // A. Non-Modifiable Risk Factors (Family History)
             // Collect individual family history data and aggregate them
             const familyHistoryStrokeFather = document.querySelector('input[name="FamilyHistoryStrokeFather"]')?.checked || false;
             const familyHistoryStrokeMother = document.querySelector('input[name="FamilyHistoryStrokeMother"]')?.checked || false;
             const familyHistoryStrokeSibling = document.querySelector('input[name="FamilyHistoryStrokeSibling"]')?.checked || false;
+
+            const familyHistoryHypertensionFather = document.querySelector('input[name="FamilyHistoryHypertensionFather"]')?.checked || false;
+            const familyHistoryHypertensionMother = document.querySelector('input[name="FamilyHistoryHypertensionMother"]')?.checked || false;
+            const familyHistoryHypertensionSibling = document.querySelector('input[name="FamilyHistoryHypertensionSibling"]')?.checked || false;
 
             const familyHistoryDiabetesFather = document.querySelector('input[name="FamilyHistoryDiabetesFather"]')?.checked || false;
             const familyHistoryDiabetesMother = document.querySelector('input[name="FamilyHistoryDiabetesMother"]')?.checked || false;
@@ -915,26 +964,33 @@
             const familyHistoryCancerMother = document.querySelector('input[name="FamilyHistoryCancerMother"]')?.checked || false;
             const familyHistoryCancerSibling = document.querySelector('input[name="FamilyHistoryCancerSibling"]')?.checked || false;
 
-            const familyHistoryHeartDiseaseFather = document.querySelector('input[name="FamilyHistoryHeartDiseaseFather"]')?.checked || false;
-            const familyHistoryHeartDiseaseMother = document.querySelector('input[name="FamilyHistoryHeartDiseaseMother"]')?.checked || false;
-            const familyHistoryHeartDiseaseSibling = document.querySelector('input[name="FamilyHistoryHeartDiseaseSibling"]')?.checked || false;
-
             const familyHistoryLungDiseaseFather = document.querySelector('input[name="FamilyHistoryLungDiseaseFather"]')?.checked || false;
             const familyHistoryLungDiseaseMother = document.querySelector('input[name="FamilyHistoryLungDiseaseMother"]')?.checked || false;
             const familyHistoryLungDiseaseSibling = document.querySelector('input[name="FamilyHistoryLungDiseaseSibling"]')?.checked || false;
+
+            const familyHistoryKidneyDiseaseFather = document.querySelector('input[name="FamilyHistoryKidneyDiseaseFather"]')?.checked || false;
+            const familyHistoryKidneyDiseaseMother = document.querySelector('input[name="FamilyHistoryKidneyDiseaseMother"]')?.checked || false;
+            const familyHistoryKidneyDiseaseSibling = document.querySelector('input[name="FamilyHistoryKidneyDiseaseSibling"]')?.checked || false;
 
             const otherDetails = (document.getElementById('family-history-other')?.value || '').trim();
             data.FamilyOtherDiseaseDetails = otherDetails;
 
             // Aggregated family history booleans expected by backend
+            data.FamilyHasHypertension = !!(familyHistoryHypertensionFather || familyHistoryHypertensionMother || familyHistoryHypertensionSibling);
             data.FamilyHasStroke = !!(familyHistoryStrokeFather || familyHistoryStrokeMother || familyHistoryStrokeSibling);
             data.FamilyHasDiabetes = !!(familyHistoryDiabetesFather || familyHistoryDiabetesMother || familyHistoryDiabetesSibling);
             data.FamilyHasCancer = !!(familyHistoryCancerFather || familyHistoryCancerMother || familyHistoryCancerSibling);
-            data.FamilyHasHeartDisease = !!(familyHistoryHeartDiseaseFather || familyHistoryHeartDiseaseMother || familyHistoryHeartDiseaseSibling);
+            
+            // Family heart disease not tracked as separate family history
+            data.FamilyHasHeartDisease = false;
+            
             data.FamilyHasLungDisease = !!(familyHistoryLungDiseaseFather || familyHistoryLungDiseaseMother || familyHistoryLungDiseaseSibling);
-            // Not captured in UI: set safe defaults
-            data.FamilyHasHypertension = false;
-            data.FamilyHasKidneyDisease = false;
+            data.FamilyHasKidneyDisease = !!(familyHistoryKidneyDiseaseFather || familyHistoryKidneyDiseaseMother || familyHistoryKidneyDiseaseSibling);
+
+            // Family eye disease not tracked as family history
+            data.FamilyHasEyeDisease = false;
+            
+            // Other diseases
             data.FamilyHasOtherDisease = otherDetails.length > 0;
 
             // B. Modifiable Risk Factors
@@ -943,11 +999,29 @@
             data.HighSaltIntake = document.querySelector('input[name="HighSaltIntake"]')?.checked || false;
 
             // B.2 Alcohol
-            data.AlcoholConsumption = document.querySelector('input[name="AlcoholConsumption"]:checked')?.value || 'None';
+            data.AlcoholStoppedDuration = document.querySelector('input[name="AlcoholStoppedDuration"]:checked')?.value || 'None';
             data.AlcoholFrequency = document.querySelector('input[name="AlcoholFrequency"]:checked')?.value || 'None';
+            
+            // Alcohol type and consumption details
+            data.AlcoholTypeBeer = document.querySelector('input[name="AlchoholTypeBeer"]')?.checked || false;
+            data.AlcoholTypeWine = document.querySelector('input[name="AlchoholTypeWine"]')?.checked || false;
+            data.AlcoholTypeWhisky = document.querySelector('input[name="AlchoholTypeWhisky"]')?.checked || false;
+            
+            // Beer consumption details
+            data.BeerConsumption1 = document.querySelector('input[name="BeerConsumption1"]')?.checked || false;
+            data.BeerConsumption2 = document.querySelector('input[name="BeerConsumption2"]')?.checked || false;
+            data.BeerConsumption3 = document.querySelector('input[name="BeerConsumption3"]')?.checked || false;
+            
+            // Wine consumption details
+            data.WineConsumption1 = document.querySelector('input[name="WineConsumption1"]')?.checked || false;
+            data.WineConsumption2 = document.querySelector('input[name="WineConsumption2"]')?.checked || false;
+            
+            // Whisky consumption details
+            data.WhiskyConsumption1 = document.querySelector('input[name="WhiskyConsumption1"]')?.checked || false;
+            data.WhiskyConsumption2 = document.querySelector('input[name="WhiskyConsumption2"]')?.checked || false;
 
             // B.3 Ehersisyo
-            data.ExerciseDuration = document.querySelector('input[name="ExerciseDuration"]:checked')?.value || 'None';
+            data.HasEnoughExercise = document.querySelector('input[name="ehersisyo_regular"]:checked')?.value === 'mayroon' || false;
 
             // B.4 Paninigarilyo
             data.SmokingStatus = document.querySelector('input[name="SmokingStatus"]:checked')?.value || 'Non-smoker';
@@ -979,7 +1053,7 @@
             const booleanFields = [
                 'HasDiabetes', 'HasHypertension', 'HasCancer', 'HasCOPD', 'HasLungDisease', 'HasEyeDisease',
                 'FamilyHasHypertension', 'FamilyHasHeartDisease', 'FamilyHasStroke', 'FamilyHasDiabetes',
-                'FamilyHasCancer', 'FamilyHasKidneyDisease', 'FamilyHasOtherDisease', 'HighSaltIntake',
+                'FamilyHasCancer', 'FamilyHasKidneyDisease', 'FamilyHasEyeDisease', 'FamilyHasOtherDisease', 'HighSaltIntake',
                 'HasDifficultyBreathing', 'HasAsthma', 'HasNoRegularExercise'
             ];
             
@@ -1016,6 +1090,7 @@
             data['FamilyHasDiabetes'] = data.FamilyHasDiabetes || false;
             data['FamilyHasCancer'] = data.FamilyHasCancer || false;
             data['FamilyHasKidneyDisease'] = data.FamilyHasKidneyDisease || false;
+            data['FamilyHasEyeDisease'] = data.FamilyHasEyeDisease || false;
             data['FamilyHasOtherDisease'] = data.FamilyHasOtherDisease || false;
 
             console.log("JSON data being sent:", JSON.stringify(data, null, 2));
@@ -1051,7 +1126,7 @@
                     jsonDataPreview: jsonData.substring(0, 200) + "..."
                 });
 
-                fetch('/api/NCDRiskAssessment/submit', {
+                fetch('/User/NCDRiskAssessment?handler=SubmitAssessment', {
                     method: 'POST',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'
@@ -1115,8 +1190,8 @@
             console.log("Initializing conditional sections");
             
             // Setup the conditional visibility for each section
-            setupConditionalVisibilityGroup('alcohol_inom', ['alcohol-questions', 'alcohol-questions-2', 'alcohol-questions-3', 'alcohol-questions-4']);
-            setupConditionalVisibilityGroup('ehersisyo_regular', ['exercise-questions']);
+            setupConditionalVisibilityGroup('alcohol_inom', ['alcohol-stopped-questions', 'alcohol-questions', 'alcohol-questions-2', 'alcohol-questions-3', 'alcohol-questions-4']);
+            // Exercise section only has one question with no conditional subsection
             setupConditionalVisibilityGroup('SmokingStatus', ['smoking-questions', 'smoking-questions-2']);
             setupConditionalVisibilityGroup('stress_madalas', ['stress-questions', 'stress-questions-2']);
             
@@ -1130,16 +1205,7 @@
             const alcoholRadios = document.querySelectorAll('input[name="alcohol_inom"]');
             for (const radio of alcoholRadios) {
                 if (radio.checked && radio.value === 'Hindi') {
-                    hideGroupSections(['alcohol-questions', 'alcohol-questions-2', 'alcohol-questions-3', 'alcohol-questions-4']);
-                    break;
-                }
-            }
-            
-            // Check exercise section
-            const exerciseRadios = document.querySelectorAll('input[name="ehersisyo_regular"]');
-            for (const radio of exerciseRadios) {
-                if (radio.checked && radio.value === 'wala') {
-                    hideGroupSections(['exercise-questions']);
+                    hideGroupSections(['alcohol-stopped-questions', 'alcohol-questions', 'alcohol-questions-2', 'alcohol-questions-3', 'alcohol-questions-4']);
                     break;
                 }
             }
@@ -1196,23 +1262,52 @@
             
             console.log(`Setting up conditional visibility for ${radioName} -> ${sectionIds.join(', ')}`);
             
-            // Add event listeners to radio buttons
-            radioButtons.forEach(radio => {
-                radio.addEventListener('change', function() {
-                    // Check if this is a "No" option
-                    const isNoOption = (this.value === 'Hindi' || this.value === 'Non-smoker' || this.value === 'wala');
-                    
-                    sections.forEach(section => {
-                        if (isNoOption) {
-                            console.log(`Hiding section ${section.id} for value: ${this.value}`);
-                            section.classList.add('hidden');
-                        } else {
-                            console.log(`Showing section ${section.id} for value: ${this.value}`);
-                            section.classList.remove('hidden');
-                        }
+            // Special handling for alcohol section
+            if (radioName === 'alcoholic_inom') {
+                radioButtons.forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        sections.forEach(section => {
+                            if (this.value === 'Hindi') {
+                                // Show alcohol-stopped-questions, hide other alcohol questions
+                                if (section.id === 'alcohol-stopped-questions') {
+                                    console.log(`Showing section ${section.id} for value: ${this.value}`);
+                                    section.classList.remove('hidden');
+                                } else {
+                                    console.log(`Hiding section ${section.id} for value: ${this.value}`);
+                                    section.classList.add('hidden');
+                                }
+                            } else if (this.value === 'Oo') {
+                                // Hide alcohol-stopped-questions, show other alcohol questions
+                                if (section.id === 'alcohol-stopped-questions') {
+                                    console.log(`Hiding section ${section.id} for value: ${this.value}`);
+                                    section.classList.add('hidden');
+                                } else {
+                                    console.log(`Showing section ${section.id} for value: ${this.value}`);
+                                    section.classList.remove('hidden');
+                                }
+                            }
+                        });
                     });
                 });
-            });
+            } else {
+                // Default handling for other sections
+                radioButtons.forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        // Check if this is a "No" option
+                        const isNoOption = (this.value === 'Hindi' || this.value === 'Non-smoker' || this.value === 'wala');
+                        
+                        sections.forEach(section => {
+                            if (isNoOption) {
+                                console.log(`Hiding section ${section.id} for value: ${this.value}`);
+                                section.classList.add('hidden');
+                            } else {
+                                console.log(`Showing section ${section.id} for value: ${this.value}`);
+                                section.classList.remove('hidden');
+                            }
+                        });
+                    });
+                });
+            }
         }
     </script>
 }

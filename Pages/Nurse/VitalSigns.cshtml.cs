@@ -192,22 +192,38 @@ namespace Barangay.Pages.Nurse
         // New method to load today's appointments (excluding those with vital signs already recorded)
         private async Task LoadTodayAppointmentsAsync()
         {
-            // Get all appointments for today
+            // Get all appointments for today, excluding Completed and Cancelled statuses
             var todayAppointments = await _context.Appointments
-                .Where(a => a.AppointmentDate.Date == Today)
+                .Where(a => a.AppointmentDate.Date == Today && 
+                           a.Status != AppointmentStatus.Completed && 
+                           a.Status != AppointmentStatus.Cancelled)
                 .OrderBy(a => a.AppointmentTime)
                 .Include(a => a.Doctor)
-                .Select(a => new TodayAppointmentViewModel
-                {
-                    Id = a.Id,
-                    PatientId = a.PatientId,
-                    PatientName = a.PatientName,
-                    AppointmentTime = a.AppointmentTime,
-                    DoctorName = a.Doctor != null ? a.Doctor.FullName : "Not assigned",
-                    Type = a.Type ?? "General",
-                    Status = a.Status
-                })
                 .ToListAsync();
+
+            // Decrypt doctor names and create view models
+            var appointmentViewModels = new List<TodayAppointmentViewModel>();
+            foreach (var appointment in todayAppointments)
+            {
+                string doctorName = "Not assigned";
+                if (appointment.Doctor != null)
+                {
+                    // Decrypt doctor's name
+                    appointment.Doctor.DecryptSensitiveData(_encryptionService, User);
+                    doctorName = appointment.Doctor.FullName;
+                }
+
+                appointmentViewModels.Add(new TodayAppointmentViewModel
+                {
+                    Id = appointment.Id,
+                    PatientId = appointment.PatientId,
+                    PatientName = appointment.PatientName,
+                    AppointmentTime = appointment.AppointmentTime,
+                    DoctorName = doctorName,
+                    Type = appointment.Type ?? "General",
+                    Status = appointment.Status
+                });
+            }
 
             // Get patient IDs that already have vital signs recorded today
             var patientsWithVitalSignsToday = await _context.VitalSigns
@@ -217,23 +233,25 @@ namespace Barangay.Pages.Nurse
                 .ToListAsync();
 
             // Filter out appointments for patients who already have vital signs recorded today
-            var filteredAppointments = todayAppointments
+            var filteredAppointments = appointmentViewModels
                 .Where(a => !patientsWithVitalSignsToday.Contains(a.PatientId))
                 .ToList();
 
             TodayAppointments = filteredAppointments;
             
-            _logger.LogInformation($"Loaded {todayAppointments.Count} total appointments for today ({Today:yyyy-MM-dd}), filtered to {filteredAppointments.Count} appointments (excluding {patientsWithVitalSignsToday.Count} patients with vital signs already recorded)");
+            _logger.LogInformation($"Loaded {todayAppointments.Count} total appointments for today ({Today:yyyy-MM-dd}), filtered to {filteredAppointments.Count} appointments (excluding Completed/Cancelled statuses and {patientsWithVitalSignsToday.Count} patients with vital signs already recorded)");
         }
         
         // New method to load patients with today's appointments for the dropdown (excluding those with vital signs already recorded)
         private async Task LoadPatientsWithTodayAppointmentsAsync()
         {
-            // Get patients with today's appointments
+            // Get patients with today's appointments, excluding Completed and Cancelled statuses
             var patientsWithTodayAppointments = await _context.Appointments
                 .Where(a => a.AppointmentDate.Date == Today &&
                        a.PatientName != "System Administrator" && 
-                       a.PatientId != "0e03f06e-ba88-46ed-b047-4974d8b8252a")
+                       a.PatientId != "0e03f06e-ba88-46ed-b047-4974d8b8252a" &&
+                       a.Status != AppointmentStatus.Completed && 
+                       a.Status != AppointmentStatus.Cancelled)
                 .Select(a => new { PatientId = a.PatientId, PatientName = a.PatientName })
                 .Distinct()
                 .ToListAsync();
@@ -266,7 +284,7 @@ namespace Barangay.Pages.Nurse
                 })
                 .ToList();
                 
-            _logger.LogInformation($"Loaded {filteredPatientsWithTodayAppointments.Count} patients with today's appointments (excluding {patientsWithVitalSignsToday.Count} with vital signs already recorded)");
+            _logger.LogInformation($"Loaded {filteredPatientsWithTodayAppointments.Count} patients with today's appointments (excluding Completed/Cancelled statuses and {patientsWithVitalSignsToday.Count} with vital signs already recorded)");
         }
 
         // New method to load patient appointments

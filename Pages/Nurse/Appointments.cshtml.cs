@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Barangay.Data;
 using Barangay.Models;
+using Barangay.Services;
+using Barangay.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,15 +22,18 @@ namespace Barangay.Pages.Nurse
         private readonly ApplicationDbContext _context;
         private readonly ILogger<AppointmentsModel> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IDataEncryptionService _encryptionService;
 
         public AppointmentsModel(
             ApplicationDbContext context, 
             ILogger<AppointmentsModel> logger,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IDataEncryptionService encryptionService)
         {
             _context = context;
             _logger = logger;
             _userManager = userManager;
+            _encryptionService = encryptionService;
         }
 
         public class AppointmentViewModel
@@ -68,9 +73,47 @@ namespace Barangay.Pages.Nurse
 
                 _logger.LogInformation("Found {0} appointments in the database", appointments.Count);
                 
+                // Decrypt patient data for display
+                foreach (var appointment in appointments)
+                {
+                    if (appointment.Patient != null)
+                    {
+                        try
+                        {
+                            appointment.Patient.DecryptSensitiveData(_encryptionService, User);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning(ex, "Failed to decrypt patient data for appointment {Id}", appointment.Id);
+                        }
+                    }
+                }
+                
                 // Get today's date
                 var today = DateTime.Today;
                 
+                // Decrypt patient names and doctor names for all appointments
+                foreach (var appointment in appointments)
+                {
+                    // Decrypt patient name
+                    if (!string.IsNullOrEmpty(appointment.PatientName) && _encryptionService.IsEncrypted(appointment.PatientName))
+                    {
+                        appointment.PatientName = _encryptionService.DecryptForUser(appointment.PatientName, User);
+                    }
+                    
+                    // Decrypt dependent name if applicable
+                    if (!string.IsNullOrEmpty(appointment.DependentFullName) && _encryptionService.IsEncrypted(appointment.DependentFullName))
+                    {
+                        appointment.DependentFullName = _encryptionService.DecryptForUser(appointment.DependentFullName, User);
+                    }
+                    
+                    // Decrypt doctor name
+                    if (appointment.Doctor != null)
+                    {
+                        appointment.Doctor.DecryptSensitiveData(_encryptionService, User);
+                    }
+                }
+
                 // Convert to view models (exclude Draft appointments)
                 Appointments = appointments
                     .Where(a => a.Status != AppointmentStatus.Draft)
@@ -78,8 +121,7 @@ namespace Barangay.Pages.Nurse
                     {
                         Id = a.Id,
                         PatientId = a.PatientId,
-                        PatientName = string.IsNullOrEmpty(a.PatientName) ? 
-                            (a.Patient != null ? a.Patient.FullName : "Unknown") : a.PatientName,
+                        PatientName = !string.IsNullOrEmpty(a.DependentFullName) ? a.DependentFullName : a.PatientName,
                         AppointmentDate = a.AppointmentDate,
                         AppointmentTime = a.AppointmentTime,
                         DoctorId = a.DoctorId,

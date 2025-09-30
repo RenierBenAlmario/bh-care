@@ -80,7 +80,7 @@ namespace Barangay.Models
         public string? SmokingDuration { get; set; }
         public string? SmokingQuitDuration { get; set; }
         public bool ExposedToSmoke { get; set; }
-        public bool Smoked100Sticks { get; set; }
+        public string? Smoked100Sticks { get; set; } = "false";
 
         // B.5 Stress
         public bool IsStressed { get; set; }
@@ -120,6 +120,44 @@ namespace Barangay.Models
         public string? FamilyHasKidneyDisease { get; set; } = "false";
         public string? FamilyHasOtherDisease { get; set; } = "false";
         public string? FamilyOtherDiseaseDetails { get; set; } = string.Empty;
+
+        // Family History Detailed (by Family Member)
+        public string? FamilyHistoryHypertensionFather { get; set; } = "false";
+        public string? FamilyHistoryHypertensionMother { get; set; } = "false";
+        public string? FamilyHistoryHypertensionSibling { get; set; } = "false";
+
+        public string? FamilyHistoryStrokeFather { get; set; } = "false";
+        public string? FamilyHistoryStrokeMother { get; set; } = "false";
+        public string? FamilyHistoryStrokeSibling { get; set; } = "false";
+
+        public string? FamilyHistoryDiabetesFather { get; set; } = "false";
+        public string? FamilyHistoryDiabetesMother { get; set; } = "false";
+        public string? FamilyHistoryDiabetesSibling { get; set; } = "false";
+
+        public string? FamilyHistoryCancerFather { get; set; } = "false";
+        public string? FamilyHistoryCancerMother { get; set; } = "false";
+        public string? FamilyHistoryCancerSibling { get; set; } = "false";
+
+        public string? FamilyHistoryHeartDiseaseFather { get; set; } = "false";
+        public string? FamilyHistoryHeartDiseaseMother { get; set; } = "false";
+        public string? FamilyHistoryHeartDiseaseSibling { get; set; } = "false";
+
+        public string? FamilyHistoryLungDiseaseFather { get; set; } = "false";
+        public string? FamilyHistoryLungDiseaseMother { get; set; } = "false";
+        public string? FamilyHistoryLungDiseaseSibling { get; set; } = "false";
+
+        public string? FamilyHistoryKidneyDiseaseFather { get; set; } = "false";
+        public string? FamilyHistoryKidneyDiseaseMother { get; set; } = "false";
+        public string? FamilyHistoryKidneyDiseaseSibling { get; set; } = "false";
+
+        public string? FamilyHistoryEyeDiseaseFather { get; set; } = "false";
+        public string? FamilyHistoryEyeDiseaseMother { get; set; } = "false";
+        public string? FamilyHistoryEyeDiseaseSibling { get; set; } = "false";
+
+        public string? FamilyHistoryOther { get; set; } = "false";
+        public string? FamilyHistoryOtherFather { get; set; } = "false";
+        public string? FamilyHistoryOtherMother { get; set; } = "false";
+        public string? FamilyHistoryOtherSibling { get; set; } = "false";
         
         // Legacy diet properties
         public string? EatsVegetables { get; set; } = "false";
@@ -134,6 +172,9 @@ namespace Barangay.Models
         // Legacy health conditions
         public string? HasDifficultyBreathing { get; set; } = "false";
         public string? HasAsthma { get; set; } = "false";
+        
+        // Additional health conditions added to existing properties above
+        public string? HasEnoughExercise { get; set; } = "false";
         
         // Legacy chest pain properties
         public string? HasChestPain { get; set; } = "false";

@@ -22,12 +22,12 @@ namespace Barangay.Models
 
         // Health Facility Information
         [Display(Name = "Health Facility")]
-        [StringLength(100)]
+        [StringLength(4000)]
         [Encrypted]
         public string? HealthFacility { get; set; }
 
         [Display(Name = "Family No")]
-        [StringLength(100)]
+        [StringLength(4000)]
         [Encrypted]
         public string? FamilyNo { get; set; }
 
@@ -37,7 +37,7 @@ namespace Barangay.Models
         public string? Address { get; set; }
 
         [Display(Name = "Barangay")]
-        [StringLength(100)]
+        [StringLength(4000)]
         [Encrypted]
         public string? Barangay { get; set; }
 
@@ -47,7 +47,7 @@ namespace Barangay.Models
         public string? Birthday { get; set; }
 
         [Display(Name = "Telepono")]
-        [StringLength(100)]
+        [StringLength(4000)]
         [Encrypted]
         public string? Telepono { get; set; }
 
@@ -62,7 +62,7 @@ namespace Barangay.Models
         public string? Kasarian { get; set; }
 
         [Display(Name = "Relihiyon")]
-        [StringLength(100)]
+        [StringLength(4000)]
         [Encrypted]
         public string? Relihiyon { get; set; }
 
@@ -96,6 +96,31 @@ namespace Barangay.Models
         [StringLength(4000)]
         [Encrypted]
         public string? HasEyeDisease { get; set; } = "false";
+
+        [Display(Name = "Eye Disease Year")]
+        [StringLength(50)]
+        [Encrypted]
+        public string? EyeDiseaseYear { get; set; }
+
+        [Display(Name = "Eye Disease Medication")]
+        [StringLength(200)]
+        [Encrypted]
+        public string? EyeDiseaseMedication { get; set; }
+
+        [Display(Name = "Alcohol Stopped Duration")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? AlcoholStoppedDuration { get; set; }
+
+        [Display(Name = "Smoked 100 Sticks")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? Smoked100Sticks { get; set; } = "false";
+
+        [Display(Name = "Has Enough Exercise")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? HasEnoughExercise { get; set; } = "false";
 
         [Display(Name = "Cancer Type")]
         [StringLength(200)]
@@ -143,9 +168,40 @@ namespace Barangay.Models
         [Encrypted]
         public string? FamilyOtherDiseaseDetails { get; set; }
 
+        // Detailed Family History (by Family Member)
+        [Display(Name = "Family History Kidney Disease Father")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? FamilyHistoryKidneyDiseaseFather { get; set; } = "false";
+
+        [Display(Name = "Family History Kidney Disease Mother")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? FamilyHistoryKidneyDiseaseMother { get; set; } = "false";
+
+        [Display(Name = "Family History Kidney Disease Sibling")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? FamilyHistoryKidneyDiseaseSibling { get; set; } = "false";
+
+        [Display(Name = "Family History Eye Disease Father")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? FamilyHistoryEyeDiseaseFather { get; set; } = "false";
+
+        [Display(Name = "Family History Eye Disease Mother")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? FamilyHistoryEyeDiseaseMother { get; set; } = "false";
+
+        [Display(Name = "Family History Eye Disease Sibling")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? FamilyHistoryEyeDiseaseSibling { get; set; } = "false";
+
         // Lifestyle Factors
         [Display(Name = "Smoking Status")]
-        [StringLength(100)]
+        [StringLength(4000)]
         [Encrypted]
         public string? SmokingStatus { get; set; }
 
@@ -155,22 +211,22 @@ namespace Barangay.Models
         public string? HighSaltIntake { get; set; } = "false";
 
         [Display(Name = "Alcohol Frequency")]
-        [StringLength(100)]
+        [StringLength(4000)]
         [Encrypted]
         public string? AlcoholFrequency { get; set; }
 
         [Display(Name = "Alcohol Consumption")]
-        [StringLength(100)]
+        [StringLength(4000)]
         [Encrypted]
         public string? AlcoholConsumption { get; set; }
 
         [Display(Name = "Exercise Duration")]
-        [StringLength(100)]
+        [StringLength(4000)]
         [Encrypted]
         public string? ExerciseDuration { get; set; }
 
         [Display(Name = "Risk Status")]
-        [StringLength(100)]
+        [StringLength(4000)]
         [Encrypted]
         public string? RiskStatus { get; set; }
 
@@ -233,7 +289,7 @@ namespace Barangay.Models
         public string? CancerYear { get; set; }
 
         [Display(Name = "Civil Status")]
-        [StringLength(100)]
+        [StringLength(4000)]
         [Encrypted]
         public string? CivilStatus { get; set; }
 
@@ -344,7 +400,7 @@ namespace Barangay.Models
         public string? FamilyHistoryStrokeSibling { get; set; } = "false";
 
         [Display(Name = "First Name")]
-        [StringLength(100)]
+        [StringLength(4000)]
         [Encrypted]
         public string? FirstName { get; set; }
 
@@ -359,7 +415,7 @@ namespace Barangay.Models
         public string? HypertensionYear { get; set; }
 
         [Display(Name = "Last Name")]
-        [StringLength(100)]
+        [StringLength(4000)]
         [Encrypted]
         public string? LastName { get; set; }
 
@@ -374,7 +430,7 @@ namespace Barangay.Models
         public string? LungDiseaseYear { get; set; }
 
         [Display(Name = "Middle Name")]
-        [StringLength(100)]
+        [StringLength(4000)]
         [Encrypted]
         public string? MiddleName { get; set; }
 
@@ -415,12 +471,12 @@ namespace Barangay.Models
         public string? WHRatio { get; set; }
 
         [Display(Name = "BMI Status")]
-        [StringLength(100)]
+        [StringLength(4000)]
         [Encrypted]
         public string? BMIStatus { get; set; }
 
         [Display(Name = "WH Status")]
-        [StringLength(100)]
+        [StringLength(4000)]
         [Encrypted]
         public string? WHStatus { get; set; }
 
@@ -436,7 +492,7 @@ namespace Barangay.Models
         public string? RandomBloodSugar { get; set; }
 
         [Display(Name = "Blood Sugar Status")]
-        [StringLength(100)]
+        [StringLength(4000)]
         [Encrypted]
         public string? BloodSugarStatus { get; set; }
 
@@ -477,7 +533,7 @@ namespace Barangay.Models
         public string? BaselineBP { get; set; }
 
         [Display(Name = "BP Status")]
-        [StringLength(100)]
+        [StringLength(4000)]
         [Encrypted]
         public string? BPStatus { get; set; }
 
@@ -488,7 +544,7 @@ namespace Barangay.Models
         public string? CholesterolResult { get; set; }
 
         [Display(Name = "Cholesterol Status")]
-        [StringLength(100)]
+        [StringLength(4000)]
         [Encrypted]
         public string? CholesterolStatus { get; set; }
 
@@ -531,7 +587,7 @@ namespace Barangay.Models
         public string? CervicalCancerScreened { get; set; } = "false";
 
         [Display(Name = "Cancer Screening Status")]
-        [StringLength(100)]
+        [StringLength(4000)]
         [Encrypted]
         public string? CancerScreeningStatus { get; set; }
 
@@ -749,12 +805,12 @@ namespace Barangay.Models
 
         // ID Number
         [Display(Name = "ID Number")]
-        [StringLength(100)]
+        [StringLength(4000)]
         [Encrypted]
         public string? IDNumber { get; set; }
 
         [Display(Name = "ID No")]
-        [StringLength(100)]
+        [StringLength(4000)]
         [Encrypted]
         public string? IDNo { get; set; }
 

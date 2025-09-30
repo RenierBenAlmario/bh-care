@@ -10,510 +10,82 @@ namespace Barangay.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // Add all missing columns to NCDRiskAssessments table
-            migrationBuilder.AddColumn<string>(
-                name: "AlcoholAmount1Bottle320ml",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "AlcoholAmount2Bottle640ml",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "AlcoholAmount3to4WineGlasses300ml",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "AlcoholAmountLessThan3Shot45ml",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "AlcoholAmountMoreThan4Shots75ml",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "AlcoholFrequency1to3TimesPerWeek",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "AlcoholFrequencyMoreThan4TimesPerWeek",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "AssessmentDate",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(50)",
-                maxLength: 50,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "BMI",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "BMIStatus",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(50)",
-                maxLength: 50,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "BPStatus",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(50)",
-                maxLength: 50,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "BaselineBP",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(50)",
-                maxLength: 50,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "BloodSugarStatus",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(50)",
-                maxLength: 50,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "BreastCancerScreened",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "CancerScreeningStatus",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(100)",
-                maxLength: 100,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "CervicalCancerScreened",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "ChestPainSpreadsToArm",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "CholesterolResult",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(50)",
-                maxLength: 50,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "CholesterolStatus",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(50)",
-                maxLength: 50,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "CombinationExercise",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "DateOfAssessment",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(50)",
-                maxLength: 50,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "Designation",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(200)",
-                maxLength: 200,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "DoctorName",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(200)",
-                maxLength: 200,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "DrinksAlcohol",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "DrinksBeer",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "DrinksWhiskyGinBrandy",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "DrinksWine",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "EatsFattyFoodMoreThan2TimesPerWeek",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "EatsFishDaily",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "EatsFruitsDaily",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "EatsMeatDaily",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "EatsOilyFoodMoreThan2TimesPerWeek",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "EatsSweetFoodMoreThan2TimesPerWeek",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "EatsVegetablesDaily",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "FastingBloodSugar",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(50)",
-                maxLength: 50,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "FormerSmoker",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "HasChestPain",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "HasHighSaltIntake",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "HasHistoryOfSmoking",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "HasPolydipsia",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "HasPolyphagia",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "HasPolyuria",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "HasStress",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "HasUnhealthyDiet",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "HasUrineKetones",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "HasUrineProtein",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "HasWeightLoss",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "Height",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "Hip",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "IDNumber",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(100)",
-                maxLength: 100,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "InsufficientPhysicalActivity",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "InterviewedBy",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(200)",
-                maxLength: 200,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "IsBingeDrinker",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "LeftArmMeanBP",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(50)",
-                maxLength: 50,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "LossOfConsciousnessLessThan10Min",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "ModerateIntensityExercise",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "NeverSmokedButExposedToSmoke",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "NumbnessWhenWalkingFast",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "PainLastsMoreThan30Min",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "PainRelievedWithRest",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "PatientSignature",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(200)",
-                maxLength: 200,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "RandomBloodSugar",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(50)",
-                maxLength: 50,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "RightArmMeanBP",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(50)",
-                maxLength: 50,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "RiskPercentage",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(100)",
-                maxLength: 100,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "SeeDoctorIfYes",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "UrineKetones",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "UrineProtein",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "VigorousIntensityExercise",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "WHRatio",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "WHStatus",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(50)",
-                maxLength: 50,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "Waist",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "Weight",
-                table: "NCDRiskAssessments",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: true);
+            // Add all missing columns to NCDRiskAssessments table (idempotent for Azure SQL)
+            migrationBuilder.Sql(@"
+IF COL_LENGTH('dbo.NCDRiskAssessments','AlcoholAmount1Bottle320ml') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [AlcoholAmount1Bottle320ml] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','AlcoholAmount2Bottle640ml') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [AlcoholAmount2Bottle640ml] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','AlcoholAmount3to4WineGlasses300ml') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [AlcoholAmount3to4WineGlasses300ml] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','AlcoholAmountLessThan3Shot45ml') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [AlcoholAmountLessThan3Shot45ml] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','AlcoholAmountMoreThan4Shots75ml') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [AlcoholAmountMoreThan4Shots75ml] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','AlcoholFrequency1to3TimesPerWeek') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [AlcoholFrequency1to3TimesPerWeek] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','AlcoholFrequencyMoreThan4TimesPerWeek') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [AlcoholFrequencyMoreThan4TimesPerWeek] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','AssessmentDate') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [AssessmentDate] NVARCHAR(50) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','BMI') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [BMI] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','BMIStatus') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [BMIStatus] NVARCHAR(50) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','BPStatus') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [BPStatus] NVARCHAR(50) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','BaselineBP') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [BaselineBP] NVARCHAR(50) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','BloodSugarStatus') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [BloodSugarStatus] NVARCHAR(50) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','BreastCancerScreened') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [BreastCancerScreened] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','CancerScreeningStatus') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [CancerScreeningStatus] NVARCHAR(100) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','CervicalCancerScreened') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [CervicalCancerScreened] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','ChestPainSpreadsToArm') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [ChestPainSpreadsToArm] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','CholesterolResult') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [CholesterolResult] NVARCHAR(50) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','CholesterolStatus') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [CholesterolStatus] NVARCHAR(50) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','CombinationExercise') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [CombinationExercise] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','DateOfAssessment') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [DateOfAssessment] NVARCHAR(50) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','Designation') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [Designation] NVARCHAR(200) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','DoctorName') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [DoctorName] NVARCHAR(200) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','DrinksAlcohol') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [DrinksAlcohol] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','DrinksBeer') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [DrinksBeer] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','DrinksWhiskyGinBrandy') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [DrinksWhiskyGinBrandy] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','DrinksWine') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [DrinksWine] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','EatsFattyFoodMoreThan2TimesPerWeek') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [EatsFattyFoodMoreThan2TimesPerWeek] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','EatsFishDaily') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [EatsFishDaily] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','EatsFruitsDaily') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [EatsFruitsDaily] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','EatsMeatDaily') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [EatsMeatDaily] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','EatsOilyFoodMoreThan2TimesPerWeek') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [EatsOilyFoodMoreThan2TimesPerWeek] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','EatsSweetFoodMoreThan2TimesPerWeek') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [EatsSweetFoodMoreThan2TimesPerWeek] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','EatsVegetablesDaily') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [EatsVegetablesDaily] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','FastingBloodSugar') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [FastingBloodSugar] NVARCHAR(50) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','FormerSmoker') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [FormerSmoker] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','HasChestPain') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [HasChestPain] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','HasHighSaltIntake') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [HasHighSaltIntake] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','HasHistoryOfSmoking') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [HasHistoryOfSmoking] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','HasPolydipsia') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [HasPolydipsia] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','HasPolyphagia') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [HasPolyphagia] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','HasPolyuria') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [HasPolyuria] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','HasStress') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [HasStress] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','HasUnhealthyDiet') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [HasUnhealthyDiet] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','HasUrineKetones') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [HasUrineKetones] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','HasUrineProtein') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [HasUrineProtein] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','HasWeightLoss') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [HasWeightLoss] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','Height') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [Height] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','Hip') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [Hip] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','IDNumber') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [IDNumber] NVARCHAR(100) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','InsufficientPhysicalActivity') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [InsufficientPhysicalActivity] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','InterviewedBy') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [InterviewedBy] NVARCHAR(200) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','IsBingeDrinker') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [IsBingeDrinker] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','LeftArmMeanBP') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [LeftArmMeanBP] NVARCHAR(50) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','LossOfConsciousnessLessThan10Min') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [LossOfConsciousnessLessThan10Min] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','ModerateIntensityExercise') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [ModerateIntensityExercise] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','NeverSmokedButExposedToSmoke') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [NeverSmokedButExposedToSmoke] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','NumbnessWhenWalkingFast') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [NumbnessWhenWalkingFast] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','PainLastsMoreThan30Min') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [PainLastsMoreThan30Min] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','PainRelievedWithRest') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [PainRelievedWithRest] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','PatientSignature') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [PatientSignature] NVARCHAR(200) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','RandomBloodSugar') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [RandomBloodSugar] NVARCHAR(50) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','RightArmMeanBP') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [RightArmMeanBP] NVARCHAR(50) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','RiskPercentage') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [RiskPercentage] NVARCHAR(100) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','SeeDoctorIfYes') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [SeeDoctorIfYes] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','UrineKetones') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [UrineKetones] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','UrineProtein') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [UrineProtein] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','VigorousIntensityExercise') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [VigorousIntensityExercise] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','WHRatio') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [WHRatio] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','WHStatus') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [WHStatus] NVARCHAR(50) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','Waist') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [Waist] NVARCHAR(10) NULL;
+IF COL_LENGTH('dbo.NCDRiskAssessments','Weight') IS NULL ALTER TABLE [dbo].[NCDRiskAssessments] ADD [Weight] NVARCHAR(10) NULL;
+
+");
         }
 
         /// <inheritdoc />

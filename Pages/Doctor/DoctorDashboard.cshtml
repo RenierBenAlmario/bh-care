@@ -74,7 +74,17 @@
                                     {
                                         <tr>
                                                                                                                                     <td>@appointment.AppointmentTime.ToString(@"hh\:mm")</td>
-                                            <td>@(appointment.Patient?.FullName ?? appointment.PatientName)</td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(appointment.DependentFullName))
+                                                {
+                                                    @appointment.DependentFullName
+                                                    <small class="text-muted d-block">(Dependent of @appointment.Patient?.FullName)</small>
+                                                }
+                                                else
+                                                {
+                                                    @appointment.PatientName
+                                                }
+                                            </td>
                                             <td>@appointment.Type</td>
                                             <td>
                                                 <span class="badge @(appointment.Status == AppointmentStatus.Completed ? "bg-success" : appointment.Status == AppointmentStatus.Cancelled ? "bg-danger" : appointment.Status == AppointmentStatus.Confirmed ? "bg-warning" : "bg-primary")">

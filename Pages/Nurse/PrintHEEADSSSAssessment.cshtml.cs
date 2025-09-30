@@ -81,7 +81,8 @@ namespace Barangay.Pages.Nurse
                 // Decrypt sensitive data for display
                 existingAssessment.DecryptSensitiveData(_encryptionService, User);
                 
-                // Manual decryption fallback for critical HEEADSSS fields
+                // Manual decryption fallback for all HEEADSSS fields
+                // Personal Information
                 if (!string.IsNullOrEmpty(existingAssessment.FullName) && _encryptionService.IsEncrypted(existingAssessment.FullName))
                 {
                     existingAssessment.FullName = _encryptionService.DecryptForUser(existingAssessment.FullName, User);
@@ -102,6 +103,106 @@ namespace Barangay.Pages.Nurse
                 {
                     existingAssessment.ContactNumber = _encryptionService.DecryptForUser(existingAssessment.ContactNumber, User);
                 }
+                
+                // Adolescent Health Information
+                if (!string.IsNullOrEmpty(existingAssessment.Height) && _encryptionService.IsEncrypted(existingAssessment.Height))
+                {
+                    existingAssessment.Height = _encryptionService.DecryptForUser(existingAssessment.Height, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessment.Weight) && _encryptionService.IsEncrypted(existingAssessment.Weight))
+                {
+                    existingAssessment.Weight = _encryptionService.DecryptForUser(existingAssessment.Weight, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessment.BMI) && _encryptionService.IsEncrypted(existingAssessment.BMI))
+                {
+                    existingAssessment.BMI = _encryptionService.DecryptForUser(existingAssessment.BMI, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessment.ImmunizationMR) && _encryptionService.IsEncrypted(existingAssessment.ImmunizationMR))
+                {
+                    existingAssessment.ImmunizationMR = _encryptionService.DecryptForUser(existingAssessment.ImmunizationMR, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessment.ImmunizationTd) && _encryptionService.IsEncrypted(existingAssessment.ImmunizationTd))
+                {
+                    existingAssessment.ImmunizationTd = _encryptionService.DecryptForUser(existingAssessment.ImmunizationTd, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessment.ImmunizationHPV) && _encryptionService.IsEncrypted(existingAssessment.ImmunizationHPV))
+                {
+                    existingAssessment.ImmunizationHPV = _encryptionService.DecryptForUser(existingAssessment.ImmunizationHPV, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessment.DateOfMenarche) && _encryptionService.IsEncrypted(existingAssessment.DateOfMenarche))
+                {
+                    existingAssessment.DateOfMenarche = _encryptionService.DecryptForUser(existingAssessment.DateOfMenarche, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessment.AgeOfFirstPregnancy) && _encryptionService.IsEncrypted(existingAssessment.AgeOfFirstPregnancy))
+                {
+                    existingAssessment.AgeOfFirstPregnancy = _encryptionService.DecryptForUser(existingAssessment.AgeOfFirstPregnancy, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessment.OBScore) && _encryptionService.IsEncrypted(existingAssessment.OBScore))
+                {
+                    existingAssessment.OBScore = _encryptionService.DecryptForUser(existingAssessment.OBScore, User);
+                }
+                
+                // Vital Signs
+                if (!string.IsNullOrEmpty(existingAssessment.VitalTemp) && _encryptionService.IsEncrypted(existingAssessment.VitalTemp))
+                {
+                    existingAssessment.VitalTemp = _encryptionService.DecryptForUser(existingAssessment.VitalTemp, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessment.VitalRR) && _encryptionService.IsEncrypted(existingAssessment.VitalRR))
+                {
+                    existingAssessment.VitalRR = _encryptionService.DecryptForUser(existingAssessment.VitalRR, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessment.VitalPR) && _encryptionService.IsEncrypted(existingAssessment.VitalPR))
+                {
+                    existingAssessment.VitalPR = _encryptionService.DecryptForUser(existingAssessment.VitalPR, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessment.VitalBP) && _encryptionService.IsEncrypted(existingAssessment.VitalBP))
+                {
+                    existingAssessment.VitalBP = _encryptionService.DecryptForUser(existingAssessment.VitalBP, User);
+                }
+                
+                // Medical Information
+                if (!string.IsNullOrEmpty(existingAssessment.ChiefComplaint) && _encryptionService.IsEncrypted(existingAssessment.ChiefComplaint))
+                {
+                    existingAssessment.ChiefComplaint = _encryptionService.DecryptForUser(existingAssessment.ChiefComplaint, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessment.HistoryOfPresentIllness) && _encryptionService.IsEncrypted(existingAssessment.HistoryOfPresentIllness))
+                {
+                    existingAssessment.HistoryOfPresentIllness = _encryptionService.DecryptForUser(existingAssessment.HistoryOfPresentIllness, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessment.PhysicalExaminationFindings) && _encryptionService.IsEncrypted(existingAssessment.PhysicalExaminationFindings))
+                {
+                    existingAssessment.PhysicalExaminationFindings = _encryptionService.DecryptForUser(existingAssessment.PhysicalExaminationFindings, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessment.PastMedicalHistory) && _encryptionService.IsEncrypted(existingAssessment.PastMedicalHistory))
+                {
+                    existingAssessment.PastMedicalHistory = _encryptionService.DecryptForUser(existingAssessment.PastMedicalHistory, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessment.WorkingDiagnosis) && _encryptionService.IsEncrypted(existingAssessment.WorkingDiagnosis))
+                {
+                    existingAssessment.WorkingDiagnosis = _encryptionService.DecryptForUser(existingAssessment.WorkingDiagnosis, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessment.Management) && _encryptionService.IsEncrypted(existingAssessment.Management))
+                {
+                    existingAssessment.Management = _encryptionService.DecryptForUser(existingAssessment.Management, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessment.FamilyHistory) && _encryptionService.IsEncrypted(existingAssessment.FamilyHistory))
+                {
+                    existingAssessment.FamilyHistory = _encryptionService.DecryptForUser(existingAssessment.FamilyHistory, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessment.ReferredTo) && _encryptionService.IsEncrypted(existingAssessment.ReferredTo))
+                {
+                    existingAssessment.ReferredTo = _encryptionService.DecryptForUser(existingAssessment.ReferredTo, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessment.ReasonForReferral) && _encryptionService.IsEncrypted(existingAssessment.ReasonForReferral))
+                {
+                    existingAssessment.ReasonForReferral = _encryptionService.DecryptForUser(existingAssessment.ReasonForReferral, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessment.FollowUpDate) && _encryptionService.IsEncrypted(existingAssessment.FollowUpDate))
+                {
+                    existingAssessment.FollowUpDate = _encryptionService.DecryptForUser(existingAssessment.FollowUpDate, User);
+                }
+                
+                // Psychosocial History sections already below...
                 if (!string.IsNullOrEmpty(existingAssessment.HomeEnvironment) && _encryptionService.IsEncrypted(existingAssessment.HomeEnvironment))
                 {
                     existingAssessment.HomeEnvironment = _encryptionService.DecryptForUser(existingAssessment.HomeEnvironment, User);
@@ -197,6 +298,18 @@ namespace Barangay.Pages.Nurse
                 if (!string.IsNullOrEmpty(existingAssessment.SexualityPartners) && _encryptionService.IsEncrypted(existingAssessment.SexualityPartners))
                 {
                     existingAssessment.SexualityPartners = _encryptionService.DecryptForUser(existingAssessment.SexualityPartners, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessment.SexualityPregnancyExperience) && _encryptionService.IsEncrypted(existingAssessment.SexualityPregnancyExperience))
+                {
+                    existingAssessment.SexualityPregnancyExperience = _encryptionService.DecryptForUser(existingAssessment.SexualityPregnancyExperience, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessment.SexualitySTIExperience) && _encryptionService.IsEncrypted(existingAssessment.SexualitySTIExperience))
+                {
+                    existingAssessment.SexualitySTIExperience = _encryptionService.DecryptForUser(existingAssessment.SexualitySTIExperience, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessment.SexualityProtectionUse) && _encryptionService.IsEncrypted(existingAssessment.SexualityProtectionUse))
+                {
+                    existingAssessment.SexualityProtectionUse = _encryptionService.DecryptForUser(existingAssessment.SexualityProtectionUse, User);
                 }
                 if (!string.IsNullOrEmpty(existingAssessment.SafetyPhysicalAbuse) && _encryptionService.IsEncrypted(existingAssessment.SafetyPhysicalAbuse))
                 {

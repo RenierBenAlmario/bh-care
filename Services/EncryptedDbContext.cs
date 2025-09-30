@@ -72,6 +72,12 @@ namespace Barangay.Services
                     heeadsss.EncryptSensitiveData(_encryptionService);
                     Console.WriteLine($"After encryption - FullName: {heeadsss.FullName}, Gender: {heeadsss.Gender}");
                 }
+                else if (entry.Entity is Models.AdolescentHealthInfo adolescentHealthInfo)
+                {
+                    Console.WriteLine($"Encrypting AdolescentHealthInfo entity - PatientName: {adolescentHealthInfo.PatientName}");
+                    adolescentHealthInfo.EncryptSensitiveData(_encryptionService);
+                    Console.WriteLine($"After encryption - PatientName: {adolescentHealthInfo.PatientName}");
+                }
                 else
                 {
                     entry.Entity.EncryptSensitiveData(_encryptionService);

@@ -82,19 +82,65 @@ namespace Barangay.Pages.Nurse
                 {
                     _logger.LogInformation("Existing assessment found for appointment ID {AppointmentId}. Loading for editing.", appointmentId);
                     // Decrypt and load into bound model for editing
-                    existingAssessment.DecryptSensitiveData(_encryptionService, User);
+                    try
+                    {
+                        _logger.LogInformation("Attempting to decrypt assessment data for editing");
+                        existingAssessment.DecryptSensitiveData(_encryptionService, User);
+                        _logger.LogInformation("Assessment data decryption completed successfully");
+                    }
+                    catch (Exception decryptEx)
+                    {
+                        _logger.LogError(decryptEx, "Failed to decrypt assessment data for appointment {AppointmentId}", appointmentId);
+                        // Continue with encrypted data rather than failing completely
+                        _logger.LogWarning("Continuing with encrypted data due to decryption failure");
+                    }
                     Assessment = existingAssessment;
-                    // Go straight to page for editing
-                    return Page();
                 }
                 else
                 {
-                    _logger.LogWarning("No existing NCD assessment for appointment {AppointmentId}", appointmentId);
-                    StatusMessage = "No existing NCD assessment to edit for this appointment.";
-                    return RedirectToPage("/Nurse/AppointmentDetails", new { id = appointmentId });
+                    _logger.LogInformation("No existing NCD assessment for appointment {AppointmentId}. Creating new assessment.", appointmentId);
+                    // Initialize new assessment with appointment data
+                    Assessment = new NCDRiskAssessment
+                    {
+                        AppointmentId = appointmentId.Value,
+                        UserId = appointment.PatientId,
+                        HealthFacility = "Barangay Health Center 161",
+                        DateOfAssessment = DateTime.Now.ToString("yyyy-MM-dd"),
+                        AppointmentType = "NCD Risk Assessment"
+                    };
+
+                    // Set patient information from appointment
+                    if (appointment.Patient?.User != null)
+                    {
+                        Assessment.FirstName = appointment.Patient.User.FirstName;
+                        Assessment.LastName = appointment.Patient.User.LastName;
+                        Assessment.MiddleName = appointment.Patient.User.MiddleName;
+                        Assessment.Address = appointment.Patient.User.Address;
+                        Assessment.Barangay = appointment.Patient.User.Barangay;
+                        Assessment.Telepono = appointment.Patient.User.PhoneNumber;
+                        Assessment.Birthday = appointment.Patient.User.BirthDate;
+                        Assessment.Edad = appointment.AgeValue.ToString();
+                        Assessment.Kasarian = appointment.Patient.User.Gender;
+                        Assessment.Relihiyon = appointment.Patient.User.Religion;
+                        Assessment.CivilStatus = appointment.Patient.User.CivilStatus;
+                        Assessment.Occupation = appointment.Patient.User.Occupation;
+                    }
+
+                    // Generate family number
+                    Assessment.FamilyNo = await GetOrGenerateFamilyNumber(appointment.Patient.User);
                 }
 
-                // Edit-only flow: method has already returned in branches above
+                // Set patient information for display
+                if (appointment.Patient?.User != null)
+                {
+                    PatientName = appointment.Patient.User.FullName ?? $"{appointment.Patient.User.FirstName} {appointment.Patient.User.LastName}";
+                    PatientAddress = appointment.Patient.User.Address ?? "";
+                    PatientBarangay = appointment.Patient.User.Barangay ?? "";
+                    PatientPhone = appointment.Patient.User.PhoneNumber ?? "";
+                    PatientAge = appointment.AgeValue;
+                }
+
+                return Page();
             }
             catch (Exception ex)
             {
@@ -138,6 +184,49 @@ namespace Barangay.Pages.Nurse
                 if (Assessment.HasCancer != "true")
                 {
                     Assessment.CancerType = null;
+                }
+
+                // Set all missing fields to default values if not provided
+                Assessment.UserId = appointment.PatientId;
+                Assessment.AppointmentId = appointment.Id;
+                
+                // Set default values for missing fields
+                if (string.IsNullOrEmpty(Assessment.HealthFacility))
+                    Assessment.HealthFacility = "Barangay Health Center 161";
+                if (string.IsNullOrEmpty(Assessment.FamilyNo))
+                    Assessment.FamilyNo = await GetOrGenerateFamilyNumber(appointment.Patient.User);
+                if (string.IsNullOrEmpty(Assessment.DateOfAssessment))
+                    Assessment.DateOfAssessment = DateTime.Now.ToString("yyyy-MM-dd");
+                if (string.IsNullOrEmpty(Assessment.AppointmentType))
+                    Assessment.AppointmentType = "NCD Risk Assessment";
+                
+                // Set personal information from appointment
+                if (appointment.Patient?.User != null)
+                {
+                    if (string.IsNullOrEmpty(Assessment.FirstName))
+                        Assessment.FirstName = appointment.Patient.User.FirstName;
+                    if (string.IsNullOrEmpty(Assessment.LastName))
+                        Assessment.LastName = appointment.Patient.User.LastName;
+                    if (string.IsNullOrEmpty(Assessment.MiddleName))
+                        Assessment.MiddleName = appointment.Patient.User.MiddleName;
+                    if (string.IsNullOrEmpty(Assessment.Address))
+                        Assessment.Address = appointment.Patient.User.Address;
+                    if (string.IsNullOrEmpty(Assessment.Barangay))
+                        Assessment.Barangay = appointment.Patient.User.Barangay;
+                    if (string.IsNullOrEmpty(Assessment.Telepono))
+                        Assessment.Telepono = appointment.Patient.User.PhoneNumber;
+                    if (string.IsNullOrEmpty(Assessment.Birthday))
+                        Assessment.Birthday = appointment.Patient.User.BirthDate;
+                    if (string.IsNullOrEmpty(Assessment.Edad))
+                        Assessment.Edad = appointment.AgeValue.ToString();
+                    if (string.IsNullOrEmpty(Assessment.Kasarian))
+                        Assessment.Kasarian = appointment.Patient.User.Gender;
+                    if (string.IsNullOrEmpty(Assessment.Relihiyon))
+                        Assessment.Relihiyon = appointment.Patient.User.Religion;
+                    if (string.IsNullOrEmpty(Assessment.CivilStatus))
+                        Assessment.CivilStatus = appointment.Patient.User.CivilStatus;
+                    if (string.IsNullOrEmpty(Assessment.Occupation))
+                        Assessment.Occupation = appointment.Patient.User.Occupation;
                 }
 
                 // Encrypt sensitive data before saving

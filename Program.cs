@@ -198,8 +198,8 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("AccessAdminDashboard", policy => policy.RequireRole("Admin", "Admin Staff"));
     options.AddPolicy("AccessDashboard", policy => policy.RequireRole("Admin", "Admin Staff"));
     // Allow Admins to access Doctor/Nurse protected areas as supervisors
-    options.AddPolicy("RequireDoctorRole", policy => policy.RequireRole("Doctor", "Admin"));
-    options.AddPolicy("RequireNurseRole", policy => policy.RequireRole("Nurse", "Head Nurse", "Admin"));
+    options.AddPolicy("RequireDoctorRole", policy => policy.RequireRole("Doctor", "Head Doctor", "Admin"));
+    options.AddPolicy("RequireNurseRole", policy => policy.RequireRole("Nurse", "Head Nurse", "Doctor", "Head Doctor", "Admin"));
     options.AddPolicy("RequireAdminStaffRole", policy => policy.RequireRole("Admin Staff"));
     options.AddPolicy("RequireSystemAdministratorRole", policy => policy.RequireRole("System Administrator"));
 
@@ -269,6 +269,9 @@ builder.Services.AddRazorPages(options =>
     // Gate doctor area by role and enforce per-page simplified policies
     options.Conventions.AuthorizeFolder("/Doctor", "RequireDoctorRole");
     options.Conventions.AuthorizeFolder("/Nurse", "RequireNurseRole");
+
+    // Route alias: allow doctors to access Nurse HEEADSSS edit page via a Doctor URL
+    options.Conventions.AddPageRoute("/Nurse/EditHEEADSSSAssessment", "/Doctor/EditHEEADSSSAssessment");
 });
 
 // ✅ Email Sender
@@ -369,6 +372,74 @@ if (app.Environment.IsDevelopment())
             """);
             Console.ResetColor();
         }
+    }
+}
+
+// Apply pending EF Core migrations at startup (both contexts)
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var logger = services.GetRequiredService<ILogger<Program>>();
+    try
+    {
+        var appDb = services.GetRequiredService<ApplicationDbContext>();
+        await appDb.Database.MigrateAsync();
+
+        var encDb = services.GetRequiredService<EncryptedDbContext>();
+        await encDb.Database.MigrateAsync();
+
+        logger.LogInformation("Database migrations applied successfully for both contexts");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "An error occurred while applying database migrations at startup");
+        // Continue startup to allow the app to run even if migration fails
+    }
+}
+
+// Idempotent schema repair for missing HEEADSSSAssessments columns
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var logger = services.GetRequiredService<ILogger<Program>>();
+    try
+    {
+        var db = services.GetRequiredService<ApplicationDbContext>();
+        var sql = @"
+IF COL_LENGTH('dbo.HEEADSSSAssessments','AgeOfFirstPregnancy') IS NULL ALTER TABLE [dbo].[HEEADSSSAssessments] ADD [AgeOfFirstPregnancy] NVARCHAR(MAX) NULL;
+IF COL_LENGTH('dbo.HEEADSSSAssessments','BMI') IS NULL ALTER TABLE [dbo].[HEEADSSSAssessments] ADD [BMI] NVARCHAR(MAX) NULL;
+IF COL_LENGTH('dbo.HEEADSSSAssessments','BMINormal') IS NULL ALTER TABLE [dbo].[HEEADSSSAssessments] ADD [BMINormal] BIT NULL;
+IF COL_LENGTH('dbo.HEEADSSSAssessments','BMIObese') IS NULL ALTER TABLE [dbo].[HEEADSSSAssessments] ADD [BMIObese] BIT NULL;
+IF COL_LENGTH('dbo.HEEADSSSAssessments','BMIOverweight') IS NULL ALTER TABLE [dbo].[HEEADSSSAssessments] ADD [BMIOverweight] BIT NULL;
+IF COL_LENGTH('dbo.HEEADSSSAssessments','BMIUnderweight') IS NULL ALTER TABLE [dbo].[HEEADSSSAssessments] ADD [BMIUnderweight] BIT NULL;
+IF COL_LENGTH('dbo.HEEADSSSAssessments','ChiefComplaint') IS NULL ALTER TABLE [dbo].[HEEADSSSAssessments] ADD [ChiefComplaint] NVARCHAR(MAX) NULL;
+IF COL_LENGTH('dbo.HEEADSSSAssessments','DateOfMenarche') IS NULL ALTER TABLE [dbo].[HEEADSSSAssessments] ADD [DateOfMenarche] NVARCHAR(MAX) NULL;
+IF COL_LENGTH('dbo.HEEADSSSAssessments','FamilyHistory') IS NULL ALTER TABLE [dbo].[HEEADSSSAssessments] ADD [FamilyHistory] NVARCHAR(MAX) NULL;
+IF COL_LENGTH('dbo.HEEADSSSAssessments','FollowUpDate') IS NULL ALTER TABLE [dbo].[HEEADSSSAssessments] ADD [FollowUpDate] NVARCHAR(MAX) NULL;
+IF COL_LENGTH('dbo.HEEADSSSAssessments','Height') IS NULL ALTER TABLE [dbo].[HEEADSSSAssessments] ADD [Height] NVARCHAR(MAX) NULL;
+IF COL_LENGTH('dbo.HEEADSSSAssessments','HistoryOfPresentIllness') IS NULL ALTER TABLE [dbo].[HEEADSSSAssessments] ADD [HistoryOfPresentIllness] NVARCHAR(MAX) NULL;
+IF COL_LENGTH('dbo.HEEADSSSAssessments','ImmunizationHPV') IS NULL ALTER TABLE [dbo].[HEEADSSSAssessments] ADD [ImmunizationHPV] NVARCHAR(MAX) NULL;
+IF COL_LENGTH('dbo.HEEADSSSAssessments','ImmunizationMR') IS NULL ALTER TABLE [dbo].[HEEADSSSAssessments] ADD [ImmunizationMR] NVARCHAR(MAX) NULL;
+IF COL_LENGTH('dbo.HEEADSSSAssessments','ImmunizationTd') IS NULL ALTER TABLE [dbo].[HEEADSSSAssessments] ADD [ImmunizationTd] NVARCHAR(MAX) NULL;
+IF COL_LENGTH('dbo.HEEADSSSAssessments','Management') IS NULL ALTER TABLE [dbo].[HEEADSSSAssessments] ADD [Management] NVARCHAR(MAX) NULL;
+IF COL_LENGTH('dbo.HEEADSSSAssessments','OBScore') IS NULL ALTER TABLE [dbo].[HEEADSSSAssessments] ADD [OBScore] NVARCHAR(MAX) NULL;
+IF COL_LENGTH('dbo.HEEADSSSAssessments','PastMedicalHistory') IS NULL ALTER TABLE [dbo].[HEEADSSSAssessments] ADD [PastMedicalHistory] NVARCHAR(MAX) NULL;
+IF COL_LENGTH('dbo.HEEADSSSAssessments','PhysicalExaminationFindings') IS NULL ALTER TABLE [dbo].[HEEADSSSAssessments] ADD [PhysicalExaminationFindings] NVARCHAR(MAX) NULL;
+IF COL_LENGTH('dbo.HEEADSSSAssessments','ReasonForReferral') IS NULL ALTER TABLE [dbo].[HEEADSSSAssessments] ADD [ReasonForReferral] NVARCHAR(MAX) NULL;
+IF COL_LENGTH('dbo.HEEADSSSAssessments','ReferredTo') IS NULL ALTER TABLE [dbo].[HEEADSSSAssessments] ADD [ReferredTo] NVARCHAR(MAX) NULL;
+IF COL_LENGTH('dbo.HEEADSSSAssessments','WorkingDiagnosis') IS NULL ALTER TABLE [dbo].[HEEADSSSAssessments] ADD [WorkingDiagnosis] NVARCHAR(MAX) NULL;
+IF COL_LENGTH('dbo.HEEADSSSAssessments','VitalBP') IS NULL ALTER TABLE [dbo].[HEEADSSSAssessments] ADD [VitalBP] NVARCHAR(MAX) NULL;
+IF COL_LENGTH('dbo.HEEADSSSAssessments','VitalPR') IS NULL ALTER TABLE [dbo].[HEEADSSSAssessments] ADD [VitalPR] NVARCHAR(MAX) NULL;
+IF COL_LENGTH('dbo.HEEADSSSAssessments','VitalRR') IS NULL ALTER TABLE [dbo].[HEEADSSSAssessments] ADD [VitalRR] NVARCHAR(MAX) NULL;
+IF COL_LENGTH('dbo.HEEADSSSAssessments','VitalTemp') IS NULL ALTER TABLE [dbo].[HEEADSSSAssessments] ADD [VitalTemp] NVARCHAR(MAX) NULL;
+IF COL_LENGTH('dbo.HEEADSSSAssessments','Weight') IS NULL ALTER TABLE [dbo].[HEEADSSSAssessments] ADD [Weight] NVARCHAR(MAX) NULL;
+";
+        await db.Database.ExecuteSqlRawAsync(sql);
+        logger.LogInformation("Schema repair executed for HEEADSSSAssessments.");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Schema repair failed.");
     }
 }
 

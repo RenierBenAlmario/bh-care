@@ -40,6 +40,89 @@ namespace Barangay.Models
         [Encrypted]
         public string? ContactNumber { get; set; }
         
+        // ADOLESCENT HEALTH INFORMATION - B. Measurements
+        [Encrypted]
+        public string? Height { get; set; }
+        
+        [Encrypted]
+        public string? Weight { get; set; }
+        
+        [Encrypted]
+        public string? BMI { get; set; }
+        
+        public bool? BMIUnderweight { get; set; }
+        
+        public bool? BMINormal { get; set; }
+        
+        public bool? BMIOverweight { get; set; }
+        
+        public bool? BMIObese { get; set; }
+        
+        // Immunization Status
+        [Encrypted]
+        public string? ImmunizationMR { get; set; }
+        
+        [Encrypted]
+        public string? ImmunizationTd { get; set; }
+        
+        [Encrypted]
+        public string? ImmunizationHPV { get; set; }
+        
+        // For Females Only
+        [Encrypted]
+        public string? DateOfMenarche { get; set; }
+        
+        [Encrypted]
+        public string? AgeOfFirstPregnancy { get; set; }
+        
+        [Encrypted]
+        public string? OBScore { get; set; }
+        
+        // Vital Signs
+        [Encrypted]
+        public string? VitalTemp { get; set; }
+        
+        [Encrypted]
+        public string? VitalRR { get; set; }
+        
+        [Encrypted]
+        public string? VitalPR { get; set; }
+        
+        [Encrypted]
+        public string? VitalBP { get; set; }
+        
+        // Medical Information
+        [Encrypted]
+        public string? ChiefComplaint { get; set; }
+        
+        [Encrypted]
+        public string? HistoryOfPresentIllness { get; set; }
+        
+        [Encrypted]
+        public string? PhysicalExaminationFindings { get; set; }
+        
+        [Encrypted]
+        public string? PastMedicalHistory { get; set; }
+        
+        [Encrypted]
+        public string? WorkingDiagnosis { get; set; }
+        
+        [Encrypted]
+        public string? Management { get; set; }
+        
+        [Encrypted]
+        public string? FamilyHistory { get; set; }
+        
+        // Referral Information
+        [Encrypted]
+        public string? ReferredTo { get; set; }
+        
+        [Encrypted]
+        public string? ReasonForReferral { get; set; }
+        
+        [Encrypted]
+        public string? FollowUpDate { get; set; }
+        
         // HOME
         [Encrypted]
         public string? HomeEnvironment { get; set; }
@@ -152,6 +235,12 @@ namespace Barangay.Models
         public string? SexualityBodyConcerns { get; set; }
         
         [Encrypted]
+        public string? SexualityHealthConcerns { get; set; }
+        
+        [Encrypted]
+        public string? SexualityPartnersCount { get; set; }
+        
+        [Encrypted]
         public string? SexualityIntimateRelationships { get; set; }
         
         [Encrypted]
@@ -168,6 +257,18 @@ namespace Barangay.Models
         
         [Encrypted]
         public string? SexualityProtection { get; set; }
+        
+        [Encrypted]
+        public string? SexualityPregnancyExperience { get; set; }
+        
+        [Encrypted]
+        public string? SexualitySTIExperience { get; set; }
+        
+        [Encrypted]
+        public string? SexualityProtectionUse { get; set; }
+        
+        [Encrypted]
+        public string? SexualityHarassment { get; set; }
         
         // SUICIDE/DEPRESSION
         [Encrypted]

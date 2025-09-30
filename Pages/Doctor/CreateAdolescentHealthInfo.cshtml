@@ -1,0 +1,330 @@
+@page
+@using Barangay.Models
+@model Barangay.Pages.Doctor.CreateAdolescentHealthInfoModel
+@{
+    ViewData["Title"] = "Adolescent Health Information";
+    Layout = "_DoctorLayout";
+}
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mt-4">Adolescent Health Information</h2>
+        <a href="/Doctor/Consultation?appointmentId=@Model.AppointmentId" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Consultation
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["StatusMessage"] != null)
+    {
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            @TempData["StatusMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">B. ADOLESCENT HEALTH INFORMATION</h4>
+                    <p class="text-muted mb-0">Patient: @Model.PatientName | Age: @Model.PatientAge years</p>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="HealthInfo.UserId" />
+                        <input type="hidden" asp-for="HealthInfo.AppointmentId" />
+                        <input type="hidden" asp-for="HealthInfo.PatientName" />
+                        <input type="hidden" asp-for="HealthInfo.PatientAge" />
+                        <input type="hidden" asp-for="HealthInfo.PatientGender" />
+                        <input type="hidden" asp-for="HealthInfo.PatientAddress" />
+                        <input type="hidden" asp-for="HealthInfo.PatientContact" />
+
+                        <!-- Measurements Section -->
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <h6 class="border-bottom pb-2">Measurements</h6>
+                                <div class="form-group mb-3">
+                                    <label asp-for="HealthInfo.WeightKg" class="form-label">Weight (Kg)</label>
+                                    <input asp-for="HealthInfo.WeightKg" class="form-control" type="number" step="0.1" id="weightInput" />
+                                    <span asp-validation-for="HealthInfo.WeightKg" class="text-danger"></span>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label asp-for="HealthInfo.HeightCm" class="form-label">Height (cm)</label>
+                                    <input asp-for="HealthInfo.HeightCm" class="form-control" type="number" step="0.1" id="heightInput" />
+                                    <span asp-validation-for="HealthInfo.HeightCm" class="text-danger"></span>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label class="form-label">BMI (kg/m²)</label>
+                                    <input asp-for="HealthInfo.BMI" class="form-control" type="number" step="0.1" readonly id="bmiInput" />
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label class="form-label">BMI Category</label>
+                                    <select asp-for="HealthInfo.BMICategory" class="form-select" id="bmiCategory">
+                                        <option value="">Select Category</option>
+                                        <option value="Underweight">Underweight</option>
+                                        <option value="Normal">Normal</option>
+                                        <option value="Overweight">Overweight</option>
+                                        <option value="Obese">Obese</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <h6 class="border-bottom pb-2">Immunization Status</h6>
+                                <div class="form-group mb-3">
+                                    <label asp-for="HealthInfo.MRMMRDateGiven" class="form-label">MR/MMR date given</label>
+                                    <input asp-for="HealthInfo.MRMMRDateGiven" class="form-control" type="date" />
+                                    <span asp-validation-for="HealthInfo.MRMMRDateGiven" class="text-danger"></span>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label asp-for="HealthInfo.TdDateGiven" class="form-label">Td date given</label>
+                                    <input asp-for="HealthInfo.TdDateGiven" class="form-control" type="date" />
+                                    <span asp-validation-for="HealthInfo.TdDateGiven" class="text-danger"></span>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label asp-for="HealthInfo.HPVDateGiven" class="form-label">HPV date given</label>
+                                    <input asp-for="HealthInfo.HPVDateGiven" class="form-control" type="date" />
+                                    <span asp-validation-for="HealthInfo.HPVDateGiven" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-5">
+                                <h6 class="border-bottom pb-2">For Females Only (if applicable)</h6>
+                                <div class="form-group mb-3">
+                                    <label asp-for="HealthInfo.DateOfMenarche" class="form-label">Date of Menarche</label>
+                                    <input asp-for="HealthInfo.DateOfMenarche" class="form-control" type="date" />
+                                    <span asp-validation-for="HealthInfo.DateOfMenarche" class="text-danger"></span>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label asp-for="HealthInfo.AgeOf1stPregnancy" class="form-label">Age of 1st Pregnancy</label>
+                                    <input asp-for="HealthInfo.AgeOf1stPregnancy" class="form-control" type="number" min="1" max="100" />
+                                    <span asp-validation-for="HealthInfo.AgeOf1stPregnancy" class="text-danger"></span>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label class="form-label">OB Score</label>
+                                    <div class="row">
+                                        <div class="col-2">
+                                            <label class="form-label">G</label>
+                                        </div>
+                                        <div class="col-3">
+                                            <input asp-for="HealthInfo.OBScoreGravida" class="form-control" type="number" min="0" />
+                                        </div>
+                                        <div class="col-2">
+                                            <label class="form-label">P</label>
+                                        </div>
+                                        <div class="col-5">
+                                            <input asp-for="HealthInfo.OBScoreParity" class="form-control" type="text" placeholder="Term Preterm Abortions Living" />
+                                        </div>
+                                    </div>
+                                    <span asp-validation-for="HealthInfo.OBScoreGravida" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vital Signs Section -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h6 class="border-bottom pb-2">Vital Signs</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="HealthInfo.Temperature" class="form-label">Temp</label>
+                                            <input asp-for="HealthInfo.Temperature" class="form-control" type="number" step="0.1" />
+                                            <span asp-validation-for="HealthInfo.Temperature" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="HealthInfo.RespiratoryRate" class="form-label">RR</label>
+                                            <input asp-for="HealthInfo.RespiratoryRate" class="form-control" type="number" />
+                                            <span asp-validation-for="HealthInfo.RespiratoryRate" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="HealthInfo.PulseRate" class="form-label">PR/CR</label>
+                                            <input asp-for="HealthInfo.PulseRate" class="form-control" type="number" />
+                                            <span asp-validation-for="HealthInfo.PulseRate" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="HealthInfo.BloodPressure" class="form-label">BP</label>
+                                            <input asp-for="HealthInfo.BloodPressure" class="form-control" placeholder="e.g., 120/80" />
+                                            <span asp-validation-for="HealthInfo.BloodPressure" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="HealthInfo.ChiefComplaint" class="form-label">Chief Complaint</label>
+                                    <textarea asp-for="HealthInfo.ChiefComplaint" class="form-control" rows="4" placeholder="Enter chief complaint..."></textarea>
+                                    <span asp-validation-for="HealthInfo.ChiefComplaint" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- History and Physical Examination -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="HealthInfo.HistoryOfPresentIllness" class="form-label">History of Present Illness</label>
+                                    <textarea asp-for="HealthInfo.HistoryOfPresentIllness" class="form-control" rows="6" placeholder="Enter history of present illness..."></textarea>
+                                    <span asp-validation-for="HealthInfo.HistoryOfPresentIllness" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="HealthInfo.PhysicalExaminationFindings" class="form-label">Pertinent Physical Examination Findings</label>
+                                    <textarea asp-for="HealthInfo.PhysicalExaminationFindings" class="form-control" rows="6" placeholder="Enter physical examination findings..."></textarea>
+                                    <span asp-validation-for="HealthInfo.PhysicalExaminationFindings" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Medical History and Family History -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="HealthInfo.PastMedicalHistory" class="form-label">Past Medical History</label>
+                                    <textarea asp-for="HealthInfo.PastMedicalHistory" class="form-control" rows="4" placeholder="Enter past medical history..."></textarea>
+                                    <span asp-validation-for="HealthInfo.PastMedicalHistory" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="HealthInfo.FamilyHistory" class="form-label">Family History</label>
+                                    <textarea asp-for="HealthInfo.FamilyHistory" class="form-control" rows="4" placeholder="Enter family history..."></textarea>
+                                    <span asp-validation-for="HealthInfo.FamilyHistory" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Working Diagnosis and Management -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="HealthInfo.WorkingDiagnosis" class="form-label">Working Diagnosis</label>
+                                    <textarea asp-for="HealthInfo.WorkingDiagnosis" class="form-control" rows="4" placeholder="Enter working diagnosis..."></textarea>
+                                    <span asp-validation-for="HealthInfo.WorkingDiagnosis" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="HealthInfo.Management" class="form-label">Management</label>
+                                    <textarea asp-for="HealthInfo.Management" class="form-control" rows="4" placeholder="Enter management plan..."></textarea>
+                                    <span asp-validation-for="HealthInfo.Management" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Referral Section -->
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label asp-for="HealthInfo.ReferredTo" class="form-label">Referred to</label>
+                                    <input asp-for="HealthInfo.ReferredTo" class="form-control" placeholder="Specialist or facility" />
+                                    <span asp-validation-for="HealthInfo.ReferredTo" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label asp-for="HealthInfo.ReasonForReferral" class="form-label">Reason for Referral</label>
+                                    <input asp-for="HealthInfo.ReasonForReferral" class="form-control" placeholder="Reason for referral" />
+                                    <span asp-validation-for="HealthInfo.ReasonForReferral" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label asp-for="HealthInfo.FollowUpDate" class="form-label">Follow-up Date</label>
+                                    <input asp-for="HealthInfo.FollowUpDate" class="form-control" type="date" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                                    <span asp-validation-for="HealthInfo.FollowUpDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <a href="/Doctor/Consultation?appointmentId=@Model.AppointmentId" class="btn btn-secondary">
+                                <i class="fas fa-times me-1"></i> Cancel
+                            </a>
+                            <div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i> Save Adolescent Health Information
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const weightInput = document.getElementById('weightInput');
+            const heightInput = document.getElementById('heightInput');
+            const bmiInput = document.getElementById('bmiInput');
+            const bmiCategory = document.getElementById('bmiCategory');
+
+            function calculateBMI() {
+                const weight = parseFloat(weightInput.value);
+                const height = parseFloat(heightInput.value);
+
+                if (weight > 0 && height > 0) {
+                    const heightInMeters = height / 100;
+                    const bmi = weight / (heightInMeters * heightInMeters);
+                    
+                    bmiInput.value = bmi.toFixed(1);
+                    
+                    // Auto-categorize BMI
+                    if (bmi < 18.5) {
+                        bmiCategory.value = 'Underweight';
+                    } else if (bmi >= 18.5 && bmi < 25) {
+                        bmiCategory.value = 'Normal';
+                    } else if (bmi >= 25 && bmi < 30) {
+                        bmiCategory.value = 'Overweight';
+                    } else {
+                        bmiCategory.value = 'Obese';
+                    }
+                } else {
+                    bmiInput.value = '';
+                    bmiCategory.value = '';
+                }
+            }
+
+            weightInput.addEventListener('input', calculateBMI);
+            heightInput.addEventListener('input', calculateBMI);
+
+            // Form validation
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(e) {
+                // Add any client-side validation here if needed
+                // The model validation will handle server-side validation
+            });
+        });
+    </script>
+}

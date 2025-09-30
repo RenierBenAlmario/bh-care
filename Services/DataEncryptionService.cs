@@ -106,25 +106,65 @@ namespace Barangay.Services
                     
                 var encryptedBytes = Convert.FromBase64String(cipherText);
 
-                using (var aes = Aes.Create())
+                // Try with the new DataEncryption key first
+                try
                 {
-                    aes.Key = Encoding.UTF8.GetBytes(_encryptionKey);
-
-                    // Extract IV from the beginning of the encrypted data
-                    var iv = new byte[16];
-                    Buffer.BlockCopy(encryptedBytes, 0, iv, 0, iv.Length);
-                    aes.IV = iv;
-
-                    // Extract encrypted data
-                    var encryptedData = new byte[encryptedBytes.Length - iv.Length];
-                    Buffer.BlockCopy(encryptedBytes, iv.Length, encryptedData, 0, encryptedData.Length);
-
-                    using (var decryptor = aes.CreateDecryptor())
+                    using (var aes = Aes.Create())
                     {
-                        var decryptedBytes = decryptor.TransformFinalBlock(encryptedData, 0, encryptedData.Length);
-                        var result = Encoding.UTF8.GetString(decryptedBytes);
-                        Console.WriteLine($"Decrypt successful: {result?.Substring(0, Math.Min(20, result?.Length ?? 0))}...");
-                        return result;
+                        aes.Key = Encoding.UTF8.GetBytes(_encryptionKey);
+
+                        // Extract IV from the beginning of the encrypted data
+                        var iv = new byte[16];
+                        Buffer.BlockCopy(encryptedBytes, 0, iv, 0, iv.Length);
+                        aes.IV = iv;
+
+                        // Extract encrypted data
+                        var encryptedData = new byte[encryptedBytes.Length - iv.Length];
+                        Buffer.BlockCopy(encryptedBytes, iv.Length, encryptedData, 0, encryptedData.Length);
+
+                        using (var decryptor = aes.CreateDecryptor())
+                        {
+                            var decryptedBytes = decryptor.TransformFinalBlock(encryptedData, 0, encryptedData.Length);
+                            var result = Encoding.UTF8.GetString(decryptedBytes);
+                            Console.WriteLine($"Decrypt successful: {result?.Substring(0, Math.Min(20, result?.Length ?? 0))}...");
+                            return result;
+                        }
+                    }
+                }
+                catch (CryptographicException)
+                {
+                    Console.WriteLine("Decrypt: DataEncryption key failed, trying legacy encryption key");
+                    
+                    // Fallback: Try with the legacy EncryptionKey from appsettings
+                    var legacyKey = Environment.GetEnvironmentVariable("LEGACY_ENCRYPTION_KEY") ?? 
+                                   "YourStrongEncryptionKeyHere1234567890123456";
+                    
+                    // Normalize legacy key length
+                    if (legacyKey.Length < 32)
+                        legacyKey = legacyKey.PadRight(32, '0');
+                    else if (legacyKey.Length > 32)
+                        legacyKey = legacyKey.Substring(0, 32);
+                    
+                    using (var aes = Aes.Create())
+                    {
+                        aes.Key = Encoding.UTF8.GetBytes(legacyKey);
+
+                        // Extract IV from the beginning of the encrypted data
+                        var iv = new byte[16];
+                        Buffer.BlockCopy(encryptedBytes, 0, iv, 0, iv.Length);
+                        aes.IV = iv;
+
+                        // Extract encrypted data
+                        var encryptedData = new byte[encryptedBytes.Length - iv.Length];
+                        Buffer.BlockCopy(encryptedBytes, iv.Length, encryptedData, 0, encryptedData.Length);
+
+                        using (var decryptor = aes.CreateDecryptor())
+                        {
+                            var decryptedBytes = decryptor.TransformFinalBlock(encryptedData, 0, encryptedData.Length);
+                            var result = Encoding.UTF8.GetString(decryptedBytes);
+                            Console.WriteLine($"Legacy decrypt successful: {result?.Substring(0, Math.Min(20, result?.Length ?? 0))}...");
+                            return result;
+                        }
                     }
                 }
             }

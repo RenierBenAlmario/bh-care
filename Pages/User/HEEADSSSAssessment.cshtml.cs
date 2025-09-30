@@ -60,6 +60,14 @@ namespace Barangay.Pages.User
                 return NotFound("User not found");
             }
 
+            // Check if appointmentId is provided in the query string
+            string? appointmentIdStr = Request.Query["appointmentId"];
+            if (string.IsNullOrEmpty(appointmentIdStr))
+            {
+                TempData["StatusMessage"] = "Error: Assessment not found. Please access this form through your appointment details.";
+                return RedirectToPage("/User/Appointments");
+            }
+
             // Decrypt user data for authorized users
             user = user.DecryptSensitiveData(_encryptionService, User);
             
@@ -81,9 +89,8 @@ namespace Barangay.Pages.User
             _logger.LogInformation("OnGetAsync - Setting default values: UserId={UserId}, HealthFacility={HealthFacility}, FamilyNo={FamilyNo}",
                 UserId, HealthFacility, FamilyNo);
             
-            // Check if appointmentId is provided in the query string
-            string? appointmentIdStr = Request.Query["appointmentId"];
-            if (!string.IsNullOrEmpty(appointmentIdStr) && int.TryParse(appointmentIdStr, out int appointmentId))
+            // Parse appointmentId (already validated above)
+            if (int.TryParse(appointmentIdStr, out int appointmentId))
             {
                 AppointmentId = appointmentId;
                 _logger.LogInformation("OnGetAsync - AppointmentId set from query string: {AppointmentId}", AppointmentId);
@@ -129,15 +136,9 @@ namespace Barangay.Pages.User
             }
             else
             {
-                // No appointment ID, use logged-in user info
-                DateTime birthDate = DateTime.Today.AddYears(-19);
-                int age = 19;
-                ViewData["PatientName"] = user.FullName;
-                ViewData["PatientAge"] = age;
-                ViewData["PatientPhone"] = user.PhoneNumber ?? string.Empty;
-                ViewData["PatientBirthdate"] = birthDate.ToString("yyyy-MM-dd");
-                
-                _logger.LogInformation($"No appointment ID, using logged-in user info: Name={user.FullName}, Age={age}");
+                // This should not happen since we validate appointmentId above
+                TempData["StatusMessage"] = "Error: Invalid appointment ID. Please access this form through your appointment details.";
+                return RedirectToPage("/User/Appointments");
             }
 
             // Initialize Assessment if not already initialized
@@ -332,12 +333,18 @@ namespace Barangay.Pages.User
                     SubstanceType = GetFormValueOrDefault("Assessment.SubstanceType", "Not assessed"),
                     
                     SexualityBodyConcerns = GetFormValueOrDefault("Assessment.SexualityBodyConcerns"),
+                    SexualityHealthConcerns = GetFormValueOrDefault("Assessment.SexualityHealthConcerns"),
                     SexualityIntimateRelationships = GetFormValueOrDefault("Assessment.SexualityIntimateRelationships"),
                     SexualityPartners = GetFormValueOrDefault("Assessment.SexualityPartners"),
+                    SexualityPartnersCount = GetFormValueOrDefault("Assessment.SexualityPartnersCount"),
                     SexualitySexualOrientation = GetFormValueOrDefault("Assessment.SexualitySexualOrientation"),
                     SexualityPregnancy = GetFormValueOrDefault("Assessment.SexualityPregnancy"),
                     SexualitySTI = GetFormValueOrDefault("Assessment.SexualitySTI"),
                     SexualityProtection = GetFormValueOrDefault("Assessment.SexualityProtection"),
+                    SexualityPregnancyExperience = GetFormValueOrDefault("Assessment.SexualityPregnancyExperience"),
+                    SexualitySTIExperience = GetFormValueOrDefault("Assessment.SexualitySTIExperience"),
+                    SexualityProtectionUse = GetFormValueOrDefault("Assessment.SexualityProtectionUse"),
+                    SexualityHarassment = GetFormValueOrDefault("SexualityHarassment"),
                     DatingRelationships = GetFormValueOrDefault("Assessment.DatingRelationships", "Not assessed"),
                     SexualActivity = "False", // Default to false for boolean fields
                     SexualOrientation = GetFormValueOrDefault("Assessment.SexualOrientation", "Not assessed"),

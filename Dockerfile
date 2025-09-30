@@ -9,18 +9,18 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy the project file and restore dependencies
-COPY ["BHCARE.csproj", "."]
-RUN dotnet restore "BHCARE.csproj"
+COPY ["Barangay.csproj", "."]
+RUN dotnet restore "Barangay.csproj"
 
 # Copy the rest of the source code
 COPY . .
 
 # Build the application
-RUN dotnet build "BHCARE.csproj" -c Release -o /app/build
+RUN dotnet build "Barangay.csproj" -c Release -o /app/build
 
 # Publish the application
 FROM build AS publish
-RUN dotnet publish "BHCARE.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Barangay.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Create the final runtime image
 FROM base AS final
@@ -31,4 +31,4 @@ COPY --from=publish /app/publish .
 RUN adduser --disabled-password --gecos '' appuser && chown -R appuser /app
 USER appuser
 
-ENTRYPOINT ["dotnet", "BHCARE.dll"]
+ENTRYPOINT ["dotnet", "Barangay.dll"]

@@ -220,6 +220,155 @@
         </div>
     </div>
 
+    <!-- B. ADOLESCENT HEALTH INFORMATION Section -->
+    <div class="section">
+        <div class="section-title">B. ADOLESCENT HEALTH INFORMATION</div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Height (cm):</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.Height</div>
+            </div>
+            <div class="form-group">
+                <span class="form-label">Weight (kg):</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.Weight</div>
+            </div>
+            <div class="form-group">
+                <span class="form-label">BMI (kg/m²):</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.BMI</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group" style="width: 100%;">
+                <span class="form-label">BMI Status:</span>
+                <div class="form-value">
+                    @{
+                        var bmiStatus = new List<string>();
+                        if (Model.HEEADSSSAssessment.BMIUnderweight == true) bmiStatus.Add("Underweight");
+                        if (Model.HEEADSSSAssessment.BMINormal == true) bmiStatus.Add("Normal");
+                        if (Model.HEEADSSSAssessment.BMIOverweight == true) bmiStatus.Add("Overweight");
+                        if (Model.HEEADSSSAssessment.BMIObese == true) bmiStatus.Add("Obese");
+                    }
+                    @(bmiStatus.Any() ? string.Join(", ", bmiStatus) : "Not specified")
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Immunization Status:</span>
+                <div style="margin-left: 20px;">
+                    <div><strong>MR/MMR date given:</strong> @Model.HEEADSSSAssessment.ImmunizationMR</div>
+                    <div><strong>Td date given:</strong> @Model.HEEADSSSAssessment.ImmunizationTd</div>
+                    <div><strong>HPV date given:</strong> @Model.HEEADSSSAssessment.ImmunizationHPV</div>
+                </div>
+            </div>
+        </div>
+        
+        @if (Model.HEEADSSSAssessment.Gender?.ToLower() == "female" || Model.HEEADSSSAssessment.Gender?.ToLower() == "f")
+        {
+            <div class="form-row">
+                <div class="form-group">
+                    <span class="form-label">For Females Only:</span>
+                    <div style="margin-left: 20px;">
+                        <div><strong>Date of Menarche:</strong> @Model.HEEADSSSAssessment.DateOfMenarche</div>
+                        <div><strong>Age of 1st Pregnancy:</strong> @Model.HEEADSSSAssessment.AgeOfFirstPregnancy</div>
+                        <div><strong>OB Score:</strong> @Model.HEEADSSSAssessment.OBScore</div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Vital Signs Section -->
+    <div class="section">
+        <div class="section-title">VITAL SIGNS & MEDICAL INFORMATION</div>
+        
+        <table class="table" style="width: 100%; max-width: 300px; margin-bottom: 15px;">
+            <tr>
+                <td style="width: 50%; font-weight: bold;">Temp</td>
+                <td>@Model.HEEADSSSAssessment.VitalTemp</td>
+            </tr>
+            <tr>
+                <td style="width: 50%; font-weight: bold;">RR</td>
+                <td>@Model.HEEADSSSAssessment.VitalRR</td>
+            </tr>
+            <tr>
+                <td style="width: 50%; font-weight: bold;">PR/CR</td>
+                <td>@Model.HEEADSSSAssessment.VitalPR</td>
+            </tr>
+            <tr>
+                <td style="width: 50%; font-weight: bold;">BP</td>
+                <td>@Model.HEEADSSSAssessment.VitalBP</td>
+            </tr>
+        </table>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Chief Complaint:</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.ChiefComplaint</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">History of Present Illness:</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.HistoryOfPresentIllness</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Pertinent Physical Examination Findings:</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.PhysicalExaminationFindings</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Past Medical History:</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.PastMedicalHistory</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Working Diagnosis:</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.WorkingDiagnosis</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Management:</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.Management</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Family History:</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.FamilyHistory</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Referred to:</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.ReferredTo</div>
+            </div>
+            <div class="form-group">
+                <span class="form-label">Reason for Referral:</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.ReasonForReferral</div>
+            </div>
+            <div class="form-group">
+                <span class="form-label">Follow-up Date:</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.FollowUpDate</div>
+            </div>
+        </div>
+    </div>
+
     <div class="section">
         <div class="section-title">C. PSYCHOSOCIAL HISTORY AND ASSESSMENT</div>
         <p><em>Ang matatapat mong kasagutan ay makakatulong upang makapagbigay ng tamang pangangalaga.</em></p>
@@ -369,6 +518,27 @@
             </div>
         </div>
         
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Ikaw ba ay nakaranas nang magbuntis o makabuntis?</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.SexualityPregnancyExperience</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">Ikaw ba ay nagkaroon na ng nakakahawang sakit dulot ng pakikipagtalik?</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.SexualitySTIExperience</div>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <span class="form-label">May ginagamit ka bang proteksyon kapag sa tuwing nakikipagtalik?</span>
+                <div class="form-value">@Model.HEEADSSSAssessment.SexualityProtectionUse</div>
+            </div>
+        </div>
+        
     </div>
 
     <div class="section">
@@ -376,7 +546,7 @@
         
         <div class="form-row">
             <div class="form-group">
-                <span class="form-label">Ikaw ba ay nakaranas na masaktan (masampal, matulak, masunot) ng kahit sino?</span>
+                <span class="form-label">Ikaw ba ay nakaranas na masaktan (mahipuan, masuntok, masampal) ng kahit sino?</span>
                 <div class="form-value">@Model.HEEADSSSAssessment.SafetyPhysicalAbuse</div>
             </div>
         </div>
@@ -446,6 +616,7 @@
         </div>
     </div>
 
+
     <div class="section">
         <div class="section-title">RISK ASSESSMENT</div>
         
@@ -480,6 +651,7 @@
                 </div>
             </div>
         </div>
+        
     </div>
 
     <div class="hope-section">

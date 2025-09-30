@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace Barangay.Models
@@ -20,13 +20,13 @@ namespace Barangay.Models
         public string? ReferredBy { get; set; }
         
         [Display(Name = "Is NHPTS")]
-        public bool IsNHPTS { get; set; }
+        public string? IsNHPTS { get; set; }
         
         [Display(Name = "Is PhilHealth Beneficiary Only")]
-        public bool IsPhilHealthBeneficiaryOnly { get; set; }
+        public string? IsPhilHealthBeneficiaryOnly { get; set; }
         
         [Display(Name = "Is Own PhilHealth")]
-        public bool IsOwnPhilHealth { get; set; }
+        public string? IsOwnPhilHealth { get; set; }
         
         [Display(Name = "PhilHealth PIN")]
         public string? PhilHealthPIN { get; set; }
@@ -54,6 +54,93 @@ namespace Barangay.Models
         
         [Display(Name = "Religion")]
         public string? Religion { get; set; }
+        
+        // ADOLESCENT HEALTH INFORMATION - B. Measurements
+        [Display(Name = "Height (cm)")]
+        public string? Height { get; set; }
+        
+        [Display(Name = "Weight (kg)")]
+        public string? Weight { get; set; }
+        
+        [Display(Name = "BMI (kg/m²)")]
+        public string? BMI { get; set; }
+        
+        [Display(Name = "BMI Underweight")]
+        public string? BMIUnderweight { get; set; }
+        
+        [Display(Name = "BMI Normal")]
+        public string? BMINormal { get; set; }
+        
+        [Display(Name = "BMI Overweight")]
+        public string? BMIOverweight { get; set; }
+        
+        [Display(Name = "BMI Obese")]
+        public string? BMIObese { get; set; }
+        
+        // Immunization Status
+        [Display(Name = "MR/MMR Date Given")]
+        public string? ImmunizationMR { get; set; }
+        
+        [Display(Name = "Td Date Given")]
+        public string? ImmunizationTd { get; set; }
+        
+        [Display(Name = "HPV Date Given")]
+        public string? ImmunizationHPV { get; set; }
+        
+        // For Females Only
+        [Display(Name = "Date of Menarche")]
+        public string? DateOfMenarche { get; set; }
+        
+        [Display(Name = "Age of 1st Pregnancy")]
+        public string? AgeOfFirstPregnancy { get; set; }
+        
+        [Display(Name = "OB Score")]
+        public string? OBScore { get; set; }
+        
+        // Vital Signs
+        [Display(Name = "Temperature")]
+        public string? VitalTemp { get; set; }
+        
+        [Display(Name = "Respiratory Rate")]
+        public string? VitalRR { get; set; }
+        
+        [Display(Name = "Pulse Rate")]
+        public string? VitalPR { get; set; }
+        
+        [Display(Name = "Blood Pressure")]
+        public string? VitalBP { get; set; }
+        
+        // Medical Information
+        [Display(Name = "Chief Complaint")]
+        public string? ChiefComplaint { get; set; }
+        
+        [Display(Name = "History of Present Illness")]
+        public string? HistoryOfPresentIllness { get; set; }
+        
+        [Display(Name = "Physical Examination Findings")]
+        public string? PhysicalExaminationFindings { get; set; }
+        
+        [Display(Name = "Past Medical History")]
+        public string? PastMedicalHistory { get; set; }
+        
+        [Display(Name = "Working Diagnosis")]
+        public string? WorkingDiagnosis { get; set; }
+        
+        [Display(Name = "Management")]
+        public string? Management { get; set; }
+        
+        [Display(Name = "Family History")]
+        public string? FamilyHistory { get; set; }
+        
+        // Referral Information
+        [Display(Name = "Referred To")]
+        public string? ReferredTo { get; set; }
+        
+        [Display(Name = "Reason for Referral")]
+        public string? ReasonForReferral { get; set; }
+        
+        [Display(Name = "Follow-up Date")]
+        public string? FollowUpDate { get; set; }
         
         // Cancer Type - only required if Cancer is selected
         [Display(Name = "Cancer Type")]
@@ -137,16 +224,16 @@ namespace Barangay.Models
         public string? EatingWeightComments { get; set; }
         
         [Display(Name = "Eating Vomiting")]
-        public bool EatingVomiting { get; set; }
+        public string? EatingVomiting { get; set; }
         
         [Display(Name = "Eating Diet Pills")]
-        public bool EatingDietPills { get; set; }
+        public string? EatingDietPills { get; set; }
         
         [Display(Name = "Eating Laxatives")]
-        public bool EatingLaxatives { get; set; }
+        public string? EatingLaxatives { get; set; }
         
         [Display(Name = "Eating Starvation")]
-        public bool EatingStarvation { get; set; }
+        public string? EatingStarvation { get; set; }
         
         // ACTIVITIES
         [Display(Name = "Hobbies")]
@@ -178,16 +265,16 @@ namespace Barangay.Models
         public string? SubstanceType { get; set; }
 
         [Display(Name = "Naranasan mo na bang gumamit ng mga sumusunod: Tobacco (Sigarilyo)?")]
-        public bool DrugsTobaccoUse { get; set; }
+        public string? DrugsTobaccoUse { get; set; }
         
         [Display(Name = "Naranasan mo na bang gumamit ng mga sumusunod: Alcohol (Alak)?")]
-        public bool DrugsAlcoholUse { get; set; }
+        public string? DrugsAlcoholUse { get; set; }
         
         [Display(Name = "Naranasan mo na bang gumamit ng mga sumusunod: Street drugs/prohibited drugs?")]
-        public bool DrugsIllicitDrugUse { get; set; }
+        public string? DrugsIllicitDrugUse { get; set; }
         
         [Display(Name = "Drugs Street Drugs")]
-        public bool DrugsStreetDrugs { get; set; }
+        public string? DrugsStreetDrugs { get; set; }
         
         // SEXUALITY
         [Display(Name = "Dating Relationships")]
@@ -218,13 +305,13 @@ namespace Barangay.Models
         public string? SexualitySexualOrientation { get; set; }
         
         [Display(Name = "Sexuality Gay")]
-        public bool SexualityGay { get; set; }
+        public string? SexualityGay { get; set; }
         
         [Display(Name = "Sexuality Lesbian")]
-        public bool SexualityLesbian { get; set; }
+        public string? SexualityLesbian { get; set; }
         
         [Display(Name = "Sexuality Bisexual")]
-        public bool SexualityBisexual { get; set; }
+        public string? SexualityBisexual { get; set; }
         
         [Display(Name = "Ikaw ba ay nakaranas nang magbuntis o makabuntis?")]
         public string? SexualityPregnancy { get; set; }
@@ -237,6 +324,15 @@ namespace Barangay.Models
         
         [Display(Name = "May nakaranas ba na magbunot o maglunsad laban sa iyo?")]
         public string? SexualityHarassment { get; set; }
+        
+        [Display(Name = "Ikaw ba ay nakaranas nang magbuntis o makabuntis?")]
+        public string? SexualityPregnancyExperience { get; set; }
+        
+        [Display(Name = "Ikaw ba ay nagkaroon na ng nakakahawang sakit dulot ng pakikipagtalik?")]
+        public string? SexualitySTIExperience { get; set; }
+        
+        [Display(Name = "May ginagamit ka bang proteksyon kapag sa tuwing nakikipagtalik?")]
+        public string? SexualityProtectionUse { get; set; }
         
         // SUICIDE/DEPRESSION
         [Display(Name = "Mood Changes")]
@@ -309,6 +405,7 @@ namespace Barangay.Models
         
         [Display(Name = "Assessed By")]
         public string? AssessedBy { get; set; }
+        
         
         public DateTime? CreatedAt { get; set; }
         

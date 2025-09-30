@@ -247,16 +247,35 @@ namespace Barangay.Services
         {
             try
             {
-                var now = DateTime.UtcNow;
-                var tomorrow = now.AddDays(1).Date;
-                var oneHourFromNow = now.AddHours(1);
+                // Determine local time zone (configurable, with sensible fallbacks for Windows/Linux)
+                TimeZoneInfo? tz = null;
+                var tzCandidates = new[]
+                {
+                    _configuration["ReminderSettings:TimeZoneId"], // optional config
+                    "Asia/Manila", // Linux/ICU id
+                    "Singapore Standard Time" // Windows id that maps to GMT+8 (includes Manila)
+                };
+                foreach (var id in tzCandidates)
+                {
+                    if (string.IsNullOrWhiteSpace(id)) continue;
+                    try { tz = TimeZoneInfo.FindSystemTimeZoneById(id); break; } catch { /* try next */ }
+                }
+
+                var nowUtc = DateTime.UtcNow;
+                var nowLocal = tz != null ? TimeZoneInfo.ConvertTimeFromUtc(nowUtc, tz) : DateTime.Now;
+                var tomorrowLocal = nowLocal.Date.AddDays(1);
+                var oneHourFromNowLocal = nowLocal.AddHours(1);
+
+                _logger.LogInformation(
+                    "[Reminders] Using TZ '{TimeZoneId}'. nowLocal={NowLocal:o}, tomorrowLocal={TomorrowLocal:d}, window={Start:t}-{End:t}",
+                    tz?.Id ?? "SystemLocal", nowLocal, tomorrowLocal, nowLocal, oneHourFromNowLocal);
 
                 // Get appointments for 24-hour reminders (tomorrow)
                 var tomorrowAppointments = await _context.Appointments
                     .Include(a => a.Patient)
                         .ThenInclude(p => p.User)
                     .Include(a => a.Doctor)
-                    .Where(a => a.AppointmentDate.Date == tomorrow &&
+                    .Where(a => a.AppointmentDate.Date == tomorrowLocal &&
                                a.Status == AppointmentStatus.Confirmed &&
                                !string.IsNullOrEmpty(a.Patient.User.Email))
                     .ToListAsync();
@@ -266,9 +285,9 @@ namespace Barangay.Services
                     .Include(a => a.Patient)
                         .ThenInclude(p => p.User)
                     .Include(a => a.Doctor)
-                    .Where(a => a.AppointmentDate.Date == now.Date &&
-                               a.AppointmentTime >= now.TimeOfDay &&
-                               a.AppointmentTime <= oneHourFromNow.TimeOfDay &&
+                    .Where(a => a.AppointmentDate.Date == nowLocal.Date &&
+                               a.AppointmentTime >= nowLocal.TimeOfDay &&
+                               a.AppointmentTime <= oneHourFromNowLocal.TimeOfDay &&
                                a.Status == AppointmentStatus.Confirmed &&
                                !string.IsNullOrEmpty(a.Patient.User.Email))
                     .ToListAsync();
@@ -285,8 +304,9 @@ namespace Barangay.Services
                     await SendAppointmentReminderEmailAsync(appointment.Id, appointment.Patient.User.Email, "1hr");
                 }
 
-                _logger.LogInformation("Processed scheduled reminders: {TomorrowCount} 24hr reminders, {OneHourCount} 1hr reminders", 
-                    tomorrowAppointments.Count, oneHourAppointments.Count);
+                _logger.LogInformation(
+                    "Processed scheduled reminders: {TomorrowCount} 24hr reminders, {OneHourCount} 1hr reminders (TZ={TimeZoneId})",
+                    tomorrowAppointments.Count, oneHourAppointments.Count, tz?.Id ?? "SystemLocal");
             }
             catch (Exception ex)
             {

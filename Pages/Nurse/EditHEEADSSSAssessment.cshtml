@@ -2,7 +2,8 @@
 @model Barangay.Pages.Nurse.EditHEEADSSSAssessmentModel
 @{
     ViewData["Title"] = "Edit HEEADSSS Assessment";
-    Layout = "~/Pages/Shared/_NurseLayout.cshtml";
+    var isDoctor = User.IsInRole("Doctor") || User.IsInRole("Head Doctor") || User.IsInRole("Admin");
+    Layout = isDoctor ? "_DoctorLayout" : "~/Pages/Shared/_NurseLayout.cshtml";
 }
 
 @section Styles {
@@ -68,10 +69,20 @@
             <i class="fas fa-edit text-primary me-2"></i>
             Edit HEEADSSS Assessment
         </h1>
-        <a href="/Nurse/AppointmentDetails?id=@Model.Assessment.AppointmentId" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-1"></i>
-            Back to Appointment
-        </a>
+        @if (isDoctor)
+        {
+            <a href="/Doctor/Consultation?id=@Model.Assessment.AppointmentId" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>
+                Back to Consultation
+            </a>
+        }
+        else
+        {
+            <a href="/Nurse/AppointmentDetails?id=@Model.Assessment.AppointmentId" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>
+                Back to Appointment
+            </a>
+        }
     </div>
 
     @if (!string.IsNullOrEmpty(TempData["StatusMessage"]?.ToString()))
@@ -113,16 +124,19 @@
             <div class="mb-3">
                 <label class="form-label">Options:</label>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="Assessment.IsNHPTS" />
-                    <label class="form-check-label">NHPTS</label>
+                    <input class="form-check-input" type="checkbox" id="IsNHPTS" onchange="updateCheckboxValue('IsNHPTS', 'Assessment.IsNHPTS')" />
+                    <input type="hidden" asp-for="Assessment.IsNHPTS" />
+                    <label class="form-check-label" for="IsNHPTS">NHPTS</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="Assessment.IsPhilHealthBeneficiaryOnly" />
-                    <label class="form-check-label">PhilHealth Beneficiary Only</label>
+                    <input class="form-check-input" type="checkbox" id="IsPhilHealthBeneficiaryOnly" onchange="updateCheckboxValue('IsPhilHealthBeneficiaryOnly', 'Assessment.IsPhilHealthBeneficiaryOnly')" />
+                    <input type="hidden" asp-for="Assessment.IsPhilHealthBeneficiaryOnly" />
+                    <label class="form-check-label" for="IsPhilHealthBeneficiaryOnly">PhilHealth Beneficiary Only</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="Assessment.IsOwnPhilHealth" />
-                    <label class="form-check-label">Own PhilHealth / PIN:</label>
+                    <input class="form-check-input" type="checkbox" id="IsOwnPhilHealth" onchange="updateCheckboxValue('IsOwnPhilHealth', 'Assessment.IsOwnPhilHealth')" />
+                    <input type="hidden" asp-for="Assessment.IsOwnPhilHealth" />
+                    <label class="form-check-label" for="IsOwnPhilHealth">Own PhilHealth / PIN:</label>
                     <input type="text" class="form-control d-inline-block ms-2" style="width: 200px;" asp-for="Assessment.PhilHealthPIN" />
                 </div>
             </div>
@@ -182,6 +196,208 @@
                         <label class="form-label">Contact Number</label>
                         <input type="text" class="form-control" asp-for="Assessment.ContactNumber" />
                         <small class="form-text text-muted">11 digits only, Philippine format (e.g. 09123456789)</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- B. Adolescent Health Information Section -->
+        <div class="form-section">
+            <h3>B. ADOLESCENT HEALTH INFORMATION</h3>
+            
+            <!-- Measurements -->
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label">Height (cm)</label>
+                        <input type="text" class="form-control" asp-for="Assessment.Height" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label">Weight (kg)</label>
+                        <input type="text" class="form-control" asp-for="Assessment.Weight" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label">BMI (kg/m²)</label>
+                        <input type="text" class="form-control" asp-for="Assessment.BMI" readonly />
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">BMI Status:</label>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="BMIUnderweight" onchange="updateCheckboxValue('BMIUnderweight', 'Assessment.BMIUnderweight')" />
+                            <input type="hidden" asp-for="Assessment.BMIUnderweight" />
+                            <label class="form-check-label" for="BMIUnderweight">Underweight</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="BMINormal" onchange="updateCheckboxValue('BMINormal', 'Assessment.BMINormal')" />
+                            <input type="hidden" asp-for="Assessment.BMINormal" />
+                            <label class="form-check-label" for="BMINormal">Normal</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="BMIOverweight" onchange="updateCheckboxValue('BMIOverweight', 'Assessment.BMIOverweight')" />
+                            <input type="hidden" asp-for="Assessment.BMIOverweight" />
+                            <label class="form-check-label" for="BMIOverweight">Overweight</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="BMIObese" onchange="updateCheckboxValue('BMIObese', 'Assessment.BMIObese')" />
+                            <input type="hidden" asp-for="Assessment.BMIObese" />
+                            <label class="form-check-label" for="BMIObese">Obese</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Immunization Status + For Females Only (top-right) -->
+            <div class="mb-3">
+                <div class="row">
+                    <div class="col-md-8">
+                        <label class="form-label">Immunization Status:</label>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">MR/MMR date given:</label>
+                                    <input type="date" class="form-control" asp-for="Assessment.ImmunizationMR" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Td date given:</label>
+                                    <input type="date" class="form-control" asp-for="Assessment.ImmunizationTd" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">HPV date given:</label>
+                                    <input type="date" class="form-control" asp-for="Assessment.ImmunizationHPV" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div id="female-only-section" style="display: none;">
+                            <label class="form-label">For Females Only: (if applicable)</label>
+                            <div class="mb-2">
+                                <label class="form-label">Date of Menarche:</label>
+                                <input type="date" class="form-control" asp-for="Assessment.DateOfMenarche" />
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">Age of 1st Pregnancy:</label>
+                                <input type="text" class="form-control" asp-for="Assessment.AgeOfFirstPregnancy" />
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">OB Score:</label>
+                                <input type="text" class="form-control" asp-for="Assessment.OBScore" placeholder="G__ P__ (__ __ __ __)" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vital Signs and Medical Information -->
+        <div class="form-section">
+            <div class="row">
+                <div class="col-md-6">
+                    <!-- Vital Signs -->
+                    <h4>Vital Signs</h4>
+                    <div class="table-responsive">
+                        <table class="table table-bordered" style="width: 100%;">
+                            <tr>
+                                <td style="width: 50%;"><strong>Temp</strong></td>
+                                <td><input type="text" class="form-control form-control-sm" asp-for="Assessment.VitalTemp" /></td>
+                            </tr>
+                            <tr>
+                                <td><strong>RR</strong></td>
+                                <td><input type="text" class="form-control form-control-sm" asp-for="Assessment.VitalRR" /></td>
+                            </tr>
+                            <tr>
+                                <td><strong>PR/CR</strong></td>
+                                <td><input type="text" class="form-control form-control-sm" asp-for="Assessment.VitalPR" /></td>
+                            </tr>
+                            <tr>
+                                <td><strong>BP</strong></td>
+                                <td><input type="text" class="form-control form-control-sm" asp-for="Assessment.VitalBP" /></td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Chief Complaint:
+                        <textarea class="form-control" asp-for="Assessment.ChiefComplaint" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="label">History of Present Illness:</label>
+                        <textarea class="form-control" asp-for="Assessment.HistoryOfPresentIllness" rows="3"></textarea>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Pertinent Physical Examination Findings:</label>
+                        <textarea class="form-control" asp-for="Assessment.PhysicalExaminationFindings" rows="13"></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Past Medical History:</label>
+                        <textarea class="form-control" asp-for="Assessment.PastMedicalHistory" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Working Diagnosis:</label>
+                        <textarea class="form-control" asp-for="Assessment.WorkingDiagnosis" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Management:</label>
+                        <textarea class="form-control" asp-for="Assessment.Management" rows="3"></textarea>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Family History:</label>
+                        <textarea class="form-control" asp-for="Assessment.FamilyHistory" rows="9"></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Referral Information -->
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label">Referred to:</label>
+                        <input type="text" class="form-control" asp-for="Assessment.ReferredTo" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label">Reason for Referral:</label>
+                        <input type="text" class="form-control" asp-for="Assessment.ReasonForReferral" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label">Follow-up Date:</label>
+                        <input type="date" class="form-control" asp-for="Assessment.FollowUpDate" />
                     </div>
                 </div>
             </div>
@@ -255,20 +471,24 @@
             <div class="mb-3">
                 <label class="form-label">Sinubukan mo na bang magbawas ng timbang sa pamamagitan ng:</label>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="Assessment.EatingVomiting" />
-                    <label class="form-check-label">Pagduwal/pagsuka (vomiting)</label>
+                    <input class="form-check-input" type="checkbox" id="EatingVomiting" onchange="updateCheckboxValue('EatingVomiting', 'Assessment.EatingVomiting')" />
+                    <input type="hidden" asp-for="Assessment.EatingVomiting" />
+                    <label class="form-check-label" for="EatingVomiting">Pagduwal/pagsuka (vomiting)</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="Assessment.EatingDietPills" />
-                    <label class="form-check-label">Pag-inom ng diet pills</label>
+                    <input class="form-check-input" type="checkbox" id="EatingDietPills" onchange="updateCheckboxValue('EatingDietPills', 'Assessment.EatingDietPills')" />
+                    <input type="hidden" asp-for="Assessment.EatingDietPills" />
+                    <label class="form-check-label" for="EatingDietPills">Pag-inom ng diet pills</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="Assessment.EatingLaxatives" />
-                    <label class="form-check-label">Laxatives</label>
+                    <input class="form-check-input" type="checkbox" id="EatingLaxatives" onchange="updateCheckboxValue('EatingLaxatives', 'Assessment.EatingLaxatives')" />
+                    <input type="hidden" asp-for="Assessment.EatingLaxatives" />
+                    <label class="form-check-label" for="EatingLaxatives">Laxatives</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="Assessment.EatingStarvation" />
-                    <label class="form-check-label">Hindi pagkain (starvation)</label>
+                    <input class="form-check-input" type="checkbox" id="EatingStarvation" onchange="updateCheckboxValue('EatingStarvation', 'Assessment.EatingStarvation')" />
+                    <input type="hidden" asp-for="Assessment.EatingStarvation" />
+                    <label class="form-check-label" for="EatingStarvation">Hindi pagkain (starvation)</label>
                 </div>
             </div>
             
@@ -305,16 +525,19 @@
             <div class="mb-3">
                 <label class="form-label">Naranasan mo na bang gumamit ng mga sumusunod:</label>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="Assessment.DrugsTobaccoUse" />
-                    <label class="form-check-label">Tobacco (Sigarilyo)</label>
+                    <input class="form-check-input" type="checkbox" id="DrugsTobaccoUse" onchange="updateCheckboxValue('DrugsTobaccoUse', 'Assessment.DrugsTobaccoUse')" />
+                    <input type="hidden" asp-for="Assessment.DrugsTobaccoUse" />
+                    <label class="form-check-label" for="DrugsTobaccoUse">Tobacco (Sigarilyo)</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="Assessment.DrugsAlcoholUse" />
-                    <label class="form-check-label">Alcohol (Alak)</label>
+                    <input class="form-check-input" type="checkbox" id="DrugsAlcoholUse" onchange="updateCheckboxValue('DrugsAlcoholUse', 'Assessment.DrugsAlcoholUse')" />
+                    <input type="hidden" asp-for="Assessment.DrugsAlcoholUse" />
+                    <label class="form-check-label" for="DrugsAlcoholUse">Alcohol (Alak)</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="Assessment.DrugsStreetDrugs" />
-                    <label class="form-check-label">Street/Prohibited drugs</label>
+                    <input class="form-check-input" type="checkbox" id="DrugsStreetDrugs" onchange="updateCheckboxValue('DrugsStreetDrugs', 'Assessment.DrugsStreetDrugs')" />
+                    <input type="hidden" asp-for="Assessment.DrugsStreetDrugs" />
+                    <label class="form-check-label" for="DrugsStreetDrugs">Street/Prohibited drugs</label>
                 </div>
             </div>
         </div>
@@ -344,21 +567,21 @@
                 </div>
             </div>
             
+            <!-- Additional sexuality items per paper form -->
             <div class="mb-3">
-                <label class="form-label">Naisip mo ba na ikaw ay:</label>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="Assessment.SexualityGay" />
-                    <label class="form-check-label">Gay</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="Assessment.SexualityLesbian" />
-                    <label class="form-check-label">Lesbian</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="Assessment.SexualityBisexual" />
-                    <label class="form-check-label">Bisexual</label>
-                </div>
+                <label class="form-label">Ikaw ba ay nakaranas nang magbuntis o makabuntis?</label>
+                <textarea class="form-control" asp-for="Assessment.SexualityPregnancyExperience" rows="2"></textarea>
             </div>
+            <div class="mb-3">
+                <label class="form-label">Ikaw ba ay nagkaroon na ng nakakahawang sakit dulot ng pakikipagtalik?</label>
+                <textarea class="form-control" asp-for="Assessment.SexualitySTIExperience" rows="2"></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">May ginagamit ka bang proteksyon kapag sa tuwing nakikipagtalik?</label>
+                <textarea class="form-control" asp-for="Assessment.SexualityProtectionUse" rows="2"></textarea>
+            </div>
+            
+            
             
             <div class="mb-3">
                 <label class="form-label">May nakaranas ba na magbunot o maglunsad laban sa iyo?</label>
@@ -371,7 +594,7 @@
             <h3>SAFETY / WEAPONS / VIOLENCE</h3>
                 
             <div class="mb-3">
-                <label class="form-label">Ikaw ba ay nakaranas na masaktan (masampal, matulak, masunot) ng kahit sino?</label>
+                <label class="form-label">Ikaw ba ay nakakaranas mahipuan/masuntok/masampal/matulak ng kahit sino?</label>
                 <textarea class="form-control" asp-for="Assessment.SafetyPhysicalAbuse" rows="3"></textarea>
             </div>
             
@@ -383,6 +606,11 @@
             <div class="mb-3">
                 <label class="form-label">Gumagamit ka ba ng helmet o protective gear kapag sumasakay ng motor/iba pang sasakyan?</label>
                 <textarea class="form-control" asp-for="Assessment.SafetyProtectiveGear" rows="3"></textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">May kasambahay ka bang nagmamay-ari ng baril o rifle?</label>
+                <textarea class="form-control" asp-for="Assessment.SafetyGunsAtHome" rows="3"></textarea>
             </div>
             
             <div class="mb-3">
@@ -453,7 +681,82 @@
     <!-- SweetAlert2 for notifications -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        // Function to update checkbox values
+        function updateCheckboxValue(checkboxId, hiddenFieldName) {
+            const checkbox = document.getElementById(checkboxId);
+            const hiddenField = document.querySelector(`input[name="${hiddenFieldName}"]`);
+            if (checkbox && hiddenField) {
+                hiddenField.value = checkbox.checked ? "True" : "False";
+            }
+        }
+
+        // Function to initialize checkbox states from hidden field values
+        function initializeCheckboxes() {
+            const checkboxes = [
+                'IsNHPTS', 'IsPhilHealthBeneficiaryOnly', 'IsOwnPhilHealth',
+                'BMIUnderweight', 'BMINormal', 'BMIOverweight', 'BMIObese',
+                'EatingVomiting', 'EatingDietPills', 'EatingLaxatives', 'EatingStarvation',
+                'DrugsTobaccoUse', 'DrugsAlcoholUse', 'DrugsStreetDrugs'
+            ];
+
+            checkboxes.forEach(checkboxId => {
+                const hiddenField = document.querySelector(`input[name="Assessment.${checkboxId}"]`);
+                const checkbox = document.getElementById(checkboxId);
+                if (hiddenField && checkbox) {
+                    checkbox.checked = hiddenField.value === "True";
+                }
+            });
+        }
+
         $(document).ready(function() {
+            // Initialize checkboxes on page load
+            initializeCheckboxes();
+
+            // BMI Calculation
+            $('#Assessment_Height, #Assessment_Weight').on('input', function() {
+                const height = parseFloat($('#Assessment_Height').val());
+                const weight = parseFloat($('#Assessment_Weight').val());
+                
+                if (height && weight && height > 0 && weight > 0) {
+                    const heightInMeters = height / 100; // Convert cm to meters
+                    const bmi = (weight / (heightInMeters * heightInMeters)).toFixed(1);
+                    $('#Assessment_BMI').val(bmi);
+                    
+                    // Auto-select BMI status based on value
+                    $('input[name*="BMI"]').prop('checked', false); // Clear all checkboxes
+                    
+                    if (bmi < 18.5) {
+                        $('#BMIUnderweight').prop('checked', true);
+                        updateCheckboxValue('BMIUnderweight', 'Assessment.BMIUnderweight');
+                    } else if (bmi >= 18.5 && bmi < 25) {
+                        $('#BMINormal').prop('checked', true);
+                        updateCheckboxValue('BMINormal', 'Assessment.BMINormal');
+                    } else if (bmi >= 25 && bmi < 30) {
+                        $('#BMIOverweight').prop('checked', true);
+                        updateCheckboxValue('BMIOverweight', 'Assessment.BMIOverweight');
+                    } else if (bmi >= 30) {
+                        $('#BMIObese').prop('checked', true);
+                        updateCheckboxValue('BMIObese', 'Assessment.BMIObese');
+                    }
+                } else {
+                    $('#Assessment_BMI').val('');
+                }
+            });
+
+            // Show/hide female-only section based on gender
+            function toggleFemaleSection() {
+                // Check if patient is female (you may need to implement gender checking logic)
+                const gender = '@Model.Assessment.Gender'.toLowerCase();
+                if (gender === 'female' || gender === 'f') {
+                    $('#female-only-section').show();
+                } else {
+                    $('#female-only-section').hide();
+                }
+            }
+            
+            // Call function on page load
+            toggleFemaleSection();
+
             // Generate Family Number functionality
             document.getElementById('generate-family-no').addEventListener('click', async function() {
                 console.log("Generate button clicked"); // Debug logging
@@ -502,6 +805,24 @@
             $('#heeadsssAssessmentForm').on('submit', function(e) {
                 e.preventDefault();
                 
+                // Update all checkbox values before submission
+                const checkboxes = [
+                    'IsNHPTS', 'IsPhilHealthBeneficiaryOnly', 'IsOwnPhilHealth',
+                    'BMIUnderweight', 'BMINormal', 'BMIOverweight', 'BMIObese',
+                    'EatingVomiting', 'EatingDietPills', 'EatingLaxatives', 'EatingStarvation',
+                    'DrugsTobaccoUse', 'DrugsAlcoholUse', 'DrugsStreetDrugs'
+                ];
+
+                checkboxes.forEach(checkboxId => {
+                    const checkbox = document.getElementById(checkboxId);
+                    const hiddenField = document.querySelector(`input[name="Assessment.${checkboxId}"]`);
+                    if (checkbox && hiddenField) {
+                        const newValue = checkbox.checked ? "True" : "False";
+                        hiddenField.value = newValue;
+                        console.log(`Checkbox ${checkboxId}: ${checkbox.checked} -> ${newValue}`);
+                    }
+                });
+                
                 // Show loading
                 Swal.fire({
                     title: 'Updating...',
@@ -513,12 +834,25 @@
                     }
                 });
                 
-                // Submit form
-                $.ajax({
-                    url: window.location.pathname,
-                    type: 'POST',
-                    data: $(this).serialize(),
-                    success: function(response) {
+                // Debug: Log form data before submission
+                const formData = $(this).serialize();
+                console.log('Form data being submitted:', formData);
+                
+                // Submit form using fetch API which handles redirects better
+                fetch(window.location.pathname, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: formData,
+                    redirect: 'manual' // Don't follow redirects automatically
+                })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    console.log('Response type:', response.type);
+                    
+                    if (response.status === 0 || response.status === 200 || response.status === 302) {
+                        // Success - show success message and redirect
                         Swal.fire({
                             title: 'Success!',
                             text: 'The HEEADSSS assessment has been updated successfully.',
@@ -527,8 +861,8 @@
                         }).then(() => {
                             window.location.href = '/Nurse/AppointmentDetails?id=@Model.Assessment.AppointmentId';
                         });
-                    },
-                    error: function(xhr) {
+                    } else {
+                        // Error
                         Swal.fire({
                             title: 'Error',
                             text: 'An error occurred while updating the assessment. Please try again.',
@@ -536,6 +870,15 @@
                             confirmButtonText: 'OK'
                         });
                     }
+                })
+                .catch(error => {
+                    console.error('Fetch Error:', error);
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'An error occurred while updating the assessment. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
                 });
             });
         });

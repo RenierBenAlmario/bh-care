@@ -42,6 +42,7 @@ namespace Barangay.Data
         // Assessment models
         public DbSet<HEEADSSSAssessment> HEEADSSSAssessments { get; set; }
         public DbSet<NCDRiskAssessment> NCDRiskAssessments { get; set; }
+        public DbSet<AdolescentHealthInfo> AdolescentHealthInfo { get; set; }
         public DbSet<IntegratedAssessment> IntegratedAssessments { get; set; }
         public DbSet<FeedbackRating> FeedbackRatings { get; set; }
         public DbSet<PatientHistory> PatientHistories { get; set; }

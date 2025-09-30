@@ -208,7 +208,7 @@
             </div>
             
             <div class="mb-3">
-                <label class="form-label">Pinakikitaan ka ba ng iyong mga magulang o guardian sa tuwing may problema ka?</label>
+                <label class="form-label">Pinakikinggan ka aba ng iyong magulang o guardian sa tuwing ikaw ay may problema?</label>
                 <textarea class="form-control" asp-for="Assessment.HomeParentalListening" rows="3"></textarea>
             </div>
             
@@ -218,7 +218,7 @@
             </div>
             
             <div class="mb-3">
-                <label class="form-label">Sa nakaraang taon, may pagbabago ba sa loob ng iyong pamilya?</label>
+                <label class="form-label">Sa nakaraang taon,meron bang pagbabagong naganap sa loob ng iyong pamilya?</label>
                 <textarea class="form-control" asp-for="Assessment.HomeFamilyChanges" rows="3"></textarea>
             </div>
         </div>
@@ -258,23 +258,8 @@
             </div>
             
             <div class="mb-3">
-                <label class="form-label">Sinubukan mo na bang magbawas ng timbang sa pamamagitan ng:</label>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="Assessment.EatingVomiting" />
-                    <label class="form-check-label">Pagduwal/pagsuka (vomiting)</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="Assessment.EatingDietPills" />
-                    <label class="form-check-label">Pag-inom ng diet pills</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="Assessment.EatingLaxatives" />
-                    <label class="form-check-label">Laxatives</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="Assessment.EatingStarvation" />
-                    <label class="form-check-label">Hindi pagkain (starvation)</label>
-                </div>
+                <label class="form-label">Sinubukan mo na bang magbawas ng timbang sa pamamagitan ng pagsuka ng kinain (vomiting), uminom ng diet pills o pampadumi (laxatives), o kaya ang sadyang hindi pagkain (starvation)?</label>
+                <textarea class="form-control" asp-for="Assessment.EatingDisorderedEatingBehaviors" rows="3"></textarea>
             </div>
             
             <div class="mb-3">
@@ -366,8 +351,43 @@
             </div>
             
             <div class="mb-3">
-                <label class="form-label">May nakaranas ba na magbunot o maglunsad laban sa iyo?</label>
-                <textarea class="form-control" asp-for="Assessment.SexualityHarassment" rows="3"></textarea>
+                <label class="form-label">Ikaw ba ay nakaranas nang magbuntis o makabuntis?</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="SexualityPregnancyExperience" value="Yes" asp-for="Assessment.SexualityPregnancyExperience" />
+                    <label class="form-check-label">Oo</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="SexualityPregnancyExperience" value="No" asp-for="Assessment.SexualityPregnancyExperience" />
+                    <label class="form-check-label">Hindi</label>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Ikaw ba ay nagkaroon na ng nakakahawang sakit dulot ng pakikipagtalik?</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="SexualitySTIExperience" value="Yes" asp-for="Assessment.SexualitySTIExperience" />
+                    <label class="form-check-label">Oo</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="SexualitySTIExperience" value="No" asp-for="Assessment.SexualitySTIExperience" />
+                    <label class="form-check-label">Hindi</label>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">May ginagamit ka bang proteksyon kapag sa tuwing nakikipagtalik?</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="SexualityProtectionUse" value="Yes" asp-for="Assessment.SexualityProtectionUse" />
+                    <label class="form-check-label">Oo</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="SexualityProtectionUse" value="No" asp-for="Assessment.SexualityProtectionUse" />
+                    <label class="form-check-label">Hindi</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="SexualityProtectionUse" value="Sometimes" asp-for="Assessment.SexualityProtectionUse" />
+                    <label class="form-check-label">Minsan</label>
+                </div>
             </div>
         </div>
         
@@ -376,7 +396,7 @@
             <h3>SAFETY / WEAPONS / VIOLENCE</h3>
                 
             <div class="mb-3">
-                <label class="form-label">Ikaw ba ay nakaranas na masaktan (masampal, matulak, masunot) ng kahit sino?</label>
+                <label class="form-label">Ikaw ba ay nakaranas na masaktan (mahipuan, masuntok, masampal) ng kahit sino?</label>
                 <textarea class="form-control" asp-for="Assessment.SafetyPhysicalAbuse" rows="3"></textarea>
             </div>
             

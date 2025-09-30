@@ -84,6 +84,7 @@ namespace Barangay.Pages.Doctor
         public Barangay.Models.Appointment? Appointment { get; set; }
         public HEEADSSSAssessment? HEEADSSSAssessment { get; set; }
         public NCDRiskAssessment? NCDRiskAssessment { get; set; }
+        public AdolescentHealthInfo? AdolescentHealthInfo { get; set; }
         
         [BindProperty]
         public int? AppointmentId { get; set; }
@@ -145,12 +146,33 @@ namespace Barangay.Pages.Doctor
 
                     _logger.LogInformation("Found {Count} appointments for today and upcoming", ConsultationQueue.Count);
 
+                    // Decrypt patient names for all appointments
+                    foreach (var appointment in ConsultationQueue)
+                    {
+                        if (appointment.Patient?.User != null)
+                        {
+                            appointment.Patient.User.DecryptSensitiveData(_encryptionService, User);
+                        }
+                        
+                        // Decrypt the actual patient name from the appointment
+                        if (!string.IsNullOrEmpty(appointment.PatientName) && _encryptionService.IsEncrypted(appointment.PatientName))
+                        {
+                            appointment.PatientName = _encryptionService.DecryptForUser(appointment.PatientName, User);
+                        }
+                        
+                        // Decrypt dependent name if applicable
+                        if (!string.IsNullOrEmpty(appointment.DependentFullName) && _encryptionService.IsEncrypted(appointment.DependentFullName))
+                        {
+                            appointment.DependentFullName = _encryptionService.DecryptForUser(appointment.DependentFullName, User);
+                        }
+                    }
+
                     // Log each appointment found for debugging
                     foreach (var appointment in ConsultationQueue)
                     {
                         _logger.LogInformation("Appointment: {Id}, Patient: {Patient}, Status: {Status}, Time: {Time}", 
                             appointment.Id, 
-                            appointment.Patient?.FullName ?? "Unknown", 
+                            appointment.PatientName ?? "Unknown", 
                             appointment.Status, 
                             appointment.AppointmentTime);
                     }
@@ -293,6 +315,38 @@ namespace Barangay.Pages.Doctor
                 if (HEEADSSSAssessment != null)
                 {
                     HEEADSSSAssessment.DecryptSensitiveData(_encryptionService, User);
+                    
+                    // Manual decryption fallback for all HEEADSSS fields
+                    HEEADSSSAssessment.FullName = SafeDecrypt(HEEADSSSAssessment.FullName);
+                    HEEADSSSAssessment.Age = SafeDecrypt(HEEADSSSAssessment.Age);
+                    HEEADSSSAssessment.Gender = SafeDecrypt(HEEADSSSAssessment.Gender);
+                    HEEADSSSAssessment.Address = SafeDecrypt(HEEADSSSAssessment.Address);
+                    HEEADSSSAssessment.ContactNumber = SafeDecrypt(HEEADSSSAssessment.ContactNumber);
+                    HEEADSSSAssessment.HomeEnvironment = SafeDecrypt(HEEADSSSAssessment.HomeEnvironment);
+                    HEEADSSSAssessment.FamilyRelationship = SafeDecrypt(HEEADSSSAssessment.FamilyRelationship);
+                    HEEADSSSAssessment.HomeFamilyProblems = SafeDecrypt(HEEADSSSAssessment.HomeFamilyProblems);
+                    HEEADSSSAssessment.HomeParentalListening = SafeDecrypt(HEEADSSSAssessment.HomeParentalListening);
+                    HEEADSSSAssessment.SchoolPerformance = SafeDecrypt(HEEADSSSAssessment.SchoolPerformance);
+                    HEEADSSSAssessment.AttendanceIssues = SafeDecrypt(HEEADSSSAssessment.AttendanceIssues);
+                    HEEADSSSAssessment.CareerPlans = SafeDecrypt(HEEADSSSAssessment.CareerPlans);
+                    HEEADSSSAssessment.EducationCurrentlyStudying = SafeDecrypt(HEEADSSSAssessment.EducationCurrentlyStudying);
+                    HEEADSSSAssessment.Hobbies = SafeDecrypt(HEEADSSSAssessment.Hobbies);
+                    HEEADSSSAssessment.PhysicalActivity = SafeDecrypt(HEEADSSSAssessment.PhysicalActivity);
+                    HEEADSSSAssessment.ScreenTime = SafeDecrypt(HEEADSSSAssessment.ScreenTime);
+                    HEEADSSSAssessment.ActivitiesRegularExercise = SafeDecrypt(HEEADSSSAssessment.ActivitiesRegularExercise);
+                    HEEADSSSAssessment.DietDescription = SafeDecrypt(HEEADSSSAssessment.DietDescription);
+                    HEEADSSSAssessment.WeightConcerns = SafeDecrypt(HEEADSSSAssessment.WeightConcerns);
+                    HEEADSSSAssessment.SubstanceUse = SafeDecrypt(HEEADSSSAssessment.SubstanceUse);
+                    HEEADSSSAssessment.DrugsTobaccoUse = SafeDecrypt(HEEADSSSAssessment.DrugsTobaccoUse);
+                    HEEADSSSAssessment.SuicidalThoughts = SafeDecrypt(HEEADSSSAssessment.SuicidalThoughts);
+                    HEEADSSSAssessment.FeelsSafeAtHome = SafeDecrypt(HEEADSSSAssessment.FeelsSafeAtHome);
+                    HEEADSSSAssessment.SexualActivity = SafeDecrypt(HEEADSSSAssessment.SexualActivity);
+                    HEEADSSSAssessment.SexualOrientation = SafeDecrypt(HEEADSSSAssessment.SexualOrientation);
+                    HEEADSSSAssessment.SexualityPregnancyExperience = SafeDecrypt(HEEADSSSAssessment.SexualityPregnancyExperience);
+                    HEEADSSSAssessment.SexualitySTIExperience = SafeDecrypt(HEEADSSSAssessment.SexualitySTIExperience);
+                    HEEADSSSAssessment.SexualityProtectionUse = SafeDecrypt(HEEADSSSAssessment.SexualityProtectionUse);
+                    HEEADSSSAssessment.AssessmentNotes = SafeDecrypt(HEEADSSSAssessment.AssessmentNotes);
+                    HEEADSSSAssessment.AssessedBy = SafeDecrypt(HEEADSSSAssessment.AssessedBy);
                 }
 
                 // Load NCD Risk Assessment data
@@ -305,6 +359,73 @@ namespace Barangay.Pages.Doctor
                 if (NCDRiskAssessment != null)
                 {
                     NCDRiskAssessment.DecryptSensitiveData(_encryptionService, User);
+                    
+                    // Manual decryption fallback for NCD fields
+                    NCDRiskAssessment.FirstName = SafeDecrypt(NCDRiskAssessment.FirstName);
+                    NCDRiskAssessment.LastName = SafeDecrypt(NCDRiskAssessment.LastName);
+                    NCDRiskAssessment.MiddleName = SafeDecrypt(NCDRiskAssessment.MiddleName);
+                    NCDRiskAssessment.Edad = SafeDecrypt(NCDRiskAssessment.Edad);
+                    NCDRiskAssessment.Kasarian = SafeDecrypt(NCDRiskAssessment.Kasarian);
+                    NCDRiskAssessment.Address = SafeDecrypt(NCDRiskAssessment.Address);
+                    NCDRiskAssessment.Telepono = SafeDecrypt(NCDRiskAssessment.Telepono);
+                    NCDRiskAssessment.Weight = SafeDecrypt(NCDRiskAssessment.Weight);
+                    NCDRiskAssessment.Height = SafeDecrypt(NCDRiskAssessment.Height);
+                    NCDRiskAssessment.BMI = SafeDecrypt(NCDRiskAssessment.BMI);
+                    NCDRiskAssessment.Waist = SafeDecrypt(NCDRiskAssessment.Waist);
+                    NCDRiskAssessment.SmokingStatus = SafeDecrypt(NCDRiskAssessment.SmokingStatus);
+                    NCDRiskAssessment.AlcoholFrequency = SafeDecrypt(NCDRiskAssessment.AlcoholFrequency);
+                    NCDRiskAssessment.AlcoholStoppedDuration = SafeDecrypt(NCDRiskAssessment.AlcoholStoppedDuration);
+                    NCDRiskAssessment.IsBingeDrinker = SafeDecrypt(NCDRiskAssessment.IsBingeDrinker);
+                    NCDRiskAssessment.ExerciseDuration = SafeDecrypt(NCDRiskAssessment.ExerciseDuration);
+                    NCDRiskAssessment.HighSaltIntake = SafeDecrypt(NCDRiskAssessment.HighSaltIntake);
+                    NCDRiskAssessment.Smoked100Sticks = SafeDecrypt(NCDRiskAssessment.Smoked100Sticks);
+                    NCDRiskAssessment.FormerSmoker = SafeDecrypt(NCDRiskAssessment.FormerSmoker);
+                    NCDRiskAssessment.FastingBloodSugar = SafeDecrypt(NCDRiskAssessment.FastingBloodSugar);
+                    NCDRiskAssessment.RandomBloodSugar = SafeDecrypt(NCDRiskAssessment.RandomBloodSugar);
+                    NCDRiskAssessment.CholesterolResult = SafeDecrypt(NCDRiskAssessment.CholesterolResult);
+                    NCDRiskAssessment.LeftArmMeanBP = SafeDecrypt(NCDRiskAssessment.LeftArmMeanBP);
+                    NCDRiskAssessment.RightArmMeanBP = SafeDecrypt(NCDRiskAssessment.RightArmMeanBP);
+                    NCDRiskAssessment.BaselineBP = SafeDecrypt(NCDRiskAssessment.BaselineBP);
+                    NCDRiskAssessment.IDNo = SafeDecrypt(NCDRiskAssessment.IDNo);
+                    NCDRiskAssessment.InterviewedBy = SafeDecrypt(NCDRiskAssessment.InterviewedBy);
+                    NCDRiskAssessment.Designation = SafeDecrypt(NCDRiskAssessment.Designation);
+                    NCDRiskAssessment.RiskStatus = SafeDecrypt(NCDRiskAssessment.RiskStatus);
+                    NCDRiskAssessment.ChestPain = SafeDecrypt(NCDRiskAssessment.ChestPain);
+                    NCDRiskAssessment.CreatedAt = SafeDecrypt(NCDRiskAssessment.CreatedAt);
+                }
+
+                // Load Adolescent Health Information
+                AdolescentHealthInfo = await _context.AdolescentHealthInfo
+                    .Where(a => a.UserId == patientId)
+                    .OrderByDescending(a => a.CreatedAt)
+                    .FirstOrDefaultAsync();
+
+                // Decrypt Adolescent Health Information data for display
+                if (AdolescentHealthInfo != null)
+                {
+                    AdolescentHealthInfo.DecryptSensitiveData(_encryptionService, User);
+                    
+                    // Manual decryption fallback for Adolescent Health Info fields
+                    AdolescentHealthInfo.PatientName = SafeDecrypt(AdolescentHealthInfo.PatientName);
+                    AdolescentHealthInfo.PatientAge = SafeDecrypt(AdolescentHealthInfo.PatientAge);
+                    AdolescentHealthInfo.PatientGender = SafeDecrypt(AdolescentHealthInfo.PatientGender);
+                    AdolescentHealthInfo.PatientAddress = SafeDecrypt(AdolescentHealthInfo.PatientAddress);
+                    AdolescentHealthInfo.PatientContact = SafeDecrypt(AdolescentHealthInfo.PatientContact);
+                    AdolescentHealthInfo.HeightCm = SafeDecrypt(AdolescentHealthInfo.HeightCm);
+                    AdolescentHealthInfo.WeightKg = SafeDecrypt(AdolescentHealthInfo.WeightKg);
+                    AdolescentHealthInfo.BMI = SafeDecrypt(AdolescentHealthInfo.BMI);
+                    AdolescentHealthInfo.BMICategory = SafeDecrypt(AdolescentHealthInfo.BMICategory);
+                    AdolescentHealthInfo.MRMMRDateGiven = SafeDecrypt(AdolescentHealthInfo.MRMMRDateGiven);
+                    AdolescentHealthInfo.TdDateGiven = SafeDecrypt(AdolescentHealthInfo.TdDateGiven);
+                    AdolescentHealthInfo.HPVDateGiven = SafeDecrypt(AdolescentHealthInfo.HPVDateGiven);
+                    AdolescentHealthInfo.Temperature = SafeDecrypt(AdolescentHealthInfo.Temperature);
+                    AdolescentHealthInfo.BloodPressure = SafeDecrypt(AdolescentHealthInfo.BloodPressure);
+                    AdolescentHealthInfo.PulseRate = SafeDecrypt(AdolescentHealthInfo.PulseRate);
+                    AdolescentHealthInfo.RespiratoryRate = SafeDecrypt(AdolescentHealthInfo.RespiratoryRate);
+                    AdolescentHealthInfo.ChiefComplaint = SafeDecrypt(AdolescentHealthInfo.ChiefComplaint);
+                    AdolescentHealthInfo.WorkingDiagnosis = SafeDecrypt(AdolescentHealthInfo.WorkingDiagnosis);
+                    AdolescentHealthInfo.ReferredTo = SafeDecrypt(AdolescentHealthInfo.ReferredTo);
+                    AdolescentHealthInfo.RecordedBy = SafeDecrypt(AdolescentHealthInfo.RecordedBy);
                 }
 
                 _logger.LogInformation("Loaded {MedicalRecordsCount} medical records, vital signs: {HasVitalSigns}, HEEADSSS: {HasHEEADSSS}, NCD: {HasNCD}", 
@@ -665,6 +786,191 @@ namespace Barangay.Pages.Doctor
             }
 
             return string.Empty;
+        }
+
+        // Helper method for safe decryption
+        private string SafeDecrypt(string? encryptedValue)
+        {
+            if (string.IsNullOrEmpty(encryptedValue))
+                return encryptedValue ?? string.Empty;
+
+            try
+            {
+                if (_encryptionService.IsEncrypted(encryptedValue))
+                {
+                    var decrypted = _encryptionService.DecryptForUser(encryptedValue, User);
+                    return decrypted != encryptedValue && !decrypted.Contains("[ACCESS DENIED]") ? decrypted : encryptedValue;
+                }
+                return encryptedValue;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to decrypt value: {Value}", encryptedValue?.Substring(0, Math.Min(20, encryptedValue?.Length ?? 0)));
+                return encryptedValue;
+            }
+        }
+
+        // Helper method to check if HEEADSSS assessment has meaningful data
+        public bool HasHEEADSSSData()
+        {
+            if (HEEADSSSAssessment == null) return false;
+
+            // Check if any meaningful data exists (not just default/empty values or meaningless entries)
+            var hasMeaningfulData = false;
+
+            // Check text fields for meaningful content (not just "sad", "action", etc.)
+            var textFields = new[] {
+                HEEADSSSAssessment.HomeEnvironment,
+                HEEADSSSAssessment.FamilyRelationship,
+                HEEADSSSAssessment.HomeFamilyProblems,
+                HEEADSSSAssessment.HomeParentalListening,
+                HEEADSSSAssessment.SchoolPerformance,
+                HEEADSSSAssessment.CareerPlans,
+                HEEADSSSAssessment.PhysicalActivity,
+                HEEADSSSAssessment.DietDescription,
+                HEEADSSSAssessment.DrugsTobaccoUse,
+                HEEADSSSAssessment.SexualOrientation,
+                HEEADSSSAssessment.SexualityPregnancyExperience,
+                HEEADSSSAssessment.SexualitySTIExperience,
+                HEEADSSSAssessment.SexualityProtectionUse,
+                HEEADSSSAssessment.Hobbies,
+                HEEADSSSAssessment.AssessmentNotes,
+                HEEADSSSAssessment.AssessedBy
+            };
+
+            foreach (var field in textFields)
+            {
+                if (!string.IsNullOrEmpty(field) && 
+                    !field.Equals("Not specified", StringComparison.OrdinalIgnoreCase) &&
+                    !field.Equals("Not provided", StringComparison.OrdinalIgnoreCase) &&
+                    !field.Equals("None", StringComparison.OrdinalIgnoreCase) &&
+                    !field.Equals("sad", StringComparison.OrdinalIgnoreCase) &&
+                    !field.Equals("action", StringComparison.OrdinalIgnoreCase) &&
+                    field.Length > 3) // Must be more than 3 characters to be meaningful
+                {
+                    hasMeaningfulData = true;
+                    break;
+                }
+            }
+
+            // Check boolean fields for "true" values
+            if (!hasMeaningfulData)
+            {
+                hasMeaningfulData = HEEADSSSAssessment.AttendanceIssues == "true" ||
+                                   HEEADSSSAssessment.WeightConcerns == "true" ||
+                                   HEEADSSSAssessment.SubstanceUse == "true" ||
+                                   HEEADSSSAssessment.SuicidalThoughts == "true" ||
+                                   HEEADSSSAssessment.FeelsSafeAtHome == "true" ||
+                                   HEEADSSSAssessment.SexualActivity == "true";
+            }
+
+            return hasMeaningfulData;
+        }
+
+        // Helper method to check if NCD assessment has meaningful data
+        public bool HasNCDData()
+        {
+            if (NCDRiskAssessment == null) return false;
+
+            // Check if any meaningful data exists (not just default/empty values or meaningless entries)
+            var hasMeaningfulData = false;
+
+            // Check text fields for meaningful content
+            var textFields = new[] {
+                NCDRiskAssessment.FirstName,
+                NCDRiskAssessment.LastName,
+                NCDRiskAssessment.Edad,
+                NCDRiskAssessment.Kasarian,
+                NCDRiskAssessment.Address,
+                NCDRiskAssessment.Telepono,
+                NCDRiskAssessment.Weight,
+                NCDRiskAssessment.Height,
+                NCDRiskAssessment.BMI,
+                NCDRiskAssessment.Waist,
+                NCDRiskAssessment.SmokingStatus,
+                NCDRiskAssessment.AlcoholFrequency,
+                NCDRiskAssessment.ExerciseDuration,
+                NCDRiskAssessment.FastingBloodSugar,
+                NCDRiskAssessment.RandomBloodSugar,
+                NCDRiskAssessment.CholesterolResult,
+                NCDRiskAssessment.LeftArmMeanBP,
+                NCDRiskAssessment.RightArmMeanBP,
+                NCDRiskAssessment.BaselineBP,
+                NCDRiskAssessment.InterviewedBy,
+                NCDRiskAssessment.Designation,
+                NCDRiskAssessment.RiskStatus,
+                NCDRiskAssessment.ChestPain
+            };
+
+            foreach (var field in textFields)
+            {
+                if (!string.IsNullOrEmpty(field) && 
+                    !field.Equals("Not specified", StringComparison.OrdinalIgnoreCase) &&
+                    !field.Equals("Not provided", StringComparison.OrdinalIgnoreCase) &&
+                    !field.Equals("Not recorded", StringComparison.OrdinalIgnoreCase) &&
+                    !field.Equals("None", StringComparison.OrdinalIgnoreCase) &&
+                    !field.Equals("Non-smoker", StringComparison.OrdinalIgnoreCase) &&
+                    field.Length > 3) // Must be more than 3 characters to be meaningful
+                {
+                    hasMeaningfulData = true;
+                    break;
+                }
+            }
+
+            // Check boolean fields for "true" values
+            if (!hasMeaningfulData)
+            {
+                hasMeaningfulData = NCDRiskAssessment.HasDiabetes == "true" ||
+                                   NCDRiskAssessment.HasHypertension == "true" ||
+                                   NCDRiskAssessment.HasCancer == "true" ||
+                                   NCDRiskAssessment.HasLungDisease == "true" ||
+                                   NCDRiskAssessment.HasCOPD == "true" ||
+                                   NCDRiskAssessment.HasEyeDisease == "true" ||
+                                   NCDRiskAssessment.HasAsthma == "true" ||
+                                   NCDRiskAssessment.HasDifficultyBreathing == "true" ||
+                                   NCDRiskAssessment.HasChestPain == "true" ||
+                                   NCDRiskAssessment.FamilyHasHypertension == "true" ||
+                                   NCDRiskAssessment.FamilyHasHeartDisease == "true" ||
+                                   NCDRiskAssessment.FamilyHasStroke == "true" ||
+                                   NCDRiskAssessment.FamilyHasDiabetes == "true" ||
+                                   NCDRiskAssessment.FamilyHasCancer == "true" ||
+                                   NCDRiskAssessment.FamilyHasKidneyDisease == "true" ||
+                                   NCDRiskAssessment.FamilyHasOtherDisease == "true" ||
+                                   NCDRiskAssessment.Smoked100Sticks == "true" ||
+                                   NCDRiskAssessment.FormerSmoker == "true" ||
+                                   NCDRiskAssessment.HighSaltIntake == "true" ||
+                                   NCDRiskAssessment.IsBingeDrinker == "true";
+            }
+
+            return hasMeaningfulData;
+        }
+
+        // Helper method to check if Adolescent Health Info has meaningful data
+        public bool HasAdolescentHealthData()
+        {
+            if (AdolescentHealthInfo == null) return false;
+
+            // Check if any meaningful data exists (not just default/empty values)
+            return !string.IsNullOrEmpty(AdolescentHealthInfo.PatientName) ||
+                   !string.IsNullOrEmpty(AdolescentHealthInfo.PatientAge) ||
+                   !string.IsNullOrEmpty(AdolescentHealthInfo.PatientGender) ||
+                   !string.IsNullOrEmpty(AdolescentHealthInfo.PatientAddress) ||
+                   !string.IsNullOrEmpty(AdolescentHealthInfo.PatientContact) ||
+                   !string.IsNullOrEmpty(AdolescentHealthInfo.HeightCm) ||
+                   !string.IsNullOrEmpty(AdolescentHealthInfo.WeightKg) ||
+                   !string.IsNullOrEmpty(AdolescentHealthInfo.BMI) ||
+                   !string.IsNullOrEmpty(AdolescentHealthInfo.BMICategory) ||
+                   !string.IsNullOrEmpty(AdolescentHealthInfo.MRMMRDateGiven) ||
+                   !string.IsNullOrEmpty(AdolescentHealthInfo.TdDateGiven) ||
+                   !string.IsNullOrEmpty(AdolescentHealthInfo.HPVDateGiven) ||
+                   !string.IsNullOrEmpty(AdolescentHealthInfo.Temperature) ||
+                   !string.IsNullOrEmpty(AdolescentHealthInfo.BloodPressure) ||
+                   !string.IsNullOrEmpty(AdolescentHealthInfo.PulseRate) ||
+                   !string.IsNullOrEmpty(AdolescentHealthInfo.RespiratoryRate) ||
+                   !string.IsNullOrEmpty(AdolescentHealthInfo.ChiefComplaint) ||
+                   !string.IsNullOrEmpty(AdolescentHealthInfo.WorkingDiagnosis) ||
+                   !string.IsNullOrEmpty(AdolescentHealthInfo.ReferredTo) ||
+                   !string.IsNullOrEmpty(AdolescentHealthInfo.RecordedBy);
         }
 
         public class PrescriptionMedicationViewModel

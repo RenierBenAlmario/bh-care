@@ -223,7 +223,9 @@ namespace Barangay.Pages.User {
             {
                 if (string.IsNullOrEmpty(userId)) return;
 
-                var query = _context.Appointments.AsQueryable();
+                var query = _context.Appointments
+                    .Include(a => a.Doctor)
+                    .AsQueryable();
 
                 if (IsDoctor)
                     query = query.Where(a => a.DoctorId == userId);
@@ -231,6 +233,15 @@ namespace Barangay.Pages.User {
                     query = query.Where(a => a.PatientId == userId);
 
                 var allAppointments = await query.ToListAsync();
+
+                // Decrypt doctor names for all appointments
+                foreach (var appointment in allAppointments)
+                {
+                    if (appointment.Doctor != null)
+                    {
+                        appointment.Doctor.DecryptSensitiveData(_encryptionService, User);
+                    }
+                }
 
                 TodayAppointments = allAppointments
                     .Where(a => a.AppointmentDate.Date == today.Date)

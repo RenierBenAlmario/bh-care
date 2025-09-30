@@ -79,6 +79,12 @@ namespace Barangay.Pages.Doctor
                 {
                     appointment.PatientName = appointment.PatientName.DecryptForUser(_encryptionService, User);
                 }
+                
+                // Decrypt dependent name if applicable
+                if (!string.IsNullOrEmpty(appointment.DependentFullName) && _encryptionService.IsEncrypted(appointment.DependentFullName))
+                {
+                    appointment.DependentFullName = appointment.DependentFullName.DecryptForUser(_encryptionService, User);
+                }
             }
             
             TodaysAppointments = appointments;

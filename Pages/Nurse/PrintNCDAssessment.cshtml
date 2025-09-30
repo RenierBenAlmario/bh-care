@@ -278,12 +278,6 @@
         <div class="section-title">PART II: PAST MEDICAL HISTORY</div>
         
         <div class="form-row">
-            <div class="form-group">
-                <span class="form-label">Mayroon ba ay may sumusunod nakaraang karamdaman?</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
             <div class="checkbox-group">
                 <span class="checkbox @(Model.NCDRiskAssessment.HasDiabetes == "true" ? "checked" : "")"></span>
                 <span class="checkbox-label">Diabetes</span>
@@ -318,8 +312,15 @@
         
         <div class="form-row">
             <div class="checkbox-group">
+                <span class="checkbox @(Model.NCDRiskAssessment.HasCOPD == "true" ? "checked" : "")"></span>
+                <span class="checkbox-label">COPD</span>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="checkbox-group">
                 <span class="checkbox @(Model.NCDRiskAssessment.HasLungDisease == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Sakit sa baga na hindi nakakahawa</span>
+                <span class="checkbox-label">Lung Disease</span>
                 @if (Model.NCDRiskAssessment.HasLungDisease == "true")
                 {
                     <span> - Year: @Model.NCDRiskAssessment.LungDiseaseYear, Medication: @Model.NCDRiskAssessment.LungDiseaseMedication</span>
@@ -328,69 +329,11 @@
         </div>
         
         <div class="form-row">
-            <div class="form-group">
-                <span class="form-label">Pananaklit ng dibdib (Chest pain)</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
             <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.HasChestPain == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Pananakit/kabigatan sa dibdib</span>
+                <span class="checkbox @(Model.NCDRiskAssessment.HasEyeDisease == "true" ? "checked" : "")"></span>
+                <span class="checkbox-label">Eye Disease</span>
             </div>
         </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.ChestPainSpreadsToArm == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">May kumakalat na sakit hanggang braso</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.NumbnessWhenWalkingFast == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Pamamanhid kapag nagmamadali/naglalakad ng mabilis</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.PainRelievedWithRest == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Nawawala ang sakit kapag nakapahinga</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.LossOfConsciousnessLessThan10Min == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Nawawalan ng malay <10 minuto</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.PainLastsMoreThan30Min == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Sakit tumatagal >30 minuto</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.SeeDoctorIfYes == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Kung Oo, magpatingin agad sa doktor</span>
-            </div>
-        </div>
-        
-        @if (!string.IsNullOrEmpty(Model.NCDRiskAssessment.DoctorName))
-        {
-            <div class="form-row">
-                <div class="form-group">
-                    <span class="form-label">Doktor:</span>
-                    <div class="form-value">@Model.NCDRiskAssessment.DoctorName</div>
-                </div>
-            </div>
-        }
     </div>
 
     <div class="section">
@@ -398,55 +341,79 @@
         
         <div class="form-row">
             <div class="form-group">
-                <span class="form-label">A. Non-Modifiable Risk Factors</span>
+                <span class="form-label">Smoking Status:</span>
+                <div class="form-value">@Model.NCDRiskAssessment.SmokingStatus</div>
+            </div>
+            <div class="form-group">
+                <span class="form-label">Alcohol Frequency:</span>
+                <div class="form-value">@Model.NCDRiskAssessment.AlcoholFrequency</div>
             </div>
         </div>
         
         <div class="form-row">
             <div class="form-group">
-                <span class="form-label">Sakit sa pamilya (Family history):</span>
+                <span class="form-label">Exercise Duration (minutes/week):</span>
+                <div class="form-value">@Model.NCDRiskAssessment.ExerciseDuration</div>
+            </div>
+            <div class="form-group">
+                <span class="form-label">High Salt Intake:</span>
+                <div class="form-value">@(Model.NCDRiskAssessment.HighSaltIntake == "true" ? "Yes" : "No")</div>
             </div>
         </div>
+        
+        @if (!string.IsNullOrEmpty(Model.NCDRiskAssessment.AlcoholConsumption))
+        {
+            <div class="form-row">
+                <div class="form-group">
+                    <span class="form-label">Alcohol Consumption Details:</span>
+                    <div class="form-value">@Model.NCDRiskAssessment.AlcoholConsumption</div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="section">
+        <div class="section-title">PART IV: FAMILY HISTORY</div>
         
         <div class="form-row">
             <div class="checkbox-group">
                 <span class="checkbox @(Model.NCDRiskAssessment.FamilyHasHypertension == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Hypertension</span>
+                <span class="checkbox-label">Family Hypertension</span>
             </div>
         </div>
         
         <div class="form-row">
             <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.FamilyHasDiabetes == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Diabetes</span>
+                <span class="checkbox @(Model.NCDRiskAssessment.FamilyHasHeartDisease == "true" ? "checked" : "")"></span>
+                <span class="checkbox-label">Family Heart Disease</span>
             </div>
         </div>
         
         <div class="form-row">
             <div class="checkbox-group">
                 <span class="checkbox @(Model.NCDRiskAssessment.FamilyHasStroke == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Stroke</span>
+                <span class="checkbox-label">Family Stroke</span>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="checkbox-group">
+                <span class="checkbox @(Model.NCDRiskAssessment.FamilyHasDiabetes == "true" ? "checked" : "")"></span>
+                <span class="checkbox-label">Family Diabetes</span>
             </div>
         </div>
         
         <div class="form-row">
             <div class="checkbox-group">
                 <span class="checkbox @(Model.NCDRiskAssessment.FamilyHasCancer == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Cancer</span>
+                <span class="checkbox-label">Family Cancer</span>
             </div>
         </div>
         
         <div class="form-row">
             <div class="checkbox-group">
                 <span class="checkbox @(Model.NCDRiskAssessment.FamilyHasKidneyDisease == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Sakit sa bato</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.FamilyHasOtherDisease == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Other Disease</span>
+                <span class="checkbox-label">Family Kidney Disease</span>
             </div>
         </div>
         
@@ -454,387 +421,20 @@
         {
             <div class="form-row">
                 <div class="form-group">
-                    <span class="form-label">Other disease details:</span>
+                    <span class="form-label">Other Family Disease Details:</span>
                     <div class="form-value">@Model.NCDRiskAssessment.FamilyOtherDiseaseDetails</div>
                 </div>
             </div>
         }
-        
-        <div class="form-row">
-            <div class="form-group">
-                <span class="form-label">B. Modifiable Risk Factors</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <span class="form-label">Nutrisyon (Nutrition):</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <span class="form-label">Madalas mo bang kainin kada araw?</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.EatsVegetablesDaily == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Gulay</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.EatsFruitsDaily == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Prutas</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.EatsFishDaily == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Isda</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.EatsMeatDaily == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Karne</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.HasUnhealthyDiet == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Unhealthy Diet</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <span class="form-label">Kumakain ka ba ng higit sa 2 beses kada linggo ng:</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.EatsFattyFoodMoreThan2TimesPerWeek == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Matatabang pagkain</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.EatsSweetFoodMoreThan2TimesPerWeek == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Matatamis na pagkain</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.EatsOilyFoodMoreThan2TimesPerWeek == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Mamantikang pagkain</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.HasHighSaltIntake == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">With high salt intake</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <span class="form-label">Alakhol (Alcohol):</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.DrinksAlcohol == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Umiinom ka ba ng alak? Oo</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <span class="form-label">Ehersisyo (Physical Activity):</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.ModerateIntensityExercise == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Moderate Intensity</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.VigorousIntensityExercise == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Vigorous Intensity</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.CombinationExercise == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Kombinasyon</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.InsufficientPhysicalActivity == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Insufficient Physical Activity</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <span class="form-label">Paninigarilyo (Smoking):</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.FormerSmoker == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Oo, pero tumigil na</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.NeverSmokedButExposedToSmoke == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Hindi, pero lantad sa usok ng sigarilyo</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.HasHistoryOfSmoking == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">With history of smoking</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <span class="form-label">Istres (Stress):</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.HasStress == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Oo</span>
-            </div>
-        </div>
     </div>
 
     <div class="section">
-        <div class="section-title">PART IV: ANTHROPOMETRIC MEASUREMENT</div>
+        <div class="section-title">PART V: RISK SCREENING</div>
         
         <div class="form-row">
             <div class="form-group">
-                <span class="form-label">Weight:</span>
-                <div class="form-value">@Model.NCDRiskAssessment.Weight</div>
-            </div>
-            <div class="form-group">
-                <span class="form-label">Height:</span>
-                <div class="form-value">@Model.NCDRiskAssessment.Height</div>
-            </div>
-            <div class="form-group">
-                <span class="form-label">BMI:</span>
-                <div class="form-value">@Model.NCDRiskAssessment.BMI</div>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <span class="form-label">Waist:</span>
-                <div class="form-value">@Model.NCDRiskAssessment.Waist</div>
-            </div>
-            <div class="form-group">
-                <span class="form-label">Hip:</span>
-                <div class="form-value">@Model.NCDRiskAssessment.Hip</div>
-            </div>
-            <div class="form-group">
-                <span class="form-label">WH Ratio:</span>
-                <div class="form-value">@Model.NCDRiskAssessment.WHRatio</div>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <span class="form-label">4.2 Blood Sugar</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <span class="form-label">Fasting Blood Sugar:</span>
-                <div class="form-value">@Model.NCDRiskAssessment.FastingBloodSugar</div>
-            </div>
-            <div class="form-group">
-                <span class="form-label">Random Blood Sugar:</span>
-                <div class="form-value">@Model.NCDRiskAssessment.RandomBloodSugar</div>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <span class="form-label">Symptoms:</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.HasPolyuria == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Polyuria</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.HasPolydipsia == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Polydipsia</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.HasPolyphagia == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Polyphagia</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.HasWeightLoss == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Weight loss</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <span class="form-label">4.3 Blood Pressure</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <span class="form-label">Left arm mean BP:</span>
-                <div class="form-value">@Model.NCDRiskAssessment.LeftArmMeanBP</div>
-            </div>
-            <div class="form-group">
-                <span class="form-label">Right arm mean BP:</span>
-                <div class="form-value">@Model.NCDRiskAssessment.RightArmMeanBP</div>
-            </div>
-            <div class="form-group">
-                <span class="form-label">Baseline BP:</span>
-                <div class="form-value">@Model.NCDRiskAssessment.BaselineBP</div>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <span class="form-label">4.4 Cholesterol</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <span class="form-label">Result:</span>
-                <div class="form-value">@Model.NCDRiskAssessment.CholesterolResult</div>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <span class="form-label">4.5 Urine Dipstick Test</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <span class="form-label">Protein:</span>
-                <div class="form-value">@Model.NCDRiskAssessment.UrineProtein</div>
-            </div>
-            <div class="form-group">
-                <span class="form-label">Ketones:</span>
-                <div class="form-value">@Model.NCDRiskAssessment.UrineKetones</div>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.HasUrineProtein == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">(+) urine protein</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.HasUrineKetones == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">(+) urine ketones</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <span class="form-label">4.6 Risk Profile (For Doctors Only)</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <span class="form-label">4.7 Cancer Screening (Babae ≥30 years old)</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <span class="form-label">Ikaw ba ay nai-screen na sa Breast/Cervical Cancer?</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.BreastCancerScreened == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Oo (ipaalala ang next visit)</span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="checkbox-group">
-                <span class="checkbox @(Model.NCDRiskAssessment.CervicalCancerScreened == "true" ? "checked" : "")"></span>
-                <span class="checkbox-label">Hindi (i-refer)</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="section">
-        <div class="section-title">PART V: ASSESSMENT INFORMATION</div>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <span class="form-label">Interviewed/Assessed by:</span>
-                <div class="form-value">@Model.NCDRiskAssessment.InterviewedBy</div>
-            </div>
-            <div class="form-group">
-                <span class="form-label">Designation:</span>
-                <div class="form-value">@Model.NCDRiskAssessment.Designation</div>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <span class="form-label">Date:</span>
-                <div class="form-value">@Model.NCDRiskAssessment.AssessmentDate</div>
+                <span class="form-label">Risk Status:</span>
+                <div class="form-value">@Model.NCDRiskAssessment.RiskStatus</div>
             </div>
         </div>
     </div>

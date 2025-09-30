@@ -170,17 +170,17 @@ namespace Barangay.Controllers
                 
                 _logger.LogInformation("[{Timestamp}] Assessment saved to database successfully. ID: {Id}", timestamp, ncdAssessment.Id);
                 
-                // Update appointment status to InProgress (Ongoing) for nurse/doctor tasks
+                // Update appointment status to InProgress after form submission (not Completed)
                 if (ncdAssessment.AppointmentId.HasValue)
                 {
-                    _logger.LogInformation("[{Timestamp}] Updating appointment status to InProgress (Ongoing)", timestamp);
+                    _logger.LogInformation("[{Timestamp}] Updating appointment status to InProgress", timestamp);
                     var appointment = await _context.Appointments.FindAsync(ncdAssessment.AppointmentId.Value);
                     if (appointment != null)
                     {
                         appointment.Status = AppointmentStatus.InProgress; // 2 = InProgress (Ongoing)
                         appointment.UpdatedAt = DateTime.UtcNow;
                         await _context.SaveChangesAsync();
-                        _logger.LogInformation("[{Timestamp}] Appointment status updated to InProgress (Ongoing)", timestamp);
+                        _logger.LogInformation("[{Timestamp}] Appointment status updated to InProgress", timestamp);
                     }
                     else
                     {

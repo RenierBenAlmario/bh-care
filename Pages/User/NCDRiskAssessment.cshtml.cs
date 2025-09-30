@@ -318,7 +318,7 @@ namespace Barangay.Pages.User
             return new JsonResult(new { success = true, message = "Test endpoint working" });
         }
 
-        public async Task<IActionResult> OnPostSubmitAssessmentAsync(string encryptedData)
+        public async Task<IActionResult> OnPostSubmitAssessmentAsync([FromForm] string jsonData)
         {
             try
             {
@@ -326,31 +326,22 @@ namespace Barangay.Pages.User
                 _logger.LogInformation("Request method: {Method}", Request.Method);
                 _logger.LogInformation("Request content type: {ContentType}", Request.ContentType);
                 
-                if (string.IsNullOrEmpty(encryptedData))
+                if (string.IsNullOrEmpty(jsonData))
                 {
-                    _logger.LogError("Encrypted data is null or empty");
-                    return new JsonResult(new { success = false, error = "No encrypted data provided" });
+                    _logger.LogError("JSON data is null or empty");
+                    return new JsonResult(new { success = false, error = "No JSON data provided" });
                 }
                 
-                _logger.LogInformation("Encrypted data length: {Length}", encryptedData.Length);
-                _logger.LogInformation("Encrypted data preview: {Preview}", encryptedData.Substring(0, Math.Min(50, encryptedData.Length)) + "...");
+                _logger.LogInformation("JSON data length: {Length}", jsonData.Length);
+                _logger.LogInformation("JSON data preview: {Preview}", jsonData.Substring(0, Math.Min(100, jsonData.Length)) + "...");
                 
-                // Decrypt the data
-                var decryptedJson = DecryptData(encryptedData);
-                if (string.IsNullOrEmpty(decryptedJson))
-                {
-                    _logger.LogError("Failed to decrypt data");
-                    return new JsonResult(new { success = false, error = "Failed to decrypt data" });
-                }
-                
-                _logger.LogInformation("Decrypted JSON length: {Length}", decryptedJson.Length);
-                
-                // Deserialize the decrypted JSON
-                var assessment = System.Text.Json.JsonSerializer.Deserialize<NCDRiskAssessmentViewModel>(decryptedJson, new System.Text.Json.JsonSerializerOptions
+                // Deserialize the JSON data
+                var assessment = System.Text.Json.JsonSerializer.Deserialize<NCDRiskAssessmentViewModel>(jsonData, new System.Text.Json.JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true,
                     AllowTrailingCommas = true,
-                    ReadCommentHandling = System.Text.Json.JsonCommentHandling.Skip
+                    ReadCommentHandling = System.Text.Json.JsonCommentHandling.Skip,
+                    Converters = { new FlexibleStringConverter(), new FlexibleIntConverter() }
                 });
                 
                 if (assessment == null)
@@ -428,8 +419,33 @@ namespace Barangay.Pages.User
                     LungDiseaseYear = assessment.LungDiseaseYear,
                     LungDiseaseMedication = assessment.LungDiseaseMedication,
                     HasEyeDisease = assessment.HasEyeDisease,
+                    EyeDiseaseYear = assessment.EyeDiseaseYear,
+                    EyeDiseaseMedication = assessment.EyeDiseaseMedication,
                     
-                    // Family History
+                    // Individual Family History Fields
+                    FamilyHistoryCancerFather = assessment.FamilyHistoryCancerFather ?? "false",
+                    FamilyHistoryCancerMother = assessment.FamilyHistoryCancerMother ?? "false",
+                    FamilyHistoryCancerSibling = assessment.FamilyHistoryCancerSibling ?? "false",
+                    FamilyHistoryDiabetesFather = assessment.FamilyHistoryDiabetesFather ?? "false",
+                    FamilyHistoryDiabetesMother = assessment.FamilyHistoryDiabetesMother ?? "false",
+                    FamilyHistoryDiabetesSibling = assessment.FamilyHistoryDiabetesSibling ?? "false",
+                    FamilyHistoryHeartDiseaseFather = assessment.FamilyHistoryHeartDiseaseFather ?? "false",
+                    FamilyHistoryHeartDiseaseMother = assessment.FamilyHistoryHeartDiseaseMother ?? "false",
+                    FamilyHistoryHeartDiseaseSibling = assessment.FamilyHistoryHeartDiseaseSibling ?? "false",
+                    FamilyHistoryLungDiseaseFather = assessment.FamilyHistoryLungDiseaseFather ?? "false",
+                    FamilyHistoryLungDiseaseMother = assessment.FamilyHistoryLungDiseaseMother ?? "false",
+                    FamilyHistoryLungDiseaseSibling = assessment.FamilyHistoryLungDiseaseSibling ?? "false",
+                    FamilyHistoryStrokeFather = assessment.FamilyHistoryStrokeFather ?? "false",
+                    FamilyHistoryStrokeMother = assessment.FamilyHistoryStrokeMother ?? "false",
+                    FamilyHistoryStrokeSibling = assessment.FamilyHistoryStrokeSibling ?? "false",
+                    FamilyHistoryKidneyDiseaseFather = assessment.FamilyHistoryKidneyDiseaseFather ?? "false",
+                    FamilyHistoryKidneyDiseaseMother = assessment.FamilyHistoryKidneyDiseaseMother ?? "false",
+                    FamilyHistoryKidneyDiseaseSibling = assessment.FamilyHistoryKidneyDiseaseSibling ?? "false",
+                    FamilyHistoryEyeDiseaseFather = assessment.FamilyHistoryEyeDiseaseFather ?? "false",
+                    FamilyHistoryEyeDiseaseMother = assessment.FamilyHistoryEyeDiseaseMother ?? "false",
+                    FamilyHistoryEyeDiseaseSibling = assessment.FamilyHistoryEyeDiseaseSibling ?? "false",
+                    
+                    // Family History Aggregated
                     FamilyHasHypertension = assessment.FamilyHasHypertension,
                     FamilyHasHeartDisease = assessment.FamilyHasHeartDisease,
                     FamilyHasStroke = assessment.FamilyHasStroke,
@@ -439,13 +455,65 @@ namespace Barangay.Pages.User
                     FamilyHasOtherDisease = assessment.FamilyHasOtherDisease,
                     FamilyOtherDiseaseDetails = assessment.FamilyOtherDiseaseDetails,
                     
+                    // Chest Pain Details
+                    ChestPain = assessment.ChestPain ?? "false",
+                    ChestPainLocation = assessment.ChestPainLocation ?? "false",
+                    ChestPainValue = assessment.ChestPainValue ?? "false",
+                    HasChestPain = assessment.HasChestPain ?? "false",
+                    ChestPainSpreadsToArm = assessment.ChestPainSpreadsToArm ?? "false",
+                    NumbnessWhenWalkingFast = assessment.NumbnessWhenWalkingFast ?? "false",
+                    LossOfConsciousnessLessThan10Min = assessment.LossOfConsciousnessLessThan10Min ?? "false",
+                    PainLastsMoreThan30Min = assessment.PainLastsMoreThan30Min ?? "false",
+                    PainRelievedWithRest = assessment.PainRelievedWithRest ?? "false",
+                    SeeDoctorIfYes = assessment.SeeDoctorIfYes ?? "false",
+                    
                     // Lifestyle Factors
                     SmokingStatus = assessment.SmokingStatus ?? "Non-smoker",
                     HighSaltIntake = assessment.HighSaltIntake,
                     AlcoholFrequency = assessment.AlcoholFrequency,
                     AlcoholConsumption = assessment.AlcoholConsumption,
+                    AlcoholStoppedDuration = assessment.AlcoholStoppedDuration,
+                    
+                    // Alcohol Details
+                    DrinksAlcohol = assessment.DrinksAlcohol ?? "false",
+                    DrinksBeer = assessment.DrinksBeer ?? "false",
+                    DrinksWine = assessment.DrinksWine ?? "false",
+                    DrinksWhiskyGinBrandy = assessment.DrinksWhiskyGinBrandy ?? "false",
+                    AlcoholAmount1Bottle320ml = assessment.AlcoholAmount1Bottle320ml ?? "false",
+                    AlcoholAmount2Bottle640ml = assessment.AlcoholAmount2Bottle640ml ?? "false",
+                    AlcoholAmount3to4WineGlasses300ml = assessment.AlcoholAmount3to4WineGlasses300ml ?? "false",
+                    AlcoholAmountLessThan3Shot45ml = assessment.AlcoholAmountLessThan3Shot45ml ?? "false",
+                    AlcoholAmountMoreThan4Shots75ml = assessment.AlcoholAmountMoreThan4Shots75ml ?? "false",
+                    AlcoholFrequency1to3TimesPerWeek = assessment.AlcoholFrequency1to3TimesPerWeek ?? "false",
+                    AlcoholFrequencyMoreThan4TimesPerWeek = assessment.AlcoholFrequencyMoreThan4TimesPerWeek ?? "false",
+                    IsBingeDrinker = assessment.IsBingeDrinker ?? "false",
+                    
+                    // Exercise Details
                     ExerciseDuration = assessment.ExerciseDuration,
                     HasNoRegularExercise = assessment.HasNoRegularExercise,
+                    HasEnoughExercise = assessment.HasEnoughExercise?.ToString() ?? "false",
+                    InsufficientPhysicalActivity = assessment.InsufficientPhysicalActivity ?? "false",
+                    ModerateIntensityExercise = assessment.ModerateIntensityExercise ?? "false",
+                    VigorousIntensityExercise = assessment.VigorousIntensityExercise ?? "false",
+                    CombinationExercise = assessment.CombinationExercise ?? "false",
+                    
+                    // Smoking Details
+                    FormerSmoker = assessment.FormerSmoker ?? "false",
+                    NeverSmokedButExposedToSmoke = assessment.NeverSmokedButExposedToSmoke ?? "false",
+                    HasHistoryOfSmoking = assessment.HasHistoryOfSmoking ?? "false",
+                    Smoked100Sticks = assessment.Smoked100Sticks ?? "false",
+                    
+                    // Nutrition Details
+                    EatsVegetablesDaily = assessment.EatsVegetablesDaily ?? "false",
+                    EatsFruitsDaily = assessment.EatsFruitsDaily ?? "false",
+                    EatsFishDaily = assessment.EatsFishDaily ?? "false",
+                    EatsMeatDaily = assessment.EatsMeatDaily ?? "false",
+                    HasUnhealthyDiet = assessment.HasUnhealthyDiet ?? "false",
+                    EatsFattyFoodMoreThan2TimesPerWeek = assessment.EatsFattyFoodMoreThan2TimesPerWeek ?? "false",
+                    EatsSweetFoodMoreThan2TimesPerWeek = assessment.EatsSweetFoodMoreThan2TimesPerWeek ?? "false",
+                    EatsOilyFoodMoreThan2TimesPerWeek = assessment.EatsOilyFoodMoreThan2TimesPerWeek ?? "false",
+                    HasHighSaltIntake = assessment.HasHighSaltIntake ?? "false",
+                    HasStress = assessment.HasStress ?? "false",
                     
                     // Health Conditions
                     HasDifficultyBreathing = assessment.HasDifficultyBreathing,
@@ -453,6 +521,18 @@ namespace Barangay.Pages.User
                     
                     // Risk Status
                     RiskStatus = assessment.RiskStatus ?? "Low Risk",
+                    RiskPercentage = assessment.RiskPercentage,
+                    
+                    // Assessment Information
+                    AssessmentDate = DateTime.Now.ToString("yyyy-MM-dd"),
+                    DateOfAssessment = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                    InterviewedBy = assessment.InterviewedBy ?? "",
+                    Designation = assessment.Designation ?? "",
+                    DoctorName = assessment.DoctorName ?? "",
+                    
+                    // Identity Fields
+                    IDNumber = assessment.IDNumber ?? "",
+                    IDNo = assessment.IDNo ?? assessment.FamilyNo,
                     
                     // System Fields
                     CreatedAt = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),
@@ -485,6 +565,25 @@ namespace Barangay.Pages.User
                 if (rowsAffected > 0)
                 {
                     _logger.LogInformation("NCD Risk Assessment saved successfully with ID: {Id}", ncdEntity.Id);
+                    
+                    // Update appointment status to InProgress after successful form submission (not Completed)
+                    if (ncdEntity.AppointmentId.HasValue)
+                    {
+                        _logger.LogInformation("Updating appointment status to InProgress");
+                        var appointment = await _context.Appointments.FindAsync(ncdEntity.AppointmentId.Value);
+                        if (appointment != null)
+                        {
+                            appointment.Status = AppointmentStatus.InProgress; // 2 = InProgress (Ongoing)
+                            appointment.UpdatedAt = DateTime.UtcNow;
+                            await _context.SaveChangesAsync();
+                            _logger.LogInformation("Appointment status updated to InProgress");
+                        }
+                        else
+                        {
+                            _logger.LogWarning("Appointment not found for ID: {AppointmentId}", ncdEntity.AppointmentId);
+                        }
+                    }
+                    
                     return new JsonResult(new { 
                         success = true, 
                         message = "Assessment submitted successfully!",
@@ -744,6 +843,82 @@ namespace Barangay.Pages.User
                 _logger.LogError(ex, "Error generating next family number");
                 return new JsonResult(new { success = false, error = "Error generating next family number" });
             }
+        }
+    }
+    
+    // Custom JSON converter to handle flexible type conversion for string properties
+    public class FlexibleStringConverter : System.Text.Json.Serialization.JsonConverter<string>
+    {
+        public override string Read(ref System.Text.Json.Utf8JsonReader reader, Type typeToConvert, System.Text.Json.JsonSerializerOptions options)
+        {
+            if (reader.TokenType == System.Text.Json.JsonTokenType.String)
+            {
+                return reader.GetString() ?? string.Empty;
+            }
+            else if (reader.TokenType == System.Text.Json.JsonTokenType.Number)
+            {
+                return reader.GetInt32().ToString();
+            }
+            else if (reader.TokenType == System.Text.Json.JsonTokenType.True)
+            {
+                return "true";
+            }
+            else if (reader.TokenType == System.Text.Json.JsonTokenType.False)
+            {
+                return "false";
+            }
+            else if (reader.TokenType == System.Text.Json.JsonTokenType.Null)
+            {
+                return string.Empty;
+            }
+            else
+            {
+                throw new System.Text.Json.JsonException($"Cannot convert {reader.TokenType} to string");
+            }
+        }
+
+        public override void Write(System.Text.Json.Utf8JsonWriter writer, string value, System.Text.Json.JsonSerializerOptions options)
+        {
+            writer.WriteStringValue(value);
+        }
+    }
+    
+    // Custom JSON converter to handle flexible type conversion for int? properties
+    public class FlexibleIntConverter : System.Text.Json.Serialization.JsonConverter<int?>
+    {
+        public override int? Read(ref System.Text.Json.Utf8JsonReader reader, Type typeToConvert, System.Text.Json.JsonSerializerOptions options)
+        {
+            if (reader.TokenType == System.Text.Json.JsonTokenType.String)
+            {
+                var stringValue = reader.GetString();
+                if (string.IsNullOrEmpty(stringValue))
+                    return null;
+                
+                if (int.TryParse(stringValue, out int intValue))
+                    return intValue;
+                
+                return null;
+            }
+            else if (reader.TokenType == System.Text.Json.JsonTokenType.Number)
+            {
+                return reader.GetInt32();
+            }
+            else if (reader.TokenType == System.Text.Json.JsonTokenType.Null)
+            {
+                return null;
+            }
+            else
+            {
+                throw new System.Text.Json.JsonException($"Cannot convert {reader.TokenType} to int?");
+            }
+        }
+
+        public override void Write(System.Text.Json.Utf8JsonWriter writer, int? value, System.Text.Json.JsonSerializerOptions options)
+        {
+            if (value.HasValue)
+                writer.WriteNumberValue(value.Value);
+            else
+                writer.WriteNullValue();
         }
     }
 }
