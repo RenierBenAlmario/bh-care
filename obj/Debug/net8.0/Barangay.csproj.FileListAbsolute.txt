@@ -2587,3 +2587,7 @@ D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\obj\Debug\net8.0\refint\Barang
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\obj\Debug\net8.0\Barangay.pdb
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\obj\Debug\net8.0\Barangay.genruntimeconfig.cache
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\obj\Debug\net8.0\ref\Barangay.dll
+D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\cleanup-database.sql
+D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\complete-cleanup.sql
+D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\final-cleanup.sql
+D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\force-cleanup.sql

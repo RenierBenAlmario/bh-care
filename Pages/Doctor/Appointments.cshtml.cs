@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Barangay.Data;
 using Barangay.Models;
+using Barangay.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
