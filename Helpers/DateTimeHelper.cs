@@ -8,6 +8,82 @@ namespace Barangay.Helpers
         private static readonly CultureInfo Culture = CultureInfo.InvariantCulture;
         private static readonly string[] DateFormats = { "yyyy-MM-dd", "MM/dd/yyyy", "M/d/yyyy", "dd/MM/yyyy", "dd-MM-yyyy" };
         private static readonly string[] TimeFormats = { @"hh\:mm", "HH:mm", "h:mm tt", "hh:mm tt" };
+        
+        // Philippine timezone configuration
+        private static readonly TimeZoneInfo PhilippineTimeZone = GetPhilippineTimeZone();
+        
+        private static TimeZoneInfo GetPhilippineTimeZone()
+        {
+            try
+            {
+                // Try different timezone IDs for Philippine Standard Time (UTC+8)
+                var timezoneIds = new[]
+                {
+                    "Singapore Standard Time", // Windows ID for UTC+8 (includes Philippines)
+                    "Asia/Manila", // IANA ID for Philippines
+                    "Asia/Singapore" // IANA ID for Singapore (same timezone as Philippines)
+                };
+                
+                foreach (var id in timezoneIds)
+                {
+                    try
+                    {
+                        return TimeZoneInfo.FindSystemTimeZoneById(id);
+                    }
+                    catch
+                    {
+                        // Try next ID
+                        continue;
+                    }
+                }
+                
+                // Fallback to UTC+8 offset
+                return TimeZoneInfo.CreateCustomTimeZone("Philippine Standard Time", TimeSpan.FromHours(8), "Philippine Standard Time", "PST");
+            }
+            catch
+            {
+                // Ultimate fallback to UTC
+                return TimeZoneInfo.Utc;
+            }
+        }
+        
+        /// <summary>
+        /// Gets the current date and time in Philippine timezone
+        /// </summary>
+        public static DateTime Now => TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, PhilippineTimeZone);
+        
+        /// <summary>
+        /// Gets today's date in Philippine timezone
+        /// </summary>
+        public static DateTime Today => Now.Date;
+        
+        /// <summary>
+        /// Converts UTC time to Philippine time
+        /// </summary>
+        public static DateTime ToPhilippineTime(DateTime utcDateTime)
+        {
+            if (utcDateTime.Kind == DateTimeKind.Utc)
+            {
+                return TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, PhilippineTimeZone);
+            }
+            else if (utcDateTime.Kind == DateTimeKind.Local)
+            {
+                return TimeZoneInfo.ConvertTime(utcDateTime, PhilippineTimeZone);
+            }
+            else
+            {
+                // Assume it's already in Philippine time
+                return utcDateTime;
+            }
+        }
+        
+        /// <summary>
+        /// Converts Philippine time to UTC
+        /// </summary>
+        public static DateTime ToUtc(DateTime philippineDateTime)
+        {
+            return TimeZoneInfo.ConvertTimeToUtc(philippineDateTime, PhilippineTimeZone);
+        }
 
         public static DateTime ParseDate(string dateString)
         {
@@ -112,6 +188,33 @@ namespace Barangay.Helpers
         public static string GetFormattedDateTime(DateTime date, TimeSpan time)
         {
             return date.Add(time).ToString("MMM dd, yyyy h:mm tt", Culture);
+        }
+        
+        /// <summary>
+        /// Gets formatted date and time in Philippine timezone
+        /// </summary>
+        public static string GetFormattedDateTimePhilippine(DateTime utcDateTime)
+        {
+            var philippineTime = ToPhilippineTime(utcDateTime);
+            return philippineTime.ToString("MMM dd, yyyy h:mm tt", Culture);
+        }
+        
+        /// <summary>
+        /// Gets formatted date in Philippine timezone
+        /// </summary>
+        public static string GetFormattedDatePhilippine(DateTime utcDateTime)
+        {
+            var philippineTime = ToPhilippineTime(utcDateTime);
+            return philippineTime.ToString("MMM dd, yyyy", Culture);
+        }
+        
+        /// <summary>
+        /// Gets formatted time in Philippine timezone
+        /// </summary>
+        public static string GetFormattedTimePhilippine(DateTime utcDateTime)
+        {
+            var philippineTime = ToPhilippineTime(utcDateTime);
+            return philippineTime.ToString("h:mm tt", Culture);
         }
 
         public static DateTime? ParseNullableDate(string dateString)

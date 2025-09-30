@@ -497,7 +497,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
                                         <label for="FollowUpDate">Follow-up Appointment Date</label>
-                                        <input asp-for="FollowUpDate" type="date" class="form-control" id="FollowUpDate" min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")" value="@DateTime.Today.AddDays(7).ToString("yyyy-MM-dd")" />
+                                        <input asp-for="FollowUpDate" type="date" class="form-control" id="FollowUpDate" min="@DateTimeHelper.Today.AddDays(1).ToString("yyyy-MM-dd")" value="@DateTimeHelper.Today.AddDays(7).ToString("yyyy-MM-dd")" />
                                         <span asp-validation-for="FollowUpDate" class="text-danger"></span>
                                         <small class="form-text text-muted">Default: 7 days from today</small>
                                     </div>

@@ -37,11 +37,11 @@ namespace Barangay.Controllers
                 {
                     await connection.OpenAsync();
                     
-                    // Get today's appointments (using July 14, 2025 as specified)
+                    // Get today's appointments
                     using var command = new SqlCommand(@"
                         SELECT AppointmentId, Patient, AppointmentTime, Doctor, Type, Status 
                         FROM [Barangay].[dbo].[Appointments]
-                        WHERE CONVERT(date, AppointmentDate) = '2025-07-14'
+                        WHERE CONVERT(date, AppointmentDate) = CONVERT(date, GETDATE())
                         ORDER BY AppointmentTime", connection);
                     
                     using var reader = await command.ExecuteReaderAsync();

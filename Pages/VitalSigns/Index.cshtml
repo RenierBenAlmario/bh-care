@@ -120,7 +120,7 @@
                                 {
                                     <tr>
                                         <td>@record.PatientName</td>
-                                        <td>@record.RecordedAt.ToString("MMM dd, yyyy h:mm tt")</td>
+                                        <td>@DateTimeHelper.GetFormattedDateTimePhilippine(record.RecordedAt)</td>
                                         <td>@record.BloodPressure</td>
                                         <td>@(!string.IsNullOrEmpty(record.HeartRate) ? $"{record.HeartRate} bpm" : "-")</td>
                                         <td>@(!string.IsNullOrEmpty(record.Temperature) ? $"{record.Temperature} °C" : "-")</td>

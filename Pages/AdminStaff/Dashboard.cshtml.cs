@@ -35,8 +35,8 @@ namespace Barangay.Pages.AdminStaff
         {
             try
             {
-                // Get today's date (server time)
-                var today = DateTime.Now.Date;
+                // Get today's date (Philippine time)
+                var today = DateTimeHelper.Today;
 
                 // Get today's appointments count
                 TodayAppointmentsCount = await _context.Appointments

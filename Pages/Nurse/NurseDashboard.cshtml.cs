@@ -68,7 +68,7 @@ namespace Barangay.Pages.Nurse
         
         private async Task LoadDashboardDataAsync()
         {
-            var today = DateTime.UtcNow.Date;
+            var today = DateTimeHelper.Today;
 
             // Exclude system administrator from query
             var adminUser = await _context.Users.FirstOrDefaultAsync(u => u.UserName == "admin@example.com");

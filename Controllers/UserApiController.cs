@@ -192,7 +192,7 @@ namespace Barangay.Controllers
                     return BadRequest(ModelState);
                 }
 
-                string todayString = DateTime.Today.ToString("yyyy-MM-dd");
+                string todayString = DateTimeHelper.Today.ToString("yyyy-MM-dd");
                 
                 if (string.Compare(model.AppointmentDate, todayString) < 0)
                 {
@@ -220,8 +220,8 @@ namespace Barangay.Controllers
                     AppointmentDate = DateTimeHelper.ParseDate(model.AppointmentDate),
                     AppointmentTime = appointmentTime,
                     AgeValue = 0,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
+                    CreatedAt = DateTimeHelper.ToUtc(DateTimeHelper.Now),
+                    UpdatedAt = DateTimeHelper.ToUtc(DateTimeHelper.Now)
                 };
 
                 _context.Appointments.Add(appointment);
@@ -235,7 +235,7 @@ namespace Barangay.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating appointment on {Date}", DateTime.Now.ToString("yyyy-MM-dd"));
+                _logger.LogError(ex, "Error creating appointment on {Date}", DateTimeHelper.Now.ToString("yyyy-MM-dd"));
                 return StatusCode(500, "An error occurred while creating the appointment.");
             }
         }

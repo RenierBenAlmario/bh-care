@@ -101,7 +101,7 @@
                             <!-- Replace the date input field with a more robust implementation -->
                             <div class="mb-3">
                                 <label for="appointmentDate" class="form-label">Date</label>
-                                <input type="date" class="form-control" id="appointmentDate" name="appointmentDate" required min="@DateTime.Now.ToString("yyyy-MM-dd")">
+                                <input type="date" class="form-control" id="appointmentDate" name="appointmentDate" required min="@DateTimeHelper.Now.ToString("yyyy-MM-dd")">
                                 <input type="hidden" name="BookingModel.AppointmentDate" id="hiddenAppointmentDate">
                                 <div id="dateValidationMessage" class="invalid-feedback"></div>
                             </div>

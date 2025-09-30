@@ -111,7 +111,7 @@
                                         <tr>
                                             <td>@appointment.Id</td>
                                             <td>@appointment.PatientName</td>
-                                            <td>@appointment.AppointmentDate.ToString("MM/dd/yyyy")</td>
+                                            <td>@DateTimeHelper.GetFormattedDatePhilippine(appointment.AppointmentDate)</td>
                                             <td>@appointment.AppointmentTime.Hours.ToString("00"):@appointment.AppointmentTime.Minutes.ToString("00")</td>
                                             <td>@appointment.DoctorName</td>
                                             <td>

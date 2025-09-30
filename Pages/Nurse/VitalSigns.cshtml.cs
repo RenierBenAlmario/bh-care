@@ -90,7 +90,7 @@ namespace Barangay.Pages.Nurse
         public Patient? SelectedPatient { get; set; }
         public List<PatientAppointmentViewModel> PatientAppointments { get; set; } = new();
         public List<TodayAppointmentViewModel> TodayAppointments { get; set; } = new();
-        public DateTime Today { get; set; } = DateTime.Today;
+        public DateTime Today { get; set; } = DateTimeHelper.Today;
         public bool HasTodayAppointments => TodayAppointments.Any();
         public int? SelectedAppointmentId { get; set; }
 
@@ -102,7 +102,7 @@ namespace Barangay.Pages.Nurse
 
         public async Task<IActionResult> OnGetAsync(string patientId)
         {
-            Today = DateTime.Today;
+            Today = DateTimeHelper.Today;
             
             // Load doctors for the dropdown
             var doctorRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == "Doctor");

@@ -59,7 +59,7 @@ namespace Barangay.Pages.Doctor
                 CanAccessReports = await _permissionService.UserHasPermissionAsync(User, "Reports")
                                      || User.IsInRole("Admin") || User.IsInRole("Doctor") || User.IsInRole("Head Doctor");
 
-                var today = DateTime.Now.Date;
+                var today = DateTimeHelper.Today;
 
                 var appointmentsQuery = _context.Appointments
                                                   .Where(a => a.DoctorId == user.Id)

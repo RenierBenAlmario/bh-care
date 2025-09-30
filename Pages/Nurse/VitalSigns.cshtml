@@ -359,7 +359,7 @@
                         {
                             <tr>
                                 <td>@record.PatientName</td>
-                                <td>@record.RecordedAt.ToString("MMM dd, yyyy h:mm tt")</td>
+                                <td>@DateTimeHelper.GetFormattedDateTimePhilippine(record.RecordedAt)</td>
                                 <td>@record.BloodPressure</td>
                                 <td>@(!string.IsNullOrEmpty(record.HeartRate) ? $"{record.HeartRate} bpm" : "N/A")</td>
                                 <td>@(!string.IsNullOrEmpty(record.Temperature) ? $"{record.Temperature} °C" : "N/A")</td>
@@ -369,7 +369,7 @@
                                     <button type="button" class="btn btn-sm btn-primary" title="View" onclick='showVitalSignDetails(@Json.Serialize(new
                                     {
                                         patientName = record.PatientName,
-                                        recordedAt = record.RecordedAt.ToString("MMM dd, yyyy hh:mm tt"),
+                                        recordedAt = DateTimeHelper.GetFormattedDateTimePhilippine(record.RecordedAt),
                                         bloodPressure = record.BloodPressure,
                                         heartRate = record.HeartRate,
                                         temperature = record.Temperature,

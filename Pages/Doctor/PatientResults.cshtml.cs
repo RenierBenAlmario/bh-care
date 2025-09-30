@@ -69,11 +69,11 @@ namespace Barangay.Pages.Doctor
             {
                 await connection.OpenAsync();
 
-                // Set specific target date for demo purposes: July 15, 2025
-                var targetDate = new DateTime(2025, 7, 15);
+                // Get today's date (Philippine time)
+                var targetDate = DateTimeHelper.Today;
                 Console.WriteLine($"Searching for appointments on {targetDate.ToString("yyyy-MM-dd")} for doctor {doctorId}/{CurrentDoctorName}");
 
-                // Query to get appointments for July 15, 2025 for the current doctor
+                // Query to get appointments for today for the current doctor
                 using var command = new SqlCommand(@"
                     SELECT a.Id, a.PatientName, a.AppointmentTime, a.Type, a.Status,
                            p.FirstName, p.LastName, p.BirthDate, p.Gender

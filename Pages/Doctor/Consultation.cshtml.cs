@@ -126,10 +126,10 @@ namespace Barangay.Pages.Doctor
                     }
 
                     _logger.LogInformation("Loading consultation queue for doctor: {DoctorId}", doctorId);
-                    _logger.LogInformation("Today's date: {Today}", DateTime.Now.Date);
+                    _logger.LogInformation("Today's date: {Today}", DateTimeHelper.Today);
 
                     // Filter: today and upcoming only, exclude draft/cancelled/completed, and only for current doctor
-                    var today = DateTime.Now.Date;
+                    var today = DateTimeHelper.Today;
                     var validStatuses = new[] { AppointmentStatus.Pending, AppointmentStatus.Confirmed, AppointmentStatus.InProgress };
 
                     _logger.LogInformation("Looking for appointments for doctor {DoctorId} with Status IN: {Statuses} starting from {Today}", doctorId, string.Join(", ", validStatuses.Select(s => (int)s)), today);
