@@ -214,7 +214,7 @@ namespace Barangay.Controllers
             
             // Calculate age from birth date
             var age = 0;
-            var birthDate = DateTime.TryParse(user.BirthDate, out var parsedBirthDate) ? parsedBirthDate : DateTime.MinValue;
+            var birthDate = user.BirthDate ?? DateTime.MinValue;
             if (birthDate != DateTime.MinValue)
             {
                 age = DateTime.Now.Year - birthDate.Year;
@@ -326,7 +326,7 @@ namespace Barangay.Controllers
                         ReasonForVisit = model.Description,
                         Status = AppointmentStatus.Pending,
                         AgeValue = model.IsForDependent ? model.DependentAge ?? 0 : 
-                            CalculateAge(DateTime.TryParse(user.BirthDate, out var parsedBirthDate) ? parsedBirthDate : DateTime.MinValue),
+                            CalculateAge(user.BirthDate ?? DateTime.MinValue),
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow,
                         RelationshipToDependent = model.IsForDependent ? model.RelationshipToDependent : null,
@@ -633,7 +633,7 @@ namespace Barangay.Controllers
                     UserId = user.Id,
                     AppointmentId = appointmentId,
                     Address = user.Address ?? string.Empty,
-                    Birthday = DateTime.TryParse(user.BirthDate, out var parsedBirthDate) && parsedBirthDate != DateTime.MinValue ? parsedBirthDate.ToString("yyyy-MM-dd") : DateTime.Today.ToString("yyyy-MM-dd"),
+                    Birthday = user.BirthDate?.ToString("yyyy-MM-dd") ?? DateTime.Today.ToString("yyyy-MM-dd"),
                     Telepono = user.PhoneNumber ?? string.Empty,
                     Edad = appointment.AgeValue.ToString(),
                     CreatedAt = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),

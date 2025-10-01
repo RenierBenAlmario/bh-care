@@ -257,7 +257,7 @@ namespace Barangay.Pages.User
                     patient.Address = user.Address;
                     patient.ContactNumber = user.PhoneNumber;
                     
-                    patient.BirthDate = DateTime.TryParse(user.BirthDate, out var parsedPatientBirthDate) ? parsedPatientBirthDate : DateTime.MinValue;
+                    patient.BirthDate = user.BirthDate ?? DateTime.MinValue;
                     
                     patient.EmergencyContact = EmergencyContact;
                     patient.EmergencyContactNumber = EmergencyContactNumber;
@@ -282,7 +282,7 @@ namespace Barangay.Pages.User
                         {
                             appointment.PatientName = user.FullName ?? string.Empty;
                             appointment.ContactNumber = user.PhoneNumber;
-                            appointment.DateOfBirth = DateTime.TryParse(user.BirthDate, out var parsedAppointmentBirthDate) ? parsedAppointmentBirthDate : DateTime.MinValue;
+                            appointment.DateOfBirth = user.BirthDate ?? DateTime.MinValue;
                             appointment.Address = user.Address;
                             appointment.EmergencyContact = EmergencyContact;
                             appointment.EmergencyContactNumber = EmergencyContactNumber;

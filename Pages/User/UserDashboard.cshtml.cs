@@ -94,7 +94,7 @@ namespace Barangay.Pages.User {
                 
                 // Calculate user's age
                 var currentDate = DateTime.Today;
-                var userBirthDate = DateTime.TryParse(user.BirthDate, out var parsedBirthDate) ? parsedBirthDate : DateTime.MinValue;
+                var userBirthDate = user.BirthDate ?? DateTime.MinValue;
                 UserAge = currentDate.Year - userBirthDate.Year;
                 // Adjust age if birthday hasn't occurred yet this year
                 if (userBirthDate.Date > currentDate.AddYears(-UserAge)) 

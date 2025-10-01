@@ -214,7 +214,7 @@ namespace Barangay.Pages.User
                 
                 // Get patient data from appointment if available
                 string patientName = user.FullName ?? "Unknown";
-                DateTime birthday = DateTime.TryParse(user.BirthDate, out var parsedBirthDate) ? parsedBirthDate : DateTime.MinValue;
+                DateTime birthday = user.BirthDate ?? DateTime.MinValue;
                 string patientGender = user.Gender ?? "Not specified";
                 string patientAddress = user.Address ?? "Not specified";
                 string patientPhone = user.PhoneNumber ?? "Not specified";
@@ -225,7 +225,7 @@ namespace Barangay.Pages.User
                     if (appointment != null)
                     {
                         patientName = appointment.PatientName ?? user.FullName ?? "Unknown";
-                        birthday = appointment.DateOfBirth ?? (DateTime.TryParse(user.BirthDate, out var parsedUserBirthDate) ? parsedUserBirthDate : DateTime.MinValue);
+                        birthday = appointment.DateOfBirth ?? (user.BirthDate ?? DateTime.MinValue);
                         patientGender = appointment.Gender ?? user.Gender ?? "Not specified";
                         patientAddress = appointment.Address ?? user.Address ?? "Not specified";
                         patientPhone = appointment.ContactNumber ?? user.PhoneNumber ?? "Not specified";

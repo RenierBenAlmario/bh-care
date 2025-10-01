@@ -135,7 +135,7 @@ namespace Barangay.Controllers
                         IsActive = u.IsActive,
                         PhilHealthId = u.PhilHealthId,
                         Gender = u.Gender,
-                        BirthDate = u.BirthDate, // Keep as string for LINQ
+                        BirthDate = u.BirthDate.HasValue ? u.BirthDate.Value.ToString("yyyy-MM-dd") : string.Empty,
                         Address = u.Address,
 
                         ContactNumber = u.PhoneNumber ?? string.Empty,
@@ -721,7 +721,7 @@ Average Health Index & " + data.AverageHealthIndex.ToString("F1") + @"\% \\
                 
                 // Check if guardian consent is required but missing
                 var today = DateTime.Today;
-                var birthDate = DateTime.TryParse(user.BirthDate, out var parsedBirthDate) ? parsedBirthDate : DateTime.MinValue;
+                var birthDate = user.BirthDate ?? DateTime.MinValue;
                 var age = today.Year - birthDate.Year;
                 if (birthDate.Date > today.AddYears(-age)) age--;
                 

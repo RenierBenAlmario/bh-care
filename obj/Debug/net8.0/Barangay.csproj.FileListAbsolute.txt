@@ -1939,6 +1939,7 @@ D:\Imbakan\Last\Last\BHCARE-main\BHCARE-main\obj\Debug\net8.0\Barangay.genruntim
 D:\Imbakan\Last\Last\BHCARE-main\BHCARE-main\obj\Debug\net8.0\ref\Barangay.dll
 D:\Imbakan\Last\Last\BHCARE-main\BHCARE-main\bin\Debug\net8.0\SQL\Fix-NCD-Column-Sizes.sql
 C:\Users\WIN 10\Desktop\BHCARE-main\bin\Debug\net8.0\SQL\Fix-NCD-Column-Sizes.sql
+D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\obj\Debug\net8.0\Barangay.sourcelink.json
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\appsettings.Development.json
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\appsettings.json
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\appsettings.Production.json
@@ -1952,9 +1953,12 @@ D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\AddMissin
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\Appointments.sql
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\CheckGuardianInformation.sql
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\CheckGuardianTable.sql
+D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\cleanup-database.sql
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\CleanupSampleData.sql
+D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\complete-cleanup.sql
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\ConsolidateDashboardPermissions.sql
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\CreateMissingPatientRecords.sql
+D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\final-cleanup.sql
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\fix-guardian-information.sql
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\Fix-NCD-Column-Sizes.sql
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\fix-role-permissions.sql
@@ -1966,6 +1970,7 @@ D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\FixEncryp
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\FixEncryptionSchemaWorking.sql
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\FixGuardianInformation.sql
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\FixSpecificUser.sql
+D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\force-cleanup.sql
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\GrantUserDashboardPermission.sql
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\Migration_UpdateNCDRiskAssessment.sql
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\NCDRiskAssessment.sql
@@ -2570,7 +2575,6 @@ D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\obj\Debug\net8.0\Barangay.MvcA
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\obj\Debug\net8.0\Barangay.MvcApplicationPartsAssemblyInfo.cache
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\obj\Debug\net8.0\Barangay.RazorAssemblyInfo.cache
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\obj\Debug\net8.0\Barangay.RazorAssemblyInfo.cs
-D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\obj\Debug\net8.0\Barangay.sourcelink.json
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\obj\Debug\net8.0\staticwebassets.build.json
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\obj\Debug\net8.0\staticwebassets.development.json
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\obj\Debug\net8.0\staticwebassets\msbuild.Barangay.Microsoft.AspNetCore.StaticWebAssets.props
@@ -2587,7 +2591,3 @@ D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\obj\Debug\net8.0\refint\Barang
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\obj\Debug\net8.0\Barangay.pdb
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\obj\Debug\net8.0\Barangay.genruntimeconfig.cache
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\obj\Debug\net8.0\ref\Barangay.dll
-D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\cleanup-database.sql
-D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\complete-cleanup.sql
-D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\final-cleanup.sql
-D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\force-cleanup.sql

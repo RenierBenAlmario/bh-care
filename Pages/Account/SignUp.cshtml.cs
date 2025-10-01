@@ -339,6 +339,30 @@ namespace Barangay.Pages.Account
                 return Page();
             }
 
+            // Check if email is suspended (with fallback if table doesn't exist)
+            try
+            {
+                var suspension = await _context.EmailSuspensions
+                    .FirstOrDefaultAsync(s => s.Email == Input.Email && s.IsActive);
+
+                if (suspension != null && suspension.SuspensionEndDate > DateTime.UtcNow)
+                {
+                    var remainingTime = suspension.SuspensionEndDate.Value - DateTime.UtcNow;
+                    var timeString = remainingTime.TotalHours >= 1 
+                        ? $"{remainingTime.TotalHours:F0} hours"
+                        : $"{remainingTime.TotalMinutes:F0} minutes";
+                    
+                    ModelState.AddModelError(string.Empty, 
+                        $"Email verification is suspended due to multiple failed attempts. Please try again in {timeString}.");
+                    return Page();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "EmailSuspensions table not found, skipping suspension check for {Email}", Input.Email);
+                // Continue without suspension check if table doesn't exist
+            }
+
             // Calculate age using current date
             var today = DateTime.Today;
             var birthDate = DateTime.TryParse(Input.BirthDate, out var parsedBirthDate) ? parsedBirthDate : DateTime.MinValue;
@@ -416,7 +440,7 @@ namespace Barangay.Pages.Account
                     LastName = _encryptionService.Encrypt(Input.LastName),
                     Suffix = _encryptionService.Encrypt(Input.Suffix ?? ""),
                     PhoneNumber = _encryptionService.Encrypt(Input.ContactNumber),
-                    BirthDate = _encryptionService.Encrypt(Input.BirthDate), // Encrypt birth date
+                    BirthDate = DateTime.TryParse(Input.BirthDate, out var parsedBirthDateValue) ? parsedBirthDateValue : null,
                     CreatedAt = DateTime.UtcNow,
                     HasAgreedToTerms = Input.AgreeToTerms,
                     AgreedAt = DateTime.UtcNow,

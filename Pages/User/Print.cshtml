@@ -131,7 +131,7 @@
                     
                     if (Model.Prescription.Patient?.User != null)
                     {
-                        DateTime birthDate = DateTime.TryParse(Model.Prescription.Patient.User.BirthDate, out var parsedBirthDate) ? parsedBirthDate : DateTime.MinValue;
+                        DateTime birthDate = Model.Prescription.Patient.User.BirthDate ?? DateTime.MinValue;
                         DateTime today = DateTime.Today;
                         int age = today.Year - birthDate.Year;
                         if (birthDate.Date > today.AddYears(-age))

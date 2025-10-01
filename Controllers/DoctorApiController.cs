@@ -192,7 +192,7 @@ namespace Barangay.Controllers
                 p.UserId,
                 p.Name,
                 p.Gender,
-                Age = CalculateAge(DateTime.TryParse(p.UserBirthDate, out var parsedBirthDate) ? parsedBirthDate : DateTime.MinValue),
+                Age = CalculateAge(p.UserBirthDate),
                 p.Status,
                 p.LastVisit,
                 p.ContactNumber,

@@ -1,108 +1,15 @@
 Changed database context to 'bhcareDB'.
 Starting force database cleanup...
 Preserving system admin account: admin@example.com
-Admin account found with ID: ea030d65-af33-4316-a732-946fbe7ab069
+Admin account found with ID: 77119cd4-bd7a-4944-9a6d-3e2a374aee55
 Disabling foreign key constraints...
 Clearing all data...
-
-(0 rows affected)
-Cleared Feedbacks
-
-(0 rows affected)
-Cleared GuardianInformation
-
-(0 rows affected)
-Cleared HealthReports
-
-(0 rows affected)
-Cleared AdolescentHealthInfo
-
-(0 rows affected)
-Cleared HEEADSSSAssessments
-
-(0 rows affected)
-Cleared ImmunizationRecords
-
-(0 rows affected)
-Cleared ImmunizationShortcutForms
-
-(0 rows affected)
-Cleared IntegratedAssessments
-
-(0 rows affected)
-Cleared LabResults
-
-(0 rows affected)
-Cleared MedicalHistories
-
-(0 rows affected)
-Cleared MedicalRecords
-
-(0 rows affected)
-Cleared Medications
-
-(0 rows affected)
-Cleared Messages
-
-(0 rows affected)
-Cleared NCDRiskAssessments
-
-(0 rows affected)
-Cleared Notifications
-
-(0 rows affected)
-Cleared PasswordResetOTPs
-
-(0 rows affected)
-Cleared PatientHistories
-
-(0 rows affected)
-Cleared Patients
-
-(0 rows affected)
-Cleared Permissions
-
-(0 rows affected)
-Cleared PrescriptionMedications
-
-(0 rows affected)
-Cleared Prescriptions
-
-(0 rows affected)
-Cleared RolePermissions
-
-(0 rows affected)
-Cleared StaffMembers
-
-(0 rows affected)
-Cleared StaffPermissions
-
-(0 rows affected)
-Cleared StaffPositionPermission
-
-(0 rows affected)
-Cleared StaffPositions
-
-(0 rows affected)
-Cleared User
-
-(0 rows affected)
-Cleared UserDocuments
-
-(0 rows affected)
-Cleared UserPermissions
 
 (0 rows affected)
 Cleared VitalSigns
 
 (0 rows affected)
-Cleared VitalSigns_Backup_EncryptRegularFields
-
-(0 rows affected)
-Cleared VitalSigns_Backup_StringConversion
-
-(0 rows affected)
-Cleared __EFMigrationsHistory
+Cleared StaffPermissions
 
 (0 rows affected)
 Cleared AppointmentAttachments
@@ -111,19 +18,16 @@ Cleared AppointmentAttachments
 Cleared AppointmentFiles
 
 (0 rows affected)
-Cleared Appointments
+Cleared NCDRiskAssessments
 
 (0 rows affected)
-Cleared AspNetUserClaims
+Cleared PrescriptionMedications
 
 (0 rows affected)
-Cleared AspNetUserLogins
+Cleared MedicalHistories
 
 (0 rows affected)
-Cleared AspNetUserRoles
-
-(0 rows affected)
-Cleared AspNetUserTokens
+Cleared LabResults
 
 (0 rows affected)
 Cleared Assessments
@@ -132,28 +36,118 @@ Cleared Assessments
 Cleared ConsultationTimeSlots
 
 (0 rows affected)
+Cleared FamilyRecords
+
+(0 rows affected)
+Cleared HEEADSSSAssessments
+
+(0 rows affected)
+Cleared IntegratedAssessments
+
+(0 rows affected)
+Cleared Medications
+
+(0 rows affected)
+Cleared Permissions
+
+(0 rows affected)
+Cleared StaffPositions
+
+(0 rows affected)
+Cleared User
+
+(4 rows affected)
+Cleared AspNetUserClaims
+
+(1 rows affected)
+Cleared EmailVerifications
+
+(0 rows affected)
+Cleared AspNetUserLogins
+
+(0 rows affected)
+Cleared FeedbackRatings
+
+(0 rows affected)
+Cleared VitalSigns_Backup_EncryptRegularFields
+
+(0 rows affected)
+Cleared VitalSigns_Backup_StringConversion
+
+(0 rows affected)
+Cleared PatientHistories
+
+(2 rows affected)
+Cleared AspNetUserRoles
+
+(0 rows affected)
+Cleared AspNetUserTokens
+
+(0 rows affected)
+Cleared PasswordResetOTPs
+
+(0 rows affected)
 Cleared DoctorAvailabilities
 
 (0 rows affected)
 Cleared Doctors
 
 (0 rows affected)
-Cleared EmailVerifications
+Cleared Feedbacks
+
+(0 rows affected)
+Cleared UserSuspensions
+
+(0 rows affected)
+Cleared GuardianInformation
 
 (0 rows affected)
 Cleared UrlTokens
 
 (0 rows affected)
+Cleared HealthReports
+
+(0 rows affected)
+Cleared Messages
+
+(1 rows affected)
+Cleared Notifications
+
+(0 rows affected)
+Cleared Patients
+
+(0 rows affected)
+Cleared StaffMembers
+
+(1 rows affected)
+Cleared __EFMigrationsHistory
+
+(1 rows affected)
+Cleared UserDocuments
+
+(0 rows affected)
+Cleared RolePermissions
+
+(0 rows affected)
+Cleared UserPermissions
+
+(0 rows affected)
+Cleared StaffPositionPermission
+
+(0 rows affected)
+Cleared Appointments
+
+(0 rows affected)
 Cleared FamilyMembers
 
 (0 rows affected)
-Cleared FamilyRecords
+Cleared MedicalRecords
 
 (0 rows affected)
-Cleared FeedbackRatings
+Cleared Prescriptions
 Clearing all users except admin...
 
-(0 rows affected)
+(1 rows affected)
 Cleared all users (preserved admin account)
 
 (1 rows affected)

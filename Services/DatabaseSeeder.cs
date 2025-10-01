@@ -145,8 +145,14 @@ namespace Barangay.Services
                     return;
                 }
 
-                // Check if admin user already exists
+                // Check if admin user already exists (by email and username)
                 var existingAdmin = await _userManager.FindByEmailAsync(adminEmail);
+                if (existingAdmin == null)
+                {
+                    // Also check by username in case email lookup fails
+                    existingAdmin = await _userManager.FindByNameAsync(adminEmail);
+                }
+                
                 if (existingAdmin != null)
                 {
                     _logger.LogInformation("Admin user already exists: {Email}", adminEmail);
@@ -191,7 +197,37 @@ namespace Barangay.Services
                 }
                 else
                 {
-                    _logger.LogError("Failed to create admin user: {Errors}", string.Join(", ", result.Errors.Select(e => e.Description)));
+                    // Check if the error is due to duplicate key (user already exists)
+                    var duplicateError = result.Errors.FirstOrDefault(e => e.Code == "DuplicateUserName" || e.Description.Contains("duplicate"));
+                    if (duplicateError != null)
+                    {
+                        _logger.LogInformation("Admin user already exists (duplicate key detected): {Email}", adminEmail);
+                        
+                        // Try to find and update the existing user
+                        var existingUser = await _userManager.FindByEmailAsync(adminEmail);
+                        if (existingUser != null)
+                        {
+                            // Ensure admin user has Admin role
+                            if (!await _userManager.IsInRoleAsync(existingUser, "Admin"))
+                            {
+                                await _userManager.AddToRoleAsync(existingUser, "Admin");
+                                _logger.LogInformation("Added Admin role to existing admin user");
+                            }
+                            
+                            // Ensure admin user is verified and active
+                            if (existingUser.Status != "Verified" || !existingUser.IsActive)
+                            {
+                                existingUser.Status = "Verified";
+                                existingUser.IsActive = true;
+                                await _userManager.UpdateAsync(existingUser);
+                                _logger.LogInformation("Updated admin user status to Verified and Active");
+                            }
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogError("Failed to create admin user: {Errors}", string.Join(", ", result.Errors.Select(e => e.Description)));
+                    }
                 }
             }
             catch (Exception ex)

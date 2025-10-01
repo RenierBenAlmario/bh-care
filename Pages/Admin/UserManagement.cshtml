@@ -85,12 +85,12 @@
                                     }
                                     <span class="badge pill status-badge @statusClass">@user.Status</span>
                                 </td>
-                                <td>@(DateTime.TryParse(user.BirthDate, out var birthDate) ? birthDate.ToShortDateString() : "N/A")</td>
+                                <td>@(user.BirthDate?.ToShortDateString() ?? "N/A")</td>
                                 <td class="guardian-consent-column">
                                     @{
                                         // Use June 16, 2025 as the reference date for age calculation
                                         var referenceDate = new DateTime(2025, 6, 16);
-                                        var parsedBirthDate = DateTime.TryParse(user.BirthDate, out var parsedDate) ? parsedDate : DateTime.MinValue;
+                                        var parsedBirthDate = user.BirthDate ?? DateTime.MinValue;
                                         var isMinor = parsedBirthDate.IsMinor(referenceDate);
                                         var userAge = parsedBirthDate.CalculateAge(referenceDate);
                                     }

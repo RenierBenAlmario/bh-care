@@ -405,3 +405,4 @@ BEGIN CATCH
 END CATCH
 
 PRINT 'Database cleanup script execution completed.';
+

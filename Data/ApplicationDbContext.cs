@@ -47,6 +47,7 @@ namespace Barangay.Data
         public DbSet<FeedbackRating> FeedbackRatings { get; set; }
         public DbSet<PatientHistory> PatientHistories { get; set; }
         public DbSet<EmailVerification> EmailVerifications { get; set; }
+        public DbSet<EmailSuspension> EmailSuspensions { get; set; }
         public DbSet<PasswordResetOTP> PasswordResetOTPs { get; set; }
         
         // RBAC models
@@ -63,6 +64,7 @@ namespace Barangay.Data
         public DbSet<DoctorAvailability> DoctorAvailabilities { get; set; }
 
         public DbSet<UrlToken> UrlTokens { get; set; }
+        public DbSet<UserSuspension> UserSuspensions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

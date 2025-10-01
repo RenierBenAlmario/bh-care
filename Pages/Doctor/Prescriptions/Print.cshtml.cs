@@ -67,7 +67,7 @@ namespace Barangay.Pages.Doctor.Prescriptions
             int? patientAge = null;
             if (prescription.Patient?.User != null)
             {
-                DateTime birthDate = DateTime.TryParse(prescription.Patient.User.BirthDate, out var parsedBirthDate) ? parsedBirthDate : DateTime.MinValue;
+                DateTime birthDate = prescription.Patient.User.BirthDate ?? DateTime.MinValue;
                 patientAge = CalculateAge(birthDate);
             }
 

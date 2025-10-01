@@ -140,7 +140,7 @@ namespace Barangay.Controllers
                     UserName = model.Email,
                     Email = _encryptionService.Encrypt(model.Email), // Encrypt email
                     FullName = model.FullName,
-                    BirthDate = model.BirthDate.HasValue ? _encryptionService.Encrypt(model.BirthDate.Value.ToString("yyyy-MM-dd")) : _encryptionService.Encrypt(DateTime.Now.ToString("yyyy-MM-dd")),
+                    BirthDate = model.BirthDate ?? DateTime.Now,
                     Gender = model.Gender,
                     PhoneNumber = _encryptionService.Encrypt(model.PhoneNumber), // Encrypt phone number
                     Address = _encryptionService.Encrypt(model.Address), // Encrypt address
@@ -195,7 +195,7 @@ namespace Barangay.Controllers
                     UserName = model.Email ?? string.Empty,
                     Email = _encryptionService.Encrypt(model.Email ?? string.Empty), // Encrypt email
                     FullName = model.FullName ?? string.Empty,
-                    BirthDate = _encryptionService.Encrypt(model.BirthDate.ToString("yyyy-MM-dd")),
+                    BirthDate = model.BirthDate,
                     Gender = model.Gender ?? string.Empty,
                     Address = _encryptionService.Encrypt(model.Address ?? string.Empty) // Encrypt address
                 };

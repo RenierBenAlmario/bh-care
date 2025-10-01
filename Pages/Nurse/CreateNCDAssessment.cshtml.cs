@@ -118,7 +118,7 @@ namespace Barangay.Pages.Nurse
                         Assessment.Address = appointment.Patient.User.Address;
                         Assessment.Barangay = appointment.Patient.User.Barangay;
                         Assessment.Telepono = appointment.Patient.User.PhoneNumber;
-                        Assessment.Birthday = appointment.Patient.User.BirthDate;
+                        Assessment.Birthday = appointment.Patient.User.BirthDate?.ToString("yyyy-MM-dd") ?? DateTime.Today.ToString("yyyy-MM-dd");
                         Assessment.Edad = appointment.AgeValue.ToString();
                         Assessment.Kasarian = appointment.Patient.User.Gender;
                         Assessment.Relihiyon = appointment.Patient.User.Religion;
@@ -216,7 +216,7 @@ namespace Barangay.Pages.Nurse
                     if (string.IsNullOrEmpty(Assessment.Telepono))
                         Assessment.Telepono = appointment.Patient.User.PhoneNumber;
                     if (string.IsNullOrEmpty(Assessment.Birthday))
-                        Assessment.Birthday = appointment.Patient.User.BirthDate;
+                        Assessment.Birthday = appointment.Patient.User.BirthDate?.ToString("yyyy-MM-dd") ?? DateTime.Today.ToString("yyyy-MM-dd");
                     if (string.IsNullOrEmpty(Assessment.Edad))
                         Assessment.Edad = appointment.AgeValue.ToString();
                     if (string.IsNullOrEmpty(Assessment.Kasarian))

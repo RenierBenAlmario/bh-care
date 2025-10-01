@@ -80,9 +80,7 @@ namespace Barangay.Pages.Doctor
                 PatientAddress = appointment.Patient.User.Address ?? "";
                 PatientBarangay = appointment.Patient.User.Barangay ?? "";
                 PatientPhone = appointment.Patient.User.PhoneNumber ?? "";
-                var birthDate = DateTime.TryParse(appointment.Patient.User.BirthDate, out var parsedBirthDate) 
-                    ? parsedBirthDate 
-                    : DateTime.Now.AddYears(-30);
+                var birthDate = appointment.Patient.User.BirthDate ?? DateTime.Now.AddYears(-30);
                 PatientAge = CalculateAge(birthDate);
 
                 // Set assessment properties

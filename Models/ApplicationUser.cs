@@ -58,8 +58,7 @@ namespace Barangay.Models
         public string WorkingDays { get; set; } = string.Empty;
         public string WorkingHours { get; set; } = string.Empty;
         public int MaxDailyPatients { get; set; } = 20;
-        [Encrypted]
-        public string BirthDate { get; set; } = string.Empty;
+        public DateTime? BirthDate { get; set; }
         [Encrypted]
         public string Gender { get; set; } = string.Empty;
         [Encrypted]

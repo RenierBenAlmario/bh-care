@@ -52,16 +52,33 @@ namespace EmailDecryptorApp
 
         static void Main(string[] args)
         {
-            string encryptedEmail = "juRn53YYfYSFODvoxAlyC/9JVLgjf70ra9nMuRNeMi0463c3X/7grvEqBRwIZvjVdncmAYJQ+dfW2B4Ala6HCQ==";
+            // Encrypted names from the approval email
+            string encryptedFirstName = "UjzSs4VzAiu1VQbFx+jUmmLM0M6QV3gKclQAWu2zm+I=";
+            string encryptedLastName = "Uodekdugb82+8JR1oJktrHAwFhKDnHiQK7FDv9WyxtE=";
             
-            Console.WriteLine("Encrypted Email:");
-            Console.WriteLine(encryptedEmail);
+            Console.WriteLine("Decrypting names from approval email:");
+            Console.WriteLine("=====================================");
+            
+            Console.WriteLine("Encrypted First Name:");
+            Console.WriteLine(encryptedFirstName);
             Console.WriteLine();
             
-            string decryptedEmail = Decrypt(encryptedEmail);
+            string decryptedFirstName = Decrypt(encryptedFirstName);
+            Console.WriteLine("Decrypted First Name:");
+            Console.WriteLine(decryptedFirstName);
+            Console.WriteLine();
             
-            Console.WriteLine("Decrypted Email:");
-            Console.WriteLine(decryptedEmail);
+            Console.WriteLine("Encrypted Last Name:");
+            Console.WriteLine(encryptedLastName);
+            Console.WriteLine();
+            
+            string decryptedLastName = Decrypt(encryptedLastName);
+            Console.WriteLine("Decrypted Last Name:");
+            Console.WriteLine(decryptedLastName);
+            Console.WriteLine();
+            
+            Console.WriteLine("Full Name:");
+            Console.WriteLine($"{decryptedFirstName} {decryptedLastName}");
         }
     }
 }

@@ -86,7 +86,7 @@ namespace Barangay.Pages.User
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
                 Address = user.Address,
-                DateOfBirth = DateTime.TryParse(user.BirthDate, out var parsedBirthDate) ? parsedBirthDate : DateTime.MinValue,
+                DateOfBirth = user.BirthDate ?? DateTime.MinValue,
                 Gender = user.Gender
             };
 
@@ -160,7 +160,7 @@ namespace Barangay.Pages.User
             user.LastName = UserProfile.LastName;
             user.PhoneNumber = UserProfile.PhoneNumber;
             user.Address = UserProfile.Address;
-            user.BirthDate = UserProfile.DateOfBirth.ToString("yyyy-MM-dd");
+            user.BirthDate = UserProfile.DateOfBirth;
             user.Gender = UserProfile.Gender;
             user.FullName = $"{UserProfile.FirstName} {UserProfile.LastName}";
             user.UpdatedAt = DateTime.Now;
@@ -203,8 +203,8 @@ namespace Barangay.Pages.User
                     {
                         patient.FullName = user.FullName ?? $"{user.FirstName} {user.LastName}".Trim();
                         if (!string.IsNullOrWhiteSpace(user.Gender)) patient.Gender = user.Gender;
-                        if (DateTime.TryParse(user.BirthDate, out var parsedBirthDate) && parsedBirthDate != DateTime.MinValue) 
-                            patient.BirthDate = parsedBirthDate;
+                        if (user.BirthDate.HasValue) 
+                            patient.BirthDate = user.BirthDate.Value;
                         if (!string.IsNullOrWhiteSpace(user.Address)) patient.Address = user.Address;
                         if (!string.IsNullOrWhiteSpace(user.PhoneNumber)) patient.ContactNumber = user.PhoneNumber;
                         if (!string.IsNullOrWhiteSpace(user.Email)) patient.Email = user.Email;

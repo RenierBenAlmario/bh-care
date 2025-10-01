@@ -101,7 +101,7 @@ namespace Barangay.Pages.User
                 else
                 {
                     // If no patient record, use user's birthdate
-                    var userBirthDateForAge = DateTime.TryParse(user.BirthDate, out var parsedUserBirthDate) ? parsedUserBirthDate : DateTime.MinValue;
+                    var userBirthDateForAge = user.BirthDate ?? DateTime.MinValue;
                     ViewData["PatientAge"] = CalculateAge(userBirthDateForAge);
                 }
             }
@@ -272,11 +272,10 @@ namespace Barangay.Pages.User
             // Pre-fill parts of the Input model if necessary (e.g., from user profile)
             Input.Address = user.Address;
             Input.Telepono = user.PhoneNumber;
-            var userBirthDateForInput = DateTime.TryParse(user.BirthDate, out var parsedUserBirthDateForInput) ? parsedUserBirthDateForInput : DateTime.MinValue;
-            if (userBirthDateForInput != DateTime.MinValue)
+            if (user.BirthDate.HasValue)
             {
-                Input.Birthday = userBirthDateForInput;
-                Input.Edad = CalculateAge(userBirthDateForInput);
+                Input.Birthday = user.BirthDate.Value;
+                Input.Edad = CalculateAge(user.BirthDate.Value);
             }
 
             return Page();

@@ -102,7 +102,7 @@ namespace Barangay.Pages.User
                     FamilyNo = FamilyNo,
                     Address = user.Address ?? "",
                     Barangay = "122", // Default barangay
-                    Birthday = DateTime.TryParse(user.BirthDate, out var parsedBirthDateForForm) && parsedBirthDateForForm != DateTime.MinValue ? parsedBirthDateForForm.ToString("yyyy-MM-dd") : null,
+                    Birthday = user.BirthDate?.ToString("yyyy-MM-dd"),
                     Telepono = user.PhoneNumber ?? "",
                     Kasarian = user.Gender == "Male" ? "Lalaki" : user.Gender == "Female" ? "Babae" : "",
                     FirstName = user.FirstName,
@@ -113,10 +113,9 @@ namespace Barangay.Pages.User
                     Relihiyon = user.Religion
                 };
 
-                var userBirthDate = DateTime.TryParse(user.BirthDate, out var parsedUserBirthDate) ? parsedUserBirthDate : DateTime.MinValue;
-                if (userBirthDate != DateTime.MinValue)
+                if (user.BirthDate.HasValue)
                 {
-                    var age = CalculateAge(userBirthDate);
+                    var age = CalculateAge(user.BirthDate.Value);
                     Assessment.Edad = age.ToString();
                     CalculatedAge = age;
                     _logger.LogInformation("Calculated age: {Age}", CalculatedAge);

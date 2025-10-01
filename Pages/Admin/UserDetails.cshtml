@@ -195,7 +195,14 @@
                                         <div>
                                             @if (doc.ContentType != null && doc.ContentType.StartsWith("image/"))
                                             {
-                                                <img src="@doc.FilePath" class="document-preview img-fluid mb-2 rounded border" alt="User ID" />
+                                                <img src="@doc.FilePath" 
+                                                     class="document-preview img-fluid mb-2 rounded border" 
+                                                     alt="User ID" 
+                                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+                                                <div class="alert alert-warning mb-2" style="display:none;">
+                                                    <i class="fa-solid fa-exclamation-triangle me-2"></i>
+                                                    Document file not found. Please contact support.
+                                                </div>
                                             }
                                             <div class="d-grid gap-2">
                                                 <button type="button"
@@ -296,6 +303,23 @@
                 img.alt = fileName;
                 img.classList.add('img-fluid','rounded','shadow-sm');
                 img.style.maxHeight = '450px';
+                
+                // Handle image load error
+                img.onerror = function() {
+                    container.innerHTML = `
+                        <div class="alert alert-warning text-center">
+                            <i class="fa-solid fa-exclamation-triangle fa-3x mb-3"></i>
+                            <h5>Document Not Found</h5>
+                            <p>The document file could not be loaded. This may be due to:</p>
+                            <ul class="text-start">
+                                <li>File was moved or deleted</li>
+                                <li>Incorrect file path in database</li>
+                                <li>File upload was incomplete</li>
+                            </ul>
+                            <p class="mb-0">Please contact support for assistance.</p>
+                        </div>`;
+                };
+                
                 container.appendChild(img);
             } else if (contentType && contentType.includes('pdf')) {
                 const embed = document.createElement('embed');

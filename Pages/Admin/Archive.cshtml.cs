@@ -37,21 +37,53 @@ namespace Barangay.Pages.Admin
 
         public async Task OnGetAsync()
         {
-            ImmunizationRecords = await _context.ImmunizationRecords
-                .OrderByDescending(r => r.CreatedAt)
-                .ToListAsync();
+            try
+            {
+                ImmunizationRecords = await _context.ImmunizationRecords
+                    .OrderByDescending(r => r.CreatedAt)
+                    .ToListAsync();
+            }
+            catch (Exception)
+            {
+                // ImmunizationRecords table doesn't exist yet, continue with empty list
+                ImmunizationRecords = new List<ImmunizationRecord>();
+            }
 
-            HEEADSSSAssessments = await _context.HEEADSSSAssessments
-                .OrderByDescending(r => r.CreatedAt)
-                .ToListAsync();
+            try
+            {
+                HEEADSSSAssessments = await _context.HEEADSSSAssessments
+                    .OrderByDescending(r => r.CreatedAt)
+                    .ToListAsync();
+            }
+            catch (Exception)
+            {
+                // HEEADSSSAssessments table doesn't exist yet, continue with empty list
+                HEEADSSSAssessments = new List<HEEADSSSAssessment>();
+            }
 
-            NCDRiskAssessments = await _context.NCDRiskAssessments
-                .OrderByDescending(r => r.CreatedAt)
-                .ToListAsync();
+            try
+            {
+                NCDRiskAssessments = await _context.NCDRiskAssessments
+                    .OrderByDescending(r => r.CreatedAt)
+                    .ToListAsync();
+            }
+            catch (Exception)
+            {
+                // NCDRiskAssessments table doesn't exist yet, continue with empty list
+                NCDRiskAssessments = new List<NCDRiskAssessment>();
+            }
 
-            VitalSigns = await _context.VitalSigns
-                .OrderByDescending(r => r.RecordedAt)
-                .ToListAsync();
+            try
+            {
+                VitalSigns = await _context.VitalSigns
+                    .OrderByDescending(r => r.RecordedAt)
+                    .ToListAsync();
+            }
+            catch (Exception)
+            {
+                // VitalSigns table doesn't exist yet, continue with empty list
+                VitalSigns = new List<VitalSign>();
+            }
         }
 
         public async Task<IActionResult> OnGetFamilyDetailsAsync(string familyId)

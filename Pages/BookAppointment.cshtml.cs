@@ -113,7 +113,7 @@ namespace Barangay.Pages
                     UserDetails = new UserDetailsViewModel
                     {
                         FullName = user.FullName ?? $"{user.FirstName} {user.LastName}".Trim(),
-                        Age = CalculateAge(DateTime.TryParse(user.BirthDate, out var parsedBirthDate) ? parsedBirthDate : DateTime.MinValue)
+                        Age = CalculateAge(user.BirthDate ?? DateTime.MinValue)
                     };
 
                     _logger.LogInformation($"BookAppointment - UserDetails set: FullName='{UserDetails.FullName}', Age={UserDetails.Age}");
@@ -145,12 +145,11 @@ namespace Barangay.Pages
                     }
                     
                     // Pre-fill date of birth if available
-                    var userBirthDate = DateTime.TryParse(user.BirthDate, out var parsedUserBirthDate) ? parsedUserBirthDate : DateTime.MinValue;
-                    if (userBirthDate != default(DateTime))
+                    if (user.BirthDate.HasValue)
                     {
-                        BookingModel.DateOfBirth = userBirthDate;
-                        NCDModel.Birthday = userBirthDate.ToString("yyyy-MM-dd");
-                        BookingModel.Age = CalculateAge(userBirthDate);
+                        BookingModel.DateOfBirth = user.BirthDate.Value;
+                        NCDModel.Birthday = user.BirthDate.Value.ToString("yyyy-MM-dd");
+                        BookingModel.Age = CalculateAge(user.BirthDate.Value);
                     }
                     
                     // Pre-fill phone number if available
@@ -544,7 +543,7 @@ namespace Barangay.Pages
                     {
                         UserId = user.Id,
                         FullName = _encryptionService.Encrypt($"{user.FirstName} {user.LastName}".Trim()),
-                        BirthDate = DateTime.TryParse(user.BirthDate, out var parsedBirthDate) ? parsedBirthDate : DateTime.MinValue,
+                        BirthDate = user.BirthDate ?? DateTime.MinValue,
                         Gender = user.Gender ?? "Unknown",
                         Address = _encryptionService.Encrypt(user.Address ?? "Not provided"),
                         ContactNumber = _encryptionService.Encrypt(user.PhoneNumber ?? "Not provided"),
@@ -612,7 +611,7 @@ namespace Barangay.Pages
 
                 var patientName = bookingForOther ? bookingModel.FullName : user.FullName;
                 // Use the age from the form if available, otherwise calculate from birth date
-                var userBirthDate = DateTime.TryParse(user.BirthDate, out var parsedUserBirthDate) ? parsedUserBirthDate : DateTime.MinValue;
+                var userBirthDate = user.BirthDate ?? DateTime.MinValue;
                 var patientAge = bookingForOther ? bookingModel.Age : 
                     (bookingModel.Age > 0 ? bookingModel.Age : CalculateAge(userBirthDate));
                 var patientBirthday = bookingForOther ? bookingModel.Birthday : userBirthDate;

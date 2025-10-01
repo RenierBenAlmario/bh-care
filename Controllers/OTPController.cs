@@ -42,6 +42,33 @@ namespace Barangay.Controllers
                     return BadRequest(new { success = false, message = "Email is required" });
                 }
 
+                // Check if email is suspended (with fallback if table doesn't exist)
+                try
+                {
+                    var suspension = await _context.EmailSuspensions
+                        .FirstOrDefaultAsync(s => s.Email == request.Email && s.IsActive);
+
+                    if (suspension != null && suspension.SuspensionEndDate > DateTime.UtcNow)
+                    {
+                        var remainingTime = suspension.SuspensionEndDate.Value - DateTime.UtcNow;
+                        var timeString = remainingTime.TotalHours >= 1 
+                            ? $"{remainingTime.TotalHours:F0} hours"
+                            : $"{remainingTime.TotalMinutes:F0} minutes";
+                        
+                        return BadRequest(new { 
+                            success = false, 
+                            message = $"Email verification is suspended due to multiple failed attempts. Please try again in {timeString}.",
+                            suspended = true,
+                            suspensionEndDate = suspension.SuspensionEndDate
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "EmailSuspensions table not found, skipping suspension check for {Email}", request.Email);
+                    // Continue without suspension check if table doesn't exist
+                }
+
                 // Generate a 6-digit OTP
                 Random random = new Random();
                 string otp = random.Next(100000, 999999).ToString();
@@ -138,6 +165,8 @@ namespace Barangay.Controllers
                     // Verify OTP
                     if (otpEntry.VerificationCode != request.Otp)
                     {
+                        // Track verification failure
+                        await HandleVerificationFailure(request.Email);
                         return BadRequest(new { success = false, message = "Invalid verification code" });
                     }
 
@@ -145,6 +174,9 @@ namespace Barangay.Controllers
                     otpEntry.IsVerified = true;
                     otpEntry.VerifiedAt = DateTime.UtcNow;
                     await _context.SaveChangesAsync();
+                    
+                    // Clear any existing suspension on successful verification
+                    await ClearEmailSuspension(request.Email);
                     
                     otpVerified = true;
                 }
@@ -175,6 +207,92 @@ namespace Barangay.Controllers
             {
                 _logger.LogError(ex, "Error verifying OTP for {Email}", request.Email);
                 return StatusCode(500, new { success = false, message = "Failed to verify email" });
+            }
+        }
+
+        private async Task HandleVerificationFailure(string email)
+        {
+            try
+            {
+                // Get or create suspension record
+                var suspension = await _context.EmailSuspensions
+                    .FirstOrDefaultAsync(s => s.Email == email);
+                
+                if (suspension == null)
+                {
+                    suspension = new EmailSuspension
+                    {
+                        Email = email,
+                        FailureCount = 0,
+                        LastFailureDate = DateTime.UtcNow,
+                        IsActive = false
+                    };
+                    _context.EmailSuspensions.Add(suspension);
+                }
+                
+                // Increment failure count
+                suspension.FailureCount++;
+                suspension.LastFailureDate = DateTime.UtcNow;
+                suspension.UpdatedAt = DateTime.UtcNow;
+                
+                // Determine suspension based on failure count
+                if (suspension.FailureCount >= 3)
+                {
+                    suspension.IsActive = true;
+                    suspension.SuspensionStartDate = DateTime.UtcNow;
+                    
+                    if (suspension.FailureCount == 3)
+                    {
+                        // 1 hour suspension
+                        suspension.SuspensionEndDate = DateTime.UtcNow.AddHours(1);
+                        suspension.SuspensionLevel = "3f";
+                        suspension.SuspensionReason = "3 verification failures - 1 hour suspension";
+                    }
+                    else if (suspension.FailureCount == 5)
+                    {
+                        // 6 hours suspension
+                        suspension.SuspensionEndDate = DateTime.UtcNow.AddHours(6);
+                        suspension.SuspensionLevel = "5f";
+                        suspension.SuspensionReason = "5 verification failures - 6 hour suspension";
+                    }
+                    else if (suspension.FailureCount >= 10)
+                    {
+                        // 24 hours suspension
+                        suspension.SuspensionEndDate = DateTime.UtcNow.AddHours(24);
+                        suspension.SuspensionLevel = "10f";
+                        suspension.SuspensionReason = "10+ verification failures - 24 hour suspension";
+                    }
+                }
+                
+                await _context.SaveChangesAsync();
+                _logger.LogWarning("Email verification failure tracked for {Email}. Failure count: {Count}", email, suspension.FailureCount);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error handling verification failure for email {Email}. EmailSuspensions table may not exist yet.", email);
+                // Continue without tracking if table doesn't exist
+            }
+        }
+
+        private async Task ClearEmailSuspension(string email)
+        {
+            try
+            {
+                var suspension = await _context.EmailSuspensions
+                    .FirstOrDefaultAsync(s => s.Email == email);
+                
+                if (suspension != null)
+                {
+                    suspension.IsActive = false;
+                    suspension.UpdatedAt = DateTime.UtcNow;
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("Email suspension cleared for {Email}", email);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error clearing email suspension for {Email}. EmailSuspensions table may not exist yet.", email);
+                // Continue without clearing if table doesn't exist
             }
         }
     }

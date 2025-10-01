@@ -135,7 +135,7 @@ namespace Barangay.Pages.Admin
                             title: "Account Approved",
                             message: "Your account has been approved. You can now access all system features.",
                             type: "Success",
-                            link: "/Index"
+                            link: "https://bhcare.software"
                         );
                     }
                     
