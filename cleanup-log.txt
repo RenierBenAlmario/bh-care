@@ -8,7 +8,7 @@ Clearing all data...
 (0 rows affected)
 Cleared VitalSigns
 
-(5 rows affected)
+(3 rows affected)
 Cleared StaffPermissions
 
 (0 rows affected)
@@ -77,7 +77,7 @@ Cleared VitalSigns_Backup_StringConversion
 (0 rows affected)
 Cleared PatientHistories
 
-(3 rows affected)
+(2 rows affected)
 Cleared AspNetUserRoles
 
 (0 rows affected)
@@ -86,7 +86,7 @@ Cleared AspNetUserTokens
 (0 rows affected)
 Cleared PasswordResetOTPs
 
-(0 rows affected)
+(1 rows affected)
 Cleared DoctorAvailabilities
 
 (0 rows affected)
