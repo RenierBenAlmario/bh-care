@@ -440,7 +440,7 @@ namespace Barangay.Pages.Account
                     LastName = _encryptionService.Encrypt(Input.LastName),
                     Suffix = _encryptionService.Encrypt(Input.Suffix ?? ""),
                     PhoneNumber = _encryptionService.Encrypt(Input.ContactNumber),
-                    BirthDate = DateTime.TryParse(Input.BirthDate, out var parsedBirthDateValue) ? parsedBirthDateValue : null,
+                    BirthDate = DateTime.TryParse(Input.BirthDate, out var parsedBirthDateValue) ? parsedBirthDateValue : DateTime.Now.AddYears(-25),
                     CreatedAt = DateTime.UtcNow,
                     HasAgreedToTerms = Input.AgreeToTerms,
                     AgreedAt = DateTime.UtcNow,

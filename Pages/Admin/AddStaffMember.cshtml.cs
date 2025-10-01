@@ -518,7 +518,8 @@ namespace Barangay.Pages.Admin
                         // Name fields will be populated below via FullName setter
                         IsActive = StaffMember.IsActive,
                         JoinDate = DateTime.Now,
-                        Status = "Verified" // Set as verified since added by admin
+                        Status = "Verified", // Set as verified since added by admin
+                        BirthDate = DateTime.Now.AddYears(-25) // Set a default birth date (25 years ago)
                     };
 
                     // Populate FirstName, MiddleName, LastName, and Name from the provided full name
@@ -540,22 +541,37 @@ namespace Barangay.Pages.Admin
                         return Page();
                     }
 
-                    // Create or get the role
-                    if (!await _roleManager.RoleExistsAsync(StaffMember.Role))
+                    // Map position to appropriate role
+                    string roleToAssign = StaffMember.Role;
+                    if (StaffMember.Position == "Head Doctor" || StaffMember.Position == "Doctor")
                     {
-                        _logger.LogInformation("Creating new role: {Role}", StaffMember.Role);
-                        var roleResult = await _roleManager.CreateAsync(new IdentityRole(StaffMember.Role));
+                        roleToAssign = "Doctor";
+                    }
+                    else if (StaffMember.Position == "Head Nurse" || StaffMember.Position == "Nurse")
+                    {
+                        roleToAssign = "Nurse";
+                    }
+                    else if (StaffMember.Position == "Admin Staff" || StaffMember.Position == "Receptionist" || StaffMember.Position == "IT")
+                    {
+                        roleToAssign = "Admin Staff";
+                    }
+
+                    // Create or get the role
+                    if (!await _roleManager.RoleExistsAsync(roleToAssign))
+                    {
+                        _logger.LogInformation("Creating new role: {Role}", roleToAssign);
+                        var roleResult = await _roleManager.CreateAsync(new IdentityRole(roleToAssign));
                         if (!roleResult.Succeeded)
                         {
                             _logger.LogError("Failed to create role. Errors: {Errors}", 
                                 string.Join(", ", roleResult.Errors.Select(e => e.Description)));
-                            throw new Exception($"Failed to create role: {StaffMember.Role}");
+                            throw new Exception($"Failed to create role: {roleToAssign}");
                         }
                     }
 
                     // Assign role to user
-                    _logger.LogInformation("Assigning role {Role} to user {Email}", StaffMember.Role, StaffMember.Email);
-                    var roleAssignResult = await _userManager.AddToRoleAsync(user, StaffMember.Role);
+                    _logger.LogInformation("Assigning role {Role} to user {Email} (mapped from position {Position})", roleToAssign, StaffMember.Email, StaffMember.Position);
+                    var roleAssignResult = await _userManager.AddToRoleAsync(user, roleToAssign);
                     if (!roleAssignResult.Succeeded)
                     {
                         _logger.LogError("Failed to assign role. Errors: {Errors}", 
@@ -567,6 +583,7 @@ namespace Barangay.Pages.Admin
                     StaffMember.UserId = user.Id;
                     StaffMember.CreatedAt = DateTime.Now;
                     StaffMember.IsActive = true;
+                    StaffMember.Role = roleToAssign; // Update the role to the mapped role
                     
                     // Set default department value if not provided
                     if (string.IsNullOrEmpty(StaffMember.Department))

@@ -383,7 +383,28 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var appDb = services.GetRequiredService<ApplicationDbContext>();
-        await appDb.Database.MigrateAsync();
+        
+        // Check if database can connect and has the expected tables
+        var canConnect = await appDb.Database.CanConnectAsync();
+        if (canConnect)
+        {
+            // Check if AspNetRoles table exists (indicator of Identity tables)
+            var identityTablesExist = await appDb.Database.ExecuteSqlRawAsync(
+                "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'AspNetRoles'") > 0;
+            
+            if (identityTablesExist)
+            {
+                logger.LogInformation("Database schema appears to be up to date. Skipping automatic migrations.");
+            }
+            else
+            {
+                await appDb.Database.MigrateAsync();
+            }
+        }
+        else
+        {
+            await appDb.Database.MigrateAsync();
+        }
 
         var encDb = services.GetRequiredService<EncryptedDbContext>();
         await encDb.Database.MigrateAsync();

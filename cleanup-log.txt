@@ -8,7 +8,7 @@ Clearing all data...
 (0 rows affected)
 Cleared VitalSigns
 
-(0 rows affected)
+(5 rows affected)
 Cleared StaffPermissions
 
 (0 rows affected)
@@ -47,7 +47,7 @@ Cleared IntegratedAssessments
 (0 rows affected)
 Cleared Medications
 
-(0 rows affected)
+(10 rows affected)
 Cleared Permissions
 
 (0 rows affected)
@@ -56,10 +56,10 @@ Cleared StaffPositions
 (0 rows affected)
 Cleared User
 
-(4 rows affected)
+(8 rows affected)
 Cleared AspNetUserClaims
 
-(1 rows affected)
+(0 rows affected)
 Cleared EmailVerifications
 
 (0 rows affected)
@@ -77,7 +77,7 @@ Cleared VitalSigns_Backup_StringConversion
 (0 rows affected)
 Cleared PatientHistories
 
-(2 rows affected)
+(3 rows affected)
 Cleared AspNetUserRoles
 
 (0 rows affected)
@@ -110,25 +110,25 @@ Cleared HealthReports
 (0 rows affected)
 Cleared Messages
 
-(1 rows affected)
+(0 rows affected)
 Cleared Notifications
 
 (0 rows affected)
 Cleared Patients
 
-(0 rows affected)
+(1 rows affected)
 Cleared StaffMembers
 
 (1 rows affected)
 Cleared __EFMigrationsHistory
 
-(1 rows affected)
+(0 rows affected)
 Cleared UserDocuments
 
 (0 rows affected)
 Cleared RolePermissions
 
-(0 rows affected)
+(3 rows affected)
 Cleared UserPermissions
 
 (0 rows affected)

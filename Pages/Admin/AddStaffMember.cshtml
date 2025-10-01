@@ -894,8 +894,21 @@
             const positionSelect = document.getElementById('positionSelect');
             if (positionSelect) {
                 positionSelect.addEventListener('change', function(){
+                    // Auto-sync role based on position
+                    const positionValue = positionSelect.value;
+                    if (positionValue && roleSelect) {
+                        if (positionValue === 'Head Doctor' || positionValue === 'Doctor') {
+                            roleSelect.value = 'Doctor';
+                        } else if (positionValue === 'Head Nurse' || positionValue === 'Nurse') {
+                            roleSelect.value = 'Nurse';
+                        } else if (positionValue === 'Admin Staff' || positionValue === 'Receptionist' || positionValue === 'IT') {
+                            roleSelect.value = 'Admin Staff';
+                        }
+                    }
+                    
                     updatePermissionsVisibility();
                     updatePermissionCounts();
+                    updateRoleSpecificFields();
                 });
             }
 
