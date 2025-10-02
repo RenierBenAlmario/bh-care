@@ -2591,3 +2591,5 @@ D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\obj\Debug\net8.0\refint\Barang
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\obj\Debug\net8.0\Barangay.pdb
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\obj\Debug\net8.0\Barangay.genruntimeconfig.cache
 D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\obj\Debug\net8.0\ref\Barangay.dll
+D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\FixAllBitColumns.sql
+D:\Imbakan\Last\Last\BHCARE-mainPalag\BHCARE-main\bin\Debug\net8.0\SQL\AddMissingHEEADSSSColumns.sql

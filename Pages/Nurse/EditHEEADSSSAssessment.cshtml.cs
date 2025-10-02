@@ -242,10 +242,7 @@ namespace Barangay.Pages.Nurse
                 {
                     existingAssessment.SchoolPerformance = _encryptionService.DecryptForUser(existingAssessment.SchoolPerformance, User);
                 }
-                if (!string.IsNullOrEmpty(existingAssessment.AttendanceIssues) && _encryptionService.IsEncrypted(existingAssessment.AttendanceIssues))
-                {
-                    existingAssessment.AttendanceIssues = _encryptionService.DecryptForUser(existingAssessment.AttendanceIssues, User);
-                }
+                // AttendanceIssues is now a boolean field, no need to decrypt
                 if (!string.IsNullOrEmpty(existingAssessment.CareerPlans) && _encryptionService.IsEncrypted(existingAssessment.CareerPlans))
                 {
                     existingAssessment.CareerPlans = _encryptionService.DecryptForUser(existingAssessment.CareerPlans, User);
@@ -276,14 +273,7 @@ namespace Barangay.Pages.Nurse
                 {
                     existingAssessment.DietDescription = _encryptionService.DecryptForUser(existingAssessment.DietDescription, User);
                 }
-                if (!string.IsNullOrEmpty(existingAssessment.WeightConcerns) && _encryptionService.IsEncrypted(existingAssessment.WeightConcerns))
-                {
-                    existingAssessment.WeightConcerns = _encryptionService.DecryptForUser(existingAssessment.WeightConcerns, User);
-                }
-                if (!string.IsNullOrEmpty(existingAssessment.EatingDisorderSymptoms) && _encryptionService.IsEncrypted(existingAssessment.EatingDisorderSymptoms))
-                {
-                    existingAssessment.EatingDisorderSymptoms = _encryptionService.DecryptForUser(existingAssessment.EatingDisorderSymptoms, User);
-                }
+                // WeightConcerns and EatingDisorderSymptoms are now boolean fields, no need to decrypt
                 if (!string.IsNullOrEmpty(existingAssessment.EatingBodyImageSatisfaction) && _encryptionService.IsEncrypted(existingAssessment.EatingBodyImageSatisfaction))
                 {
                     existingAssessment.EatingBodyImageSatisfaction = _encryptionService.DecryptForUser(existingAssessment.EatingBodyImageSatisfaction, User);
@@ -324,10 +314,7 @@ namespace Barangay.Pages.Nurse
                 }
                 
                 // DRUGS section fields
-                if (!string.IsNullOrEmpty(existingAssessment.SubstanceUse) && _encryptionService.IsEncrypted(existingAssessment.SubstanceUse))
-                {
-                    existingAssessment.SubstanceUse = _encryptionService.DecryptForUser(existingAssessment.SubstanceUse, User);
-                }
+                // SubstanceUse is now a boolean field, no need to decrypt
                 if (!string.IsNullOrEmpty(existingAssessment.SubstanceType) && _encryptionService.IsEncrypted(existingAssessment.SubstanceType))
                 {
                     existingAssessment.SubstanceType = _encryptionService.DecryptForUser(existingAssessment.SubstanceType, User);
@@ -350,10 +337,7 @@ namespace Barangay.Pages.Nurse
                 {
                     existingAssessment.DatingRelationships = _encryptionService.DecryptForUser(existingAssessment.DatingRelationships, User);
                 }
-                if (!string.IsNullOrEmpty(existingAssessment.SexualActivity) && _encryptionService.IsEncrypted(existingAssessment.SexualActivity))
-                {
-                    existingAssessment.SexualActivity = _encryptionService.DecryptForUser(existingAssessment.SexualActivity, User);
-                }
+                // SexualActivity is now a boolean field, no need to decrypt
                 if (!string.IsNullOrEmpty(existingAssessment.SexualOrientation) && _encryptionService.IsEncrypted(existingAssessment.SexualOrientation))
                 {
                     existingAssessment.SexualOrientation = _encryptionService.DecryptForUser(existingAssessment.SexualOrientation, User);
@@ -412,18 +396,7 @@ namespace Barangay.Pages.Nurse
                 }
                 
                 // SUICIDE/DEPRESSION section fields
-                if (!string.IsNullOrEmpty(existingAssessment.MoodChanges) && _encryptionService.IsEncrypted(existingAssessment.MoodChanges))
-                {
-                    existingAssessment.MoodChanges = _encryptionService.DecryptForUser(existingAssessment.MoodChanges, User);
-                }
-                if (!string.IsNullOrEmpty(existingAssessment.SuicidalThoughts) && _encryptionService.IsEncrypted(existingAssessment.SuicidalThoughts))
-                {
-                    existingAssessment.SuicidalThoughts = _encryptionService.DecryptForUser(existingAssessment.SuicidalThoughts, User);
-                }
-                if (!string.IsNullOrEmpty(existingAssessment.SelfHarmBehavior) && _encryptionService.IsEncrypted(existingAssessment.SelfHarmBehavior))
-                {
-                    existingAssessment.SelfHarmBehavior = _encryptionService.DecryptForUser(existingAssessment.SelfHarmBehavior, User);
-                }
+                // MoodChanges, SuicidalThoughts, and SelfHarmBehavior are now boolean fields, no need to decrypt
                 if (!string.IsNullOrEmpty(existingAssessment.SuicideDepressionFeelings) && _encryptionService.IsEncrypted(existingAssessment.SuicideDepressionFeelings))
                 {
                     existingAssessment.SuicideDepressionFeelings = _encryptionService.DecryptForUser(existingAssessment.SuicideDepressionFeelings, User);
@@ -438,18 +411,7 @@ namespace Barangay.Pages.Nurse
                 }
                 
                 // SAFETY section fields
-                if (!string.IsNullOrEmpty(existingAssessment.FeelsSafeAtHome) && _encryptionService.IsEncrypted(existingAssessment.FeelsSafeAtHome))
-                {
-                    existingAssessment.FeelsSafeAtHome = _encryptionService.DecryptForUser(existingAssessment.FeelsSafeAtHome, User);
-                }
-                if (!string.IsNullOrEmpty(existingAssessment.FeelsSafeAtSchool) && _encryptionService.IsEncrypted(existingAssessment.FeelsSafeAtSchool))
-                {
-                    existingAssessment.FeelsSafeAtSchool = _encryptionService.DecryptForUser(existingAssessment.FeelsSafeAtSchool, User);
-                }
-                if (!string.IsNullOrEmpty(existingAssessment.ExperiencedBullying) && _encryptionService.IsEncrypted(existingAssessment.ExperiencedBullying))
-                {
-                    existingAssessment.ExperiencedBullying = _encryptionService.DecryptForUser(existingAssessment.ExperiencedBullying, User);
-                }
+                // FeelsSafeAtHome, FeelsSafeAtSchool, and ExperiencedBullying are now boolean fields, no need to decrypt
                 if (!string.IsNullOrEmpty(existingAssessment.SafetyPhysicalAbuse) && _encryptionService.IsEncrypted(existingAssessment.SafetyPhysicalAbuse))
                 {
                     existingAssessment.SafetyPhysicalAbuse = _encryptionService.DecryptForUser(existingAssessment.SafetyPhysicalAbuse, User);

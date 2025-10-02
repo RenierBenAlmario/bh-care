@@ -287,6 +287,13 @@ namespace Barangay.Pages.User
                     FamilyNo = familyNo,
                     AppointmentId = appointmentId,
                     
+                    // PhilHealth and program fields
+                    IsNHPTS = GetFormValueOrDefault("Assessment.IsNHPTS"),
+                    Is4Ps = GetFormValueOrDefault("Assessment.Is4Ps"),
+                    IsPhilHealthBeneficiaryOnly = GetFormValueOrDefault("Assessment.IsPhilHealthBeneficiaryOnly"),
+                    IsOwnPhilHealth = GetFormValueOrDefault("Assessment.IsOwnPhilHealth"),
+                    PhilHealthPIN = GetFormValueOrDefault("Assessment.PhilHealthPIN"),
+                    
                     // Patient information (from appointment or form)
                     FullName = patientName,
                     Birthday = birthday,
@@ -294,6 +301,45 @@ namespace Barangay.Pages.User
                     Gender = patientGender,
                     Address = patientAddress,
                     ContactNumber = patientPhone,
+                    
+                    // Medical measurements
+                    Height = GetFormValueOrDefault("Assessment.Height"),
+                    Weight = GetFormValueOrDefault("Assessment.Weight"),
+                    BMI = GetFormValueOrDefault("Assessment.BMI"),
+                    BMIUnderweight = GetFormBooleanValueOrDefault("Assessment.BMIUnderweight"),
+                    BMINormal = GetFormBooleanValueOrDefault("Assessment.BMINormal"),
+                    BMIOverweight = GetFormBooleanValueOrDefault("Assessment.BMIOverweight"),
+                    BMIObese = GetFormBooleanValueOrDefault("Assessment.BMIObese"),
+                    
+                    // Immunization status
+                    ImmunizationMR = GetFormValueOrDefault("Assessment.ImmunizationMR"),
+                    ImmunizationTd = GetFormValueOrDefault("Assessment.ImmunizationTd"),
+                    ImmunizationHPV = GetFormValueOrDefault("Assessment.ImmunizationHPV"),
+                    
+                    // Female-specific fields
+                    DateOfMenarche = GetFormValueOrDefault("Assessment.DateOfMenarche"),
+                    AgeOfFirstPregnancy = GetFormValueOrDefault("Assessment.AgeOfFirstPregnancy"),
+                    OBScore = GetFormValueOrDefault("Assessment.OBScore"),
+                    
+                    // Vital signs
+                    VitalTemp = GetFormValueOrDefault("Assessment.VitalTemp"),
+                    VitalRR = GetFormValueOrDefault("Assessment.VitalRR"),
+                    VitalPR = GetFormValueOrDefault("Assessment.VitalPR"),
+                    VitalBP = GetFormValueOrDefault("Assessment.VitalBP"),
+                    
+                    // Medical information
+                    ChiefComplaint = GetFormValueOrDefault("Assessment.ChiefComplaint"),
+                    HistoryOfPresentIllness = GetFormValueOrDefault("Assessment.HistoryOfPresentIllness"),
+                    PhysicalExaminationFindings = GetFormValueOrDefault("Assessment.PhysicalExaminationFindings"),
+                    PastMedicalHistory = GetFormValueOrDefault("Assessment.PastMedicalHistory"),
+                    WorkingDiagnosis = GetFormValueOrDefault("Assessment.WorkingDiagnosis"),
+                    Management = GetFormValueOrDefault("Assessment.Management"),
+                    FamilyHistory = GetFormValueOrDefault("Assessment.FamilyHistory"),
+                    
+                    // Referral information
+                    ReferredTo = GetFormValueOrDefault("Assessment.ReferredTo"),
+                    ReasonForReferral = GetFormValueOrDefault("Assessment.ReasonForReferral"),
+                    FollowUpDate = GetFormValueOrDefault("Assessment.FollowUpDate"),
                     
                     // Form fields - provide default values for non-nullable fields
                     HomeFamilyProblems = GetFormValueOrDefault("Assessment.HomeFamilyProblems"),
@@ -308,7 +354,7 @@ namespace Barangay.Pages.User
                     EducationSchoolWorkProblems = GetFormValueOrDefault("Assessment.EducationSchoolWorkProblems"),
                     EducationBullying = GetFormValueOrDefault("Assessment.EducationBullying"),
                     SchoolPerformance = GetFormValueOrDefault("Assessment.SchoolPerformance", "Not assessed"),
-                    AttendanceIssues = "False", // Default to false for boolean fields
+                    AttendanceIssues = GetFormBooleanValueOrDefault("Assessment.AttendanceIssues"),
                     CareerPlans = GetFormValueOrDefault("Assessment.CareerPlans", "Not assessed"),
                     EducationEmployment = GetFormValueOrDefault("Assessment.EducationEmployment", "Not assessed"),
                     
@@ -316,8 +362,8 @@ namespace Barangay.Pages.User
                     EatingDisorderedEatingBehaviors = GetFormValueOrDefault("Assessment.EatingDisorderedEatingBehaviors"),
                     EatingWeightComments = GetFormValueOrDefault("Assessment.EatingWeightComments"),
                     DietDescription = GetFormValueOrDefault("Assessment.DietDescription", "Not assessed"),
-                    WeightConcerns = "False", // Default to false for boolean fields
-                    EatingDisorderSymptoms = "False", // Default to false for boolean fields
+                    WeightConcerns = GetFormBooleanValueOrDefault("Assessment.WeightConcerns"),
+                    EatingDisorderSymptoms = GetFormBooleanValueOrDefault("Assessment.EatingDisorderSymptoms"),
                     
                     ActivitiesParticipation = GetFormValueOrDefault("Assessment.ActivitiesParticipation"),
                     ActivitiesRegularExercise = GetFormValueOrDefault("Assessment.ActivitiesRegularExercise"),
@@ -329,7 +375,7 @@ namespace Barangay.Pages.User
                     DrugsTobaccoUse = GetFormValueOrDefault("Assessment.DrugsTobaccoUse"),
                     DrugsAlcoholUse = GetFormValueOrDefault("Assessment.DrugsAlcoholUse"),
                     DrugsIllicitDrugUse = GetFormValueOrDefault("Assessment.DrugsIllicitDrugUse"),
-                    SubstanceUse = "False", // Default to false for boolean fields
+                    SubstanceUse = GetFormBooleanValueOrDefault("Assessment.SubstanceUse"),
                     SubstanceType = GetFormValueOrDefault("Assessment.SubstanceType", "Not assessed"),
                     
                     SexualityBodyConcerns = GetFormValueOrDefault("Assessment.SexualityBodyConcerns"),
@@ -344,25 +390,25 @@ namespace Barangay.Pages.User
                     SexualityPregnancyExperience = GetFormValueOrDefault("Assessment.SexualityPregnancyExperience"),
                     SexualitySTIExperience = GetFormValueOrDefault("Assessment.SexualitySTIExperience"),
                     SexualityProtectionUse = GetFormValueOrDefault("Assessment.SexualityProtectionUse"),
-                    SexualityHarassment = GetFormValueOrDefault("SexualityHarassment"),
+                    SexualityHarassment = GetFormValueOrDefault("Assessment.SexualityHarassment"),
                     DatingRelationships = GetFormValueOrDefault("Assessment.DatingRelationships", "Not assessed"),
-                    SexualActivity = "False", // Default to false for boolean fields
+                    SexualActivity = GetFormBooleanValueOrDefault("Assessment.SexualActivity"),
                     SexualOrientation = GetFormValueOrDefault("Assessment.SexualOrientation", "Not assessed"),
                     
                     SafetyPhysicalAbuse = GetFormValueOrDefault("Assessment.SafetyPhysicalAbuse"),
                     SafetyRelationshipViolence = GetFormValueOrDefault("Assessment.SafetyRelationshipViolence"),
                     SafetyProtectiveGear = GetFormValueOrDefault("Assessment.SafetyProtectiveGear"),
                     SafetyGunsAtHome = GetFormValueOrDefault("Assessment.SafetyGunsAtHome"),
-                    FeelsSafeAtHome = "True", // Default to true for boolean fields
-                    FeelsSafeAtSchool = "True", // Default to true for boolean fields
-                    ExperiencedBullying = "False", // Default to false for boolean fields
+                    FeelsSafeAtHome = GetFormBooleanValueOrDefault("Assessment.FeelsSafeAtHome", true),
+                    FeelsSafeAtSchool = GetFormBooleanValueOrDefault("Assessment.FeelsSafeAtSchool", true),
+                    ExperiencedBullying = GetFormBooleanValueOrDefault("Assessment.ExperiencedBullying"),
                     
                     SuicideDepressionFeelings = GetFormValueOrDefault("Assessment.SuicideDepressionFeelings"),
                     SuicideSelfHarmThoughts = GetFormValueOrDefault("Assessment.SuicideSelfHarmThoughts"),
                     SuicideFamilyHistory = GetFormValueOrDefault("Assessment.SuicideFamilyHistory"),
-                    MoodChanges = "False", // Default to false for boolean fields
-                    SuicidalThoughts = "False", // Default to false for boolean fields
-                    SelfHarmBehavior = "False", // Default to false for boolean fields
+                    MoodChanges = GetFormBooleanValueOrDefault("Assessment.MoodChanges"),
+                    SuicidalThoughts = GetFormBooleanValueOrDefault("Assessment.SuicidalThoughts"),
+                    SelfHarmBehavior = GetFormBooleanValueOrDefault("Assessment.SelfHarmBehavior"),
                     
                     // Strengths section
                     PersonalStrengths = GetFormValueOrDefault("Assessment.PersonalStrengths", "Not assessed"),
@@ -498,6 +544,24 @@ namespace Barangay.Pages.User
             if (Request.Form.TryGetValue(key, out var value) && !string.IsNullOrEmpty(value.ToString()))
             {
                 return value.ToString();
+            }
+            return defaultValue;
+        }
+        
+        // Helper method to get boolean form value with default
+        private bool? GetFormBooleanValueOrDefault(string key, bool? defaultValue = false)
+        {
+            if (Request.Form.TryGetValue(key, out var value) && !string.IsNullOrEmpty(value.ToString()))
+            {
+                var stringValue = value.ToString().ToLower();
+                if (stringValue == "true" || stringValue == "1" || stringValue == "on" || stringValue == "yes")
+                {
+                    return true;
+                }
+                else if (stringValue == "false" || stringValue == "0" || stringValue == "no")
+                {
+                    return false;
+                }
             }
             return defaultValue;
         }

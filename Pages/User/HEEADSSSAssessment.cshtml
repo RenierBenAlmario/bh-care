@@ -107,19 +107,17 @@
                         <input type="text" class="form-control" asp-for="Assessment.FamilyNo" id="family-no" />
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="mb-3">
-                        <label class="form-label">Referred by:</label>
-                        <input type="text" class="form-control" asp-for="Assessment.ReferredBy" />
-                    </div>
-                </div>
-            </div>
+              
             
             <div class="mb-3">
                 <label class="form-label">Options:</label>
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" asp-for="Assessment.IsNHPTS" />
                     <label class="form-check-label">NHPTS</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" asp-for="Assessment.Is4Ps" />
+                    <label class="form-check-label">4Ps</label>
                 </div>
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" asp-for="Assessment.IsPhilHealthBeneficiaryOnly" />
@@ -203,7 +201,7 @@
             <h3>HOME</h3>
             
             <div class="mb-3">
-                <label class="form-label">Meron bang problema sa inyong pamilya na maaring makaapekto sa iyo?</label>
+                <label class="form-label">Meron bang problema sa inyong pamilya na kung saan ikaw ay maaring makaapekto?</label>
                 <textarea class="form-control" asp-for="Assessment.HomeFamilyProblems" rows="3"></textarea>
             </div>
             
@@ -273,7 +271,7 @@
             <h3>ACTIVITIES</h3>
                 
             <div class="mb-3">
-                <label class="form-label">Mayroon ka bang sinasalihang sports/libangan sa iskuwela, trabaho o bahay?</label>
+                <label class="form-label">Mayroon ka bang sinasalihang sports/aktibidad sa iskuwela, trabaho o bahay?</label>
                 <textarea class="form-control" asp-for="Assessment.ActivitiesParticipation" rows="3"></textarea>
             </div>
             
@@ -406,7 +404,7 @@
             </div>
             
             <div class="mb-3">
-                <label class="form-label">Gumagamit ka ba ng helmet o protective gear kapag sumasakay ng motor/iba pang sasakyan?</label>
+                <label class="form-label">Gumagamit ka ba ng helmet o protective gear kapag sumasakay ng motor o iba pang uri ng sasakyan?</label>
                 <textarea class="form-control" asp-for="Assessment.SafetyProtectiveGear" rows="3"></textarea>
             </div>
             
@@ -421,17 +419,17 @@
             <h3>SUICIDE / DEPRESSION</h3>
                 
             <div class="mb-3">
-                <label class="form-label">Ikaw ba ay nakaranas na ng matinding pagkabalisa o depresyon?</label>
+                <label class="form-label">Ikaw ba ay nakaranas na ng matinding pagkabalisa o pagkamalungkutin?</label>
                 <textarea class="form-control" asp-for="Assessment.SuicideDepressionFeelings" rows="3"></textarea>
             </div>
             
             <div class="mb-3">
-                <label class="form-label">Naisip mo na bang saktan ang sarili o tapusin ang buhay?</label>
+                <label class="form-label">Naisip mo na bang saktan ang sarili o wakasan ang iyong buhay?</label>
                 <textarea class="form-control" asp-for="Assessment.SuicideSelfHarmThoughts" rows="3"></textarea>
             </div>
             
             <div class="mb-3">
-                <label class="form-label">May miyembro ba ng pamilya na nagtangkang magpakamatay o nakaranas ng matinding depresyon?</label>
+                <label class="form-label">May miyembro ba ng pamilya na nagtangkang magpakamatay o nakaranas ng matinding kalungkutan o labis na pagka-balisa?</label>
                 <textarea class="form-control" asp-for="Assessment.SuicideFamilyHistory" rows="3"></textarea>
             </div>
         </div>

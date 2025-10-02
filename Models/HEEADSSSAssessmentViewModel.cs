@@ -22,6 +22,9 @@ namespace Barangay.Models
         [Display(Name = "Is NHPTS")]
         public string? IsNHPTS { get; set; }
         
+        [Display(Name = "Is 4Ps")]
+        public string? Is4Ps { get; set; }
+        
         [Display(Name = "Is PhilHealth Beneficiary Only")]
         public string? IsPhilHealthBeneficiaryOnly { get; set; }
         
@@ -181,7 +184,7 @@ namespace Barangay.Models
         public string? SchoolPerformance { get; set; }
 
         [Display(Name = "Attendance Issues")]
-        public string? AttendanceIssues { get; set; }
+        public bool? AttendanceIssues { get; set; }
 
         [Display(Name = "Career Plans")]
         public string? CareerPlans { get; set; }
@@ -209,10 +212,10 @@ namespace Barangay.Models
         public string? DietDescription { get; set; }
 
         [Display(Name = "Weight Concerns")]
-        public string? WeightConcerns { get; set; }
+        public bool? WeightConcerns { get; set; }
 
         [Display(Name = "Eating Disorder Symptoms")]
-        public string? EatingDisorderSymptoms { get; set; }
+        public bool? EatingDisorderSymptoms { get; set; }
 
         [Display(Name = "Kuntento ka ba sa iyong itsura, anyo, o sa iyong kasalukuyang timbang?")]
         public string? EatingBodyImageSatisfaction { get; set; }
@@ -259,7 +262,7 @@ namespace Barangay.Models
         
         // DRUGS
         [Display(Name = "Substance Use")]
-        public string? SubstanceUse { get; set; }
+        public bool? SubstanceUse { get; set; }
 
         [Display(Name = "Substance Type")]
         public string? SubstanceType { get; set; }
@@ -281,7 +284,7 @@ namespace Barangay.Models
         public string? DatingRelationships { get; set; }
 
         [Display(Name = "Sexual Activity")]
-        public string? SexualActivity { get; set; }
+        public bool? SexualActivity { get; set; }
 
         [Display(Name = "Sexual Orientation")]
         public string? SexualOrientation { get; set; }
@@ -336,23 +339,23 @@ namespace Barangay.Models
         
         // SUICIDE/DEPRESSION
         [Display(Name = "Mood Changes")]
-        public string? MoodChanges { get; set; }
+        public bool? MoodChanges { get; set; }
 
         [Display(Name = "Suicidal Thoughts")]
-        public string? SuicidalThoughts { get; set; }
+        public bool? SuicidalThoughts { get; set; }
 
         [Display(Name = "Self Harm Behavior")]
-        public string? SelfHarmBehavior { get; set; }
+        public bool? SelfHarmBehavior { get; set; }
 
         // SAFETY
         [Display(Name = "Feels Safe At Home")]
-        public string? FeelsSafeAtHome { get; set; }
+        public bool? FeelsSafeAtHome { get; set; }
 
         [Display(Name = "Feels Safe At School")]
-        public string? FeelsSafeAtSchool { get; set; }
+        public bool? FeelsSafeAtSchool { get; set; }
 
         [Display(Name = "Experienced Bullying")]
-        public string? ExperiencedBullying { get; set; }
+        public bool? ExperiencedBullying { get; set; }
 
         // STRENGTHS
         [Display(Name = "Personal Strengths")]

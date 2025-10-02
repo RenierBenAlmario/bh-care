@@ -228,8 +228,7 @@ namespace Barangay.Pages.Nurse
                                 NCDRiskAssessment.HighSaltIntake = SafeDecrypt(NCDRiskAssessment.HighSaltIntake);
                                 NCDRiskAssessment.ExerciseDuration = SafeDecrypt(NCDRiskAssessment.ExerciseDuration);
                                 NCDRiskAssessment.RiskStatus = SafeDecrypt(NCDRiskAssessment.RiskStatus);
-                                NCDRiskAssessment.CreatedAt = SafeDecrypt(NCDRiskAssessment.CreatedAt);
-                                NCDRiskAssessment.UpdatedAt = SafeDecrypt(NCDRiskAssessment.UpdatedAt);
+                                // CreatedAt and UpdatedAt are now DateTime, no decryption needed
                                 
                                 _logger.LogInformation("Successfully loaded and decrypted NCDRiskAssessment data for appointment ID {Id}", id);
                             }
@@ -312,7 +311,7 @@ namespace Barangay.Pages.Nurse
                             heeadsssAssessment.HomeFamilyProblems = SafeDecrypt(heeadsssAssessment.HomeFamilyProblems);
                             heeadsssAssessment.HomeParentalListening = SafeDecrypt(heeadsssAssessment.HomeParentalListening);
                             heeadsssAssessment.SchoolPerformance = SafeDecrypt(heeadsssAssessment.SchoolPerformance);
-                            heeadsssAssessment.AttendanceIssues = SafeDecrypt(heeadsssAssessment.AttendanceIssues);
+                            // AttendanceIssues is now a boolean field, no need to decrypt
                             heeadsssAssessment.CareerPlans = SafeDecrypt(heeadsssAssessment.CareerPlans);
                             heeadsssAssessment.EducationCurrentlyStudying = SafeDecrypt(heeadsssAssessment.EducationCurrentlyStudying);
                             heeadsssAssessment.Hobbies = SafeDecrypt(heeadsssAssessment.Hobbies);

@@ -97,6 +97,9 @@ namespace Barangay.Pages.Doctor
         
         // Flag to determine if all data is properly loaded
         public bool IsDataLoaded { get; set; } = false;
+        
+        // Flag to determine if consultation form should be shown
+        public bool ShowConsultationForm { get; set; } = false;
 
         public List<Barangay.Models.Appointment> ConsultationQueue { get; set; } = new();
 
@@ -135,11 +138,43 @@ namespace Barangay.Pages.Doctor
 
                     _logger.LogInformation("Looking for appointments for doctor {DoctorId} with Status IN: {Statuses} starting from {Today}", doctorId, string.Join(", ", validStatuses.Select(s => (int)s)), today);
 
+                    // First, let's check if there are any appointments at all for debugging
+                    var totalAppointments = await _context.Appointments.CountAsync();
+                    var todayAppointments = await _context.Appointments
+                        .Where(a => a.AppointmentDate.Date >= today)
+                        .CountAsync();
+                    var doctorAppointments = await _context.Appointments
+                        .Where(a => a.DoctorId == doctorId)
+                        .CountAsync();
+
+                    _logger.LogInformation("Debug - Total appointments: {Total}, Today/upcoming: {Today}, For doctor {DoctorId}: {DoctorCount}", 
+                        totalAppointments, todayAppointments, doctorId, doctorAppointments);
+
+                    // If no appointments for this doctor, try to find any available appointments
+                    if (doctorAppointments == 0)
+                    {
+                        _logger.LogWarning("No appointments found for doctor {DoctorId}. Checking for any available appointments...", doctorId);
+                        
+                        // Get all doctors to see if there are appointments assigned to other doctors
+                        var allDoctors = await _userManager.GetUsersInRoleAsync("Doctor");
+                        _logger.LogInformation("Found {DoctorCount} doctors in system", allDoctors.Count);
+                        
+                        foreach (var doc in allDoctors)
+                        {
+                            var docAppointments = await _context.Appointments
+                                .Where(a => a.DoctorId == doc.Id)
+                                .CountAsync();
+                            _logger.LogInformation("Doctor {DoctorEmail} ({DoctorId}) has {AppointmentCount} appointments", 
+                                doc.Email, doc.Id, docAppointments);
+                        }
+                    }
+
+                    // Show all appointments to all doctors (remove doctor-specific filtering)
                     ConsultationQueue = await _context.Appointments
                         .Include(a => a.Patient)
                             .ThenInclude(p => p.User)
-                        .Where(a => a.DoctorId == doctorId
-                                    && a.AppointmentDate.Date >= today
+                        .Include(a => a.Doctor) // Include doctor information
+                        .Where(a => a.AppointmentDate.Date >= today
                                     && validStatuses.Contains(a.Status))
                         .OrderBy(a => a.AppointmentDate)
                         .ThenBy(a => a.AppointmentTime)
@@ -147,7 +182,7 @@ namespace Barangay.Pages.Doctor
 
                     _logger.LogInformation("Found {Count} appointments for today and upcoming", ConsultationQueue.Count);
 
-                    // Decrypt patient names for all appointments
+                    // Decrypt patient names and doctor names for all appointments
                     foreach (var appointment in ConsultationQueue)
                     {
                         if (appointment.Patient?.User != null)
@@ -166,14 +201,21 @@ namespace Barangay.Pages.Doctor
                         {
                             appointment.DependentFullName = _encryptionService.DecryptForUser(appointment.DependentFullName, User);
                         }
+                        
+                        // Decrypt doctor name if available
+                        if (appointment.Doctor != null)
+                        {
+                            appointment.Doctor.DecryptSensitiveData(_encryptionService, User);
+                        }
                     }
 
                     // Log each appointment found for debugging
                     foreach (var appointment in ConsultationQueue)
                     {
-                        _logger.LogInformation("Appointment: {Id}, Patient: {Patient}, Status: {Status}, Time: {Time}", 
+                        _logger.LogInformation("Appointment: {Id}, Patient: {Patient}, Doctor: {Doctor}, Status: {Status}, Time: {Time}", 
                             appointment.Id, 
                             appointment.PatientName ?? "Unknown", 
+                            appointment.Doctor?.FullName ?? appointment.DoctorId ?? "Unknown",
                             appointment.Status, 
                             appointment.AppointmentTime);
                     }
@@ -191,6 +233,34 @@ namespace Barangay.Pages.Doctor
 
                         _logger.LogInformation("No appointments found for doctor {DoctorId}. Total appointments today: {TotalToday}, Appointments for other doctors today or upcoming: {OtherDoctors}", 
                             doctorId, totalAppointmentsToday, appointmentsForOtherDoctors);
+
+                        // If there are appointments but none for this doctor, show them anyway for debugging
+                        if (totalAppointmentsToday > 0 && appointmentsForOtherDoctors > 0)
+                        {
+                            _logger.LogInformation("Found appointments for other doctors. Loading them for debugging...");
+                            
+                            // Load appointments for other doctors to help with debugging
+                            var otherDoctorAppointments = await _context.Appointments
+                                .Include(a => a.Patient)
+                                    .ThenInclude(p => p.User)
+                                .Where(a => a.AppointmentDate.Date >= today 
+                                           && a.DoctorId != doctorId 
+                                           && validStatuses.Contains(a.Status))
+                                .OrderBy(a => a.AppointmentDate)
+                                .ThenBy(a => a.AppointmentTime)
+                                .Take(5) // Limit to 5 for debugging
+                                .ToListAsync();
+
+                            if (otherDoctorAppointments.Any())
+                            {
+                                _logger.LogInformation("Found {Count} appointments for other doctors", otherDoctorAppointments.Count);
+                                foreach (var apt in otherDoctorAppointments)
+                                {
+                                    _logger.LogInformation("Other doctor appointment: ID={Id}, DoctorId={DoctorId}, Patient={Patient}, Date={Date}, Status={Status}", 
+                                        apt.Id, apt.DoctorId, apt.PatientName, apt.AppointmentDate, apt.Status);
+                                }
+                            }
+                        }
 
                         if (totalAppointmentsToday > 0)
                         {
@@ -306,11 +376,32 @@ namespace Barangay.Pages.Doctor
                     record.DecryptSensitiveData(_encryptionService, User);
                 }
 
-                // Load HEEADSSS Assessment data
+                // Load HEEADSSS Assessment data - prioritize by appointment ID, then fallback to user ID
+                _logger.LogInformation("Loading HEEADSSS assessment for appointment {AppointmentId} and patient {PatientId}", AppointmentId, patientId);
+                
                 HEEADSSSAssessment = await _context.HEEADSSSAssessments
-                    .Where(h => h.UserId == patientId)
+                    .Where(h => h.AppointmentId == AppointmentId.ToString())
                     .OrderByDescending(h => h.CreatedAt)
                     .FirstOrDefaultAsync();
+                
+                if (HEEADSSSAssessment == null)
+                {
+                    _logger.LogInformation("No HEEADSSS assessment found for appointment {AppointmentId}, trying user ID {PatientId}", AppointmentId, patientId);
+                    HEEADSSSAssessment = await _context.HEEADSSSAssessments
+                        .Where(h => h.UserId == patientId)
+                        .OrderByDescending(h => h.CreatedAt)
+                        .FirstOrDefaultAsync();
+                }
+                
+                if (HEEADSSSAssessment != null)
+                {
+                    _logger.LogInformation("Found HEEADSSS assessment {AssessmentId} for appointment {AssessmentAppointmentId}, user {UserId}", 
+                        HEEADSSSAssessment.Id, HEEADSSSAssessment.AppointmentId, HEEADSSSAssessment.UserId);
+                }
+                else
+                {
+                    _logger.LogInformation("No HEEADSSS assessment found for appointment {AppointmentId} or user {PatientId}", AppointmentId, patientId);
+                }
 
                 // Decrypt HEEADSSS assessment data for display
                 if (HEEADSSSAssessment != null)
@@ -328,7 +419,7 @@ namespace Barangay.Pages.Doctor
                     HEEADSSSAssessment.HomeFamilyProblems = SafeDecrypt(HEEADSSSAssessment.HomeFamilyProblems);
                     HEEADSSSAssessment.HomeParentalListening = SafeDecrypt(HEEADSSSAssessment.HomeParentalListening);
                     HEEADSSSAssessment.SchoolPerformance = SafeDecrypt(HEEADSSSAssessment.SchoolPerformance);
-                    HEEADSSSAssessment.AttendanceIssues = SafeDecrypt(HEEADSSSAssessment.AttendanceIssues);
+                    // AttendanceIssues is now a boolean field, no need to decrypt
                     HEEADSSSAssessment.CareerPlans = SafeDecrypt(HEEADSSSAssessment.CareerPlans);
                     HEEADSSSAssessment.EducationCurrentlyStudying = SafeDecrypt(HEEADSSSAssessment.EducationCurrentlyStudying);
                     HEEADSSSAssessment.Hobbies = SafeDecrypt(HEEADSSSAssessment.Hobbies);
@@ -336,12 +427,9 @@ namespace Barangay.Pages.Doctor
                     HEEADSSSAssessment.ScreenTime = SafeDecrypt(HEEADSSSAssessment.ScreenTime);
                     HEEADSSSAssessment.ActivitiesRegularExercise = SafeDecrypt(HEEADSSSAssessment.ActivitiesRegularExercise);
                     HEEADSSSAssessment.DietDescription = SafeDecrypt(HEEADSSSAssessment.DietDescription);
-                    HEEADSSSAssessment.WeightConcerns = SafeDecrypt(HEEADSSSAssessment.WeightConcerns);
-                    HEEADSSSAssessment.SubstanceUse = SafeDecrypt(HEEADSSSAssessment.SubstanceUse);
+                    // WeightConcerns and SubstanceUse are now boolean fields, no need to decrypt
                     HEEADSSSAssessment.DrugsTobaccoUse = SafeDecrypt(HEEADSSSAssessment.DrugsTobaccoUse);
-                    HEEADSSSAssessment.SuicidalThoughts = SafeDecrypt(HEEADSSSAssessment.SuicidalThoughts);
-                    HEEADSSSAssessment.FeelsSafeAtHome = SafeDecrypt(HEEADSSSAssessment.FeelsSafeAtHome);
-                    HEEADSSSAssessment.SexualActivity = SafeDecrypt(HEEADSSSAssessment.SexualActivity);
+                    // SuicidalThoughts, FeelsSafeAtHome, and SexualActivity are now boolean fields, no need to decrypt
                     HEEADSSSAssessment.SexualOrientation = SafeDecrypt(HEEADSSSAssessment.SexualOrientation);
                     HEEADSSSAssessment.SexualityPregnancyExperience = SafeDecrypt(HEEADSSSAssessment.SexualityPregnancyExperience);
                     HEEADSSSAssessment.SexualitySTIExperience = SafeDecrypt(HEEADSSSAssessment.SexualitySTIExperience);
@@ -350,11 +438,15 @@ namespace Barangay.Pages.Doctor
                     HEEADSSSAssessment.AssessedBy = SafeDecrypt(HEEADSSSAssessment.AssessedBy);
                 }
 
-                // Load NCD Risk Assessment data
+                // Load NCD Risk Assessment data - prioritize by appointment ID, then fallback to user ID
                 NCDRiskAssessment = await _context.NCDRiskAssessments
-                    .Where(n => n.UserId == patientId)
+                    .Where(n => n.AppointmentId == AppointmentId)
                     .OrderByDescending(n => n.CreatedAt)
-                    .FirstOrDefaultAsync();
+                    .FirstOrDefaultAsync()
+                    ?? await _context.NCDRiskAssessments
+                        .Where(n => n.UserId == patientId)
+                        .OrderByDescending(n => n.CreatedAt)
+                        .FirstOrDefaultAsync();
 
                 // Decrypt NCD assessment data for display
                 if (NCDRiskAssessment != null)
@@ -392,14 +484,18 @@ namespace Barangay.Pages.Doctor
                     NCDRiskAssessment.Designation = SafeDecrypt(NCDRiskAssessment.Designation);
                     NCDRiskAssessment.RiskStatus = SafeDecrypt(NCDRiskAssessment.RiskStatus);
                     NCDRiskAssessment.ChestPain = SafeDecrypt(NCDRiskAssessment.ChestPain);
-                    NCDRiskAssessment.CreatedAt = SafeDecrypt(NCDRiskAssessment.CreatedAt);
+                    // CreatedAt is now a DateTime, no decryption needed
                 }
 
-                // Load Adolescent Health Information
+                // Load Adolescent Health Information - prioritize by appointment ID, then fallback to user ID
                 AdolescentHealthInfo = await _context.AdolescentHealthInfo
-                    .Where(a => a.UserId == patientId)
+                    .Where(a => a.AppointmentId == AppointmentId.ToString())
                     .OrderByDescending(a => a.CreatedAt)
-                    .FirstOrDefaultAsync();
+                    .FirstOrDefaultAsync()
+                    ?? await _context.AdolescentHealthInfo
+                        .Where(a => a.UserId == patientId)
+                        .OrderByDescending(a => a.CreatedAt)
+                        .FirstOrDefaultAsync();
 
                 // Decrypt Adolescent Health Information data for display
                 if (AdolescentHealthInfo != null)
@@ -440,6 +536,9 @@ namespace Barangay.Pages.Doctor
 
                 // Set flag to indicate data is loaded successfully
                 IsDataLoaded = true;
+                
+                // Only show consultation form if explicitly starting consultation
+                ShowConsultationForm = startConsultation;
         
                 return Page();
             }
@@ -730,6 +829,12 @@ namespace Barangay.Pages.Doctor
             return RedirectToPage();
         }
 
+        public async Task<IActionResult> OnPostStartConsultationAsync(int id)
+        {
+            // Redirect to the same page but with startConsultation=true
+            return RedirectToPage("/Doctor/Consultation", new { id = id, startConsultation = true });
+        }
+
 
 
         // Helper method to get the current doctor's ID from claims
@@ -759,6 +864,7 @@ namespace Barangay.Pages.Doctor
                 return string.Empty;
             }
             
+            _logger.LogInformation("Successfully identified doctor with ID: {UserId}", userId);
             return userId;
         }
 
@@ -769,6 +875,7 @@ namespace Barangay.Pages.Doctor
             
             if (!string.IsNullOrEmpty(doctorId))
             {
+                _logger.LogInformation("Primary method found doctor ID: {DoctorId}", doctorId);
                 return doctorId;
             }
 
@@ -784,6 +891,18 @@ namespace Barangay.Pages.Doctor
                     _logger.LogInformation("Fallback: User {UserId} is confirmed as doctor", currentUser.Id);
                     return currentUser.Id;
                 }
+                else
+                {
+                    _logger.LogWarning("Fallback: User {UserId} is not in Doctor or Head Doctor role", currentUser.Id);
+                    
+                    // Check what roles the user actually has
+                    var userRoles = await _userManager.GetRolesAsync(currentUser);
+                    _logger.LogInformation("User {UserId} has roles: {Roles}", currentUser.Id, string.Join(", ", userRoles));
+                }
+            }
+            else
+            {
+                _logger.LogWarning("Fallback: Could not get current user from UserManager");
             }
 
             return string.Empty;
@@ -814,7 +933,14 @@ namespace Barangay.Pages.Doctor
         // Helper method to check if HEEADSSS assessment has meaningful data
         public bool HasHEEADSSSData()
         {
-            if (HEEADSSSAssessment == null) return false;
+            if (HEEADSSSAssessment == null) 
+            {
+                _logger.LogInformation("HEEADSSS Assessment is null");
+                return false;
+            }
+
+            _logger.LogInformation("Checking HEEADSSS Assessment {AssessmentId} - AppointmentId: {AssessmentAppointmentId}, Current Appointment: {CurrentAppointmentId}", 
+                HEEADSSSAssessment.Id, HEEADSSSAssessment.AppointmentId, AppointmentId);
 
             // Check if any meaningful data exists (not just default/empty values or meaningless entries)
             var hasMeaningfulData = false;
@@ -857,14 +983,15 @@ namespace Barangay.Pages.Doctor
             // Check boolean fields for "true" values
             if (!hasMeaningfulData)
             {
-                hasMeaningfulData = HEEADSSSAssessment.AttendanceIssues == "true" ||
-                                   HEEADSSSAssessment.WeightConcerns == "true" ||
-                                   HEEADSSSAssessment.SubstanceUse == "true" ||
-                                   HEEADSSSAssessment.SuicidalThoughts == "true" ||
-                                   HEEADSSSAssessment.FeelsSafeAtHome == "true" ||
-                                   HEEADSSSAssessment.SexualActivity == "true";
+                hasMeaningfulData = HEEADSSSAssessment.AttendanceIssues == true ||
+                                   HEEADSSSAssessment.WeightConcerns == true ||
+                                   HEEADSSSAssessment.SubstanceUse == true ||
+                                   HEEADSSSAssessment.SuicidalThoughts == true ||
+                                   HEEADSSSAssessment.FeelsSafeAtHome == true ||
+                                   HEEADSSSAssessment.SexualActivity == true;
             }
 
+            _logger.LogInformation("HEEADSSS Assessment {AssessmentId} has meaningful data: {HasData}", HEEADSSSAssessment.Id, hasMeaningfulData);
             return hasMeaningfulData;
         }
 
@@ -872,6 +999,15 @@ namespace Barangay.Pages.Doctor
         public bool HasNCDData()
         {
             if (NCDRiskAssessment == null) return false;
+
+            // Check if this assessment is specifically for this appointment
+            if (AppointmentId.HasValue && NCDRiskAssessment.AppointmentId.HasValue)
+            {
+                if (NCDRiskAssessment.AppointmentId != AppointmentId)
+                {
+                    return false; // This assessment is not for this appointment
+                }
+            }
 
             // Check if any meaningful data exists (not just default/empty values or meaningless entries)
             var hasMeaningfulData = false;

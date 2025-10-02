@@ -21,6 +21,21 @@ namespace Barangay.Models
         [Encrypted]
         public string? FamilyNo { get; set; }
         
+        [Encrypted]
+        public string? IsNHPTS { get; set; }
+        
+        [Encrypted]
+        public string? Is4Ps { get; set; }
+        
+        [Encrypted]
+        public string? IsPhilHealthBeneficiaryOnly { get; set; }
+        
+        [Encrypted]
+        public string? IsOwnPhilHealth { get; set; }
+        
+        [Encrypted]
+        public string? PhilHealthPIN { get; set; }
+        
         // Personal Information 
         [Encrypted]
         public string? FullName { get; set; }
@@ -146,8 +161,7 @@ namespace Barangay.Models
         [Encrypted]
         public string? SchoolPerformance { get; set; }
         
-        [Encrypted]
-        public string? AttendanceIssues { get; set; }
+        public bool? AttendanceIssues { get; set; }
         
         [Encrypted]
         public string? CareerPlans { get; set; }
@@ -171,11 +185,9 @@ namespace Barangay.Models
         [Encrypted]
         public string? DietDescription { get; set; }
         
-        [Encrypted]
-        public string? WeightConcerns { get; set; }
+        public bool? WeightConcerns { get; set; }
         
-        [Encrypted]
-        public string? EatingDisorderSymptoms { get; set; }
+        public bool? EatingDisorderSymptoms { get; set; }
         
         [Encrypted]
         public string? EatingBodyImageSatisfaction { get; set; }
@@ -206,8 +218,7 @@ namespace Barangay.Models
         public string? ActivitiesScreenTime { get; set; }
         
         // DRUGS
-        [Encrypted]
-        public string? SubstanceUse { get; set; }
+        public bool? SubstanceUse { get; set; }
         
         [Encrypted]
         public string? SubstanceType { get; set; }
@@ -225,8 +236,7 @@ namespace Barangay.Models
         [Encrypted]
         public string? DatingRelationships { get; set; }
         
-        [Encrypted]
-        public string? SexualActivity { get; set; }
+        public bool? SexualActivity { get; set; }
         
         [Encrypted]
         public string? SexualOrientation { get; set; }
@@ -271,24 +281,18 @@ namespace Barangay.Models
         public string? SexualityHarassment { get; set; }
         
         // SUICIDE/DEPRESSION
-        [Encrypted]
-        public string? MoodChanges { get; set; }
+        public bool? MoodChanges { get; set; }
         
-        [Encrypted]
-        public string? SuicidalThoughts { get; set; }
+        public bool? SuicidalThoughts { get; set; }
         
-        [Encrypted]
-        public string? SelfHarmBehavior { get; set; }
+        public bool? SelfHarmBehavior { get; set; }
         
         // SAFETY
-        [Encrypted]
-        public string? FeelsSafeAtHome { get; set; }
+        public bool? FeelsSafeAtHome { get; set; }
         
-        [Encrypted]
-        public string? FeelsSafeAtSchool { get; set; }
+        public bool? FeelsSafeAtSchool { get; set; }
         
-        [Encrypted]
-        public string? ExperiencedBullying { get; set; }
+        public bool? ExperiencedBullying { get; set; }
         
         // STRENGTHS
         [Encrypted]

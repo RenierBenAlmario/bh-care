@@ -397,7 +397,7 @@ namespace Barangay.Pages.Admin
                     heeadsssAssessment.ActivitiesScreenTime = formData["activitiesScreenTime"].ToString();
                 
                 if (formData.ContainsKey("substanceUse"))
-                    heeadsssAssessment.SubstanceUse = formData["substanceUse"].ToString();
+                    heeadsssAssessment.SubstanceUse = bool.Parse(formData["substanceUse"].ToString());
                 
                 if (formData.ContainsKey("substanceType"))
                     heeadsssAssessment.SubstanceType = formData["substanceType"].ToString();
@@ -415,7 +415,7 @@ namespace Barangay.Pages.Admin
                     heeadsssAssessment.DatingRelationships = formData["datingRelationships"].ToString();
                 
                 if (formData.ContainsKey("sexualActivity"))
-                    heeadsssAssessment.SexualActivity = formData["sexualActivity"].ToString();
+                    heeadsssAssessment.SexualActivity = bool.Parse(formData["sexualActivity"].ToString());
                 
                 if (formData.ContainsKey("sexualOrientation"))
                     heeadsssAssessment.SexualOrientation = formData["sexualOrientation"].ToString();
@@ -442,22 +442,22 @@ namespace Barangay.Pages.Admin
                     heeadsssAssessment.SexualityProtection = formData["sexualityProtection"].ToString();
                 
                 if (formData.ContainsKey("moodChanges"))
-                    heeadsssAssessment.MoodChanges = formData["moodChanges"].ToString();
+                    heeadsssAssessment.MoodChanges = bool.Parse(formData["moodChanges"].ToString());
                 
                 if (formData.ContainsKey("suicidalThoughts"))
-                    heeadsssAssessment.SuicidalThoughts = formData["suicidalThoughts"].ToString();
+                    heeadsssAssessment.SuicidalThoughts = bool.Parse(formData["suicidalThoughts"].ToString());
                 
                 if (formData.ContainsKey("selfHarmBehavior"))
-                    heeadsssAssessment.SelfHarmBehavior = formData["selfHarmBehavior"].ToString();
+                    heeadsssAssessment.SelfHarmBehavior = bool.Parse(formData["selfHarmBehavior"].ToString());
                 
                 if (formData.ContainsKey("feelsSafeAtHome"))
-                    heeadsssAssessment.FeelsSafeAtHome = formData["feelsSafeAtHome"].ToString();
+                    heeadsssAssessment.FeelsSafeAtHome = bool.Parse(formData["feelsSafeAtHome"].ToString());
                 
                 if (formData.ContainsKey("feelsSafeAtSchool"))
-                    heeadsssAssessment.FeelsSafeAtSchool = formData["feelsSafeAtSchool"].ToString();
+                    heeadsssAssessment.FeelsSafeAtSchool = bool.Parse(formData["feelsSafeAtSchool"].ToString());
                 
                 if (formData.ContainsKey("experiencedBullying"))
-                    heeadsssAssessment.ExperiencedBullying = formData["experiencedBullying"].ToString();
+                    heeadsssAssessment.ExperiencedBullying = bool.Parse(formData["experiencedBullying"].ToString());
                 
                 if (formData.ContainsKey("personalStrengths"))
                     heeadsssAssessment.PersonalStrengths = formData["personalStrengths"].ToString();

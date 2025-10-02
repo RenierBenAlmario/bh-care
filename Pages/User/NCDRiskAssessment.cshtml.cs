@@ -533,7 +533,7 @@ namespace Barangay.Pages.User
                     IDNumber = assessment.IDNumber ?? "",
                     IDNo = assessment.IDNo ?? assessment.FamilyNo,
                     
-                    // System Fields
+                    // System Fields - These are now string columns for encryption
                     CreatedAt = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),
                     UpdatedAt = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")
                 };

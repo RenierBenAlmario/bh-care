@@ -134,8 +134,8 @@ namespace Barangay.Pages.Nurse
                     }
 
                     // Set some default values based on common responses
-                    Assessment.FeelsSafeAtHome = "True";
-                    Assessment.FeelsSafeAtSchool = "True";
+                    Assessment.FeelsSafeAtHome = true;
+                    Assessment.FeelsSafeAtSchool = true;
                 }
                 else
                 {
@@ -184,13 +184,13 @@ namespace Barangay.Pages.Nurse
                 }
 
                 // Set substance type to null if substance use is not checked
-                if (Assessment.SubstanceUse != "True")
+                if (Assessment.SubstanceUse != true)
                 {
                     Assessment.SubstanceType = null;
                 }
 
                 // Check for critical responses that might need immediate attention
-                bool hasCriticalResponses = Assessment.SuicidalThoughts == "True" || Assessment.SelfHarmBehavior == "True";
+                bool hasCriticalResponses = Assessment.SuicidalThoughts == true || Assessment.SelfHarmBehavior == true;
                 
                 // Encrypt sensitive data before saving
                 Assessment.EncryptSensitiveData(_encryptionService);

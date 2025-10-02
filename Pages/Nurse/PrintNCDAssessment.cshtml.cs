@@ -108,10 +108,7 @@ namespace Barangay.Pages.Nurse
                 {
                     assessment.CivilStatus = _encryptionService.DecryptForUser(assessment.CivilStatus, User);
                 }
-                if (!string.IsNullOrEmpty(assessment.Birthday) && _encryptionService.IsEncrypted(assessment.Birthday))
-                {
-                    assessment.Birthday = _encryptionService.DecryptForUser(assessment.Birthday, User);
-                }
+                // Birthday is now a DateTime, no decryption needed
                 if (!string.IsNullOrEmpty(assessment.Kasarian) && _encryptionService.IsEncrypted(assessment.Kasarian))
                 {
                     assessment.Kasarian = _encryptionService.DecryptForUser(assessment.Kasarian, User);
@@ -400,14 +397,7 @@ namespace Barangay.Pages.Nurse
                 }
                 
                 // System Fields
-                if (!string.IsNullOrEmpty(assessment.CreatedAt) && _encryptionService.IsEncrypted(assessment.CreatedAt))
-                {
-                    assessment.CreatedAt = _encryptionService.DecryptForUser(assessment.CreatedAt, User);
-                }
-                if (!string.IsNullOrEmpty(assessment.UpdatedAt) && _encryptionService.IsEncrypted(assessment.UpdatedAt))
-                {
-                    assessment.UpdatedAt = _encryptionService.DecryptForUser(assessment.UpdatedAt, User);
-                }
+                // CreatedAt and UpdatedAt are now DateTime, no decryption needed
                 if (!string.IsNullOrEmpty(assessment.AppointmentType) && _encryptionService.IsEncrypted(assessment.AppointmentType))
                 {
                     assessment.AppointmentType = _encryptionService.DecryptForUser(assessment.AppointmentType, User);

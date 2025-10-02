@@ -194,7 +194,7 @@
                         <input type="text" id="hanapbuhay" name="Occupation">
                     </div>
                     <div class="form-group">
-                        <label for="estado-sibil">Estado Sivil:</label>
+                        <label for="estado-sibil">Estado Sibil:</label>
                         <input type="text" id="estado-sibil" name="CivilStatus">
                     </div>
                 </div>
@@ -254,9 +254,9 @@
                     </tbody>
                 </table>
 
-                <h3 style="margin-top: 2rem;">2. Pananakit ng Dibdib (kung hindi pumunta ka sa Q2.8, Kapag Oo ituloy lang ang mga sumusunod na tanong.) </h3>
+                <h3 style="margin-top: 2rem;">2. Pananakit ng Dibdib </h3>
                 <div class="form-group">
-                    <label>2.1 Nakakaramdam ka ba ng Pananakit o kabigatan sa dibdib?</label>
+                    <label>2.1 Nakakaramdam ka ba ng Pananakit o kabigatan sa dibdib? (kung hindi pumunta ka sa Q2.8, Kapag Oo ituloy lang ang mga sumusunod na tanong.)</label>
                     <div class="radio-group">
                         <label><input type="radio" name="pananakit_2_1" value="Oo"> Oo</label>
                         <label><input type="radio" name="pananakit_2_1" value="Hindi"> Hindi</label>
@@ -304,6 +304,7 @@
                         <label><input type="radio" name="pananakit_2_7" value="Hindi"> Hindi</label>
                     </div>
                 </div>
+                <h4 style="margin-top: 2rem;"> Kung Oo sagot sa Q2.4-2.7, maaring may angina o impending heart attack. Dalhin kaagad sa doktor </h4>
                 <div class="form-group">
                     <label>2.8 Nakakaramdam ka ba hirap sa pagsasalita, panghihina ng braso at/o binti o pamamanhid sa kalahating bahagi ng katawan? kung Oo,dalhin agad ang pasyente sa Doktor.</label>
                     <div class="radio-group">
@@ -322,61 +323,40 @@
                 <h2>Part III. Assessment of Risk Factors</h2>
                 
                 <h3>A. Non-Modifiable Risk Factors</h3>
-                <h4>A.1 Sakit sa pamilya (first degree relatives)</h4>
+                <h4>1 Sakit sa pamilya (first degree relatives)</h4>
                 <div class="form-group">
                     <label>Family history of:</label>
                     <table>
-                        <thead>
-                            <tr>
-                                <th>Sakit</th>
-                                <th>Ama</th>
-                                <th>Ina</th>
-                                <th>Kapatid</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                       
+                     
                             <tr>
                                 <td>Mataas na presyon</td>
                                 <td><input type="checkbox" name="FamilyHistoryHypertensionFather" value="true"></td>
-                                <td><input type="checkbox" name="FamilyHistoryHypertensionMother" value="true"></td>
-                                <td><input type="checkbox" name="FamilyHistoryHypertensionSibling" value="true"></td>
-                            </tr>
+                                </tr>
                             <tr>
                                 <td>Sakit sa puso</td>
                                 <td><input type="checkbox" name="FamilyHistoryHeartDiseaseFather" value="true"></td>
-                                <td><input type="checkbox" name="FamilyHistoryHeartDiseaseMother" value="true"></td>
-                                <td><input type="checkbox" name="FamilyHistoryHeartDiseaseSibling" value="true"></td>
-                            </tr>
+                                </tr>
                             <tr>
                                 <td>Stroke</td>
                                 <td><input type="checkbox" name="FamilyHistoryStrokeFather" value="true"></td>
-                                <td><input type="checkbox" name="FamilyHistoryStrokeMother" value="true"></td>
-                                <td><input type="checkbox" name="FamilyHistoryStrokeSibling" value="true"></td>
-                            </tr>
+                                </tr>
                             <tr>
                                 <td>Diabetes</td>
                                 <td><input type="checkbox" name="FamilyHistoryDiabetesFather" value="true"></td>
-                                <td><input type="checkbox" name="FamilyHistoryDiabetesMother" value="true"></td>
-                                <td><input type="checkbox" name="FamilyHistoryDiabetesSibling" value="true"></td>
-                            </tr>
+                                </tr>
                             <tr>
                                 <td>Kanser</td>
                                 <td><input type="checkbox" name="FamilyHistoryCancerFather" value="true"></td>
-                                <td><input type="checkbox" name="FamilyHistoryCancerMother" value="true"></td>
-                                <td><input type="checkbox" name="FamilyHistoryCancerSibling" value="true"></td>
-                            </tr>
+                                </tr>
                             <tr>
                                 <td>Sakit sa baga na hindi nakakahawa</td>
                                 <td><input type="checkbox" name="FamilyHistoryLungDiseaseFather" value="true"></td>
-                                <td><input type="checkbox" name="FamilyHistoryLungDiseaseMother" value="true"></td>
-                                <td><input type="checkbox" name="FamilyHistoryLungDiseaseSibling" value="true"></td>
-                            </tr>
+                                 </tr>
                             <tr>
                                 <td>Sakit sa bato</td>
                                 <td><input type="checkbox" name="FamilyHistoryKidneyDiseaseFather" value="true"></td>
-                                <td><input type="checkbox" name="FamilyHistoryKidneyDiseaseMother" value="true"></td>
-                                <td><input type="checkbox" name="FamilyHistoryKidneyDiseaseSibling" value="true"></td>
-                            </tr>
+                                </tr>
                         </tbody>
                     </table>
                     <label for="family-history-other" style="margin-top: 1rem;">Iba pang sakit:</label>
@@ -422,6 +402,7 @@
                 </div>
                 <div class="form-group conditional-section" id="alcohol-questions">
                     <label>Gaano karami sa isang araw?</label>
+                
                     <table>
                         <thead>
                             <tr>
@@ -459,18 +440,18 @@
                     </table>
                 </div>
                 <div class="form-group conditional-section" id="alcohol-questions-3">
-                    <label>Gaano kadalas sa isang linggo?</label>
-                    <div class="checkbox-group">
-                        <label><input type="radio" name="AlcoholFrequency" value="1-3 beses"> 1–3 beses/linggo</label>
-                        <label><input type="radio" name="AlcoholFrequency" value="4x"> 4x sa isang linggo</label>
-                        <label><input type="radio" name="AlcoholFrequency" value=">=5x"> ≥ 5x sa isang linggo</label>
+                    <label>Gaano kadalas ka umiinum ng alak sa isang linggo?</label>
+                     <div class="radio-group">
+                        <label><input type="radio" name="AlcoholVolume" value="1-3 beses/linggo"> 1-3 beses/linggo</label>
+                        <label><input type="radio" name="AlcoholVolume" value="apat na beses sa isang linggo"> apat na beses sa isang linggo</label>
+                       <label><input type="radio" name="AlcoholVolume" value="limang beses o higit sa isang linggo"> limang beses o higit sa isang linggo</label>
                     </div>
                 </div>
                 <div class="form-group conditional-section" id="alcohol-questions-4">
-                    <label>Sa isang okasyon, umiinom ka ba ng 6 o higit pang bote ng beer o 4 o higit pang baso ng wine/whisky/gin/brandy?</label>
+                    <label>Sa isang okasyon, ilang bote ng alak ang naiinom mo?</label>
                     <div class="radio-group">
-                        <label><input type="radio" name="alcohol_okasyon" value="Oo"> Oo</label>
-                        <label><input type="radio" name="alcohol_okasyon" value="Hindi"> Hindi</label>
+                        <label><input type="radio" name="alcohol_okasyon" value=">4"> >4</label>
+                        <label><input type="radio" name="alcohol_okasyon" value=">4"> >5></label>
                     </div>
                 </div>
 
@@ -481,6 +462,11 @@
                         <label><input type="radio" name="ehersisyo_regular" value="mayroon"> Mayroon</label>
                         <label><input type="radio" name="ehersisyo_regular" value="wala"> Wala</label>
                     </div>
+                    <label>2. Gaano kadami ang nauubos sa isang araw?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="ehersisyo_regular" value="mayroon"> ≤ 30 minuto</label>
+                        <label><input type="radio" name="ehersisyo_regular" value="wala"> > 30 minuto</label>
+                    </div> 
                 </div>
 
                 <h4>B.4 Paninigarilyo</h4>
@@ -504,10 +490,17 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Nanatili sa usok ng sigarilyo (secondhand smoke)?</label>
+                    <label>Hindi, pero lantad ka ba sa usok ng sigarilyo?</label>
                     <div class="radio-group">
                         <label><input type="radio" name="sigarilyo_usok" value="Oo"> Oo</label>
                         <label><input type="radio" name="sigarilyo_usok" value="Hindi"> Hindi</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Ikaw ba ay nanatili sa usok ng sigarilyo?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="sigarilyo_sticks" value="Oo"> Oo</label>
+                        <label><input type="radio" name="sigarilyo_sticks" value="Hindi"> Hindi</label>
                     </div>
                 </div>
 

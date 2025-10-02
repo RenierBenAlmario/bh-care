@@ -240,7 +240,8 @@ if (existing != null)
     // Map posted values onto existing entity
     _context.Entry(existing).CurrentValues.SetValues(Assessment);
     // Preserve original CreatedAt if any, update UpdatedAt
-    existing.CreatedAt = string.IsNullOrWhiteSpace(existing.CreatedAt) ? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") : existing.CreatedAt;
+    if (string.IsNullOrEmpty(existing.CreatedAt))
+        existing.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
     existing.UpdatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
     // Ensure cancer type cleared when not applicable
     if (existing.HasCancer != "true") { existing.CancerType = null; }

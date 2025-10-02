@@ -223,10 +223,7 @@ namespace Barangay.Pages.Nurse
                 {
                     existingAssessment.SchoolPerformance = _encryptionService.DecryptForUser(existingAssessment.SchoolPerformance, User);
                 }
-                if (!string.IsNullOrEmpty(existingAssessment.AttendanceIssues) && _encryptionService.IsEncrypted(existingAssessment.AttendanceIssues))
-                {
-                    existingAssessment.AttendanceIssues = _encryptionService.DecryptForUser(existingAssessment.AttendanceIssues, User);
-                }
+                // AttendanceIssues is now a boolean field, no need to decrypt
                 if (!string.IsNullOrEmpty(existingAssessment.CareerPlans) && _encryptionService.IsEncrypted(existingAssessment.CareerPlans))
                 {
                     existingAssessment.CareerPlans = _encryptionService.DecryptForUser(existingAssessment.CareerPlans, User);

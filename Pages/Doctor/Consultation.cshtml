@@ -46,7 +46,8 @@
     {
         <div class="card shadow-sm">
             <div class="card-header bg-primary text-white">
-                <h4 class="mb-0">Consultation Queue (Today & Upcoming)</h4>
+                <h4 class="mb-0">All Appointments (Today & Upcoming)</h4>
+                <small class="text-light">All doctors can view and start consultations for any appointment</small>
             </div>
             <div class="card-body">
                 @if (Model.ConsultationQueue != null && Model.ConsultationQueue.Any())
@@ -56,6 +57,7 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>Patient Name</th>
+                                    <th>Assigned Doctor</th>
                                     <th>Time</th>
                                     <th>Type</th>
                                     <th>Status</th>
@@ -66,7 +68,25 @@
                                 @foreach (var appointment in Model.ConsultationQueue)
                                 {
                                     <tr>
-                                        <td>@appointment.Patient.User.FullName</td>
+                                        <td>
+                                            @{
+                                                // Show the actual person booked for the appointment
+                                                string displayName = !string.IsNullOrEmpty(appointment.DependentFullName) 
+                                                    ? appointment.DependentFullName 
+                                                    : appointment.PatientName;
+                                            }
+                                            @displayName
+                                        </td>
+                                        <td>
+                                            @if (appointment.Doctor != null)
+                                            {
+                                                <span class="text-primary">@appointment.Doctor.FullName</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Not assigned</span>
+                                            }
+                                        </td>
                                         <td>@(appointment.AppointmentTime.ToString(@"hh\:mm"))</td>
                                         <td>@appointment.Type</td>
                                         <td>
@@ -85,7 +105,7 @@
                                             <span class="badge @badgeClass">@appointment.Status</span>
                                         </td>
                                         <td>
-                                            <a class="btn btn-sm btn-primary" asp-page="/Doctor/Consultation" asp-route-id="@appointment.Id" asp-route-patientId="@appointment.PatientId">
+                                            <a class="btn btn-sm btn-primary" asp-page="/Doctor/Consultation" asp-route-id="@appointment.Id" asp-route-patientId="@appointment.PatientId" asp-route-startConsultation="true">
                                                 <i class="fas fa-play-circle me-1"></i> Start Consultation
                                             </a>
                                         </td>
@@ -99,8 +119,8 @@
                 {
                     <div class="text-center py-5">
                         <i class="fas fa-users fa-3x text-muted mb-3"></i>
-                        <h4 class="text-muted">No patients in the consultation queue.</h4>
-                        <p class="text-muted">Today's and upcoming scheduled appointments will appear here.</p>
+                        <h4 class="text-muted">No appointments scheduled.</h4>
+                        <p class="text-muted">Today's and upcoming scheduled appointments will appear here for all doctors.</p>
                     </div>
                 }
             </div>
@@ -123,7 +143,13 @@
                             <h5 class="mb-0">Patient Information</h5>
                         </div>
                         <div class="card-body">
-                            <h4>@Model.Patient?.FullName</h4>
+                            @{
+                                // Show the actual person booked for the appointment
+                                string patientDisplayName = !string.IsNullOrEmpty(Model.Appointment?.DependentFullName) 
+                                    ? Model.Appointment.DependentFullName 
+                                    : Model.Patient?.FullName ?? "Unknown Patient";
+                            }
+                            <h4>@patientDisplayName</h4>
                             <p><strong>Address:</strong> @(string.IsNullOrEmpty(Model.Patient?.Address) ? "Not specified" : Model.Patient.Address)</p>
                             <p><strong>Contact #:</strong> @(string.IsNullOrEmpty(Model.Patient?.ContactNumber) ? "Not specified" : Model.Patient.ContactNumber)</p>
                             <p><strong>Emergency Contact #:</strong> @(string.IsNullOrEmpty(Model.Patient?.EmergencyContactNumber) ? "Not specified" : Model.Patient.EmergencyContactNumber)</p>
@@ -153,92 +179,19 @@
                     </div>
                 </div>
 
-                <!-- Adolescent Health Information Card -->
-                <div class="card mb-4">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Adolescent Health Information</h5>
-                        @if (Model.AdolescentHealthInfo == null)
-                        {
-                            <a href="/Doctor/CreateAdolescentHealthInfo?appointmentId=@Model.AppointmentId" class="btn btn-sm btn-outline-primary">
-                                <i class="fas fa-plus me-1"></i> Add Health Info
-                            </a>
-                        }
-                        else
-                        {
-                            <a href="/Doctor/CreateAdolescentHealthInfo?appointmentId=@Model.AppointmentId" class="btn btn-sm btn-outline-primary">
-                                <i class="fas fa-edit me-1"></i> Edit
-                            </a>
-                        }
-                    </div>
-                    <div class="card-body">
-                        @if (Model.AdolescentHealthInfo != null)
-                        {
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h6>Measurements</h6>
-                                    <p><strong>Height:</strong> @(string.IsNullOrEmpty(Model.AdolescentHealthInfo.HeightCm) ? "Not recorded" : $"{Model.AdolescentHealthInfo.HeightCm} cm")</p>
-                                    <p><strong>Weight:</strong> @(string.IsNullOrEmpty(Model.AdolescentHealthInfo.WeightKg) ? "Not recorded" : $"{Model.AdolescentHealthInfo.WeightKg} kg")</p>
-                                    <p><strong>BMI:</strong> @(string.IsNullOrEmpty(Model.AdolescentHealthInfo.BMI) ? "Not calculated" : Model.AdolescentHealthInfo.BMI)</p>
-                                    <p><strong>BMI Category:</strong> @(string.IsNullOrEmpty(Model.AdolescentHealthInfo.BMICategory) ? "Not classified" : Model.AdolescentHealthInfo.BMICategory)</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <h6>Immunization</h6>
-                                    <p><strong>MR/MMR:</strong> @(string.IsNullOrEmpty(Model.AdolescentHealthInfo.MRMMRDateGiven) ? "Not recorded" : Model.AdolescentHealthInfo.MRMMRDateGiven)</p>
-                                    <p><strong>Td:</strong> @(string.IsNullOrEmpty(Model.AdolescentHealthInfo.TdDateGiven) ? "Not recorded" : Model.AdolescentHealthInfo.TdDateGiven)</p>
-                                    <p><strong>HPV:</strong> @(string.IsNullOrEmpty(Model.AdolescentHealthInfo.HPVDateGiven) ? "Not recorded" : Model.AdolescentHealthInfo.HPVDateGiven)</p>
-                                </div>
-                            </div>
-                            <div class="row mt-3">
-                                <div class="col-md-6">
-                                    <h6>Vital Signs</h6>
-                                    <p><strong>Temperature:</strong> @(string.IsNullOrEmpty(Model.AdolescentHealthInfo.Temperature) ? "Not recorded" : $"{Model.AdolescentHealthInfo.Temperature}°C")</p>
-                                    <p><strong>Blood Pressure:</strong> @(string.IsNullOrEmpty(Model.AdolescentHealthInfo.BloodPressure) ? "Not recorded" : Model.AdolescentHealthInfo.BloodPressure)</p>
-                                    <p><strong>Pulse Rate:</strong> @(string.IsNullOrEmpty(Model.AdolescentHealthInfo.PulseRate) ? "Not recorded" : Model.AdolescentHealthInfo.PulseRate)</p>
-                                    <p><strong>Respiratory Rate:</strong> @(string.IsNullOrEmpty(Model.AdolescentHealthInfo.RespiratoryRate) ? "Not recorded" : Model.AdolescentHealthInfo.RespiratoryRate)</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <h6>Clinical Information</h6>
-                                    <p><strong>Chief Complaint:</strong> @(string.IsNullOrEmpty(Model.AdolescentHealthInfo.ChiefComplaint) ? "Not specified" : Model.AdolescentHealthInfo.ChiefComplaint)</p>
-                                    <p><strong>Working Diagnosis:</strong> @(string.IsNullOrEmpty(Model.AdolescentHealthInfo.WorkingDiagnosis) ? "Not diagnosed" : Model.AdolescentHealthInfo.WorkingDiagnosis)</p>
-                                    @if (!string.IsNullOrEmpty(Model.AdolescentHealthInfo.ReferredTo))
-                                    {
-                                        <p><strong>Referred to:</strong> @Model.AdolescentHealthInfo.ReferredTo</p>
-                                    }
-                                </div>
-                            </div>
-                            <div class="row mt-3">
-                                <div class="col-md-12">
-                                    <small class="text-muted">
-                                        <strong>Recorded by:</strong> @(string.IsNullOrEmpty(Model.AdolescentHealthInfo.RecordedBy) ? "Not specified" : Model.AdolescentHealthInfo.RecordedBy) |
-                                        <strong>Date:</strong> @Model.AdolescentHealthInfo.CreatedAt.ToString("MMM dd, yyyy")
-                                    </small>
-                                </div>
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="text-center py-3">
-                                <i class="fas fa-clipboard-list fa-2x text-muted mb-2"></i>
-                                <p class="text-muted">No adolescent health information available for this patient.</p>
-                            </div>
-                        }
-                    </div>
-                </div>
+               
 
                 <!-- HEEADSSS Assessment Card -->
-                <div class="card mb-4">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">HEEADSSS Assessment</h5>
-                        @if (Model.HEEADSSSAssessment != null)
-                        {
+                @if (Model.HasHEEADSSSData())
+                {
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">HEEADSSS Assessment</h5>
                             <a href="/Doctor/EditHEEADSSSAssessment?appointmentId=@Model.AppointmentId" class="btn btn-sm btn-outline-primary">
                                 <i class="fas fa-edit me-1"></i> Edit
                             </a>
-                        }
-                    </div>
-                    <div class="card-body">
-                        @if (Model.HEEADSSSAssessment != null)
-                        {
+                        </div>
+                        <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6">
                                     <h6>Home Environment</h6>
@@ -252,22 +205,22 @@
                                     <p><strong>School Performance:</strong> @(string.IsNullOrEmpty(Model.HEEADSSSAssessment.SchoolPerformance) ? "Not specified" : Model.HEEADSSSAssessment.SchoolPerformance)</p>
                                     <p><strong>Career Plans:</strong> @(string.IsNullOrEmpty(Model.HEEADSSSAssessment.CareerPlans) ? "Not specified" : Model.HEEADSSSAssessment.CareerPlans)</p>
                                     <p><strong>Physical Activity:</strong> @(string.IsNullOrEmpty(Model.HEEADSSSAssessment.PhysicalActivity) ? "Not specified" : Model.HEEADSSSAssessment.PhysicalActivity)</p>
-                                    <p><strong>Attendance Issues:</strong> @(Model.HEEADSSSAssessment.AttendanceIssues == "true" ? "Yes" : "No")</p>
+                                    <p><strong>Attendance Issues:</strong> @(Model.HEEADSSSAssessment.AttendanceIssues == true ? "Yes" : "No")</p>
                                 </div>
                             </div>
                             <div class="row mt-3">
                                 <div class="col-md-6">
                                     <h6>Eating & Substance Use</h6>
                                     <p><strong>Diet Description:</strong> @(string.IsNullOrEmpty(Model.HEEADSSSAssessment.DietDescription) ? "Not specified" : Model.HEEADSSSAssessment.DietDescription)</p>
-                                    <p><strong>Weight Concerns:</strong> @(Model.HEEADSSSAssessment.WeightConcerns == "true" ? "Yes" : "No")</p>
-                                    <p><strong>Substance Use:</strong> @(Model.HEEADSSSAssessment.SubstanceUse == "true" ? "Yes" : "No")</p>
+                                    <p><strong>Weight Concerns:</strong> @(Model.HEEADSSSAssessment.WeightConcerns == true ? "Yes" : "No")</p>
+                                    <p><strong>Substance Use:</strong> @(Model.HEEADSSSAssessment.SubstanceUse == true ? "Yes" : "No")</p>
                                     <p><strong>Drugs/Tobacco Use:</strong> @(string.IsNullOrEmpty(Model.HEEADSSSAssessment.DrugsTobaccoUse) ? "Not specified" : Model.HEEADSSSAssessment.DrugsTobaccoUse)</p>
                                 </div>
                                 <div class="col-md-6">
                                     <h6>Safety & Mental Health</h6>
-                                    <p><strong>Suicidal Thoughts:</strong> @(Model.HEEADSSSAssessment.SuicidalThoughts == "true" ? "Yes" : "No")</p>
-                                    <p><strong>Feels Safe at Home:</strong> @(Model.HEEADSSSAssessment.FeelsSafeAtHome == "true" ? "Yes" : "No")</p>
-                                    <p><strong>Sexual Activity:</strong> @(Model.HEEADSSSAssessment.SexualActivity == "true" ? "Yes" : "No")</p>
+                                    <p><strong>Suicidal Thoughts:</strong> @(Model.HEEADSSSAssessment.SuicidalThoughts == true ? "Yes" : "No")</p>
+                                    <p><strong>Feels Safe at Home:</strong> @(Model.HEEADSSSAssessment.FeelsSafeAtHome == true ? "Yes" : "No")</p>
+                                    <p><strong>Sexual Activity:</strong> @(Model.HEEADSSSAssessment.SexualActivity == true ? "Yes" : "No")</p>
                                     <p><strong>Sexual Orientation:</strong> @(string.IsNullOrEmpty(Model.HEEADSSSAssessment.SexualOrientation) ? "Not specified" : Model.HEEADSSSAssessment.SexualOrientation)</p>
                                 </div>
                             </div>
@@ -288,31 +241,33 @@
                                     <p><strong>Assessment Date:</strong> @(Model.HEEADSSSAssessment.CreatedAt.ToString("MMM dd, yyyy"))</p>
                                 </div>
                             </div>
-                        }
-                        else
-                        {
-                            <div class="text-center py-3">
-                                <i class="fas fa-clipboard-list fa-2x text-muted mb-2"></i>
-                                <p class="text-muted">No HEEADSSS assessment data available for this patient.</p>
-                            </div>
-                        }
+                        </div>
                     </div>
-                </div>
+                }
+                else
+                {
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">HEEADSSS Assessment</h5>
+                        </div>
+                        <div class="card-body text-center py-3">
+                            <i class="fas fa-clipboard-list fa-2x text-muted mb-2"></i>
+                            <p class="text-muted">No HEEADSSS assessment record available for this patient.</p>
+                        </div>
+                    </div>
+                }
 
                 <!-- NCD Risk Assessment Card -->
-                <div class="card mb-4">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">NCD Risk Assessment</h5>
-                        @if (Model.NCDRiskAssessment != null)
-                        {
+                @if (Model.HasNCDData())
+                {
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">NCD Risk Assessment</h5>
                             <a href="/Doctor/CreateNCDAssessment?appointmentId=@Model.AppointmentId" class="btn btn-sm btn-outline-primary">
                                 <i class="fas fa-edit me-1"></i> Edit
                             </a>
-                        }
-                    </div>
-                    <div class="card-body">
-                        @if (Model.NCDRiskAssessment != null)
-                        {
+                        </div>
+                        <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6">
                                     <h6>Medical History</h6>
@@ -417,16 +372,21 @@
                                     </div>
                                 </div>
                             </div>
-                        }
-                        else
-                        {
-                            <div class="text-center py-3">
-                                <i class="fas fa-heartbeat fa-2x text-muted mb-2"></i>
-                                <p class="text-muted">No NCD risk assessment data available for this patient.</p>
-                            </div>
-                        }
+                        </div>
                     </div>
-                </div>
+                }
+                else
+                {
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">NCD Risk Assessment</h5>
+                        </div>
+                        <div class="card-body text-center py-3">
+                            <i class="fas fa-heartbeat fa-2x text-muted mb-2"></i>
+                            <p class="text-muted">No NCD risk assessment record available for this patient.</p>
+                        </div>
+                    </div>
+                }
 
                 <!-- Appointment Info Card -->
                 <div class="card mb-4">
@@ -444,11 +404,13 @@
 
             <!-- Consultation Form -->
             <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">Consultation & Prescription</h5>
-                    </div>
-                    <div class="card-body">
+                @if (Model.ShowConsultationForm)
+                {
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Consultation & Prescription</h5>
+                        </div>
+                        <div class="card-body">
                         <form method="post" id="consultationForm">
                             <input type="hidden" asp-for="AppointmentId" />
                             <input type="hidden" asp-for="PatientId" />
@@ -533,8 +495,28 @@
                                 </div>
                             </div>
                         </form>
+                        </div>
                     </div>
-                </div>
+                }
+                else
+                {
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Start Consultation</h5>
+                        </div>
+                        <div class="card-body text-center py-5">
+                            <i class="fas fa-stethoscope fa-3x text-primary mb-3"></i>
+                            <h4>Ready to Start Consultation?</h4>
+                            <p class="text-muted mb-4">Review the patient information on the left, then click the button below to begin the consultation.</p>
+                            <form method="post" asp-page-handler="StartConsultation">
+                                <input type="hidden" name="id" value="@Model.AppointmentId" />
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-play-circle me-2"></i> Start Consultation
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                }
             </div>
         </div>
     }
@@ -562,7 +544,13 @@
 
         <div style="margin-bottom: 20px;">
             <h3 style="border-bottom: 1px solid #ccc; padding-bottom: 5px;">Patient Information</h3>
-            <p><strong>Name:</strong> @(Model.Patient?.FullName ?? "Not specified")</p>
+            @{
+                // Show the actual person booked for the appointment in print summary
+                string printPatientName = !string.IsNullOrEmpty(Model.Appointment?.DependentFullName) 
+                    ? Model.Appointment.DependentFullName 
+                    : Model.Patient?.FullName ?? "Not specified";
+            }
+            <p><strong>Name:</strong> @printPatientName</p>
             <p><strong>Contact:</strong> @(string.IsNullOrEmpty(Model.Patient?.ContactNumber) ? "Not specified" : Model.Patient.ContactNumber)</p>
             <p><strong>Medical History:</strong> @(string.IsNullOrEmpty(Model.Patient?.MedicalHistory) ? "Not specified" : Model.Patient.MedicalHistory)</p>
         </div>

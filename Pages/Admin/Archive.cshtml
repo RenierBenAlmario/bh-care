@@ -84,7 +84,7 @@
                                     if (!string.IsNullOrEmpty(record.ContactNumber))
                                         family.ContactNumber = record.ContactNumber;
                                     if (string.IsNullOrEmpty(family.LastUpdated))
-                                        family.LastUpdated = record.UpdatedAt?.ToString() ?? record.CreatedAt?.ToString() ?? "";
+                                        family.LastUpdated = record.UpdatedAt ?? "";
                                 }
                             }
                             
@@ -101,7 +101,7 @@
                                     if (string.IsNullOrEmpty(family.ContactNumber) && !string.IsNullOrEmpty(record.ContactNumber))
                                         family.ContactNumber = record.ContactNumber;
                                     if (string.IsNullOrEmpty(family.LastUpdated))
-                                        family.LastUpdated = record.CreatedAt.ToString();
+                                        family.LastUpdated = record.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
                                 }
                             }
                             
@@ -118,7 +118,7 @@
                                     if (string.IsNullOrEmpty(family.ContactNumber) && !string.IsNullOrEmpty(record.Telepono))
                                         family.ContactNumber = record.Telepono;
                                     if (string.IsNullOrEmpty(family.LastUpdated))
-                                        family.LastUpdated = record.CreatedAt?.ToString() ?? record.UpdatedAt?.ToString() ?? "";
+                                        family.LastUpdated = !string.IsNullOrEmpty(record.CreatedAt) ? record.CreatedAt : record.UpdatedAt ?? "N/A";
                                 }
                             }
                             

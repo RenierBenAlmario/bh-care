@@ -129,6 +129,11 @@
                     <label class="form-check-label" for="IsNHPTS">NHPTS</label>
                 </div>
                 <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="Is4Ps" onchange="updateCheckboxValue('Is4Ps', 'Assessment.Is4Ps')" />
+                    <input type="hidden" asp-for="Assessment.Is4Ps" />
+                    <label class="form-check-label" for="Is4Ps">4Ps</label>
+                </div>
+                <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="IsPhilHealthBeneficiaryOnly" onchange="updateCheckboxValue('IsPhilHealthBeneficiaryOnly', 'Assessment.IsPhilHealthBeneficiaryOnly')" />
                     <input type="hidden" asp-for="Assessment.IsPhilHealthBeneficiaryOnly" />
                     <label class="form-check-label" for="IsPhilHealthBeneficiaryOnly">PhilHealth Beneficiary Only</label>

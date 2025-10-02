@@ -265,12 +265,12 @@ namespace Barangay.Models
         [Display(Name = "Created At")]
         [StringLength(4000)]
         [Encrypted]
-        public string? CreatedAt { get; set; } = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");
+        public string CreatedAt { get; set; } = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");
 
         [Display(Name = "Updated At")]
         [StringLength(4000)]
         [Encrypted]
-        public string? UpdatedAt { get; set; } = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");
+        public string UpdatedAt { get; set; } = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");
 
         [Display(Name = "Appointment Type")]
         [StringLength(200)]

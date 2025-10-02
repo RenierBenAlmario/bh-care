@@ -446,7 +446,7 @@
                                     <div class="row">
                                         <div class="col-md-6">
                                             <p><strong>School Performance:</strong> @(string.IsNullOrEmpty(Model.HEEADSSSAssessment.SchoolPerformance) ? "N/A" : Model.HEEADSSSAssessment.SchoolPerformance)</p>
-                                            <p><strong>Attendance Issues:</strong> @(string.IsNullOrEmpty(Model.HEEADSSSAssessment.AttendanceIssues) ? "None reported" : Model.HEEADSSSAssessment.AttendanceIssues)</p>
+                                            <p><strong>Attendance Issues:</strong> @(Model.HEEADSSSAssessment.AttendanceIssues == true ? "Yes" : "No")</p>
                                         </div>
                                         <div class="col-md-6">
                                             <p><strong>Career Plans:</strong> @(string.IsNullOrEmpty(Model.HEEADSSSAssessment.CareerPlans) ? "N/A" : Model.HEEADSSSAssessment.CareerPlans)</p>
@@ -478,11 +478,11 @@
                                             <p><strong>Risk Areas:</strong> 
                                                 @{
                                                     var riskAreas = new List<string>();
-                                                    if (Model.HEEADSSSAssessment.SubstanceUse == "True") riskAreas.Add("Substance Use");
-                                                    if (Model.HEEADSSSAssessment.SexualActivity == "True") riskAreas.Add("Sexual Activity");
-                                                    if (Model.HEEADSSSAssessment.MoodChanges == "True") riskAreas.Add("Mood Changes");
-                                                    if (Model.HEEADSSSAssessment.SuicidalThoughts == "True") riskAreas.Add("Suicidal Thoughts");
-                                                    if (Model.HEEADSSSAssessment.SelfHarmBehavior == "True") riskAreas.Add("Self-Harm");
+                                                    if (Model.HEEADSSSAssessment.SubstanceUse == true) riskAreas.Add("Substance Use");
+                                                    if (Model.HEEADSSSAssessment.SexualActivity == true) riskAreas.Add("Sexual Activity");
+                                                    if (Model.HEEADSSSAssessment.MoodChanges == true) riskAreas.Add("Mood Changes");
+                                                    if (Model.HEEADSSSAssessment.SuicidalThoughts == true) riskAreas.Add("Suicidal Thoughts");
+                                                    if (Model.HEEADSSSAssessment.SelfHarmBehavior == true) riskAreas.Add("Self-Harm");
                                                 }
                                                 @(riskAreas.Any() ? string.Join(", ", riskAreas) : "None identified")
                                             </p>
@@ -491,9 +491,9 @@
                                             <p><strong>Safety Concerns:</strong> 
                                                 @{
                                                     var safetyConcerns = new List<string>();
-                                                    if (Model.HEEADSSSAssessment.FeelsSafeAtHome != "True") safetyConcerns.Add("Home Safety");
-                                                    if (Model.HEEADSSSAssessment.FeelsSafeAtSchool != "True") safetyConcerns.Add("School Safety");
-                                                    if (Model.HEEADSSSAssessment.ExperiencedBullying == "True") safetyConcerns.Add("Bullying");
+                                                    if (Model.HEEADSSSAssessment.FeelsSafeAtHome != true) safetyConcerns.Add("Home Safety");
+                                                    if (Model.HEEADSSSAssessment.FeelsSafeAtSchool != true) safetyConcerns.Add("School Safety");
+                                                    if (Model.HEEADSSSAssessment.ExperiencedBullying == true) safetyConcerns.Add("Bullying");
                                                 }
                                                 @(safetyConcerns.Any() ? string.Join(", ", safetyConcerns) : "None identified")
                                             </p>
