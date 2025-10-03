@@ -43,8 +43,8 @@ function viewAppointment(id) {
 }
 
 function startConsultation(id) {
-    // TODO: Implement consultation start logic
-    window.location.href = `/Doctor/Consultation/${id}`;
+    // Start consultation through appointment ID (proper way)
+    window.location.href = `/Doctor/Consultation?id=${id}`;
 }
 
 function cancelAppointment(id) {

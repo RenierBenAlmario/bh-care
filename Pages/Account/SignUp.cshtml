@@ -73,12 +73,8 @@
                         </div>
                         
                         <!-- Email Verification Actions -->
-                        <div id="emailVerificationActions" class="mt-3">
-                            <div class="d-flex align-items-center gap-2">
-                                <button type="button" class="btn btn-outline-primary btn-sm" id="verifyEmailBtn">Verify Email</button>
-                                <button type="button" class="btn btn-link btn-sm" id="resendEmailBtn">Resend</button>
-                                <small id="resendCountdown" class="text-muted" aria-live="polite"></small>
-                            </div>
+                        <div id="emailVerificationActions" class="mt-3 d-none">
+                            <!-- Resend moved to OTP modal -->
                         </div>
                     </div>
                 </div>
@@ -530,6 +526,26 @@
     </div>
 </div>
 
+<!-- OTP Verification Modal -->
+<div class="modal fade" id="otpModal" tabindex="-1" aria-labelledby="otpModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="otpModalLabel">Verify Email</h5>
+            </div>
+            <div class="modal-body">
+                <p class="mb-2">We sent a 6-digit code to <strong id="otpEmailDisplay"></strong>.</p>
+                <input type="text" id="otpModalInput" class="form-control text-center" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="000000" />
+                <small class="text-muted d-block mt-2">It will auto-verify once you enter 6 digits.</small>
+                <div class="d-flex align-items-center justify-content-between mt-3">
+                    <button type="button" class="btn btn-link p-0" id="resendEmailBtn">Resend</button>
+                    <small id="resendCountdown" class="text-muted" aria-live="polite"></small>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
 @section Scripts {
     <!-- zxcvbn password strength library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.4.2/zxcvbn.js" integrity="sha512-TZlMGFY9xKj38t/5m2FzJ+RM/aD5alMHDe26p0mYUMoCF5G7ibfHUQILq0qQPV3wlsnCwL+TPRNK4vIWGLOkUQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -678,10 +694,26 @@
                         .then(data => {
                             if (data.success) {
                                 startResendCountdown(30);
-                                // Show OTP input field
-                                otpInputSection.classList.remove('d-none');
-                                otpInput.focus();
-                                alert('Verification code sent! Please enter the 6-digit code below.');
+                                // Prefer modal UX; hide inline OTP section as fallback
+                                if (otpInputSection) otpInputSection.classList.add('d-none');
+
+                                const modalEl = document.getElementById('otpModal');
+                                const emailDisp = document.getElementById('otpEmailDisplay');
+                                if (emailDisp) emailDisp.textContent = emailInput.value;
+                                if (modalEl && typeof bootstrap !== 'undefined') {
+                                    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                                    const modalInput = document.getElementById('otpModalInput');
+                                    if (modalInput) { modalInput.value = ''; }
+                                    modal.show();
+                                    setTimeout(() => { if (modalInput) modalInput.focus(); }, 150);
+                                } else {
+                                    // Fallback if Bootstrap modal not available
+                                    if (otpInputSection) {
+                                        otpInputSection.classList.remove('d-none');
+                                        if (otpInput) otpInput.focus();
+                                    }
+                                    alert('Verification code sent! Please enter the 6-digit code below.');
+                                }
                             } else {
                                 alert(data.message || 'Failed to send verification email');
                             }
@@ -699,14 +731,15 @@
                             return;
                         }
 
-                        const otp = otpInput.value.trim();
-                        if (!otp || otp.length !== 6) {
+                        const activeOtpInput = document.getElementById('otpModalInput') || document.getElementById('otpInput');
+                        const otp = activeOtpInput ? activeOtpInput.value.trim() : '';
+                        if (!/^[0-9]{6}$/.test(otp)) {
                             alert('Please enter a valid 6-digit verification code');
-                            otpInput.focus();
+                            if (activeOtpInput) activeOtpInput.focus();
                             return;
                         }
 
-                        fetch('/api/OTP/verify', {
+                        return fetch('/api/OTP/verify', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -740,11 +773,17 @@
                                     form.appendChild(hiddenField);
                                 }
                                 
-                                alert('Email verified successfully!');
+                                // Close modal if open
+                                const modalEl = document.getElementById('otpModal');
+                                if (modalEl && typeof bootstrap !== 'undefined') {
+                                    bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+                                }
                             } else {
                                 alert(data.message || 'Invalid verification code');
-                                otpInput.value = '';
-                                otpInput.focus();
+                                if (activeOtpInput) {
+                                    activeOtpInput.value = '';
+                                    activeOtpInput.focus();
+                                }
                             }
                         })
                         .catch(error => {
@@ -755,7 +794,8 @@
 
                     // Event listeners
                     if (verifyBtn) {
-                        verifyBtn.addEventListener('click', verifyEmail);
+                        // Clicking "Verify Email" should send the code and open the modal
+                        verifyBtn.addEventListener('click', () => sendVerificationEmail());
                     }
 
                     if (resendBtn) {
@@ -765,14 +805,33 @@
                         });
                     }
 
-                    // Allow Enter key to verify OTP
-                    if (otpInput) {
-                        otpInput.addEventListener('keypress', (e) => {
+                    // OTP modal verify button
+                    const otpVerifyBtn = document.getElementById('otpVerifyBtn');
+                    if (otpVerifyBtn) {
+                        otpVerifyBtn.addEventListener('click', () => verifyEmail());
+                    }
+
+                    // Auto-verify when 6 digits entered (modal or inline fallback)
+                    let verifyingInProgress = false;
+                    function wireAutoVerify(el) {
+                        if (!el) return;
+                        el.addEventListener('input', () => {
+                            // Keep only digits and max 6
+                            el.value = (el.value || '').replace(/\D/g, '').slice(0, 6);
+                            if (el.value.length === 6 && !verifyingInProgress && !isVerified) {
+                                verifyingInProgress = true;
+                                Promise.resolve(verifyEmail()).finally(() => { verifyingInProgress = false; });
+                            }
+                        });
+                        // Enter key fallback
+                        el.addEventListener('keypress', (e) => {
                             if (e.key === 'Enter') {
                                 verifyEmail();
                             }
                         });
                     }
+                    wireAutoVerify(document.getElementById('otpModalInput'));
+                    wireAutoVerify(document.getElementById('otpInput'));
 
                     // Auto-send verification email when email field loses focus
                     if (emailInput) {

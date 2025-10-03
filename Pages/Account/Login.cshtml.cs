@@ -266,29 +266,42 @@ namespace Barangay.Pages.Account
                 
                 if (isOTPRequired)
                 {
-                    // If OTP is required but not provided, show OTP field
+                    // If OTP is required but not provided, redirect to OTPVerification page (classic flow)
                     if (string.IsNullOrEmpty(OTPCode))
                     {
-                        _logger.LogInformation($"OTP required for Gmail user: {userEmail}");
+                        _logger.LogInformation($"OTP required for user: {userEmail}");
                         
                         // Generate and send OTP
                         var otp = await _otpService.GenerateOTPAsync(userEmail);
                         var emailSent = await _emailService.SendOTPEmailAsync(userEmail, otp);
                         
-                    if (emailSent)
-                    {
-                        // Redirect to OTP verification page
-                        return RedirectToPage("/Account/OTPVerification", new { 
-                            email = userEmail, 
-                            password = Password, 
-                            rememberMe = RememberMe 
-                        });
+                        if (emailSent)
+                        {
+                            return RedirectToPage("/Account/OTPVerification", new {
+                                email = userEmail,
+                                password = Password,
+                                rememberMe = RememberMe
+                            });
+                        }
+                        else
+                        {
+                            ModelState.AddModelError(string.Empty, "Failed to send OTP. Please try again later.");
+                            return Page();
+                        }
                     }
                     else
                     {
-                        ModelState.AddModelError(string.Empty, "Failed to send OTP. Please try again later.");
-                        return Page();
-                    }
+                        // Validate the provided OTP before proceeding
+                        var valid = await _otpService.ValidateOTPAsync(userEmail, OTPCode);
+                        if (!valid)
+                        {
+                            _logger.LogWarning($"Invalid or expired OTP for user: {userEmail}");
+                            ModelState.AddModelError(string.Empty, "Invalid or expired OTP. Please try again.");
+                            OTPRequired = true;
+                            UserEmail = userEmail;
+                            return Page();
+                        }
+                        _logger.LogInformation("OTP validated successfully; proceeding with login");
                     }
                 }
 
@@ -371,6 +384,31 @@ namespace Barangay.Pages.Account
                 _logger.LogError(ex, "Error during login process");
                 ModelState.AddModelError(string.Empty, "An error occurred during login. Please try again later.");
                 return Page();
+            }
+        }
+
+        // AJAX handler to (re)send OTP from the login page modal
+        public async Task<IActionResult> OnPostRequestOtpAsync(string email)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(email))
+                {
+                    return new JsonResult(new { success = false, message = "Email is required" });
+                }
+
+                var otp = await _otpService.GenerateOTPAsync(email);
+                var sent = await _emailService.SendOTPEmailAsync(email, otp);
+                if (sent)
+                {
+                    return new JsonResult(new { success = true });
+                }
+                return new JsonResult(new { success = false, message = "Failed to send OTP. Please try again later." });
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex, "Error sending OTP in RequestOtp handler for {Email}", email);
+                return new JsonResult(new { success = false, message = "Server error while sending OTP" });
             }
         }
     }

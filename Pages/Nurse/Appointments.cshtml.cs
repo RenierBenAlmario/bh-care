@@ -6,6 +6,7 @@ using Barangay.Data;
 using Barangay.Models;
 using Barangay.Services;
 using Barangay.Extensions;
+using Barangay.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -89,8 +90,9 @@ namespace Barangay.Pages.Nurse
                     }
                 }
                 
-                // Get today's date
-                var today = DateTime.Today;
+                // Get today's date using Philippine timezone
+                var today = DateTimeHelper.Today;
+                var endOfToday = today.AddDays(1).AddTicks(-1);
                 
                 // Decrypt patient names and doctor names for all appointments
                 foreach (var appointment in appointments)
@@ -133,7 +135,7 @@ namespace Barangay.Pages.Nurse
                 
                 // Filter today's appointments (exclude Draft and Cancelled)
                 TodayAppointments = Appointments
-                    .Where(a => a.AppointmentDate.Date == today
+                    .Where(a => a.AppointmentDate >= today && a.AppointmentDate <= endOfToday
                                 && a.Status != AppointmentStatus.Draft
                                 && a.Status != AppointmentStatus.Cancelled)
                     .OrderBy(a => a.AppointmentTime)

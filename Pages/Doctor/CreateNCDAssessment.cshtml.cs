@@ -103,17 +103,23 @@ namespace Barangay.Pages.Doctor
                     
                     // Test decryption service directly
                     _logger.LogInformation("Testing decryption service - CanUserDecrypt: {CanDecrypt}", _encryptionService.CanUserDecrypt(User));
-                    if (!string.IsNullOrEmpty(existingAssessment.Weight))
+                    _logger.LogInformation("User Identity: {Name}, IsAuthenticated: {IsAuth}", User?.Identity?.Name, User?.Identity?.IsAuthenticated);
+                    _logger.LogInformation("User Roles: {Roles}", string.Join(", ", User?.Claims?.Where(c => c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Select(c => c.Value) ?? new string[0]));
+                    
+                    // Test IDNo field specifically
+                    if (!string.IsNullOrEmpty(existingAssessment.IDNo))
                     {
-                        _logger.LogInformation("Testing Weight decryption - IsEncrypted: {IsEncrypted}", _encryptionService.IsEncrypted(existingAssessment.Weight));
+                        _logger.LogInformation("Testing IDNo decryption - Value: {IDNo}, IsEncrypted: {IsEncrypted}", 
+                            existingAssessment.IDNo.Substring(0, Math.Min(20, existingAssessment.IDNo.Length)) + "...", 
+                            _encryptionService.IsEncrypted(existingAssessment.IDNo));
                         try
                         {
-                            var testDecrypt = _encryptionService.DecryptForUser(existingAssessment.Weight, User);
-                            _logger.LogInformation("Test decryption result: {Result}", testDecrypt);
+                            var idNoDecrypt = _encryptionService.DecryptForUser(existingAssessment.IDNo, User);
+                            _logger.LogInformation("IDNo decryption result: {Result}", idNoDecrypt);
                         }
                         catch (Exception ex)
                         {
-                            _logger.LogError(ex, "Test decryption failed");
+                            _logger.LogError(ex, "IDNo decryption failed: {Error}", ex.Message);
                         }
                     }
                     
@@ -196,8 +202,8 @@ namespace Barangay.Pages.Doctor
                     Assessment.CancerType = null;
                 }
 
-                // Encrypt sensitive data before saving
-                Assessment.EncryptSensitiveData(_encryptionService);
+                // Encrypt sensitive data before saving (only if not already encrypted)
+                EncryptUnencryptedData(Assessment);
 
                 // Save assessment
                 // Upsert logic: update if exists, otherwise create
@@ -212,15 +218,15 @@ if (existing != null)
     existing.UpdatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
     // Ensure cancer type cleared when not applicable
     if (existing.HasCancer != "true") { existing.CancerType = null; }
-    // Encrypt before saving
-    existing.EncryptSensitiveData(_encryptionService);
+    // Encrypt before saving (only unencrypted data)
+    EncryptUnencryptedData(existing);
 }
 else
 {
     Assessment.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
     Assessment.UpdatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
     if (Assessment.HasCancer != "true") { Assessment.CancerType = null; }
-    Assessment.EncryptSensitiveData(_encryptionService);
+    EncryptUnencryptedData(Assessment);
     _context.NCDRiskAssessments.Add(Assessment);
 }
                 await _context.SaveChangesAsync();
@@ -258,26 +264,81 @@ else
                 .Where(p => p.GetCustomAttribute<Barangay.Attributes.EncryptedAttribute>() != null)
                 .ToList();
 
+            _logger.LogInformation("DecryptAllFields: Starting decryption for {PropertyCount} properties", properties.Count);
+            _logger.LogInformation("DecryptAllFields: User: {User}, IsAuthenticated: {IsAuth}, CanUserDecrypt: {CanDecrypt}", 
+                User?.Identity?.Name, User?.Identity?.IsAuthenticated, _encryptionService.CanUserDecrypt(User));
+
             foreach (var property in properties)
             {
                 if (property.CanWrite && property.PropertyType == typeof(string))
                 {
                     var value = property.GetValue(assessment)?.ToString();
+                    _logger.LogInformation("DecryptAllFields: Processing {PropertyName} = {Value}", 
+                        property.Name, value?.Substring(0, Math.Min(30, value?.Length ?? 0)) + "...");
+                    
                     if (!string.IsNullOrEmpty(value) && _encryptionService.IsEncrypted(value))
                     {
                         try
                         {
+                            _logger.LogInformation("DecryptAllFields: {PropertyName} is encrypted, attempting decryption", property.Name);
                             var decryptedValue = _encryptionService.DecryptForUser(value, User);
+                            _logger.LogInformation("DecryptAllFields: {PropertyName} decrypted result = {DecryptedValue}", 
+                                property.Name, decryptedValue);
+                            
                             if (decryptedValue != value && !decryptedValue.Contains("[ACCESS DENIED]"))
                             {
                                 property.SetValue(assessment, decryptedValue);
-                                _logger.LogInformation("Decrypted {PropertyName}: {DecryptedValue}", property.Name, decryptedValue);
+                                _logger.LogInformation("DecryptAllFields: Successfully decrypted {PropertyName}: {DecryptedValue}", property.Name, decryptedValue);
+                            }
+                            else
+                            {
+                                _logger.LogWarning("DecryptAllFields: Failed to decrypt {PropertyName} - result same as original or access denied", property.Name);
                             }
                         }
                         catch (Exception ex)
                         {
-                            _logger.LogError(ex, "Failed to decrypt {PropertyName}", property.Name);
+                            _logger.LogError(ex, "DecryptAllFields: Failed to decrypt {PropertyName}", property.Name);
                         }
+                    }
+                    else
+                    {
+                        _logger.LogInformation("DecryptAllFields: {PropertyName} is not encrypted or empty", property.Name);
+                    }
+                }
+            }
+        }
+
+        private void EncryptUnencryptedData(NCDRiskAssessment assessment)
+        {
+            // Get all properties with [Encrypted] attribute
+            var properties = typeof(NCDRiskAssessment).GetProperties()
+                .Where(p => p.GetCustomAttribute<Barangay.Attributes.EncryptedAttribute>() != null)
+                .ToList();
+
+            _logger.LogInformation("EncryptUnencryptedData: Starting encryption for {PropertyCount} properties", properties.Count);
+
+            foreach (var property in properties)
+            {
+                if (property.CanWrite && property.PropertyType == typeof(string))
+                {
+                    var value = property.GetValue(assessment)?.ToString();
+                    if (!string.IsNullOrEmpty(value) && !_encryptionService.IsEncrypted(value))
+                    {
+                        try
+                        {
+                            var encryptedValue = _encryptionService.Encrypt(value);
+                            property.SetValue(assessment, encryptedValue);
+                            _logger.LogInformation("EncryptUnencryptedData: Encrypted {PropertyName}: {EncryptedValue}", 
+                                property.Name, encryptedValue?.Substring(0, Math.Min(20, encryptedValue?.Length ?? 0)) + "...");
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "EncryptUnencryptedData: Failed to encrypt {PropertyName}", property.Name);
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogInformation("EncryptUnencryptedData: {PropertyName} is already encrypted or empty", property.Name);
                     }
                 }
             }

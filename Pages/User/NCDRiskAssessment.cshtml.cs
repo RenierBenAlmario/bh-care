@@ -101,7 +101,7 @@ namespace Barangay.Pages.User
                     HealthFacility = HealthFacility,
                     FamilyNo = FamilyNo,
                     Address = user.Address ?? "",
-                    Barangay = "122", // Default barangay
+                    Barangay = user.Barangay ?? "160", // Use user's barangay from signup
                     Birthday = user.BirthDate?.ToString("yyyy-MM-dd"),
                     Telepono = user.PhoneNumber ?? "",
                     Kasarian = user.Gender == "Male" ? "Lalaki" : user.Gender == "Female" ? "Babae" : "",

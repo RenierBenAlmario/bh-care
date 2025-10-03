@@ -125,6 +125,10 @@ namespace Barangay.Pages.Nurse
                 {
                     assessment.DateOfAssessment = _encryptionService.DecryptForUser(assessment.DateOfAssessment, User);
                 }
+                if (!string.IsNullOrEmpty(assessment.AssessmentDate) && _encryptionService.IsEncrypted(assessment.AssessmentDate))
+                {
+                    assessment.AssessmentDate = _encryptionService.DecryptForUser(assessment.AssessmentDate, User);
+                }
                 
                 // Medical History
                 if (!string.IsNullOrEmpty(assessment.HasDiabetes) && _encryptionService.IsEncrypted(assessment.HasDiabetes))

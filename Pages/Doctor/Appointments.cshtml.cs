@@ -43,8 +43,9 @@ namespace Barangay.Pages.Doctor
         public List<Barangay.Models.Appointment> AllAppointments { get; set; } = new();
         public string ErrorMessage { get; set; }
         public bool CanAccessReports { get; set; }
+        public DateTime SelectedDate { get; set; } = DateTimeHelper.Today;
 
-        public async Task OnGetAsync()
+        public async Task OnGetAsync(string? filterDate = null)
         {
             try
             {
@@ -60,7 +61,18 @@ namespace Barangay.Pages.Doctor
                 CanAccessReports = await _permissionService.UserHasPermissionAsync(User, "Reports")
                                      || User.IsInRole("Admin") || User.IsInRole("Doctor") || User.IsInRole("Head Doctor");
 
-                var today = DateTimeHelper.Today;
+                // Parse filter date or use today as default
+                if (!string.IsNullOrEmpty(filterDate) && DateTime.TryParse(filterDate, out var parsedDate))
+                {
+                    SelectedDate = parsedDate.Date;
+                }
+                else
+                {
+                    SelectedDate = DateTimeHelper.Today;
+                }
+
+                var today = SelectedDate;
+                var endOfToday = today.AddDays(1).AddTicks(-1);
 
                 var appointmentsQuery = _context.Appointments
                                                   .Where(a => a.DoctorId == user.Id)
@@ -68,12 +80,12 @@ namespace Barangay.Pages.Doctor
                                                   .AsNoTracking();
 
                 TodayAppointments = await appointmentsQuery
-                                            .Where(a => a.AppointmentDate.Date == today)
+                                            .Where(a => a.AppointmentDate >= today && a.AppointmentDate <= endOfToday)
                                             .OrderBy(a => a.AppointmentTime)
                                             .ToListAsync();
 
                 UpcomingAppointments = await appointmentsQuery
-                                               .Where(a => a.AppointmentDate.Date > today)
+                                               .Where(a => a.AppointmentDate > endOfToday)
                                                .OrderBy(a => a.AppointmentDate)
                                                .ThenBy(a => a.AppointmentTime)
                                                .ToListAsync();

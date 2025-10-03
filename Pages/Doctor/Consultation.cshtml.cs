@@ -102,8 +102,10 @@ namespace Barangay.Pages.Doctor
         public bool ShowConsultationForm { get; set; } = false;
 
         public List<Barangay.Models.Appointment> ConsultationQueue { get; set; } = new();
+        
+        public DateTime SelectedDate { get; set; } = DateTimeHelper.Today;
 
-        public async Task<IActionResult> OnGetAsync(string? patientId = null, int? id = null, bool startConsultation = false)
+        public async Task<IActionResult> OnGetAsync(string? patientId = null, int? id = null, bool startConsultation = false, string? filterDate = null)
         {
             try
             {
@@ -130,25 +132,36 @@ namespace Barangay.Pages.Doctor
                     }
 
                     _logger.LogInformation("Loading consultation queue for doctor: {DoctorId}", doctorId);
-                    _logger.LogInformation("Today's date: {Today}", DateTimeHelper.Today);
+                    
+                    // Parse filter date or use today as default
+                    if (!string.IsNullOrEmpty(filterDate) && DateTime.TryParse(filterDate, out var parsedDate))
+                    {
+                        SelectedDate = parsedDate.Date;
+                    }
+                    else
+                    {
+                        SelectedDate = DateTimeHelper.Today;
+                    }
+                    
+                    _logger.LogInformation("Selected filter date: {SelectedDate}", SelectedDate);
 
-                    // Filter: today and upcoming only, exclude draft/cancelled/completed, and only for current doctor
-                    var today = DateTimeHelper.Today;
+                    // Filter: specific date only, exclude draft/cancelled/completed
+                    // Only show appointments that still need consultation (pending, confirmed, in-progress)
                     var validStatuses = new[] { AppointmentStatus.Pending, AppointmentStatus.Confirmed, AppointmentStatus.InProgress };
 
-                    _logger.LogInformation("Looking for appointments for doctor {DoctorId} with Status IN: {Statuses} starting from {Today}", doctorId, string.Join(", ", validStatuses.Select(s => (int)s)), today);
+                    _logger.LogInformation("Looking for non-completed appointments for doctor {DoctorId} with Status IN: {Statuses} on {SelectedDate}", doctorId, string.Join(", ", validStatuses.Select(s => (int)s)), SelectedDate);
 
                     // First, let's check if there are any appointments at all for debugging
                     var totalAppointments = await _context.Appointments.CountAsync();
-                    var todayAppointments = await _context.Appointments
-                        .Where(a => a.AppointmentDate.Date >= today)
+                    var selectedDateAppointments = await _context.Appointments
+                        .Where(a => a.AppointmentDate.Date == SelectedDate)
                         .CountAsync();
                     var doctorAppointments = await _context.Appointments
                         .Where(a => a.DoctorId == doctorId)
                         .CountAsync();
 
-                    _logger.LogInformation("Debug - Total appointments: {Total}, Today/upcoming: {Today}, For doctor {DoctorId}: {DoctorCount}", 
-                        totalAppointments, todayAppointments, doctorId, doctorAppointments);
+                    _logger.LogInformation("Debug - Total appointments: {Total}, Selected date appointments: {SelectedDateCount}, For doctor {DoctorId}: {DoctorCount}", 
+                        totalAppointments, selectedDateAppointments, doctorId, doctorAppointments);
 
                     // If no appointments for this doctor, try to find any available appointments
                     if (doctorAppointments == 0)
@@ -169,18 +182,17 @@ namespace Barangay.Pages.Doctor
                         }
                     }
 
-                    // Show all appointments to all doctors (remove doctor-specific filtering)
+                    // Show all appointments on the selected date to all doctors (remove doctor-specific filtering)
                     ConsultationQueue = await _context.Appointments
                         .Include(a => a.Patient)
                             .ThenInclude(p => p.User)
                         .Include(a => a.Doctor) // Include doctor information
-                        .Where(a => a.AppointmentDate.Date >= today
+                        .Where(a => a.AppointmentDate.Date == SelectedDate
                                     && validStatuses.Contains(a.Status))
-                        .OrderBy(a => a.AppointmentDate)
-                        .ThenBy(a => a.AppointmentTime)
+                        .OrderBy(a => a.AppointmentTime) // Sort by time since we're filtering by single date
                         .ToListAsync();
 
-                    _logger.LogInformation("Found {Count} appointments for today and upcoming", ConsultationQueue.Count);
+                    _logger.LogInformation("Found {Count} appointments for {SelectedDate}", ConsultationQueue.Count, SelectedDate);
 
                     // Decrypt patient names and doctor names for all appointments
                     foreach (var appointment in ConsultationQueue)
@@ -223,19 +235,19 @@ namespace Barangay.Pages.Doctor
                     // If no appointments found, provide some context for today/upcoming
                     if (ConsultationQueue.Count == 0)
                     {
-                        var totalAppointmentsToday = await _context.Appointments
-                            .Where(a => a.AppointmentDate.Date == today)
+                        var totalAppointmentsOnSelectedDate = await _context.Appointments
+                            .Where(a => a.AppointmentDate.Date == SelectedDate)
                             .CountAsync();
 
                         var appointmentsForOtherDoctors = await _context.Appointments
-                            .Where(a => a.AppointmentDate.Date >= today && a.DoctorId != doctorId)
+                            .Where(a => a.AppointmentDate.Date == SelectedDate && a.DoctorId != doctorId)
                             .CountAsync();
 
-                        _logger.LogInformation("No appointments found for doctor {DoctorId}. Total appointments today: {TotalToday}, Appointments for other doctors today or upcoming: {OtherDoctors}", 
-                            doctorId, totalAppointmentsToday, appointmentsForOtherDoctors);
+                        _logger.LogInformation("No appointments found for doctor {DoctorId} on {SelectedDate}. Total appointments on selected date: {SelectedDateCount}, Appointments for other doctors: {OtherDoctors}", 
+                            doctorId, SelectedDate, totalAppointmentsOnSelectedDate, appointmentsForOtherDoctors);
 
                         // If there are appointments but none for this doctor, show them anyway for debugging
-                        if (totalAppointmentsToday > 0 && appointmentsForOtherDoctors > 0)
+                        if (totalAppointmentsOnSelectedDate > 0 && appointmentsForOtherDoctors > 0)
                         {
                             _logger.LogInformation("Found appointments for other doctors. Loading them for debugging...");
                             
@@ -243,11 +255,10 @@ namespace Barangay.Pages.Doctor
                             var otherDoctorAppointments = await _context.Appointments
                                 .Include(a => a.Patient)
                                     .ThenInclude(p => p.User)
-                                .Where(a => a.AppointmentDate.Date >= today 
+                                .Where(a => a.AppointmentDate.Date == SelectedDate 
                                            && a.DoctorId != doctorId 
                                            && validStatuses.Contains(a.Status))
-                                .OrderBy(a => a.AppointmentDate)
-                                .ThenBy(a => a.AppointmentTime)
+                                .OrderBy(a => a.AppointmentTime)
                                 .Take(5) // Limit to 5 for debugging
                                 .ToListAsync();
 
@@ -262,13 +273,13 @@ namespace Barangay.Pages.Doctor
                             }
                         }
 
-                        if (totalAppointmentsToday > 0)
+                        if (totalAppointmentsOnSelectedDate > 0)
                         {
-                            TempData["InfoMessage"] = $"No appointments found for you today. Today: {totalAppointmentsToday}, Assigned to other doctors (today or upcoming): {appointmentsForOtherDoctors}.";
+                            TempData["InfoMessage"] = $"No appointments found for you on {SelectedDate:MMM dd, yyyy}. Total appointments on this date: {totalAppointmentsOnSelectedDate}, Assigned to other doctors: {appointmentsForOtherDoctors}.";
                         }
                         else
                         {
-                            TempData["InfoMessage"] = "No appointments scheduled for today.";
+                            TempData["InfoMessage"] = $"No appointments scheduled for {SelectedDate:MMM dd, yyyy}.";
                         }
                     }
 

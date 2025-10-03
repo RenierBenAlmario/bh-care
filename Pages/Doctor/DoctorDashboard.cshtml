@@ -94,7 +94,7 @@
                                             <td>
                                                 @if (appointment.Status == AppointmentStatus.Confirmed || appointment.Status == AppointmentStatus.InProgress)
                                                 {
-                                                    <a href="@Url.Page("/Doctor/Consultation", new { appointmentId = appointment.Id, patientId = appointment.PatientId })" class="btn btn-sm btn-outline-primary">Start Consultation</a>
+                                                    <a href="@Url.Page("/Doctor/Consultation", new { id = appointment.Id, patientId = appointment.PatientId, startConsultation = true })" class="btn btn-sm btn-outline-primary">Start Consultation</a>
                                                 }
                                             </td>
                                         </tr>

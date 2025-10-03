@@ -27,7 +27,7 @@ namespace Barangay.Pages.Account
             ErrorMessage = "Please enter a valid birth date (not before 1900 and not in the future).";
         }
 
-        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        protected override ValidationResult IsValid(object? value, ValidationContext validationContext)
         {
             if (value is DateTime birthDate)
             {
@@ -59,7 +59,7 @@ namespace Barangay.Pages.Account
         {
              ErrorMessage = "Contact number appears to be a dummy number.";
         }
-        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        protected override ValidationResult IsValid(object? value, ValidationContext validationContext)
         {
             var contactNumber = value as string;
             if (!string.IsNullOrEmpty(contactNumber))
@@ -91,7 +91,7 @@ namespace Barangay.Pages.Account
             ErrorMessage = "Please enter a valid name – avoid excessive repeated characters.";
         }
 
-        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        protected override ValidationResult IsValid(object? value, ValidationContext validationContext)
         {
             var name = value as string;
             if (string.IsNullOrWhiteSpace(name)) { return ValidationResult.Success; } // Let [Required] handle empty.

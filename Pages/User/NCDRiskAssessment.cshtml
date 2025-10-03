@@ -147,55 +147,55 @@
                     </div>
                     <div class="form-group">
                         <label for="first-name">Unang Pangalan:</label>
-                        <input type="text" id="first-name" name="firstName" required>
+                        <input type="text" id="first-name" name="firstName" value="@Model.Assessment.FirstName" required>
                     </div>
                     <div class="form-group">
                         <label for="middle-name">Gitnang Pangalan:</label>
-                        <input type="text" id="middle-name" name="middleName">
+                        <input type="text" id="middle-name" name="middleName" value="@Model.Assessment.MiddleName">
                     </div>
                     <div class="form-group">
                         <label for="last-name">Apelyido:</label>
-                        <input type="text" id="last-name" name="lastName" required>
+                        <input type="text" id="last-name" name="lastName" value="@Model.Assessment.LastName" required>
                     </div>
                     <div class="form-group">
                         <label for="address">Address:</label>
-                        <input type="text" id="address" name="address">
+                        <input type="text" id="address" name="address" value="@Model.Assessment.Address">
                     </div>
                     <div class="form-group">
                         <label for="barangay">Barangay:</label>
-                        <input type="text" id="barangay" name="barangay">
+                        <input type="text" id="barangay" name="barangay" value="@Model.Assessment.Barangay">
                     </div>
                     <div class="form-group">
                         <label for="telefono">Telepono:</label>
-                        <input type="text" id="telefono" name="telefono" pattern="[0-9]{11}" maxlength="11">
+                        <input type="text" id="telefono" name="telefono" value="@Model.Assessment.Telepono" pattern="[0-9]{11}" maxlength="11">
                         <small class="form-text text-muted">11 digits only, Philippine format (e.g. 09123456789)</small>
                     </div>
                     <div class="form-group">
                         <label for="birthday">Birthday:</label>
-                        <input type="date" id="birthday" name="birthday" required>
+                        <input type="date" id="birthday" name="birthday" value="@Model.Assessment.Birthday" required>
                     </div>
                     <div class="form-group">
                         <label for="edad">Edad:</label>
-                        <input type="number" id="edad" name="edad" min="1" max="120" required>
+                        <input type="number" id="edad" name="edad" value="@Model.Assessment.Edad" min="1" max="120" required>
                     </div>
                     <div class="form-group">
                         <label>Kasarian:</label>
                         <div class="radio-group">
-                            <label><input type="radio" name="kasarian" value="Male" required> Male</label>
-                            <label><input type="radio" name="kasarian" value="Female"> Female</label>
+                            <label><input type="radio" name="kasarian" value="Male" @(Model.Assessment.Kasarian == "Lalaki" || Model.Assessment.Kasarian == "Male" ? "checked" : "") required> Male</label>
+                            <label><input type="radio" name="kasarian" value="Female" @(Model.Assessment.Kasarian == "Babae" || Model.Assessment.Kasarian == "Female" ? "checked" : "")> Female</label>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="relihiyon">Relihiyon:</label>
-                        <input type="text" id="relihiyon" name="relihiyon">
+                        <input type="text" id="relihiyon" name="relihiyon" value="@Model.Assessment.Relihiyon">
                     </div>
                     <div class="form-group">
                         <label for="hanapbuhay">Hanapbuhay:</label>
-                        <input type="text" id="hanapbuhay" name="Occupation">
+                        <input type="text" id="hanapbuhay" name="Occupation" value="@Model.Assessment.Occupation">
                     </div>
                     <div class="form-group">
                         <label for="estado-sibil">Estado Sibil:</label>
-                        <input type="text" id="estado-sibil" name="CivilStatus">
+                        <input type="text" id="estado-sibil" name="CivilStatus" value="@Model.Assessment.CivilStatus">
                     </div>
                 </div>
                 <div class="wizard-nav">
@@ -381,7 +381,7 @@
                     <div class="checkbox-group">
                         <label><input type="checkbox" name="nutrisyon_kumakain" value="matatamis"> Matatamis na pagkain</label>
                         <label><input type="checkbox" name="HighSaltIntake" value="true"> Maaalat na pagkain</label>
-                        <label><input type="checkbox" name="nutrisyon_kumakain" value="matataba"> Mamamantika pagkain</label>
+                        <label><input type="checkbox" name="nutrisyon_kumakain" value="mamantika"> Mamantikang pagkain</label>
                     </div>
                 </div>
 
@@ -939,86 +939,137 @@
             data.EyeDiseaseYear = document.querySelector('input[name="EyeDiseaseYear"]')?.value || '';
             data.EyeDiseaseMedication = document.querySelector('input[name="EyeDiseaseMedication"]')?.value || '';
 
+            // Chest Pain Questions (Pananakit ng Dibdib) - Part II Section 2
+            const cp_q21 = document.querySelector('input[name="pananakit_2_1"]:checked')?.value === 'Oo';
+            const cp_q22 = document.querySelector('input[name="pananakit_2_2"]:checked')?.value === 'Oo';
+            const cp_q23 = document.querySelector('input[name="pananakit_2_3"]:checked')?.value === 'Oo';
+            const cp_q25 = document.querySelector('input[name="pananakit_2_5"]:checked')?.value === 'Oo';
+            const cp_q26 = document.querySelector('input[name="pananakit_2_6"]:checked')?.value === 'Oo';
+            const cp_q27 = document.querySelector('input[name="pananakit_2_7"]:checked')?.value === 'Oo';
+            const cp_q28 = document.querySelector('input[name="pananakit_2_8"]:checked')?.value === 'Oo';
+
+            // For legacy string properties (kept), mirror boolean state as 'true'/'false'
+            data.ChestPain = cp_q21 ? 'true' : 'false';
+            data.ChestPainLocation = cp_q22 ? 'true' : 'false';
+            data.ChestPainValue = cp_q23 ? 'true' : 'false';
+
+            // Boolean-like string properties used by Nurse edit checkboxes must be strictly 'true'/'false'
+            data.HasChestPain = cp_q21 ? 'true' : 'false';
+            data.ChestPainSpreadsToArm = cp_q22 ? 'true' : 'false';
+            data.NumbnessWhenWalkingFast = cp_q23 ? 'true' : 'false';
+            data.PainRelievedWithRest = cp_q25 ? 'true' : 'false';
+            data.LossOfConsciousnessLessThan10Min = cp_q26 ? 'true' : 'false';
+            data.PainLastsMoreThan30Min = cp_q27 ? 'true' : 'false';
+            data.SeeDoctorIfYes = cp_q28 ? 'true' : 'false';
+            
             // Part III: Assessment of Risk Factors
             // A. Non-Modifiable Risk Factors (Family History)
-            // Collect individual family history data and aggregate them
+            // Collect individual family history data
             const familyHistoryStrokeFather = document.querySelector('input[name="FamilyHistoryStrokeFather"]')?.checked || false;
-            const familyHistoryStrokeMother = document.querySelector('input[name="FamilyHistoryStrokeMother"]')?.checked || false;
-            const familyHistoryStrokeSibling = document.querySelector('input[name="FamilyHistoryStrokeSibling"]')?.checked || false;
-
             const familyHistoryHypertensionFather = document.querySelector('input[name="FamilyHistoryHypertensionFather"]')?.checked || false;
-            const familyHistoryHypertensionMother = document.querySelector('input[name="FamilyHistoryHypertensionMother"]')?.checked || false;
-            const familyHistoryHypertensionSibling = document.querySelector('input[name="FamilyHistoryHypertensionSibling"]')?.checked || false;
-
             const familyHistoryDiabetesFather = document.querySelector('input[name="FamilyHistoryDiabetesFather"]')?.checked || false;
-            const familyHistoryDiabetesMother = document.querySelector('input[name="FamilyHistoryDiabetesMother"]')?.checked || false;
-            const familyHistoryDiabetesSibling = document.querySelector('input[name="FamilyHistoryDiabetesSibling"]')?.checked || false;
-
             const familyHistoryCancerFather = document.querySelector('input[name="FamilyHistoryCancerFather"]')?.checked || false;
-            const familyHistoryCancerMother = document.querySelector('input[name="FamilyHistoryCancerMother"]')?.checked || false;
-            const familyHistoryCancerSibling = document.querySelector('input[name="FamilyHistoryCancerSibling"]')?.checked || false;
-
+            const familyHistoryHeartDiseaseFather = document.querySelector('input[name="FamilyHistoryHeartDiseaseFather"]')?.checked || false;
             const familyHistoryLungDiseaseFather = document.querySelector('input[name="FamilyHistoryLungDiseaseFather"]')?.checked || false;
-            const familyHistoryLungDiseaseMother = document.querySelector('input[name="FamilyHistoryLungDiseaseMother"]')?.checked || false;
-            const familyHistoryLungDiseaseSibling = document.querySelector('input[name="FamilyHistoryLungDiseaseSibling"]')?.checked || false;
-
             const familyHistoryKidneyDiseaseFather = document.querySelector('input[name="FamilyHistoryKidneyDiseaseFather"]')?.checked || false;
-            const familyHistoryKidneyDiseaseMother = document.querySelector('input[name="FamilyHistoryKidneyDiseaseMother"]')?.checked || false;
-            const familyHistoryKidneyDiseaseSibling = document.querySelector('input[name="FamilyHistoryKidneyDiseaseSibling"]')?.checked || false;
+            const familyHistoryEyeDiseaseFather = document.querySelector('input[name="FamilyHistoryEyeDiseaseFather"]')?.checked || false;
+
+            // Store individual family history fields (needed for edit forms)
+            data.FamilyHistoryHypertensionFather = familyHistoryHypertensionFather ? 'true' : 'false';
+            data.FamilyHistoryHeartDiseaseFather = familyHistoryHeartDiseaseFather ? 'true' : 'false';
+            data.FamilyHistoryStrokeFather = familyHistoryStrokeFather ? 'true' : 'false';
+            data.FamilyHistoryDiabetesFather = familyHistoryDiabetesFather ? 'true' : 'false';
+            data.FamilyHistoryCancerFather = familyHistoryCancerFather ? 'true' : 'false';
+            data.FamilyHistoryLungDiseaseFather = familyHistoryLungDiseaseFather ? 'true' : 'false';
+            data.FamilyHistoryKidneyDiseaseFather = familyHistoryKidneyDiseaseFather ? 'true' : 'false';
+            data.FamilyHistoryEyeDiseaseFather = familyHistoryEyeDiseaseFather ? 'true' : 'false';
+            
+            // Set Mother and Sibling fields to false (not collected in user form but needed for backend)
+            data.FamilyHistoryHypertensionMother = 'false';
+            data.FamilyHistoryHypertensionSibling = 'false';
+            data.FamilyHistoryHeartDiseaseMother = 'false';
+            data.FamilyHistoryHeartDiseaseSibling = 'false';
+            data.FamilyHistoryStrokeMother = 'false';
+            data.FamilyHistoryStrokeSibling = 'false';
+            data.FamilyHistoryDiabetesMother = 'false';
+            data.FamilyHistoryDiabetesSibling = 'false';
+            data.FamilyHistoryCancerMother = 'false';
+            data.FamilyHistoryCancerSibling = 'false';
+            data.FamilyHistoryLungDiseaseMother = 'false';
+            data.FamilyHistoryLungDiseaseSibling = 'false';
+            data.FamilyHistoryKidneyDiseaseMother = 'false';
+            data.FamilyHistoryKidneyDiseaseSibling = 'false';
+            data.FamilyHistoryEyeDiseaseMother = 'false';
+            data.FamilyHistoryEyeDiseaseSibling = 'false';
 
             const otherDetails = (document.getElementById('family-history-other')?.value || '').trim();
             data.FamilyOtherDiseaseDetails = otherDetails;
 
-            // Aggregated family history booleans expected by backend
-            data.FamilyHasHypertension = !!(familyHistoryHypertensionFather || familyHistoryHypertensionMother || familyHistoryHypertensionSibling);
-            data.FamilyHasStroke = !!(familyHistoryStrokeFather || familyHistoryStrokeMother || familyHistoryStrokeSibling);
-            data.FamilyHasDiabetes = !!(familyHistoryDiabetesFather || familyHistoryDiabetesMother || familyHistoryDiabetesSibling);
-            data.FamilyHasCancer = !!(familyHistoryCancerFather || familyHistoryCancerMother || familyHistoryCancerSibling);
-            
-            // Family heart disease not tracked as separate family history
-            data.FamilyHasHeartDisease = false;
-            
-            data.FamilyHasLungDisease = !!(familyHistoryLungDiseaseFather || familyHistoryLungDiseaseMother || familyHistoryLungDiseaseSibling);
-            data.FamilyHasKidneyDisease = !!(familyHistoryKidneyDiseaseFather || familyHistoryKidneyDiseaseMother || familyHistoryKidneyDiseaseSibling);
-
-            // Family eye disease not tracked as family history
-            data.FamilyHasEyeDisease = false;
-            
-            // Other diseases
-            data.FamilyHasOtherDisease = otherDetails.length > 0;
+            // Aggregated family history booleans (send as 'true'/'false' strings for Razor checkboxes)
+            data.FamilyHasHypertension = familyHistoryHypertensionFather ? 'true' : 'false';
+            data.FamilyHasHeartDisease = familyHistoryHeartDiseaseFather ? 'true' : 'false';
+            data.FamilyHasStroke = familyHistoryStrokeFather ? 'true' : 'false';
+            data.FamilyHasDiabetes = familyHistoryDiabetesFather ? 'true' : 'false';
+            data.FamilyHasCancer = familyHistoryCancerFather ? 'true' : 'false';
+            data.FamilyHasLungDisease = familyHistoryLungDiseaseFather ? 'true' : 'false';
+            data.FamilyHasKidneyDisease = familyHistoryKidneyDiseaseFather ? 'true' : 'false';
+            data.FamilyHasEyeDisease = familyHistoryEyeDiseaseFather ? 'true' : 'false';
+            data.FamilyHasOtherDisease = otherDetails.length > 0 ? 'true' : 'false';
 
             // B. Modifiable Risk Factors
             // B.1 Nutrisyon
+            data.EatsVegetablesDaily = document.querySelector('input[name="nutrisyon_madalas"][value="gulay"]')?.checked ? 'true' : 'false';
+            data.EatsFruitsDaily = document.querySelector('input[name="nutrisyon_madalas"][value="prutas"]')?.checked ? 'true' : 'false';
+            data.EatsFishDaily = document.querySelector('input[name="nutrisyon_madalas"][value="isda"]')?.checked ? 'true' : 'false';
+            data.EatsMeatDaily = document.querySelector('input[name="nutrisyon_madalas"][value="karne"]')?.checked ? 'true' : 'false';
             data.EatsProcessedFood = document.querySelector('input[name="EatsProcessedFood"]')?.checked || false;
+            data.HasUnhealthyDiet = document.querySelector('input[name="EatsProcessedFood"]')?.checked ? 'true' : 'false';
+            
+            data.EatsFattyFoodMoreThan2TimesPerWeek = document.querySelector('input[name="nutrisyon_kumakain"][value="matataba"]')?.checked ? 'true' : 'false';
+            data.EatsSweetFoodMoreThan2TimesPerWeek = document.querySelector('input[name="nutrisyon_kumakain"][value="matatamis"]')?.checked ? 'true' : 'false';
+            data.EatsOilyFoodMoreThan2TimesPerWeek = document.querySelector('input[name="nutrisyon_kumakain"][value="mamantika"]')?.checked ? 'true' : 'false';
             data.HighSaltIntake = document.querySelector('input[name="HighSaltIntake"]')?.checked || false;
+            data.HasHighSaltIntake = document.querySelector('input[name="HighSaltIntake"]')?.checked ? 'true' : 'false';
 
             // B.2 Alcohol
-            data.AlcoholStoppedDuration = document.querySelector('input[name="AlcoholStoppedDuration"]:checked')?.value || 'None';
-            data.AlcoholFrequency = document.querySelector('input[name="AlcoholFrequency"]:checked')?.value || 'None';
+            const alcoholInomValue = document.querySelector('input[name="alcohol_inom"]:checked')?.value;
+            data.DrinksAlcohol = (alcoholInomValue === 'Oo') ? 'true' : 'false';
+            data.AlcoholStoppedDuration = document.querySelector('input[name="AlcoholStoppedDuration"]:checked')?.value || '';
+            data.AlcoholVolume = document.querySelector('input[name="AlcoholVolume"]:checked')?.value || '';
             
             // Alcohol type and consumption details
-            data.AlcoholTypeBeer = document.querySelector('input[name="AlchoholTypeBeer"]')?.checked || false;
-            data.AlcoholTypeWine = document.querySelector('input[name="AlchoholTypeWine"]')?.checked || false;
-            data.AlcoholTypeWhisky = document.querySelector('input[name="AlchoholTypeWhisky"]')?.checked || false;
+            data.DrinksBeer = document.querySelector('input[name="AlchoholTypeBeer"]')?.checked ? 'true' : 'false';
+            data.DrinksWine = document.querySelector('input[name="AlchoholTypeWine"]')?.checked ? 'true' : 'false';
+            data.DrinksWhiskyGinBrandy = document.querySelector('input[name="AlchoholTypeWhisky"]')?.checked ? 'true' : 'false';
             
-            // Beer consumption details
-            data.BeerConsumption1 = document.querySelector('input[name="BeerConsumption1"]')?.checked || false;
-            data.BeerConsumption2 = document.querySelector('input[name="BeerConsumption2"]')?.checked || false;
-            data.BeerConsumption3 = document.querySelector('input[name="BeerConsumption3"]')?.checked || false;
+            // Detailed alcohol consumption amounts
+            data.AlcoholAmount1Bottle320ml = document.querySelector('input[name="BeerConsumption1"]')?.checked ? 'true' : 'false';
+            data.AlcoholAmount2Bottle640ml = document.querySelector('input[name="BeerConsumption2"]')?.checked ? 'true' : 'false';
+            data.AlcoholAmount3to4WineGlasses300ml = document.querySelector('input[name="WineConsumption1"]')?.checked ? 'true' : 'false';
+            data.AlcoholAmountLessThan3Shot45ml = document.querySelector('input[name="WhiskyConsumption1"]')?.checked ? 'true' : 'false';
+            data.AlcoholAmountMoreThan4Shots75ml = document.querySelector('input[name="WhiskyConsumption2"]')?.checked ? 'true' : 'false';
             
-            // Wine consumption details
-            data.WineConsumption1 = document.querySelector('input[name="WineConsumption1"]')?.checked || false;
-            data.WineConsumption2 = document.querySelector('input[name="WineConsumption2"]')?.checked || false;
-            
-            // Whisky consumption details
-            data.WhiskyConsumption1 = document.querySelector('input[name="WhiskyConsumption1"]')?.checked || false;
-            data.WhiskyConsumption2 = document.querySelector('input[name="WhiskyConsumption2"]')?.checked || false;
+            // Alcohol frequency details  
+            data.AlcoholFrequency1to3TimesPerWeek = (data.AlcoholVolume === '1-3 beses/linggo') ? 'true' : 'false';
+            data.AlcoholFrequencyMoreThan4TimesPerWeek = (data.AlcoholVolume === 'apat na beses sa isang linggo' || data.AlcoholVolume === 'limang beses o higit sa isang linggo') ? 'true' : 'false';
+            data.IsBingeDrinker = document.querySelector('input[name="alcohol_okasyon"]:checked')?.value === '>5>' ? 'true' : 'false';
 
-            // B.3 Ehersisyo
-            data.HasEnoughExercise = document.querySelector('input[name="ehersisyo_regular"]:checked')?.value === 'mayroon' || false;
+            // B.3 Ehersisyo  
+            const ehersisyoValue = document.querySelector('input[name="ehersisyo_regular"]:checked')?.value;
+            data.HasEnoughExercise = (ehersisyoValue === 'mayroon') ? 'true' : 'false';
+            data.InsufficientPhysicalActivity = (ehersisyoValue === 'wala') ? 'true' : 'false';
+            data.HasNoRegularExercise = (ehersisyoValue === 'wala');
 
             // B.4 Paninigarilyo
-            data.SmokingStatus = document.querySelector('input[name="SmokingStatus"]:checked')?.value || 'Non-smoker';
+            const smokingValue = document.querySelector('input[name="SmokingStatus"]:checked')?.value;
+            data.SmokingStatus = smokingValue || 'Non-smoker';
+            data.FormerSmoker = document.querySelector('input[name="sigarilyo_tumigil"]:checked')?.value === '>=1 taon' ? 'true' : 'false';
+            data.NeverSmokedButExposedToSmoke = (smokingValue === 'Non-smoker' && document.querySelector('input[name="sigarilyo_usok"]:checked')?.value === 'Oo') ? 'true' : 'false';
+            data.HasHistoryOfSmoking = (smokingValue === 'Smoker') ? 'true' : 'false';
+            
+            // B.5 Stress
+            const stressValue = document.querySelector('input[name="stress_madalas"]:checked')?.value;
+            data.HasStress = (stressValue === 'Oo') ? 'true' : 'false';
 
             // Add appointmentId and userId to the data
             const urlParams = new URLSearchParams(window.location.search);

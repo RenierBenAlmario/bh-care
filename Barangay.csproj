@@ -8,6 +8,8 @@
     <StaticWebAssetBasePath>/</StaticWebAssetBasePath>
     <RootNamespace>Barangay</RootNamespace>
     <AssemblyName>Barangay</AssemblyName>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
   </PropertyGroup>
 
   <ItemGroup>
@@ -53,5 +55,8 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\uploads\" />
+    <Compile Remove="Tools\**\*.cs" />
+    <Compile Remove="Tools\**\Properties\*.cs" />
+    <None Include="Tools\**\*.cs" />
   </ItemGroup>
 </Project>

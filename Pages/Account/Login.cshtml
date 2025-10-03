@@ -74,6 +74,8 @@
                     </span>
                 </button>
             </div>
+            <!-- Hidden OTP field used when OTP modal verifies -->
+            <input asp-for="OTPCode" type="hidden" id="OTPCode" />
             
             <div class="divider">
                 <span>OR</span>
@@ -98,6 +100,26 @@
                 </div>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- Login OTP Modal -->
+<div class="modal fade" id="loginOtpModal" tabindex="-1" aria-labelledby="loginOtpModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="loginOtpModalLabel">OTP Verification</h5>
+            </div>
+            <div class="modal-body">
+                <p class="mb-2">We sent a 6-digit code to <strong id="loginOtpEmailDisplay"></strong>.</p>
+                <input type="text" id="loginOtpInput" class="form-control text-center" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="000000" />
+                <small class="text-muted d-block mt-2">It will auto-verify once you enter 6 digits.</small>
+                <div class="d-flex align-items-center justify-content-between mt-3">
+                    <button type="button" class="btn btn-link p-0" id="loginResendBtn">Resend</button>
+                    <small id="loginResendCountdown" class="text-muted" aria-live="polite"></small>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -136,35 +158,134 @@
     color: white;
     border-color: #dc3545;
 }
-
 .admin-access-btn:focus {
     box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
 }
 </style>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-    <script src="~/js/login.js" asp-append-version="true"></script>
-    <script>
-        function goToAdminLogin() {
-            window.location.href = '/Account/AdminLogin';
-        }
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+        <script src="~/js/login.js" asp-append-version="true"></script>
+        <script>
+            function goToAdminLogin() {
+                window.location.href = '/Account/AdminLogin';
+            }
         
         // Prevent admin users from submitting regular login form
         document.addEventListener('DOMContentLoaded', function() {
             const loginForm = document.getElementById('loginForm');
             const emailInput = document.querySelector('input[name="EmailOrUsername"]');
-            
+            const otpHidden = document.getElementById('OTPCode');
+            const otpModalEl = document.getElementById('loginOtpModal');
+            const otpModalInput = document.getElementById('loginOtpInput');
+            const otpEmailDisplay = document.getElementById('loginOtpEmailDisplay');
+            const resendBtn = document.getElementById('loginResendBtn');
+            const countdownEl = document.getElementById('loginResendCountdown');
+            let countdownTimer = null;
+            let resendLocked = false;
+            const otpRequired = @Model.OTPRequired.ToString().ToLower();
+            const otpEmail = '@(Model.UserEmail ?? string.Empty)';
+
+            // Prevent admin users on regular login
             loginForm.addEventListener('submit', function(e) {
-                const email = emailInput.value.toLowerCase();
-                
-                // Check for common admin email patterns
+                const email = (emailInput.value || '').toLowerCase();
                 if (email.includes('admin') || email.includes('administrator')) {
                     e.preventDefault();
                     alert('❌ ACCESS DENIED: Admin users must use the Admin Login page. Please use the "Admin Login Only" button below.');
                     return false;
                 }
             });
+
+            function startResendCountdown(seconds = 30) {
+                let remaining = seconds;
+                resendLocked = true;
+                clearInterval(countdownTimer);
+                countdownTimer = setInterval(() => {
+                    remaining--;
+                    if (remaining <= 0) {
+                        clearInterval(countdownTimer);
+                        resendLocked = false;
+                        if (countdownEl) countdownEl.textContent = 'Resend now';
+                    } else {
+                        if (countdownEl) countdownEl.textContent = `Resend in ${remaining}s`;
+                    }
+                }, 1000);
+            }
+
+            function showOtpModal() {
+                if (otpEmailDisplay) otpEmailDisplay.textContent = otpEmail || emailInput.value;
+                if (!otpModalEl) return;
+                if (typeof bootstrap !== 'undefined' && bootstrap?.Modal) {
+                    const modal = bootstrap.Modal.getOrCreateInstance(otpModalEl);
+                    if (otpModalInput) otpModalInput.value = '';
+                    modal.show();
+                } else {
+                    // Fallback: emulate modal (no Bootstrap JS)
+                    otpModalEl.classList.remove('fade');
+                    otpModalEl.classList.add('show');
+                    otpModalEl.style.display = 'block';
+                    document.body.classList.add('modal-open');
+                    // add simple backdrop
+                    fallbackBackdrop = document.createElement('div');
+                    fallbackBackdrop.className = 'modal-backdrop show';
+                    document.body.appendChild(fallbackBackdrop);
+                }
+                setTimeout(() => { if (otpModalInput) otpModalInput.focus(); }, 150);
+            }
+
+            function requestServerOtp() {
+                const email = (otpEmail || emailInput.value || '').trim();
+                if (!email) return;
+                const formData = new FormData();
+                formData.append('email', email);
+                return fetch('/Account/Login?handler=RequestOtp', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(r => r.ok ? r.json() : Promise.reject())
+                .then(d => { if (d && d.success) startResendCountdown(30); });
+            }
+
+            function verifyLoginOtp() {
+                const otp = (otpModalInput?.value || '').trim();
+                if (!/^\d{6}$/.test(otp)) return;
+                if (otpHidden) otpHidden.value = otp;
+                // Hide modal (fallback-safe)
+                if (otpModalEl && typeof bootstrap !== 'undefined' && bootstrap?.Modal) {
+                    bootstrap.Modal.getOrCreateInstance(otpModalEl).hide();
+                } else if (otpModalEl) {
+                    otpModalEl.classList.remove('show');
+                    otpModalEl.style.display = 'none';
+                    document.body.classList.remove('modal-open');
+                    if (fallbackBackdrop) { fallbackBackdrop.remove(); fallbackBackdrop = null; }
+                }
+                // Submit form to let server validate OTP via cache service
+                loginForm.submit();
+            }
+
+            if (resendBtn) {
+                resendBtn.addEventListener('click', () => {
+                    if (resendLocked) return;
+                    requestServerOtp();
+                });
+            }
+
+            if (otpModalInput) {
+                otpModalInput.addEventListener('input', () => {
+                    otpModalInput.value = otpModalInput.value.replace(/\D/g, '').slice(0, 6);
+                    if (otpModalInput.value.length === 6) {
+                        verifyLoginOtp();
+                    }
+                });
+                otpModalInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') verifyLoginOtp();
+                });
+            }
+
+            if (otpRequired === true || otpRequired === 'true') {
+                showOtpModal();
+                startResendCountdown(30);
+            }
         });
     </script>
-}
+    }

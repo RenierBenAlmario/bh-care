@@ -228,6 +228,8 @@ namespace Barangay.Pages.Nurse
                                 NCDRiskAssessment.HighSaltIntake = SafeDecrypt(NCDRiskAssessment.HighSaltIntake);
                                 NCDRiskAssessment.ExerciseDuration = SafeDecrypt(NCDRiskAssessment.ExerciseDuration);
                                 NCDRiskAssessment.RiskStatus = SafeDecrypt(NCDRiskAssessment.RiskStatus);
+                                NCDRiskAssessment.AssessmentDate = SafeDecrypt(NCDRiskAssessment.AssessmentDate);
+                                NCDRiskAssessment.DateOfAssessment = SafeDecrypt(NCDRiskAssessment.DateOfAssessment);
                                 // CreatedAt and UpdatedAt are now DateTime, no decryption needed
                                 
                                 _logger.LogInformation("Successfully loaded and decrypted NCDRiskAssessment data for appointment ID {Id}", id);

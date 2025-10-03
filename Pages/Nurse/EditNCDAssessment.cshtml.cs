@@ -333,6 +333,10 @@ namespace Barangay.Pages.Nurse
                     {
                         assessment.DateOfAssessment = _encryptionService.DecryptForUser(assessment.DateOfAssessment, User);
                     }
+                    if (!string.IsNullOrEmpty(assessment.AssessmentDate) && _encryptionService.IsEncrypted(assessment.AssessmentDate))
+                    {
+                        assessment.AssessmentDate = _encryptionService.DecryptForUser(assessment.AssessmentDate, User);
+                    }
                     
                     // Medical History
                     if (!string.IsNullOrEmpty(assessment.HasDiabetes) && _encryptionService.IsEncrypted(assessment.HasDiabetes))
@@ -577,8 +581,62 @@ namespace Barangay.Pages.Nurse
                     {
                         assessment.HasEnoughExercise = _encryptionService.DecryptForUser(assessment.HasEnoughExercise, User);
                     }
+
+                    // Decrypt medical history boolean-like fields
+                    if (!string.IsNullOrEmpty(assessment.HasDiabetes) && _encryptionService.IsEncrypted(assessment.HasDiabetes))
+                    {
+                        assessment.HasDiabetes = _encryptionService.DecryptForUser(assessment.HasDiabetes, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.HasHypertension) && _encryptionService.IsEncrypted(assessment.HasHypertension))
+                    {
+                        assessment.HasHypertension = _encryptionService.DecryptForUser(assessment.HasHypertension, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.HasCancer) && _encryptionService.IsEncrypted(assessment.HasCancer))
+                    {
+                        assessment.HasCancer = _encryptionService.DecryptForUser(assessment.HasCancer, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.HasCOPD) && _encryptionService.IsEncrypted(assessment.HasCOPD))
+                    {
+                        assessment.HasCOPD = _encryptionService.DecryptForUser(assessment.HasCOPD, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.HasLungDisease) && _encryptionService.IsEncrypted(assessment.HasLungDisease))
+                    {
+                        assessment.HasLungDisease = _encryptionService.DecryptForUser(assessment.HasLungDisease, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.HasEyeDisease) && _encryptionService.IsEncrypted(assessment.HasEyeDisease))
+                    {
+                        assessment.HasEyeDisease = _encryptionService.DecryptForUser(assessment.HasEyeDisease, User);
+                    }
                     
                     // Chest Pain and Symptoms
+                    if (!string.IsNullOrEmpty(assessment.HasChestPain) && _encryptionService.IsEncrypted(assessment.HasChestPain))
+                    {
+                        assessment.HasChestPain = _encryptionService.DecryptForUser(assessment.HasChestPain, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.ChestPainSpreadsToArm) && _encryptionService.IsEncrypted(assessment.ChestPainSpreadsToArm))
+                    {
+                        assessment.ChestPainSpreadsToArm = _encryptionService.DecryptForUser(assessment.ChestPainSpreadsToArm, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.NumbnessWhenWalkingFast) && _encryptionService.IsEncrypted(assessment.NumbnessWhenWalkingFast))
+                    {
+                        assessment.NumbnessWhenWalkingFast = _encryptionService.DecryptForUser(assessment.NumbnessWhenWalkingFast, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.PainRelievedWithRest) && _encryptionService.IsEncrypted(assessment.PainRelievedWithRest))
+                    {
+                        assessment.PainRelievedWithRest = _encryptionService.DecryptForUser(assessment.PainRelievedWithRest, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.LossOfConsciousnessLessThan10Min) && _encryptionService.IsEncrypted(assessment.LossOfConsciousnessLessThan10Min))
+                    {
+                        assessment.LossOfConsciousnessLessThan10Min = _encryptionService.DecryptForUser(assessment.LossOfConsciousnessLessThan10Min, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.PainLastsMoreThan30Min) && _encryptionService.IsEncrypted(assessment.PainLastsMoreThan30Min))
+                    {
+                        assessment.PainLastsMoreThan30Min = _encryptionService.DecryptForUser(assessment.PainLastsMoreThan30Min, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.SeeDoctorIfYes) && _encryptionService.IsEncrypted(assessment.SeeDoctorIfYes))
+                    {
+                        assessment.SeeDoctorIfYes = _encryptionService.DecryptForUser(assessment.SeeDoctorIfYes, User);
+                    }
                     if (!string.IsNullOrEmpty(assessment.ChestPain) && _encryptionService.IsEncrypted(assessment.ChestPain))
                     {
                         assessment.ChestPain = _encryptionService.DecryptForUser(assessment.ChestPain, User);
@@ -603,6 +661,70 @@ namespace Barangay.Pages.Nurse
                     {
                         assessment.HasNoRegularExercise = _encryptionService.DecryptForUser(assessment.HasNoRegularExercise, User);
                     }
+
+                    // Nutrition booleans
+                    if (!string.IsNullOrEmpty(assessment.EatsVegetablesDaily) && _encryptionService.IsEncrypted(assessment.EatsVegetablesDaily))
+                        assessment.EatsVegetablesDaily = _encryptionService.DecryptForUser(assessment.EatsVegetablesDaily, User);
+                    if (!string.IsNullOrEmpty(assessment.EatsFruitsDaily) && _encryptionService.IsEncrypted(assessment.EatsFruitsDaily))
+                        assessment.EatsFruitsDaily = _encryptionService.DecryptForUser(assessment.EatsFruitsDaily, User);
+                    if (!string.IsNullOrEmpty(assessment.EatsFishDaily) && _encryptionService.IsEncrypted(assessment.EatsFishDaily))
+                        assessment.EatsFishDaily = _encryptionService.DecryptForUser(assessment.EatsFishDaily, User);
+                    if (!string.IsNullOrEmpty(assessment.EatsMeatDaily) && _encryptionService.IsEncrypted(assessment.EatsMeatDaily))
+                        assessment.EatsMeatDaily = _encryptionService.DecryptForUser(assessment.EatsMeatDaily, User);
+                    if (!string.IsNullOrEmpty(assessment.HasUnhealthyDiet) && _encryptionService.IsEncrypted(assessment.HasUnhealthyDiet))
+                        assessment.HasUnhealthyDiet = _encryptionService.DecryptForUser(assessment.HasUnhealthyDiet, User);
+                    if (!string.IsNullOrEmpty(assessment.EatsFattyFoodMoreThan2TimesPerWeek) && _encryptionService.IsEncrypted(assessment.EatsFattyFoodMoreThan2TimesPerWeek))
+                        assessment.EatsFattyFoodMoreThan2TimesPerWeek = _encryptionService.DecryptForUser(assessment.EatsFattyFoodMoreThan2TimesPerWeek, User);
+                    if (!string.IsNullOrEmpty(assessment.EatsSweetFoodMoreThan2TimesPerWeek) && _encryptionService.IsEncrypted(assessment.EatsSweetFoodMoreThan2TimesPerWeek))
+                        assessment.EatsSweetFoodMoreThan2TimesPerWeek = _encryptionService.DecryptForUser(assessment.EatsSweetFoodMoreThan2TimesPerWeek, User);
+                    if (!string.IsNullOrEmpty(assessment.EatsOilyFoodMoreThan2TimesPerWeek) && _encryptionService.IsEncrypted(assessment.EatsOilyFoodMoreThan2TimesPerWeek))
+                        assessment.EatsOilyFoodMoreThan2TimesPerWeek = _encryptionService.DecryptForUser(assessment.EatsOilyFoodMoreThan2TimesPerWeek, User);
+                    if (!string.IsNullOrEmpty(assessment.HasHighSaltIntake) && _encryptionService.IsEncrypted(assessment.HasHighSaltIntake))
+                        assessment.HasHighSaltIntake = _encryptionService.DecryptForUser(assessment.HasHighSaltIntake, User);
+
+                    // Alcohol details
+                    if (!string.IsNullOrEmpty(assessment.DrinksAlcohol) && _encryptionService.IsEncrypted(assessment.DrinksAlcohol))
+                        assessment.DrinksAlcohol = _encryptionService.DecryptForUser(assessment.DrinksAlcohol, User);
+                    if (!string.IsNullOrEmpty(assessment.DrinksBeer) && _encryptionService.IsEncrypted(assessment.DrinksBeer))
+                        assessment.DrinksBeer = _encryptionService.DecryptForUser(assessment.DrinksBeer, User);
+                    if (!string.IsNullOrEmpty(assessment.DrinksWine) && _encryptionService.IsEncrypted(assessment.DrinksWine))
+                        assessment.DrinksWine = _encryptionService.DecryptForUser(assessment.DrinksWine, User);
+                    if (!string.IsNullOrEmpty(assessment.DrinksWhiskyGinBrandy) && _encryptionService.IsEncrypted(assessment.DrinksWhiskyGinBrandy))
+                        assessment.DrinksWhiskyGinBrandy = _encryptionService.DecryptForUser(assessment.DrinksWhiskyGinBrandy, User);
+                    if (!string.IsNullOrEmpty(assessment.AlcoholAmount1Bottle320ml) && _encryptionService.IsEncrypted(assessment.AlcoholAmount1Bottle320ml))
+                        assessment.AlcoholAmount1Bottle320ml = _encryptionService.DecryptForUser(assessment.AlcoholAmount1Bottle320ml, User);
+                    if (!string.IsNullOrEmpty(assessment.AlcoholAmount2Bottle640ml) && _encryptionService.IsEncrypted(assessment.AlcoholAmount2Bottle640ml))
+                        assessment.AlcoholAmount2Bottle640ml = _encryptionService.DecryptForUser(assessment.AlcoholAmount2Bottle640ml, User);
+                    if (!string.IsNullOrEmpty(assessment.AlcoholAmountLessThan3Shot45ml) && _encryptionService.IsEncrypted(assessment.AlcoholAmountLessThan3Shot45ml))
+                        assessment.AlcoholAmountLessThan3Shot45ml = _encryptionService.DecryptForUser(assessment.AlcoholAmountLessThan3Shot45ml, User);
+                    if (!string.IsNullOrEmpty(assessment.AlcoholAmount3to4WineGlasses300ml) && _encryptionService.IsEncrypted(assessment.AlcoholAmount3to4WineGlasses300ml))
+                        assessment.AlcoholAmount3to4WineGlasses300ml = _encryptionService.DecryptForUser(assessment.AlcoholAmount3to4WineGlasses300ml, User);
+                    if (!string.IsNullOrEmpty(assessment.AlcoholAmountMoreThan4Shots75ml) && _encryptionService.IsEncrypted(assessment.AlcoholAmountMoreThan4Shots75ml))
+                        assessment.AlcoholAmountMoreThan4Shots75ml = _encryptionService.DecryptForUser(assessment.AlcoholAmountMoreThan4Shots75ml, User);
+                    if (!string.IsNullOrEmpty(assessment.AlcoholFrequency1to3TimesPerWeek) && _encryptionService.IsEncrypted(assessment.AlcoholFrequency1to3TimesPerWeek))
+                        assessment.AlcoholFrequency1to3TimesPerWeek = _encryptionService.DecryptForUser(assessment.AlcoholFrequency1to3TimesPerWeek, User);
+                    if (!string.IsNullOrEmpty(assessment.AlcoholFrequencyMoreThan4TimesPerWeek) && _encryptionService.IsEncrypted(assessment.AlcoholFrequencyMoreThan4TimesPerWeek))
+                        assessment.AlcoholFrequencyMoreThan4TimesPerWeek = _encryptionService.DecryptForUser(assessment.AlcoholFrequencyMoreThan4TimesPerWeek, User);
+                    if (!string.IsNullOrEmpty(assessment.IsBingeDrinker) && _encryptionService.IsEncrypted(assessment.IsBingeDrinker))
+                        assessment.IsBingeDrinker = _encryptionService.DecryptForUser(assessment.IsBingeDrinker, User);
+
+                    // Exercise details
+                    if (!string.IsNullOrEmpty(assessment.ModerateIntensityExercise) && _encryptionService.IsEncrypted(assessment.ModerateIntensityExercise))
+                        assessment.ModerateIntensityExercise = _encryptionService.DecryptForUser(assessment.ModerateIntensityExercise, User);
+                    if (!string.IsNullOrEmpty(assessment.VigorousIntensityExercise) && _encryptionService.IsEncrypted(assessment.VigorousIntensityExercise))
+                        assessment.VigorousIntensityExercise = _encryptionService.DecryptForUser(assessment.VigorousIntensityExercise, User);
+                    if (!string.IsNullOrEmpty(assessment.CombinationExercise) && _encryptionService.IsEncrypted(assessment.CombinationExercise))
+                        assessment.CombinationExercise = _encryptionService.DecryptForUser(assessment.CombinationExercise, User);
+                    if (!string.IsNullOrEmpty(assessment.InsufficientPhysicalActivity) && _encryptionService.IsEncrypted(assessment.InsufficientPhysicalActivity))
+                        assessment.InsufficientPhysicalActivity = _encryptionService.DecryptForUser(assessment.InsufficientPhysicalActivity, User);
+
+                    // Smoking details
+                    if (!string.IsNullOrEmpty(assessment.FormerSmoker) && _encryptionService.IsEncrypted(assessment.FormerSmoker))
+                        assessment.FormerSmoker = _encryptionService.DecryptForUser(assessment.FormerSmoker, User);
+                    if (!string.IsNullOrEmpty(assessment.NeverSmokedButExposedToSmoke) && _encryptionService.IsEncrypted(assessment.NeverSmokedButExposedToSmoke))
+                        assessment.NeverSmokedButExposedToSmoke = _encryptionService.DecryptForUser(assessment.NeverSmokedButExposedToSmoke, User);
+                    if (!string.IsNullOrEmpty(assessment.HasHistoryOfSmoking) && _encryptionService.IsEncrypted(assessment.HasHistoryOfSmoking))
+                        assessment.HasHistoryOfSmoking = _encryptionService.DecryptForUser(assessment.HasHistoryOfSmoking, User);
                     
                     // System Fields - CreatedAt and UpdatedAt are now DateTime, no decryption needed
                     if (!string.IsNullOrEmpty(assessment.AppointmentType) && _encryptionService.IsEncrypted(assessment.AppointmentType))
@@ -827,6 +949,8 @@ namespace Barangay.Pages.Nurse
                     {
                         PatientName = "Unknown Patient";
                     }
+                    // Normalize legacy boolean-like strings for safe checkbox binding
+                    NormalizeCheckboxStrings(NCDRiskAssessment);
                 }
                 catch (Exception viewModelEx)
                 {
@@ -1078,6 +1202,127 @@ namespace Barangay.Pages.Nurse
                 _logger.LogError(ex, "Error updating NCD assessment for appointment {AppointmentId}", NCDRiskAssessment?.AppointmentId);
                 TempData["StatusMessage"] = "Error: Failed to update assessment.";
             return Page();
+            }
+        }
+
+        // Normalize legacy boolean-like strings to strict 'true'/'false' for checkbox bindings
+        private static void NormalizeCheckboxStrings(NCDRiskAssessmentViewModel vm)
+        {
+            if (vm == null) return;
+
+            // Medical history
+            vm.HasDiabetes = NormalizeBool(vm.HasDiabetes);
+            vm.HasHypertension = NormalizeBool(vm.HasHypertension);
+            vm.HasCancer = NormalizeBool(vm.HasCancer);
+            vm.HasCOPD = NormalizeBool(vm.HasCOPD);
+            vm.HasLungDisease = NormalizeBool(vm.HasLungDisease);
+            vm.HasEyeDisease = NormalizeBool(vm.HasEyeDisease);
+            vm.HasAsthma = NormalizeBool(vm.HasAsthma);
+            vm.HasDifficultyBreathing = NormalizeBool(vm.HasDifficultyBreathing);
+
+            // Chest pain items
+            vm.HasChestPain = NormalizeBool(vm.HasChestPain);
+            vm.ChestPainSpreadsToArm = NormalizeBool(vm.ChestPainSpreadsToArm);
+            vm.NumbnessWhenWalkingFast = NormalizeBool(vm.NumbnessWhenWalkingFast);
+            vm.PainRelievedWithRest = NormalizeBool(vm.PainRelievedWithRest);
+            vm.LossOfConsciousnessLessThan10Min = NormalizeBool(vm.LossOfConsciousnessLessThan10Min);
+            vm.PainLastsMoreThan30Min = NormalizeBool(vm.PainLastsMoreThan30Min);
+            vm.SeeDoctorIfYes = NormalizeBool(vm.SeeDoctorIfYes);
+
+            // Aggregated family history flags
+            vm.FamilyHasHypertension = NormalizeBool(vm.FamilyHasHypertension);
+            vm.FamilyHasHeartDisease = NormalizeBool(vm.FamilyHasHeartDisease);
+            vm.FamilyHasStroke = NormalizeBool(vm.FamilyHasStroke);
+            vm.FamilyHasDiabetes = NormalizeBool(vm.FamilyHasDiabetes);
+            vm.FamilyHasCancer = NormalizeBool(vm.FamilyHasCancer);
+            vm.FamilyHasKidneyDisease = NormalizeBool(vm.FamilyHasKidneyDisease);
+            vm.FamilyHasOtherDisease = NormalizeBool(vm.FamilyHasOtherDisease);
+
+            // Detailed family history (father)
+            vm.FamilyHistoryHypertensionFather = NormalizeBool(vm.FamilyHistoryHypertensionFather);
+            vm.FamilyHistoryStrokeFather = NormalizeBool(vm.FamilyHistoryStrokeFather);
+            vm.FamilyHistoryDiabetesFather = NormalizeBool(vm.FamilyHistoryDiabetesFather);
+            vm.FamilyHistoryCancerFather = NormalizeBool(vm.FamilyHistoryCancerFather);
+            vm.FamilyHistoryLungDiseaseFather = NormalizeBool(vm.FamilyHistoryLungDiseaseFather);
+            vm.FamilyHistoryKidneyDiseaseFather = NormalizeBool(vm.FamilyHistoryKidneyDiseaseFather);
+            vm.FamilyHistoryEyeDiseaseFather = NormalizeBool(vm.FamilyHistoryEyeDiseaseFather);
+
+            // Nutrition
+            vm.EatsVegetablesDaily = NormalizeBool(vm.EatsVegetablesDaily);
+            vm.EatsFruitsDaily = NormalizeBool(vm.EatsFruitsDaily);
+            vm.EatsFishDaily = NormalizeBool(vm.EatsFishDaily);
+            vm.EatsMeatDaily = NormalizeBool(vm.EatsMeatDaily);
+            vm.HasUnhealthyDiet = NormalizeBool(vm.HasUnhealthyDiet);
+            vm.EatsFattyFoodMoreThan2TimesPerWeek = NormalizeBool(vm.EatsFattyFoodMoreThan2TimesPerWeek);
+            vm.EatsSweetFoodMoreThan2TimesPerWeek = NormalizeBool(vm.EatsSweetFoodMoreThan2TimesPerWeek);
+            vm.EatsOilyFoodMoreThan2TimesPerWeek = NormalizeBool(vm.EatsOilyFoodMoreThan2TimesPerWeek);
+            vm.HasHighSaltIntake = NormalizeBool(vm.HasHighSaltIntake);
+
+            // Alcohol details
+            vm.DrinksAlcohol = NormalizeBool(vm.DrinksAlcohol);
+            vm.DrinksBeer = NormalizeBool(vm.DrinksBeer);
+            vm.DrinksWine = NormalizeBool(vm.DrinksWine);
+            vm.DrinksWhiskyGinBrandy = NormalizeBool(vm.DrinksWhiskyGinBrandy);
+            vm.AlcoholAmount1Bottle320ml = NormalizeBool(vm.AlcoholAmount1Bottle320ml);
+            vm.AlcoholAmount2Bottle640ml = NormalizeBool(vm.AlcoholAmount2Bottle640ml);
+            vm.AlcoholAmountLessThan3Shot45ml = NormalizeBool(vm.AlcoholAmountLessThan3Shot45ml);
+            vm.AlcoholAmount3to4WineGlasses300ml = NormalizeBool(vm.AlcoholAmount3to4WineGlasses300ml);
+            vm.AlcoholAmountMoreThan4Shots75ml = NormalizeBool(vm.AlcoholAmountMoreThan4Shots75ml);
+            vm.AlcoholFrequency1to3TimesPerWeek = NormalizeBool(vm.AlcoholFrequency1to3TimesPerWeek);
+            vm.AlcoholFrequencyMoreThan4TimesPerWeek = NormalizeBool(vm.AlcoholFrequencyMoreThan4TimesPerWeek);
+            vm.IsBingeDrinker = NormalizeBool(vm.IsBingeDrinker);
+
+            // Exercise
+            vm.ModerateIntensityExercise = NormalizeBool(vm.ModerateIntensityExercise);
+            vm.VigorousIntensityExercise = NormalizeBool(vm.VigorousIntensityExercise);
+            vm.CombinationExercise = NormalizeBool(vm.CombinationExercise);
+            vm.InsufficientPhysicalActivity = NormalizeBool(vm.InsufficientPhysicalActivity);
+            vm.HasEnoughExercise = NormalizeBool(vm.HasEnoughExercise);
+            vm.HasNoRegularExercise = NormalizeBool(vm.HasNoRegularExercise);
+
+            // Smoking
+            vm.HasHistoryOfSmoking = NormalizeBool(vm.HasHistoryOfSmoking);
+            vm.FormerSmoker = NormalizeBool(vm.FormerSmoker);
+            vm.NeverSmokedButExposedToSmoke = NormalizeBool(vm.NeverSmokedButExposedToSmoke);
+            vm.Smoked100Sticks = NormalizeBool(vm.Smoked100Sticks);
+
+            // Urine and blood sugar flags
+            vm.HasPolyuria = NormalizeBool(vm.HasPolyuria);
+            vm.HasPolydipsia = NormalizeBool(vm.HasPolydipsia);
+            vm.HasPolyphagia = NormalizeBool(vm.HasPolyphagia);
+            vm.HasWeightLoss = NormalizeBool(vm.HasWeightLoss);
+            vm.HasUrineProtein = NormalizeBool(vm.HasUrineProtein);
+            vm.HasUrineKetones = NormalizeBool(vm.HasUrineKetones);
+
+            // Cancer screening
+            vm.BreastCancerScreened = NormalizeBool(vm.BreastCancerScreened);
+            vm.CervicalCancerScreened = NormalizeBool(vm.CervicalCancerScreened);
+
+            // Stress
+            vm.HasStress = NormalizeBool(vm.HasStress);
+        }
+
+        private static string NormalizeBool(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return "false";
+            var v = value.Trim().ToLowerInvariant();
+            switch (v)
+            {
+                case "true":
+                case "1":
+                case "oo":
+                case "yes":
+                case "mayroon":
+                    return "true";
+                case "false":
+                case "0":
+                case "hindi":
+                case "no":
+                case "wala":
+                case "non-smoker":
+                    return "false";
+                default:
+                    return "false";
             }
         }
     }

@@ -83,10 +83,10 @@ function enableActionButtons() {
 }
 
 function startConsultation() {
-    const patientId = getCurrentPatientId();
-    if (patientId) {
-        window.location.href = `/Doctor/Consultation/${patientId}`;
-    }
+    // Consultation must be accessed through booked appointments, not directly via patient ID
+    // Remove direct patient consultation access
+    alert('Consultations must be accessed through a booked appointment. Please book an appointment first to start a consultation.');
+    return false;
 }
 
 function scheduleAppointment() {

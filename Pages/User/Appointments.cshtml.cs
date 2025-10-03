@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Barangay.Models;
 using Barangay.Data;
+using Barangay.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,8 +54,8 @@ namespace Barangay.Pages.User
                 user.PhoneNumber = user.PhoneNumber.DecryptForUser(_encryptionService, User);
             }
 
-            // Get the current date
-            var today = DateTime.Now.Date;
+            // Get the current date using Philippine timezone
+            var today = DateTimeHelper.Today;
 
             try
             {
@@ -102,17 +103,20 @@ namespace Barangay.Pages.User
                     }
                 }
 
-                // Split into upcoming and past appointments
+                // Split into upcoming and past appointments using proper datetime comparison
+                var now = DateTimeHelper.Now;
+                var todayEnd = today.AddDays(1).AddTicks(-1);
+                
                 UpcomingAppointments = appointments
-                    .Where(a => a.AppointmentDate >= today || 
-                        (a.AppointmentDate == today && 
-                            a.AppointmentTime >= DateTime.Now.TimeOfDay))
+                    .Where(a => a.AppointmentDate > todayEnd || 
+                        (a.AppointmentDate >= today && a.AppointmentDate <= todayEnd && 
+                            a.AppointmentTime >= now.TimeOfDay))
                     .ToList();
 
                 PastAppointments = appointments
                     .Where(a => a.AppointmentDate < today || 
-                        (a.AppointmentDate == today && 
-                            a.AppointmentTime < DateTime.Now.TimeOfDay))
+                        (a.AppointmentDate >= today && a.AppointmentDate <= todayEnd && 
+                            a.AppointmentTime < now.TimeOfDay))
                     .ToList();
             }
             catch (InvalidCastException ex)
