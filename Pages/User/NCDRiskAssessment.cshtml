@@ -108,8 +108,9 @@
 
     <div class="container ncd-container">
         <h1>Integrated NCD Risk Assessment Form</h1>
-        <form id="ncd-form" method="post">
-            @Html.AntiForgeryToken()
+        @Html.AntiForgeryToken()
+        <div id="ncd-form">
+        <div id="assessment-form">
 
             <div class="wizard-header">
                 <div class="steps-indicator" aria-label="Form steps">
@@ -136,7 +137,7 @@
                     <div class="form-group">
                         <label for="family-no">Family No.:</label>
                         <div class="d-flex">
-                            <input type="text" id="family-no" name="familyNo" class="form-control" value="@Model.FamilyNo">
+                            <input type="text" id="family-no" name="familyNo" class="form-control" value="@Model.FamilyNo" placeholder="Enter family number">
                             <button type="button" id="generate-family-no" class="btn btn-secondary ms-2">Generate</button>
                         </div>
                         <small class="form-text text-muted">If you have a family number, enter it or click Generate to create a new one.</small>
@@ -219,37 +220,48 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td><label><input type="checkbox" name="HasDiabetes" value="true"> Diabetes (DM)</label></td>
-                            <td></td>
-                            <td><input type="text" name="DiabetesYear"></td>
-                            <td><input type="text" name="DiabetesMedication"></td>
+                            <td>Diabetes (DM)</td>
+                            <td><input type="checkbox" name="HasDiabetes" value="true"></td>
+                            <td><input type="text" name="DiabetesYear" placeholder="Year"></td>
+                            <td><input type="text" name="DiabetesMedication" placeholder="Medication"></td>
                         </tr>
                         <tr>
-                            <td><label><input type="checkbox" name="HasHypertension" value="true"> Hypertension (HPN)</label></td>
-                            <td></td>
-                            <td><input type="text" name="HypertensionYear"></td>
-                            <td><input type="text" name="HypertensionMedication"></td>
+                            <td>Hypertension (HPN)</td>
+                            <td><input type="checkbox" name="HasHypertension" value="true"></td>
+                            <td><input type="text" name="HypertensionYear" placeholder="Year"></td>
+                            <td><input type="text" name="HypertensionMedication" placeholder="Medication"></td>
                         </tr>
                         <tr>
                             <td>
-                                <label><input type="checkbox" name="HasCancer" value="true"> Cancer</label>
-                                <input type="text" name="CancerType" placeholder="specify site">
+                                Cancer
+                                <input type="text" name="CancerType" placeholder="specify site" style="margin-top: 5px; width: 100%;">
                             </td>
-                            <td></td>
-                            <td><input type="text" name="CancerYear"></td>
-                            <td><input type="text" name="CancerMedication"></td>
+                            <td><input type="checkbox" name="HasCancer" value="true"></td>
+                            <td><input type="text" name="CancerYear" placeholder="Year"></td>
+                            <td><input type="text" name="CancerMedication" placeholder="Medication"></td>
                         </tr>
                         <tr>
-                            <td><label><input type="checkbox" name="Sakit sa baga hindu nakakahawa" value="true"> Sakit sa baga hindu nakakahawa</label></td>
-                            <td></td>
-                            <td><input type="text" name="LungDiseaseYear"></td>
-                            <td><input type="text" name="LungDiseaseMedication"></td>
+                            <td>Sakit sa baga hindi nakakahawa</td>
+                            <td><input type="checkbox" name="HasLungDiseaseNonInfectious" value="true"></td>
+                            <td><input type="text" name="LungDiseaseYear" placeholder="Year"></td>
+                            <td><input type="text" name="LungDiseaseMedication" placeholder="Medication"></td>
                         </tr>
                         <tr>
-                            <td><label><input type="checkbox" name="Sakit sa mata" value="true"> Sakit sa mata</label></td>
-                            <td></td>
-                            <td><input type="text" name="EyeDiseaseYear"></td>
-                            <td><input type="text" name="EyeDiseaseMedication"></td>
+                            <td>Sakit sa mata</td>
+                            <td><input type="checkbox" name="HasEyeDisease" value="true"></td>
+                            <td><input type="text" name="EyeDiseaseYear" placeholder="Year"></td>
+                            <td><input type="text" name="EyeDiseaseMedication" placeholder="Medication"></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Asthma
+                                <div style="margin-top: 5px;">
+                                    <label><input type="checkbox" name="HasDifficultyBreathing" value="true"> Has Difficulty Breathing</label>
+                                </div>
+                            </td>
+                            <td><input type="checkbox" name="HasAsthma" value="true"></td>
+                            <td><input type="text" name="AsthmaYear" placeholder="Year"></td>
+                            <td><input type="text" name="AsthmaMedication" placeholder="Medication"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -327,36 +339,41 @@
                 <div class="form-group">
                     <label>Family history of:</label>
                     <table>
-                       
-                     
+                        <thead>
+                            <tr>
+                                <th>Family history of:</th>
+                                <th>Check if Yes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                             <tr>
                                 <td>Mataas na presyon</td>
                                 <td><input type="checkbox" name="FamilyHistoryHypertensionFather" value="true"></td>
-                                </tr>
+                            </tr>
                             <tr>
                                 <td>Sakit sa puso</td>
                                 <td><input type="checkbox" name="FamilyHistoryHeartDiseaseFather" value="true"></td>
-                                </tr>
+                            </tr>
                             <tr>
                                 <td>Stroke</td>
                                 <td><input type="checkbox" name="FamilyHistoryStrokeFather" value="true"></td>
-                                </tr>
+                            </tr>
                             <tr>
                                 <td>Diabetes</td>
                                 <td><input type="checkbox" name="FamilyHistoryDiabetesFather" value="true"></td>
-                                </tr>
+                            </tr>
                             <tr>
                                 <td>Kanser</td>
                                 <td><input type="checkbox" name="FamilyHistoryCancerFather" value="true"></td>
-                                </tr>
+                            </tr>
                             <tr>
                                 <td>Sakit sa baga na hindi nakakahawa</td>
                                 <td><input type="checkbox" name="FamilyHistoryLungDiseaseFather" value="true"></td>
-                                 </tr>
+                            </tr>
                             <tr>
                                 <td>Sakit sa bato</td>
                                 <td><input type="checkbox" name="FamilyHistoryKidneyDiseaseFather" value="true"></td>
-                                </tr>
+                            </tr>
                         </tbody>
                     </table>
                     <label for="family-history-other" style="margin-top: 1rem;">Iba pang sakit:</label>
@@ -369,19 +386,19 @@
                 <div class="form-group">
                     <label>Madalas mo bang kainin ang mga sumusunod?</label>
                     <div class="checkbox-group">
-                        <label><input type="checkbox" name="nutrisyon_madalas" value="gulay"> Gulay</label>
-                        <label><input type="checkbox" name="nutrisyon_madalas" value="prutas"> Prutas</label>
-                        <label><input type="checkbox" name="nutrisyon_madalas" value="isda"> Isda</label>
-                        <label><input type="checkbox" name="nutrisyon_madalas" value="karne"> Karne</label>
-                        <label><input type="checkbox" name="EatsProcessedFood" value="true"> Processed Food</label>
+                        <label><input type="checkbox" name="EatsVegetablesDaily" value="true"> Gulay</label>
+                        <label><input type="checkbox" name="EatsFruitsDaily" value="true"> Prutas</label>
+                        <label><input type="checkbox" name="EatsFishDaily" value="true"> Isda</label>
+                        <label><input type="checkbox" name="EatsMeatDaily" value="true"> Karne</label>
+                        <label><input type="checkbox" name="HasUnhealthyDiet" value="true"> Processed Food</label>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Kumakain ka ba ng higit sa 2 beses kada linggo ng:</label>
                     <div class="checkbox-group">
-                        <label><input type="checkbox" name="nutrisyon_kumakain" value="matatamis"> Matatamis na pagkain</label>
+                        <label><input type="checkbox" name="EatsSweetFoodMoreThan2TimesPerWeek" value="true"> Matatamis na pagkain</label>
                         <label><input type="checkbox" name="HighSaltIntake" value="true"> Maaalat na pagkain</label>
-                        <label><input type="checkbox" name="nutrisyon_kumakain" value="mamantika"> Mamantikang pagkain</label>
+                        <label><input type="checkbox" name="EatsOilyFoodMoreThan2TimesPerWeek" value="true"> Mamantikang pagkain</label>
                     </div>
                 </div>
 
@@ -393,14 +410,14 @@
                         <label><input type="radio" name="alcohol_inom" value="Hindi"> Hindi</label>
                     </div>
                 </div>
-                <div class="form-group conditional-section" id="alcohol-stopped-questions">
+                <div class="form-group conditional-section hidden" id="alcohol-stopped-questions">
                     <label>Kung hindi, gaano katagal ka na tumigil sa pag-inom?</label>
                     <div class="radio-group">
                         <label><input type="radio" name="AlcoholStoppedDuration" value="wala pang 1 taon"> Wala pang 1 taon</label>
-                        <label><input type="radio" name="AlcoholStoppedDuration" value="≥ 1 taon"> ≥ 1 taon</label>
+                        <label><input type="radio" name="AlcoholStoppedDuration" value="1 taon"> 1 taon</label>
                     </div>
                 </div>
-                <div class="form-group conditional-section" id="alcohol-questions">
+                <div class="form-group conditional-section hidden" id="alcohol-questions">
                     <label>Gaano karami sa isang araw?</label>
                 
                     <table>
@@ -414,60 +431,60 @@
                         <tbody>
                             <tr>
                                 <td>
-                                    <label><input type="checkbox" name="AlchoholTypeBeer" value="true"> Beer</label>
+                                    <label><input type="checkbox" name="DrinksBeer" value="true"> Beer</label>
                                     <div style="margin-top: 10px;">
-                                    <label style="display: block;"><input type="checkbox" name="BeerConsumption1" value="true"> 1 bote (320 ml)</label>
-                                    <label style="display: block;"><input type="checkbox" name="BeerConsumption2" value="true"> 2 bote (640 ml)</label>
-                                    <label style="display: block;"><input type="checkbox" name="BeerConsumption3" value="true"> ≥ 3 bote</label>
+                                    <label style="display: block;"><input type="checkbox" name="AlcoholAmount1Bottle320ml" value="true"> 1 bote (320 ml)</label>
+                                    <label style="display: block;"><input type="checkbox" name="AlcoholAmount2Bottle640ml" value="true"> 2 bote (640 ml)</label>
+                                    <label style="display: block;"><input type="checkbox" name="BeerConsumption3" value="true">3 bote</label>
                                     </div>
                                 </td>
                                 <td>
-                                    <label><input type="checkbox" name="AlchoholTypeWine" value="true"> Wine</label>
+                                    <label><input type="checkbox" name="DrinksWine" value="true"> Wine</label>
                                     <div style="margin-top: 10px;">
-                                    <label style="display: block;"><input type="checkbox" name="WineConsumption1" value="true"> ≤ 3 wine glasses (300 ml)</label>
-                                    <label style="display: block;"><input type="checkbox" name="WineConsumption2" value="true"> > 4 wine glasses</label>
+                                    <label style="display: block;"><input type="checkbox" name="AlcoholAmount3to4WineGlasses300ml" value="true">3 wine glasses (300 ml)</label>
+                                    <label style="display: block;"><input type="checkbox" name="WineConsumption2" value="true"> >4 wine glasses</label>
                                     </div>
                                 </td>
                                 <td>
-                                    <label><input type="checkbox" name="AlchoholTypeWhisky" value="true"> Whisky/Gin/Brandy</label>
+                                    <label><input type="checkbox" name="DrinksWhiskyGinBrandy" value="true"> Whisky/Gin/Brandy</label>
                                     <div style="margin-top: 10px;">
-                                    <label style="display: block;"><input type="checkbox" name="WhiskyConsumption1" value="true"> ≤ 3 shots/jigger (75 ml)</label>
-                                    <label style="display: block;"><input type="checkbox" name="WhiskyConsumption2" value="true"> ≥ 4 shots / jigger</label>
+                                    <label style="display: block;"><input type="checkbox" name="AlcoholAmountLessThan3Shot45ml" value="true">3 shots/jigger (75 ml)</label>
+                                    <label style="display: block;"><input type="checkbox" name="AlcoholAmountMoreThan4Shots75ml" value="true">4 shots / jigger</label>
                                     </div>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-                <div class="form-group conditional-section" id="alcohol-questions-3">
+                <div class="form-group conditional-section hidden" id="alcohol-questions-3">
                     <label>Gaano kadalas ka umiinum ng alak sa isang linggo?</label>
                      <div class="radio-group">
-                        <label><input type="radio" name="AlcoholVolume" value="1-3 beses/linggo"> 1-3 beses/linggo</label>
-                        <label><input type="radio" name="AlcoholVolume" value="apat na beses sa isang linggo"> apat na beses sa isang linggo</label>
-                       <label><input type="radio" name="AlcoholVolume" value="limang beses o higit sa isang linggo"> limang beses o higit sa isang linggo</label>
+                        <label><input type="radio" name="AlcoholFrequency" value="1-3 beses/linggo"> 1-3 beses/linggo</label>
+                        <label><input type="radio" name="AlcoholFrequency" value="apat na beses sa isang linggo"> apat na beses sa isang linggo</label>
+                       <label><input type="radio" name="AlcoholFrequency" value="limang beses o higit sa isang linggo"> limang beses o higit sa isang linggo</label>
                     </div>
                 </div>
-                <div class="form-group conditional-section" id="alcohol-questions-4">
+                <div class="form-group conditional-section hidden" id="alcohol-questions-4">
                     <label>Sa isang okasyon, ilang bote ng alak ang naiinom mo?</label>
                     <div class="radio-group">
-                        <label><input type="radio" name="alcohol_okasyon" value=">4"> >4</label>
-                        <label><input type="radio" name="alcohol_okasyon" value=">4"> >5></label>
+                        <label><input type="radio" name="AlcoholPerOccasion" value="1 bote"> 1 bote</label>
+                        <label><input type="radio" name="AlcoholPerOccasion" value="2 bote"> 2 bote</label>
+                        <label><input type="radio" name="AlcoholPerOccasion" value="3 shot"> 3 shot</label>
+                        <label><input type="radio" name="AlcoholPerOccasion" value="1-2 beses/linggo"> 1-2 beses/linggo</label>
+                        <label><input type="radio" name="AlcoholPerOccasion" value="3-4 beses/linggo"> 3-4 beses/linggo</label>
                     </div>
                 </div>
 
                 <h4>B.3 Ehersisyo</h4>
                 <div class="form-group">
-                    <label>1. May sapat ka bang ehersisyo? (150 minuto sa loob ng isang linggo na hindi lalampas ng 2 araw na pagitan)</label>
-                    <div class="radio-group">
-                        <label><input type="radio" name="ehersisyo_regular" value="mayroon"> Mayroon</label>
-                        <label><input type="radio" name="ehersisyo_regular" value="wala"> Wala</label>
+                    <label>Anong klaseng ehersisyo ang ginagawa mo?</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="ModerateIntensityExercise" value="true"> Moderate Intensity</label>
+                        <label><input type="checkbox" name="VigorousIntensityExercise" value="true"> Vigorous Intensity</label>
+                        <label><input type="checkbox" name="InsufficientPhysicalActivity" value="true"> Insufficient Physical Activity</label>
                     </div>
-                    <label>2. Gaano kadami ang nauubos sa isang araw?</label>
-                    <div class="radio-group">
-                        <label><input type="radio" name="ehersisyo_regular" value="mayroon"> ≤ 30 minuto</label>
-                        <label><input type="radio" name="ehersisyo_regular" value="wala"> > 30 minuto</label>
-                    </div> 
                 </div>
+               
 
                 <h4>B.4 Paninigarilyo</h4>
                 <div class="form-group">
@@ -476,31 +493,10 @@
                         <label><input type="radio" name="SmokingStatus" value="Smoker"> Oo</label>
                         <label><input type="radio" name="SmokingStatus" value="Non-smoker"> Hindi</label>
                     </div>
-                </div>
-                <div class="form-group conditional-section" id="smoking-questions">
-                    <label for="sigarilyo-kadami">Gaano kadami ang nauubos sa isang araw?</label>
-                    <input type="text" id="sigarilyo-kadami" name="sigarilyoKadami">
-                </div>
-                <div class="form-group conditional-section" id="smoking-questions-2">
-                    <label>Tumigil na sa paninigarilyo?</label>
-                    <div class="radio-group">
-                        <label><input type="radio" name="sigarilyo_tumigil" value="<1 taon"> Wala pang 1 taon</label>
-                        <label><input type="radio" name="sigarilyo_tumigil" value=">=1 taon"> ≥ 1 taon</label>
-                        <label><input type="radio" name="sigarilyo_tumigil" value="N/A"> Hindi naninigarilyo</label>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Hindi, pero lantad ka ba sa usok ng sigarilyo?</label>
-                    <div class="radio-group">
-                        <label><input type="radio" name="sigarilyo_usok" value="Oo"> Oo</label>
-                        <label><input type="radio" name="sigarilyo_usok" value="Hindi"> Hindi</label>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Ikaw ba ay nanatili sa usok ng sigarilyo?</label>
-                    <div class="radio-group">
-                        <label><input type="radio" name="sigarilyo_sticks" value="Oo"> Oo</label>
-                        <label><input type="radio" name="sigarilyo_sticks" value="Hindi"> Hindi</label>
+                    <div class="checkbox-group" style="margin-top: 10px;">
+                        <label><input type="checkbox" name="FormerSmoker" value="true"> Oo pero tumigil na</label>
+                        <label><input type="checkbox" name="NeverSmokedButExposedToSmoke" value="true"> Hindi, pero lantad sa usok ng sigarilyo</label>
+                        <label><input type="checkbox" name="Smoked100Sticks" value="true"> Smoked 100 sticks or more</label>
                     </div>
                 </div>
 
@@ -512,11 +508,11 @@
                         <label><input type="radio" name="stress_madalas" value="Hindi"> Hindi</label>
                     </div>
                 </div>
-                <div class="form-group conditional-section" id="stress-questions">
+                <div class="form-group conditional-section hidden" id="stress-questions">
                     <label for="stress-sino">Ano o Sino ang dahilan ng iyong stress?</label>
                     <input type="text" id="stress-sino" name="stressSino">
                 </div>
-                <div class="form-group conditional-section" id="stress-questions-2">
+                <div class="form-group conditional-section hidden" id="stress-questions-2">
                     <label>Naepektuhan ba nito ang iyong pang-araw-araw na gawain?</label>
                     <div class="radio-group">
                         <label><input type="radio" name="stress_epekto" value="Oo"> Oo</label>
@@ -532,7 +528,10 @@
             <!-- Step 4: Review & Submit -->
             <section class="form-section wizard-step" data-step="4">
                 <h2>Review & Submit</h2>
+                
+                
                 <div id="review-summary" class="form-section" aria-live="polite">
+                    <h3>Assessment Summary</h3>
                     <div class="form-grid" id="review-grid">
                         <!-- Populated via JS -->
                     </div>
@@ -542,7 +541,8 @@
                     <button type="submit" class="btn btn-primary" id="submit-btn" disabled>Submit Assessment</button>
                 </div>
             </section>
-        </form>
+        </div>
+        </div>
     </div>
 
 @section Scripts {
@@ -581,11 +581,6 @@
             // Initialize wizard
             updateStepIndicator(currentStep);
             
-            // Make all sections visible by default
-            document.querySelectorAll('.conditional-section').forEach(section => {
-                section.classList.remove('hidden');
-            });
-            
             // Initialize conditional sections
             initConditionalSections();
             
@@ -593,9 +588,12 @@
             const urlParams = new URLSearchParams(window.location.search);
             const appointmentId = urlParams.get('appointmentId');
             
-            // Set ID No. to be the same as Family No.
+            // Set ID No. to be the same as Family No. (if the field exists)
             const familyNo = document.getElementById('family-no').value;
-            document.getElementById('id-no').value = familyNo;
+            const idNoInput = document.getElementById('id-no');
+            if (idNoInput) {
+                idNoInput.value = familyNo;
+            }
             
             // Set today's date as the assessment date
             const today = new Date();
@@ -827,12 +825,22 @@
                 ['Diabetes', document.querySelector('input[name="HasDiabetes"]')?.checked ? 'Yes' : 'No'],
                 ['Hypertension', document.querySelector('input[name="HasHypertension"]')?.checked ? 'Yes' : 'No'],
                 ['Cancer', document.querySelector('input[name="HasCancer"]')?.checked ? `Yes (${document.querySelector('input[name="CancerType"]').value})` : 'No'],
-                ['COPD', document.querySelector('input[name="HasCOPD"]')?.checked ? 'Yes' : 'No'],
-                ['Eye Disease', document.querySelector('input[name="Sakit sa mata"]')?.checked ? 'Yes' : 'No'],
+                ['Lung Disease', document.querySelector('input[name="HasLungDiseaseNonInfectious"]')?.checked ? 'Yes' : 'No'],
+                ['Eye Disease', document.querySelector('input[name="HasEyeDisease"]')?.checked ? 'Yes' : 'No'],
+                ['Asthma', document.querySelector('input[name="HasAsthma"]')?.checked ? 'Yes' : 'No'],
+                ['Alcohol Status', document.querySelector('input[name="alcohol_inom"]:checked')?.value || 'None'],
                 ['Alcohol Frequency', document.querySelector('input[name="AlcoholFrequency"]:checked')?.value || 'None'],
-                ['Alcohol Consumption', document.querySelector('input[name="AlcoholConsumption"]:checked')?.value || 'None'],
-                ['Exercise Duration', document.querySelector('input[name="ExerciseDuration"]:checked')?.value || 'None'],
-                ['Smoking Status', document.querySelector('input[name="SmokingStatus"]:checked')?.value || 'Non-smoker']
+                ['Alcohol Per Occasion', document.querySelector('input[name="AlcoholPerOccasion"]:checked')?.value || 'None'],
+                ['Moderate Intensity Exercise', document.querySelector('input[name="ModerateIntensityExercise"]')?.checked ? 'Yes' : 'No'],
+                ['Vigorous Intensity Exercise', document.querySelector('input[name="VigorousIntensityExercise"]')?.checked ? 'Yes' : 'No'],
+                ['Insufficient Physical Activity', document.querySelector('input[name="InsufficientPhysicalActivity"]')?.checked ? 'Yes' : 'No'],
+                ['Smoking Status', document.querySelector('input[name="SmokingStatus"]:checked')?.value || 'Non-smoker'],
+                ['Former Smoker', document.querySelector('input[name="FormerSmoker"]')?.checked ? 'Yes' : 'No'],
+                ['Exposed to Smoke', document.querySelector('input[name="NeverSmokedButExposedToSmoke"]')?.checked ? 'Yes' : 'No'],
+                ['Smoked 100+ Sticks', document.querySelector('input[name="Smoked100Sticks"]')?.checked ? 'Yes' : 'No'],
+                ['Stress Status', document.querySelector('input[name="stress_madalas"]:checked')?.value || 'None'],
+                ['Stress Cause', document.querySelector('input[name="stressSino"]')?.value || 'None'],
+                ['Stress Affects Daily', document.querySelector('input[name="stress_epekto"]:checked')?.value || 'None']
             ];
             rows.forEach(([k, v]) => {
                 const wrap = document.createElement('div');
@@ -866,20 +874,11 @@
         // Initialize step 1 UI
         showStep(1);
 
-        // Add submit button click handler for debugging
-        document.getElementById('submit-btn')?.addEventListener('click', function(event) {
-            console.log('Submit button clicked');
-            console.log('Current step:', currentStep);
-            console.log('Form validation result:', validateAll());
-        });
-
-
-        // Existing submission handler (final step only)
-        document.getElementById('ncd-form').addEventListener('submit', function(event) {
+        // Form submission handler
+        document.getElementById('submit-btn').addEventListener('click', function(event) {
             event.preventDefault();
             console.log('Form submission attempted. Current step:', currentStep);
             
-            // Check if already submitting to prevent double submission
             const submitButton = document.getElementById('submit-btn');
             if (submitButton.disabled) {
                 console.log('Form submission blocked - already submitting');
@@ -897,279 +896,317 @@
             }
             console.log('Form validation passed, proceeding with submission');
 
+            // COMPREHENSIVE DEBUGGING: Log all form field values before submission
+            console.log('=== COMPREHENSIVE FORM FIELD DEBUGGING ===');
+            
+            // Debug ALL form elements systematically
+            console.log('=== ALL CHECKBOXES ===');
+            document.querySelectorAll('input[type="checkbox"]').forEach(function(checkbox, index) {
+                console.log(`[${index}] ${checkbox.name}: checked=${checkbox.checked}, value="${checkbox.value}"`);
+            });
+            
+            console.log('=== ALL RADIO BUTTONS ===');
+            document.querySelectorAll('input[type="radio"]').forEach(function(radio, index) {
+                console.log(`[${index}] ${radio.name}: checked=${radio.checked}, value="${radio.value}"`);
+            });
+            
+            console.log('=== ALL TEXT INPUTS ===');
+            document.querySelectorAll('input[type="text"], input[type="date"], input[type="number"]').forEach(function(input, index) {
+                if (input.value && input.value.trim() !== '') {
+                    console.log(`[${index}] ${input.name || input.id}: "${input.value}"`);
+                }
+            });
+            
+            console.log('=== ALL SELECT ELEMENTS ===');
+            document.querySelectorAll('select').forEach(function(select, index) {
+                console.log(`[${index}] ${select.name || select.id}: "${select.value}"`);
+            });
+            
+            console.log('=== FORM VALIDATION CHECK ===');
+            console.log('Current step:', currentStep);
+            console.log('Form validation result:', validateAll());
+            console.log('Submit button disabled:', document.getElementById('submit-btn').disabled);
+            
+            console.log('=== END COMPREHENSIVE DEBUGGING ===');
+
+            // --- Helper functions for data collection ---
+            const getCheckboxValue = (name) => document.querySelector(`input[name="${name}"]`)?.checked ? 'true' : 'false';
+            const getRadioValue = (name) => document.querySelector(`input[name="${name}"]:checked`)?.value || '';
+            const getInputValue = (id) => document.getElementById(id)?.value || '';
+
             // --- Data Collection (Manual Construction for precise mapping) ---
             const data = {};
 
             // Part I: Demographic-Socio-Economic Profile
-            data.HealthFacility = document.getElementById('health-facility').value;
-            data.FamilyNo = document.getElementById('family-no').value;
-            data.FirstName = document.getElementById('first-name').value;
-            data.MiddleName = document.getElementById('middle-name').value;
-            data.LastName = document.getElementById('last-name').value;
-            data.Address = document.getElementById('address').value;
-            data.Barangay = document.getElementById('barangay').value;
-            data.Telepono = document.getElementById('telefono').value;
-            const birthdayValue = document.getElementById('birthday').value;
+            data.HealthFacility = getInputValue('health-facility');
+            data.FamilyNo = getInputValue('family-no');
+            data.FirstName = getInputValue('first-name');
+            data.MiddleName = getInputValue('middle-name');
+            data.LastName = getInputValue('last-name');
+            data.Address = getInputValue('address');
+            data.Barangay = getInputValue('barangay');
+            data.Telepono = getInputValue('telefono');
+            const birthdayValue = getInputValue('birthday');
             data.Birthday = birthdayValue ? new Date(birthdayValue).toISOString() : null;
-            data.Edad = parseInt(document.getElementById('edad').value, 10);
-            data.Kasarian = document.querySelector('input[name="kasarian"]:checked')?.value || '';
-            data.Relihiyon = document.getElementById('relihiyon').value;
-            data.Occupation = document.getElementById('hanapbuhay').value;
-            data.CivilStatus = document.getElementById('estado-sibil').value;
+            data.Edad = getInputValue('edad');
+            data.Kasarian = getRadioValue('kasarian');
+            data.Relihiyon = getInputValue('relihiyon');
+            data.Occupation = getInputValue('hanapbuhay');
+            data.CivilStatus = getInputValue('estado-sibil');
 
-            // Part II: Past Medical History
-            data.HasDiabetes = document.querySelector('input[name="HasDiabetes"]')?.checked || false;
+            // Part II: Past Medical History - FIXED BOOLEAN VALUES
+            data.HasDiabetes = getCheckboxValue('HasDiabetes') === 'true';
             data.DiabetesYear = document.querySelector('input[name="DiabetesYear"]')?.value || '';
             data.DiabetesMedication = document.querySelector('input[name="DiabetesMedication"]')?.value || '';
 
-            data.HasHypertension = document.querySelector('input[name="HasHypertension"]')?.checked || false;
+            data.HasHypertension = getCheckboxValue('HasHypertension') === 'true';
             data.HypertensionYear = document.querySelector('input[name="HypertensionYear"]')?.value || '';
             data.HypertensionMedication = document.querySelector('input[name="HypertensionMedication"]')?.value || '';
 
-            data.HasCancer = document.querySelector('input[name="HasCancer"]')?.checked || false;
+            data.HasCancer = getCheckboxValue('HasCancer') === 'true';
             data.CancerType = document.querySelector('input[name="CancerType"]')?.value || '';
             data.CancerYear = document.querySelector('input[name="CancerYear"]')?.value || '';
             data.CancerMedication = document.querySelector('input[name="CancerMedication"]')?.value || '';
 
-            data.HasCOPD = document.querySelector('input[name="HasCOPD"]')?.checked || false;
+            // FIXED: Correct mapping for lung disease
+            data.HasLungDisease = getCheckboxValue('HasLungDiseaseNonInfectious') === 'true';
+            data.HasLungDiseaseNonInfectious = getCheckboxValue('HasLungDiseaseNonInfectious') === 'true';
             data.LungDiseaseYear = document.querySelector('input[name="LungDiseaseYear"]')?.value || '';
             data.LungDiseaseMedication = document.querySelector('input[name="LungDiseaseMedication"]')?.value || '';
 
-            data.HasEyeDisease = document.querySelector('input[name="Sakit sa mata"]')?.checked || false;
+            data.HasEyeDisease = getCheckboxValue('HasEyeDisease') === 'true';
             data.EyeDiseaseYear = document.querySelector('input[name="EyeDiseaseYear"]')?.value || '';
             data.EyeDiseaseMedication = document.querySelector('input[name="EyeDiseaseMedication"]')?.value || '';
 
-            // Chest Pain Questions (Pananakit ng Dibdib) - Part II Section 2
-            const cp_q21 = document.querySelector('input[name="pananakit_2_1"]:checked')?.value === 'Oo';
-            const cp_q22 = document.querySelector('input[name="pananakit_2_2"]:checked')?.value === 'Oo';
-            const cp_q23 = document.querySelector('input[name="pananakit_2_3"]:checked')?.value === 'Oo';
-            const cp_q25 = document.querySelector('input[name="pananakit_2_5"]:checked')?.value === 'Oo';
-            const cp_q26 = document.querySelector('input[name="pananakit_2_6"]:checked')?.value === 'Oo';
-            const cp_q27 = document.querySelector('input[name="pananakit_2_7"]:checked')?.value === 'Oo';
-            const cp_q28 = document.querySelector('input[name="pananakit_2_8"]:checked')?.value === 'Oo';
+            data.HasAsthma = getCheckboxValue('HasAsthma') === 'true';
+            data.HasDifficultyBreathing = getCheckboxValue('HasDifficultyBreathing') === 'true';
+            
+            // Chest Pain Questions (Pananakit ng Dibdib) - Part II Section 2 - FIXED BOOLEAN VALUES
+            data.HasChestPain = getRadioValue('pananakit_2_1') === 'Oo';
+            data.ChestPainSpreadsToArm = getRadioValue('pananakit_2_2') === 'Oo';
+            data.NumbnessWhenWalkingFast = getRadioValue('pananakit_2_3') === 'Oo';
+            data.PainRelievedWithRest = getRadioValue('pananakit_2_5') === 'Oo';
+            data.LossOfConsciousnessLessThan10Min = getRadioValue('pananakit_2_6') === 'Oo';
+            data.PainLastsMoreThan30Min = getRadioValue('pananakit_2_7') === 'Oo';
+            data.SeeDoctorIfYes = getRadioValue('pananakit_2_8') === 'Oo';
 
-            // For legacy string properties (kept), mirror boolean state as 'true'/'false'
-            data.ChestPain = cp_q21 ? 'true' : 'false';
-            data.ChestPainLocation = cp_q22 ? 'true' : 'false';
-            data.ChestPainValue = cp_q23 ? 'true' : 'false';
+            // ADDED: Missing chest pain question mappings (Q2.1-2.8)
+            data.Pananakit21 = data.HasChestPain; // Q2.1 Nakakaramdam ka ba ng Pananakit o kabigatan sa dibdib?
+            data.Pananakit22 = data.ChestPainSpreadsToArm; // Q2.2 Ang sakit ba ay nasa gitna ng dibdib, kaliwang bahagi ng dibdib hanggang sa kaliwang braso?
+            data.Pananakit23 = data.NumbnessWhenWalkingFast; // Q2.3 Nararamdaman mo ba ito kung nagmamadali o naglalakad ng mabilis o pakiramdam na paakyat?
+            data.Pananakit24 = getRadioValue('pananakit_2_4') === 'Oo'; // Q2.4 Napapatigil ka ba sa paglalakad kapag sumasakit ang iyong dibdib?
+            data.Pananakit25 = data.PainRelievedWithRest; // Q2.5 Nawawala ba ang sakit kapag hindi ka kumikilos o naglalagay ng gamot sa ilalim ng dila?
+            data.Pananakit26 = data.LossOfConsciousnessLessThan10Min; // Q2.6 Nawawala ba ang pananakit sa loob ng 10 minuto?
+            data.Pananakit27 = data.PainLastsMoreThan30Min; // Q2.7 Nakakaramdam ka ba ng sakit sa dibdib na tumatagal higit sa 30 minuto?
+            data.Pananakit28 = data.SeeDoctorIfYes; // Q2.8 Nakakaramdam ka ba hirap sa pagsasalita, panghihina ng braso at/o binti o pamamanhid sa kalahating bahagi ng katawan?
 
-            // Boolean-like string properties used by Nurse edit checkboxes must be strictly 'true'/'false'
-            data.HasChestPain = cp_q21 ? 'true' : 'false';
-            data.ChestPainSpreadsToArm = cp_q22 ? 'true' : 'false';
-            data.NumbnessWhenWalkingFast = cp_q23 ? 'true' : 'false';
-            data.PainRelievedWithRest = cp_q25 ? 'true' : 'false';
-            data.LossOfConsciousnessLessThan10Min = cp_q26 ? 'true' : 'false';
-            data.PainLastsMoreThan30Min = cp_q27 ? 'true' : 'false';
-            data.SeeDoctorIfYes = cp_q28 ? 'true' : 'false';
+            // Legacy chest pain fields
+            data.ChestPain = data.HasChestPain;
+            data.ChestPainLocation = data.ChestPainSpreadsToArm;
+            data.ChestPainValue = data.NumbnessWhenWalkingFast;
             
             // Part III: Assessment of Risk Factors
-            // A. Non-Modifiable Risk Factors (Family History)
-            // Collect individual family history data
-            const familyHistoryStrokeFather = document.querySelector('input[name="FamilyHistoryStrokeFather"]')?.checked || false;
-            const familyHistoryHypertensionFather = document.querySelector('input[name="FamilyHistoryHypertensionFather"]')?.checked || false;
-            const familyHistoryDiabetesFather = document.querySelector('input[name="FamilyHistoryDiabetesFather"]')?.checked || false;
-            const familyHistoryCancerFather = document.querySelector('input[name="FamilyHistoryCancerFather"]')?.checked || false;
-            const familyHistoryHeartDiseaseFather = document.querySelector('input[name="FamilyHistoryHeartDiseaseFather"]')?.checked || false;
-            const familyHistoryLungDiseaseFather = document.querySelector('input[name="FamilyHistoryLungDiseaseFather"]')?.checked || false;
-            const familyHistoryKidneyDiseaseFather = document.querySelector('input[name="FamilyHistoryKidneyDiseaseFather"]')?.checked || false;
-            const familyHistoryEyeDiseaseFather = document.querySelector('input[name="FamilyHistoryEyeDiseaseFather"]')?.checked || false;
-
-            // Store individual family history fields (needed for edit forms)
-            data.FamilyHistoryHypertensionFather = familyHistoryHypertensionFather ? 'true' : 'false';
-            data.FamilyHistoryHeartDiseaseFather = familyHistoryHeartDiseaseFather ? 'true' : 'false';
-            data.FamilyHistoryStrokeFather = familyHistoryStrokeFather ? 'true' : 'false';
-            data.FamilyHistoryDiabetesFather = familyHistoryDiabetesFather ? 'true' : 'false';
-            data.FamilyHistoryCancerFather = familyHistoryCancerFather ? 'true' : 'false';
-            data.FamilyHistoryLungDiseaseFather = familyHistoryLungDiseaseFather ? 'true' : 'false';
-            data.FamilyHistoryKidneyDiseaseFather = familyHistoryKidneyDiseaseFather ? 'true' : 'false';
-            data.FamilyHistoryEyeDiseaseFather = familyHistoryEyeDiseaseFather ? 'true' : 'false';
+            // A. Non-Modifiable Risk Factors (Family History) - FIXED BOOLEAN VALUES
+            data.FamilyHistoryHypertensionFather = getCheckboxValue('FamilyHistoryHypertensionFather') === 'true';
+            data.FamilyHistoryHeartDiseaseFather = getCheckboxValue('FamilyHistoryHeartDiseaseFather') === 'true';
+            data.FamilyHistoryStrokeFather = getCheckboxValue('FamilyHistoryStrokeFather') === 'true';
+            data.FamilyHistoryDiabetesFather = getCheckboxValue('FamilyHistoryDiabetesFather') === 'true';
+            data.FamilyHistoryCancerFather = getCheckboxValue('FamilyHistoryCancerFather') === 'true';
+            data.FamilyHistoryLungDiseaseFather = getCheckboxValue('FamilyHistoryLungDiseaseFather') === 'true';
+            data.FamilyHistoryKidneyDiseaseFather = getCheckboxValue('FamilyHistoryKidneyDiseaseFather') === 'true';
+            
+            // For now, EyeDisease for father is not in the form, default to false
+            data.FamilyHistoryEyeDiseaseFather = false;
             
             // Set Mother and Sibling fields to false (not collected in user form but needed for backend)
-            data.FamilyHistoryHypertensionMother = 'false';
-            data.FamilyHistoryHypertensionSibling = 'false';
-            data.FamilyHistoryHeartDiseaseMother = 'false';
-            data.FamilyHistoryHeartDiseaseSibling = 'false';
-            data.FamilyHistoryStrokeMother = 'false';
-            data.FamilyHistoryStrokeSibling = 'false';
-            data.FamilyHistoryDiabetesMother = 'false';
-            data.FamilyHistoryDiabetesSibling = 'false';
-            data.FamilyHistoryCancerMother = 'false';
-            data.FamilyHistoryCancerSibling = 'false';
-            data.FamilyHistoryLungDiseaseMother = 'false';
-            data.FamilyHistoryLungDiseaseSibling = 'false';
-            data.FamilyHistoryKidneyDiseaseMother = 'false';
-            data.FamilyHistoryKidneyDiseaseSibling = 'false';
-            data.FamilyHistoryEyeDiseaseMother = 'false';
-            data.FamilyHistoryEyeDiseaseSibling = 'false';
+            data.FamilyHistoryHypertensionMother = false;
+            data.FamilyHistoryHypertensionSibling = false;
+            data.FamilyHistoryHeartDiseaseMother = false;
+            data.FamilyHistoryHeartDiseaseSibling = false;
+            data.FamilyHistoryStrokeMother = false;
+            data.FamilyHistoryStrokeSibling = false;
+            data.FamilyHistoryDiabetesMother = false;
+            data.FamilyHistoryDiabetesSibling = false;
+            data.FamilyHistoryCancerMother = false;
+            data.FamilyHistoryCancerSibling = false;
+            data.FamilyHistoryLungDiseaseMother = false;
+            data.FamilyHistoryLungDiseaseSibling = false;
+            data.FamilyHistoryKidneyDiseaseMother = false;
+            data.FamilyHistoryKidneyDiseaseSibling = false;
+            data.FamilyHistoryEyeDiseaseMother = false;
+            data.FamilyHistoryEyeDiseaseSibling = false;
 
-            const otherDetails = (document.getElementById('family-history-other')?.value || '').trim();
+            const otherDetails = getInputValue('family-history-other').trim();
             data.FamilyOtherDiseaseDetails = otherDetails;
 
-            // Aggregated family history booleans (send as 'true'/'false' strings for Razor checkboxes)
-            data.FamilyHasHypertension = familyHistoryHypertensionFather ? 'true' : 'false';
-            data.FamilyHasHeartDisease = familyHistoryHeartDiseaseFather ? 'true' : 'false';
-            data.FamilyHasStroke = familyHistoryStrokeFather ? 'true' : 'false';
-            data.FamilyHasDiabetes = familyHistoryDiabetesFather ? 'true' : 'false';
-            data.FamilyHasCancer = familyHistoryCancerFather ? 'true' : 'false';
-            data.FamilyHasLungDisease = familyHistoryLungDiseaseFather ? 'true' : 'false';
-            data.FamilyHasKidneyDisease = familyHistoryKidneyDiseaseFather ? 'true' : 'false';
-            data.FamilyHasEyeDisease = familyHistoryEyeDiseaseFather ? 'true' : 'false';
-            data.FamilyHasOtherDisease = otherDetails.length > 0 ? 'true' : 'false';
+            // Aggregated family history booleans - FIXED BOOLEAN VALUES
+            data.FamilyHasHypertension = data.FamilyHistoryHypertensionFather;
+            data.FamilyHasHeartDisease = data.FamilyHistoryHeartDiseaseFather;
+            data.FamilyHasStroke = data.FamilyHistoryStrokeFather;
+            data.FamilyHasDiabetes = data.FamilyHistoryDiabetesFather;
+            data.FamilyHasCancer = data.FamilyHistoryCancerFather;
+            data.FamilyHasLungDisease = data.FamilyHistoryLungDiseaseFather;
+            data.FamilyHasKidneyDisease = data.FamilyHistoryKidneyDiseaseFather;
+            data.FamilyHasEyeDisease = data.FamilyHistoryEyeDiseaseFather;
+            data.FamilyHasOtherDisease = otherDetails.length > 0;
 
             // B. Modifiable Risk Factors
-            // B.1 Nutrisyon
-            data.EatsVegetablesDaily = document.querySelector('input[name="nutrisyon_madalas"][value="gulay"]')?.checked ? 'true' : 'false';
-            data.EatsFruitsDaily = document.querySelector('input[name="nutrisyon_madalas"][value="prutas"]')?.checked ? 'true' : 'false';
-            data.EatsFishDaily = document.querySelector('input[name="nutrisyon_madalas"][value="isda"]')?.checked ? 'true' : 'false';
-            data.EatsMeatDaily = document.querySelector('input[name="nutrisyon_madalas"][value="karne"]')?.checked ? 'true' : 'false';
-            data.EatsProcessedFood = document.querySelector('input[name="EatsProcessedFood"]')?.checked || false;
-            data.HasUnhealthyDiet = document.querySelector('input[name="EatsProcessedFood"]')?.checked ? 'true' : 'false';
-            
-            data.EatsFattyFoodMoreThan2TimesPerWeek = document.querySelector('input[name="nutrisyon_kumakain"][value="matataba"]')?.checked ? 'true' : 'false';
-            data.EatsSweetFoodMoreThan2TimesPerWeek = document.querySelector('input[name="nutrisyon_kumakain"][value="matatamis"]')?.checked ? 'true' : 'false';
-            data.EatsOilyFoodMoreThan2TimesPerWeek = document.querySelector('input[name="nutrisyon_kumakain"][value="mamantika"]')?.checked ? 'true' : 'false';
-            data.HighSaltIntake = document.querySelector('input[name="HighSaltIntake"]')?.checked || false;
-            data.HasHighSaltIntake = document.querySelector('input[name="HighSaltIntake"]')?.checked ? 'true' : 'false';
+            // B.1 Nutrisyon - FIXED BOOLEAN VALUES
+            data.EatsVegetablesDaily = getCheckboxValue('EatsVegetablesDaily') === 'true';
+            data.EatsFruitsDaily = getCheckboxValue('EatsFruitsDaily') === 'true';
+            data.EatsFishDaily = getCheckboxValue('EatsFishDaily') === 'true';
+            data.EatsMeatDaily = getCheckboxValue('EatsMeatDaily') === 'true';
+            data.HasUnhealthyDiet = getCheckboxValue('HasUnhealthyDiet') === 'true';
+            data.EatsSweetFoodMoreThan2TimesPerWeek = getCheckboxValue('EatsSweetFoodMoreThan2TimesPerWeek') === 'true';
+            data.EatsOilyFoodMoreThan2TimesPerWeek = getCheckboxValue('EatsOilyFoodMoreThan2TimesPerWeek') === 'true';
+            data.HighSaltIntake = getCheckboxValue('HighSaltIntake') === 'true';
+            data.HasHighSaltIntake = data.HighSaltIntake;
 
-            // B.2 Alcohol
-            const alcoholInomValue = document.querySelector('input[name="alcohol_inom"]:checked')?.value;
-            data.DrinksAlcohol = (alcoholInomValue === 'Oo') ? 'true' : 'false';
-            data.AlcoholStoppedDuration = document.querySelector('input[name="AlcoholStoppedDuration"]:checked')?.value || '';
-            data.AlcoholVolume = document.querySelector('input[name="AlcoholVolume"]:checked')?.value || '';
+            // B.2 Alcohol - FIXED BOOLEAN VALUES
+            data.DrinksAlcohol = getRadioValue('alcohol_inom') === 'Oo';
+            data.AlcoholStoppedDuration = getRadioValue('AlcoholStoppedDuration');
+            data.DrinksBeer = getCheckboxValue('DrinksBeer') === 'true';
+            data.DrinksWine = getCheckboxValue('DrinksWine') === 'true';
+            data.DrinksWhiskyGinBrandy = getCheckboxValue('DrinksWhiskyGinBrandy') === 'true';
             
-            // Alcohol type and consumption details
-            data.DrinksBeer = document.querySelector('input[name="AlchoholTypeBeer"]')?.checked ? 'true' : 'false';
-            data.DrinksWine = document.querySelector('input[name="AlchoholTypeWine"]')?.checked ? 'true' : 'false';
-            data.DrinksWhiskyGinBrandy = document.querySelector('input[name="AlchoholTypeWhisky"]')?.checked ? 'true' : 'false';
+            // FIXED: Correct alcohol amount mappings
+            data.AlcoholAmount1Bottle320ml = getCheckboxValue('AlcoholAmount1Bottle320ml') === 'true';
+            data.AlcoholAmount2Bottle640ml = getCheckboxValue('AlcoholAmount2Bottle640ml') === 'true';
+            data.AlcoholAmount3to4WineGlasses300ml = getCheckboxValue('AlcoholAmount3to4WineGlasses300ml') === 'true';
+            data.AlcoholAmountLessThan3Shot45ml = getCheckboxValue('AlcoholAmountLessThan3Shot45ml') === 'true';
+            data.AlcoholAmountMoreThan4Shots75ml = getCheckboxValue('AlcoholAmountMoreThan4Shots75ml') === 'true';
             
-            // Detailed alcohol consumption amounts
-            data.AlcoholAmount1Bottle320ml = document.querySelector('input[name="BeerConsumption1"]')?.checked ? 'true' : 'false';
-            data.AlcoholAmount2Bottle640ml = document.querySelector('input[name="BeerConsumption2"]')?.checked ? 'true' : 'false';
-            data.AlcoholAmount3to4WineGlasses300ml = document.querySelector('input[name="WineConsumption1"]')?.checked ? 'true' : 'false';
-            data.AlcoholAmountLessThan3Shot45ml = document.querySelector('input[name="WhiskyConsumption1"]')?.checked ? 'true' : 'false';
-            data.AlcoholAmountMoreThan4Shots75ml = document.querySelector('input[name="WhiskyConsumption2"]')?.checked ? 'true' : 'false';
+            // FIXED: Correct alcohol frequency mappings - FIXED BOOLEAN VALUES
+            const alcoholFreq = getRadioValue('AlcoholFrequency');
+            data.AlcoholFrequency1to3TimesPerWeek = alcoholFreq === '1-3 beses/linggo';
+            data.AlcoholFrequencyMoreThan4TimesPerWeek = (alcoholFreq === 'apat na beses sa isang linggo' || alcoholFreq === 'limang beses o higit sa isang linggo');
+            data.AlcoholPerOccasion = getRadioValue('AlcoholPerOccasion');
             
-            // Alcohol frequency details  
-            data.AlcoholFrequency1to3TimesPerWeek = (data.AlcoholVolume === '1-3 beses/linggo') ? 'true' : 'false';
-            data.AlcoholFrequencyMoreThan4TimesPerWeek = (data.AlcoholVolume === 'apat na beses sa isang linggo' || data.AlcoholVolume === 'limang beses o higit sa isang linggo') ? 'true' : 'false';
-            data.IsBingeDrinker = document.querySelector('input[name="alcohol_okasyon"]:checked')?.value === '>5>' ? 'true' : 'false';
+            // ADDED: Missing alcohol fields
+            data.AlcoholFrequency = alcoholFreq;
+            data.AlcoholConsumption = data.DrinksAlcohol ? 'Yes' : 'No';
 
-            // B.3 Ehersisyo  
-            const ehersisyoValue = document.querySelector('input[name="ehersisyo_regular"]:checked')?.value;
-            data.HasEnoughExercise = (ehersisyoValue === 'mayroon') ? 'true' : 'false';
-            data.InsufficientPhysicalActivity = (ehersisyoValue === 'wala') ? 'true' : 'false';
-            data.HasNoRegularExercise = (ehersisyoValue === 'wala');
+            // B.3 Ehersisyo - FIXED BOOLEAN VALUES
+            data.ModerateIntensityExercise = getCheckboxValue('ModerateIntensityExercise') === 'true';
+            data.VigorousIntensityExercise = getCheckboxValue('VigorousIntensityExercise') === 'true';
+            data.InsufficientPhysicalActivity = getCheckboxValue('InsufficientPhysicalActivity') === 'true';
+            data.HasNoRegularExercise = (!data.ModerateIntensityExercise && !data.VigorousIntensityExercise && !data.InsufficientPhysicalActivity);
+            data.HasEnoughExercise = (data.ModerateIntensityExercise || data.VigorousIntensityExercise);
+            data.CombinationExercise = (data.ModerateIntensityExercise && data.VigorousIntensityExercise);
 
-            // B.4 Paninigarilyo
-            const smokingValue = document.querySelector('input[name="SmokingStatus"]:checked')?.value;
-            data.SmokingStatus = smokingValue || 'Non-smoker';
-            data.FormerSmoker = document.querySelector('input[name="sigarilyo_tumigil"]:checked')?.value === '>=1 taon' ? 'true' : 'false';
-            data.NeverSmokedButExposedToSmoke = (smokingValue === 'Non-smoker' && document.querySelector('input[name="sigarilyo_usok"]:checked')?.value === 'Oo') ? 'true' : 'false';
-            data.HasHistoryOfSmoking = (smokingValue === 'Smoker') ? 'true' : 'false';
+            // B.4 Paninigarilyo - FIXED BOOLEAN VALUES
+            data.SmokingStatus = getRadioValue('SmokingStatus') || 'Non-smoker';
+            data.FormerSmoker = getCheckboxValue('FormerSmoker') === 'true';
+            data.NeverSmokedButExposedToSmoke = getCheckboxValue('NeverSmokedButExposedToSmoke') === 'true';
+            data.HasHistoryOfSmoking = data.FormerSmoker;
+            data.Smoked100Sticks = getCheckboxValue('Smoked100Sticks') === 'true';
+            data.IsSmoker = data.SmokingStatus === 'Current smoker';
             
-            // B.5 Stress
-            const stressValue = document.querySelector('input[name="stress_madalas"]:checked')?.value;
-            data.HasStress = (stressValue === 'Oo') ? 'true' : 'false';
+            // ADDED: Missing smoking fields
+            data.ExposedToSmoke = data.NeverSmokedButExposedToSmoke;
+            
+            // B.5 Stress - FIXED BOOLEAN VALUES
+            data.HasStress = getRadioValue('stress_madalas') === 'Oo';
+            data.StressSino = getInputValue('stress-sino');
+            data.StressEpekto = getRadioValue('stress_epekto') === 'Oo';
+            
+            // ADDED: Missing stress fields
+            data.IsStressed = data.HasStress;
+            data.StressCauses = data.StressSino;
+            data.StressAffectsDailyLife = data.StressEpekto;
+
+            // --- Set Default/Missing values - FIXED BOOLEAN VALUES ---
+            data.PatientSignature = '';
+            data.BreastCancerScreened = false;
+            data.CervicalCancerScreened = false;
+            data.CancerScreeningStatus = 'Not Screened';
+            data.BMIStatus = 'Unknown';
+            data.BPStatus = 'Unknown';
+            data.BloodSugarStatus = 'Unknown';
+            data.CholesterolStatus = 'Unknown';
+            data.WHStatus = 'Unknown';
+            data.IDNo = data.FamilyNo;
+            data.IDNumber = data.FamilyNo;
+            data.HealthFacilityName = data.HealthFacility;
+            data.DateAssessment = getInputValue('date-assessment');
+            data.HasCOPD = 'false'; // Not in form
 
             // Add appointmentId and userId to the data
             const urlParams = new URLSearchParams(window.location.search);
             data['AppointmentId'] = urlParams.get('appointmentId'); // Keep as string
             data['UserId'] = '@Model.Assessment.UserId'; // Get from server-side model
-            
-            // Enhanced logging for debugging
-            const timestamp = new Date().toISOString();
-            console.log(`[${timestamp}] Form data collection completed`);
-            console.log(`[${timestamp}] AppointmentId from URL: ${data['AppointmentId']}`);
-            console.log(`[${timestamp}] UserId: ${data['UserId']}`);
-            console.log(`[${timestamp}] Sample data fields:`, {
-                FirstName: data.FirstName,
-                LastName: data.LastName,
-                Birthday: data.Birthday,
-                Kasarian: data.Kasarian,
-                HasDiabetes: data.HasDiabetes
-            });
-            
-            // Add missing properties that might be required
             data['AppointmentType'] = 'General Checkup';
             data['RiskStatus'] = 'Low Risk';
-            data['HasEyeDisease'] = false;
+
+            // Enhanced debugging for AppointmentId
+            console.log("=== APPOINTMENT ID DEBUG ===");
+            console.log("URL search params:", window.location.search);
+            console.log("AppointmentId from URL:", urlParams.get('appointmentId'));
+            console.log("AppointmentId being sent:", data['AppointmentId']);
+            console.log("UserId being sent:", data['UserId']);
+
+            // COMPREHENSIVE DEBUGGING: Log the complete data object being sent
+            console.log("=== COMPLETE DATA OBJECT BEING SENT ===");
+            console.log("JSON data being sent:", JSON.stringify(data, null, 2));
             
-            // Ensure all boolean fields have proper values
+            // DEBUGGING: Check ALL boolean fields for proper conversion
+            console.log("=== BOOLEAN FIELDS VALIDATION ===");
             const booleanFields = [
-                'HasDiabetes', 'HasHypertension', 'HasCancer', 'HasCOPD', 'HasLungDisease', 'HasEyeDisease',
-                'FamilyHasHypertension', 'FamilyHasHeartDisease', 'FamilyHasStroke', 'FamilyHasDiabetes',
-                'FamilyHasCancer', 'FamilyHasKidneyDisease', 'FamilyHasEyeDisease', 'FamilyHasOtherDisease', 'HighSaltIntake',
-                'HasDifficultyBreathing', 'HasAsthma', 'HasNoRegularExercise'
+                'HasDiabetes', 'HasHypertension', 'HasCancer', 'HasLungDisease', 'HasLungDiseaseNonInfectious',
+                'HasEyeDisease', 'HasAsthma', 'HasDifficultyBreathing', 'HasChestPain', 'ChestPainSpreadsToArm',
+                'NumbnessWhenWalkingFast', 'PainRelievedWithRest', 'LossOfConsciousnessLessThan10Min',
+                'PainLastsMoreThan30Min', 'SeeDoctorIfYes', 'Pananakit21', 'Pananakit22', 'Pananakit23',
+                'Pananakit24', 'Pananakit25', 'Pananakit26', 'Pananakit27', 'Pananakit28',
+                'FamilyHistoryHypertensionFather', 'FamilyHistoryHeartDiseaseFather', 'FamilyHistoryStrokeFather',
+                'FamilyHistoryDiabetesFather', 'FamilyHistoryCancerFather', 'FamilyHistoryLungDiseaseFather',
+                'FamilyHistoryKidneyDiseaseFather', 'FamilyHistoryEyeDiseaseFather', 'FamilyHasHypertension',
+                'FamilyHasHeartDisease', 'FamilyHasStroke', 'FamilyHasDiabetes', 'FamilyHasCancer',
+                'FamilyHasLungDisease', 'FamilyHasKidneyDisease', 'FamilyHasEyeDisease', 'FamilyHasOtherDisease',
+                'EatsVegetablesDaily', 'EatsFruitsDaily', 'EatsFishDaily', 'EatsMeatDaily', 'HasUnhealthyDiet',
+                'EatsSweetFoodMoreThan2TimesPerWeek', 'EatsOilyFoodMoreThan2TimesPerWeek', 'HighSaltIntake',
+                'DrinksAlcohol', 'DrinksBeer', 'DrinksWine', 'DrinksWhiskyGinBrandy', 'AlcoholAmount1Bottle320ml',
+                'AlcoholAmount2Bottle640ml', 'AlcoholAmount3to4WineGlasses300ml', 'AlcoholAmountLessThan3Shot45ml',
+                'AlcoholAmountMoreThan4Shots75ml', 'AlcoholFrequency1to3TimesPerWeek', 'AlcoholFrequencyMoreThan4TimesPerWeek',
+                'ModerateIntensityExercise', 'VigorousIntensityExercise', 'InsufficientPhysicalActivity',
+                'HasNoRegularExercise', 'HasEnoughExercise', 'CombinationExercise', 'FormerSmoker',
+                'NeverSmokedButExposedToSmoke', 'HasHistoryOfSmoking', 'Smoked100Sticks', 'IsSmoker',
+                'ExposedToSmoke', 'HasStress', 'StressEpekto', 'IsStressed', 'StressAffectsDailyLife',
+                'BreastCancerScreened', 'CervicalCancerScreened'
             ];
             
-            booleanFields.forEach(field => {
-                if (data[field] === undefined || data[field] === null) {
-                    data[field] = false;
-                } else if (typeof data[field] === 'string') {
-                    data[field] = data[field].toLowerCase() === 'true' || data[field] === '1';
+            booleanFields.forEach(fieldName => {
+                const value = data[fieldName];
+                const type = typeof value;
+                const isBoolean = type === 'boolean';
+                const isString = type === 'string';
+                const isValidBoolean = isBoolean || (isString && (value === 'true' || value === 'false'));
+                
+                console.log(`${fieldName}: value="${value}", type=${type}, isBoolean=${isBoolean}, isValidBoolean=${isValidBoolean}`);
+                
+                if (!isValidBoolean && value !== undefined && value !== null) {
+                    console.warn(`⚠️  INVALID BOOLEAN FIELD: ${fieldName} = "${value}" (type: ${type})`);
                 }
             });
-            data['HasLungDisease'] = false;
-            data['HasDifficultyBreathing'] = false;
-            data['HasAsthma'] = false;
-            data['HasNoRegularExercise'] = false;
             
-            // Note: Removed non-existent properties that were causing mapping issues
-            
-            // Ensure all boolean properties are properly set
-            data['HasDiabetes'] = data.HasDiabetes || false;
-            data['HasHypertension'] = data.HasHypertension || false;
-            data['HasCancer'] = data.HasCancer || false;
-            data['HasCOPD'] = data.HasCOPD || false;
-            data['HasLungDisease'] = data.HasLungDisease || false;
-            data['HasEyeDisease'] = data.HasEyeDisease || false;
-            data['HasDifficultyBreathing'] = data.HasDifficultyBreathing || false;
-            data['HasAsthma'] = data.HasAsthma || false;
-            data['HasNoRegularExercise'] = data.HasNoRegularExercise || false;
-            data['HighSaltIntake'] = data.HighSaltIntake || false;
-            
-            // Ensure family history properties are set
-            data['FamilyHasHypertension'] = data.FamilyHasHypertension || false;
-            data['FamilyHasHeartDisease'] = data.FamilyHasHeartDisease || false;
-            data['FamilyHasStroke'] = data.FamilyHasStroke || false;
-            data['FamilyHasDiabetes'] = data.FamilyHasDiabetes || false;
-            data['FamilyHasCancer'] = data.FamilyHasCancer || false;
-            data['FamilyHasKidneyDisease'] = data.FamilyHasKidneyDisease || false;
-            data['FamilyHasEyeDisease'] = data.FamilyHasEyeDisease || false;
-            data['FamilyHasOtherDisease'] = data.FamilyHasOtherDisease || false;
-
-            console.log("JSON data being sent:", JSON.stringify(data, null, 2));
-            console.log("Data size:", JSON.stringify(data).length, "characters");
+            console.log("=== END BOOLEAN FIELDS VALIDATION ===");
 
             const token = document.querySelector('input[name="__RequestVerificationToken"]');
-            console.log('Request verification token:', token ? token.value : 'NOT FOUND');
+            if (!token) {
+                alert('Security token not found. Please refresh the page.');
+                return;
+            }
 
             try {
-                // Prepare the data (no encryption for now)
-                console.log("Preparing form data...");
                 const jsonData = prepareData(data);
-                console.log("Data prepared successfully");
                 
-                // Update button to show loading state
                 const submitButton = document.getElementById('submit-btn');
                 const originalText = submitButton.textContent;
                 submitButton.textContent = 'Loading...';
                 submitButton.disabled = true;
 
-                // Create form data instead of JSON
                 const formData = new FormData();
                 formData.append('jsonData', jsonData);
-                if (token) {
-                    formData.append('__RequestVerificationToken', token.value);
-                }
-
-                // Enhanced logging for the request
-                console.log(`[${timestamp}] Sending request to /api/NCDRiskAssessment/submit`);
-                console.log(`[${timestamp}] FormData contents:`, {
-                    jsonDataLength: jsonData.length,
-                    hasToken: !!token,
-                    jsonDataPreview: jsonData.substring(0, 200) + "..."
-                });
+                formData.append('__RequestVerificationToken', token.value);
 
                 fetch('/User/NCDRiskAssessment?handler=SubmitAssessment', {
                     method: 'POST',
@@ -1179,13 +1216,8 @@
                     body: formData
                 })
                 .then(response => {
-                    console.log('Response status:', response.status);
-                    console.log('Response ok:', response.ok);
-                    
                     if (!response.ok) {
-                        console.log('Response not ok:', response.status);
                         return response.text().then(text => {
-                            console.log('Response body:', text);
                             throw new Error(`Server error: ${response.status} - ${text}`);
                         });
                     }
@@ -1193,29 +1225,19 @@
                 })
                 .then(result => {
                     console.log('Success:', result);
-                    
-                    // Restore button state before showing alert and redirecting
                     submitButton.textContent = originalText;
-                    submitButton.disabled = false;
-                    
                     alert('Assessment submitted successfully!');
-                    // Redirect or show success message
                     window.location.href = '/User/UserDashboard';
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    
-                    // Restore button state on error
                     submitButton.textContent = originalText;
                     submitButton.disabled = false;
-                    
                     alert('Failed to submit assessment: ' + error.message);
                 });
             } catch (error) {
-                console.error('Encryption or submission error:', error);
+                console.error('Client-side error:', error);
                 alert('Failed to submit assessment: ' + error.message);
-                
-                // Restore button state
                 const submitButton = document.getElementById('submit-btn');
                 submitButton.textContent = 'Submit Assessment';
                 submitButton.disabled = false;
@@ -1235,13 +1257,44 @@
             console.log("Initializing conditional sections");
             
             // Setup the conditional visibility for each section
-            setupConditionalVisibilityGroup('alcohol_inom', ['alcohol-stopped-questions', 'alcohol-questions', 'alcohol-questions-2', 'alcohol-questions-3', 'alcohol-questions-4']);
-            // Exercise section only has one question with no conditional subsection
-            setupConditionalVisibilityGroup('SmokingStatus', ['smoking-questions', 'smoking-questions-2']);
+            setupConditionalVisibilityGroup('alcohol_inom', ['alcohol-stopped-questions', 'alcohol-questions', 'alcohol-questions-3', 'alcohol-questions-4']);
+            // Exercise section now uses checkboxes, no conditional subsections needed
+            // Smoking section now uses checkboxes, no conditional subsections needed
             setupConditionalVisibilityGroup('stress_madalas', ['stress-questions', 'stress-questions-2']);
             
             // Immediately check the current state of radio buttons
             checkInitialRadioStates();
+            
+            // Add debugging event listeners to all form elements
+            addDebuggingEventListeners();
+        }
+        
+        // Function to add debugging event listeners to all form elements
+        function addDebuggingEventListeners() {
+            console.log("Adding debugging event listeners to form elements");
+            
+            // Add listeners to all checkboxes
+            document.querySelectorAll('input[type="checkbox"]').forEach(function(checkbox) {
+                checkbox.addEventListener('change', function() {
+                    console.log(`Checkbox changed: ${this.name} = ${this.checked} (value: ${this.value})`);
+                });
+            });
+            
+            // Add listeners to all radio buttons
+            document.querySelectorAll('input[type="radio"]').forEach(function(radio) {
+                radio.addEventListener('change', function() {
+                    console.log(`Radio changed: ${this.name} = ${this.value} (checked: ${this.checked})`);
+                });
+            });
+            
+            // Add listeners to all text inputs
+            document.querySelectorAll('input[type="text"], input[type="date"], input[type="number"]').forEach(function(input) {
+                input.addEventListener('input', function() {
+                    if (this.value && this.value.trim() !== '') {
+                        console.log(`Text input changed: ${this.name || this.id} = "${this.value}"`);
+                    }
+                });
+            });
         }
         
         // Function to check all radio buttons and hide sections accordingly
@@ -1255,15 +1308,7 @@
                 }
             }
             
-            // Check smoking section
-            const smokingRadios = document.querySelectorAll('input[name="SmokingStatus"]');
-            for (const radio of smokingRadios) {
-                if (radio.checked && radio.value === 'Non-smoker') {
-                    hideGroupSections(['smoking-questions', 'smoking-questions-2']);
-                    break;
-                }
-            }
-            
+            // Check smoking section - no longer needed since we use checkboxes
             // Check stress section
             const stressRadios = document.querySelectorAll('input[name="stress_madalas"]');
             for (const radio of stressRadios) {
@@ -1308,7 +1353,7 @@
             console.log(`Setting up conditional visibility for ${radioName} -> ${sectionIds.join(', ')}`);
             
             // Special handling for alcohol section
-            if (radioName === 'alcoholic_inom') {
+            if (radioName === 'alcohol_inom') {
                 radioButtons.forEach(radio => {
                     radio.addEventListener('change', function() {
                         sections.forEach(section => {
@@ -1339,7 +1384,7 @@
                 radioButtons.forEach(radio => {
                     radio.addEventListener('change', function() {
                         // Check if this is a "No" option
-                        const isNoOption = (this.value === 'Hindi' || this.value === 'Non-smoker' || this.value === 'wala');
+                        const isNoOption = (this.value === 'Hindi' || this.value === 'Non-smoker' || this.value === 'Former Smoker' || this.value === 'wala');
                         
                         sections.forEach(section => {
                             if (isNoOption) {
@@ -1356,3 +1401,4 @@
         }
     </script>
 }
+

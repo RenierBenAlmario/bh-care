@@ -9,11 +9,11 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="m-0">Edit NCD Risk Assessment</h2>
         <div>
-            <a href="/Nurse/PrintNCDAssessment?appointmentId=@Model.NCDRiskAssessment.AppointmentId" class="btn btn-success me-2" target="_blank">
+            <a href="/Nurse/PrintNCDAssessment?appointmentId=@Model.AppointmentId" class="btn btn-success me-2" target="_blank">
                 <i class="fas fa-print me-1"></i>
                 Print Form
             </a>
-            <a href="/Nurse/AppointmentDetails?id=@Model.NCDRiskAssessment.AppointmentId" class="btn btn-outline-secondary">
+            <a href="/Nurse/AppointmentDetails?id=@Model.AppointmentId" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-1"></i>
                 Back to Appointment
             </a>
@@ -33,18 +33,18 @@
             <h5 class="mb-0">Patient: @Model.PatientName</h5>
         </div>
         <div class="card-body">
-            <form method="post" id="ncdForm">
+            @Html.Raw("<form method=\"post\" action=\"\" id=\"ncdForm\">")
+                @Html.AntiForgeryToken()
                 <div class="mb-3">
                     <div class="progress" style="height: 8px;">
                         <div id="wizardProgress" class="progress-bar bg-primary" role="progressbar" style="width: 20%"></div>
                     </div>
                     <div class="d-flex justify-content-between small text-muted mt-1">
-                        <span>1. Demographics</span>
-                        <span>2. Medical</span>
-                        <span>3. Family</span>
-                        <span>4. Risk</span>
-                        <span>5. Measurements</span>
-                        <span>6. Assessment</span>
+                        <span>1. Profile</span>
+                        <span>2. Medical History</span>
+                        <span>3. Risk Factors</span>
+                        <span>4. Measurements</span>
+                        <span>5. Assessment</span>
                     </div>
                 </div>
                 <input type="hidden" asp-for="NCDRiskAssessment.AppointmentId" />
@@ -53,624 +53,755 @@
                 <!-- Removed hidden birthday to show as visible field below -->
                 <input type="hidden" asp-for="NCDRiskAssessment.Edad" />
                 
+                <!-- Navigation Buttons (Top) -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between p-3 bg-light border rounded" style="display: flex !important; position: relative; z-index: 1000;">
+                            <button type="button" class="btn btn-outline-secondary" id="btnPrevTop" disabled style="visibility: visible !important; display: inline-block !important;">Previous</button>
+                            <div style="display: flex !important; gap: 10px;">
+                                <button type="button" class="btn btn-primary" id="btnNextTop" style="visibility: visible !important; display: inline-block !important;">Next</button>
+                                <button type="submit" class="btn btn-success d-none" id="btnSubmitTop" style="visibility: visible !important;">Save Changes</button>
+                            </div>
+                        </div>
+                        <div class="mt-2 text-center">
+                            <a href="/Nurse/AppointmentDetails?id=@Model.AppointmentId" class="btn btn-secondary btn-sm" style="visibility: visible !important; display: inline-block !important;">Cancel</a>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Step 1: Demographics -->
                 <div class="wizard-step" data-step="1">
-                    <h4 class="mb-3">Part I. Demographic-Socio-Economic Profile</h4>
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label class="form-label">Health Facility</label>
-                                <input type="text" asp-for="NCDRiskAssessment.HealthFacility" class="form-control" />
-                            </div>
-                            
-                            <div class="form-group mb-3">
-                                <label class="form-label">Family Number</label>
-                                <input type="text" asp-for="NCDRiskAssessment.FamilyNo" class="form-control" />
-                            </div>
-                            
-                            <div class="form-group mb-3">
-                                <label class="form-label">ID Number</label>
-                                <input type="text" asp-for="NCDRiskAssessment.IDNumber" class="form-control" />
-                            </div>
-                            
-                            <!-- ADD: Additional ID Field -->
-                            <div class="form-group mb-3">
-                                <label class="form-label">ID No.</label>
-                                <input type="text" asp-for="NCDRiskAssessment.IDNo" class="form-control" />
-                            </div>
-                            
-                            <div class="form-group mb-3">
-                                <label class="form-label">First Name</label>
-                                <input type="text" asp-for="NCDRiskAssessment.FirstName" class="form-control" />
-                            </div>
-                            
-                            <div class="form-group mb-3">
-                                <label class="form-label">Middle Name</label>
-                                <input type="text" asp-for="NCDRiskAssessment.MiddleName" class="form-control" />
-                            </div>
-                            
-                            <div class="form-group mb-3">
-                                <label class="form-label">Last Name</label>
-                                <input type="text" asp-for="NCDRiskAssessment.LastName" class="form-control" />
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label class="form-label">Date of Assessment</label>
-                                <input type="date" asp-for="NCDRiskAssessment.DateOfAssessment" class="form-control" />
-                            </div>
-                            <div class="form-group mb-3">
-                                <label class="form-label">Birthday (mm/dd/yy)</label>
-                                <input type="date" asp-for="NCDRiskAssessment.Birthday" class="form-control" />
-                            </div>
-                            
-                            <div class="form-group mb-3">
-                                <label class="form-label">Address</label>
-                                <input type="text" asp-for="NCDRiskAssessment.Address" class="form-control" />
-                            </div>
-                            
-                            <div class="form-group mb-3">
-                                <label class="form-label">Barangay</label>
-                                <input type="text" asp-for="NCDRiskAssessment.Barangay" class="form-control" />
-                            </div>
-                            
-                            <div class="form-group mb-3">
-                                <label class="form-label">Telepono</label>
-                                <input type="text" asp-for="NCDRiskAssessment.Telepono" class="form-control" />
-                            </div>
-                            
-                            <div class="form-group mb-3">
-                                <label class="form-label">Age</label>
-                                <input type="text" asp-for="NCDRiskAssessment.Edad" class="form-control" readonly />
-                            </div>
-                            
-                            <div class="form-group mb-3">
-                                <label class="form-label">Gender</label>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.Kasarian" value="Male" id="genderMale" />
-                                    <label class="form-check-label" for="genderMale">Male</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.Kasarian" value="Female" id="genderFemale" />
-                                    <label class="form-check-label" for="genderFemale">Female</label>
+                    <h4 class="mb-4" style="color: #007bff; border-bottom: 2px solid #dee2e6; padding-bottom: 10px; font-weight: 600;">Part I. Demographic-Socio-Economic Profile</h4>
+                    <div class="form-section" style="background: #fff; padding: 2rem; border: 1px solid #dee2e6; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <div class="row g-4">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="healthFacility" class="form-label fw-bold">Health Facility:</label>
+                                    <input type="text" id="healthFacility" asp-for="NCDRiskAssessment.HealthFacility" class="form-control" />
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row mb-4">
-                        <div class="col-md-4">
-                            <div class="form-group mb-3">
-                                <label class="form-label">Religion</label>
-                                <input type="text" asp-for="NCDRiskAssessment.Relihiyon" class="form-control" />
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group mb-3">
-                                <label class="form-label">Occupation</label>
-                                <input type="text" asp-for="NCDRiskAssessment.Occupation" class="form-control" />
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group mb-3">
-                                <label class="form-label">Civil Status</label>
-                                <input type="text" asp-for="NCDRiskAssessment.CivilStatus" class="form-control" />
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group mb-3">
-                        <label class="form-label">Risk Status</label>
-                        <div class="row">
-                            <div class="col-md-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.HasDiabetes" />
-                                    <label class="form-check-label">DM</label>
+                            
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="familyNo" class="form-label fw-bold">Family No:</label>
+                                    <div class="input-group">
+                                        <input type="text" id="familyNo" asp-for="NCDRiskAssessment.FamilyNo" class="form-control" />
+                                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="generateFamilyNumber()">Generate</button>
+                                    </div>
+                                    <small class="form-text text-muted">If you have a family number, enter it or click Generate to create a new one.</small>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.HasHypertension" />
-                                    <label class="form-check-label">HPN</label>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="dateAssessment" class="form-label fw-bold">Date of Assessment:</label>
+                                    <input type="date" id="dateAssessment" asp-for="NCDRiskAssessment.DateOfAssessment" class="form-control" />
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.HasCancer" />
-                                    <label class="form-check-label">Cancer (specify site)</label>
+                            
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="firstName" class="form-label fw-bold">Unang Pangalan:</label>
+                                    <input type="text" id="firstName" asp-for="NCDRiskAssessment.FirstName" class="form-control" required />
+                                    <span asp-validation-for="NCDRiskAssessment.FirstName" class="text-danger"></span>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.HasCOPD" />
-                                    <label class="form-check-label">COPD</label>
+                            
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="middleName" class="form-label fw-bold">Gitnang Pangalan:</label>
+                                    <input type="text" id="middleName" asp-for="NCDRiskAssessment.MiddleName" class="form-control" />
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="lastName" class="form-label fw-bold">Apelyido:</label>
+                                    <input type="text" id="lastName" asp-for="NCDRiskAssessment.LastName" class="form-control" required />
+                                    <span asp-validation-for="NCDRiskAssessment.LastName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="address" class="form-label fw-bold">Address:</label>
+                                    <input type="text" id="address" asp-for="NCDRiskAssessment.Address" class="form-control" />
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="barangay" class="form-label fw-bold">Barangay:</label>
+                                    <input type="text" id="barangay" asp-for="NCDRiskAssessment.Barangay" class="form-control" />
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="telefono" class="form-label fw-bold">Telepono:</label>
+                                    <input type="text" id="telefono" asp-for="NCDRiskAssessment.Telepono" class="form-control" pattern="[0-9]{11}" maxlength="11" />
+                                    <small class="form-text text-muted">11 digits only, Philippine format (e.g. 09123456789)</small>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="birthday" class="form-label fw-bold">Birthday:</label>
+                                    <input type="date" id="birthday" asp-for="NCDRiskAssessment.Birthday" class="form-control" required />
+                                    <span asp-validation-for="NCDRiskAssessment.Birthday" class="text-danger"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="edad" class="form-label fw-bold">Edad:</label>
+                                    <input type="number" id="edad" asp-for="NCDRiskAssessment.Edad" class="form-control" style="background-color: #f8f9fa;" readonly />
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label fw-bold">Kasarian:</label>
+                                    <div class="mt-2">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.Kasarian" value="Male" id="kasarianMale" />
+                                            <label class="form-check-label" for="kasarianMale">Male</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.Kasarian" value="Female" id="kasarianFemale" />
+                                            <label class="form-check-label" for="kasarianFemale">Female</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="relihiyon" class="form-label fw-bold">Relihiyon:</label>
+                                    <input type="text" id="relihiyon" asp-for="NCDRiskAssessment.Relihiyon" class="form-control" />
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="hanapbuhay" class="form-label fw-bold">Hanapbuhay:</label>
+                                    <input type="text" id="hanapbuhay" asp-for="NCDRiskAssessment.Occupation" class="form-control" />
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="estadoSibil" class="form-label fw-bold">Estado Sibil:</label>
+                                    <input type="text" id="estadoSibil" asp-for="NCDRiskAssessment.CivilStatus" class="form-control" />
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
                 </div>
 
                 
                 <!-- Step 2: Medical History -->
                 <div class="wizard-step d-none" data-step="2">
-                    <h4 class="mb-3">Part II. Past Medical History</h4>
-                    <div class="mb-4">
-                        <h6>Mayroon ba ay may sumusunod nakaraang karamdaman?</h6>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.HasDiabetes" />
-                                    <label class="form-check-label">Diabetes</label>
-                                </div>
-                                <div id="diabetesFields" class="row g-2 ms-4 d-none">
-                                    <div class="col-sm-6">
-                                        <input type="text" asp-for="NCDRiskAssessment.DiabetesYear" class="form-control form-control-sm" placeholder="Year Diagnosed" />
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <input type="text" asp-for="NCDRiskAssessment.DiabetesMedication" class="form-control form-control-sm" placeholder="Medication" />
-                                    </div>
-                                </div>
-                                
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.HasHypertension" />
-                                    <label class="form-check-label">Hypertension</label>
-                                </div>
-                                <div id="hypertensionFields" class="row g-2 ms-4 d-none">
-                                    <div class="col-sm-6">
-                                        <input type="text" asp-for="NCDRiskAssessment.HypertensionYear" class="form-control form-control-sm" placeholder="Year Diagnosed" />
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <input type="text" asp-for="NCDRiskAssessment.HypertensionMedication" class="form-control form-control-sm" placeholder="Medication" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.HasCancer" id="hasCancer" />
-                                    <label class="form-check-label">Cancer</label>
-                                </div>
-                                <div id="cancerTypeDiv" class="mb-2 d-none">
-                                    <input type="text" asp-for="NCDRiskAssessment.CancerType" class="form-control form-control-sm" placeholder="Cancer type" />
-                                    <div class="mt-2"></div>
-                                    <input type="text" asp-for="NCDRiskAssessment.CancerYear" class="form-control form-control-sm mt-2" placeholder="Year Diagnosed" />
-                                    <input type="text" asp-for="NCDRiskAssessment.CancerMedication" class="form-control form-control-sm mt-2" placeholder="Medication" />
-                                </div>
-                                
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.HasLungDisease" />
-                                    <label class="form-check-label">Sakit sa baga na hindi nakakahawa</label>
-                                </div>
-                                <div id="lungDiseaseFields" class="row g-2 ms-4 d-none">
-                                    <div class="col-sm-6">
-                                        <input type="text" asp-for="NCDRiskAssessment.LungDiseaseYear" class="form-control form-control-sm" placeholder="Year Diagnosed" />
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <input type="text" asp-for="NCDRiskAssessment.LungDiseaseMedication" class="form-control form-control-sm" placeholder="Medication" />
-                                    </div>
-                                </div>
-                                
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.HasEyeDisease" />
-                                    <label class="form-check-label">Sakit sa mata</label>
-                                </div>
-                                <div id="eyeDiseaseFields" class="row g-2 ms-4 d-none">
-                                    <div class="col-sm-6">
-                                        <input type="text" asp-for="NCDRiskAssessment.EyeDiseaseYear" class="form-control form-control-sm" placeholder="Year Diagnosed" />
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <input type="text" asp-for="NCDRiskAssessment.EyeDiseaseMedication" class="form-control form-control-sm" placeholder="Medication" />
-                                    </div>
-                                </div>
-                                
-                                <!-- ADD: Additional Medical Details -->
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.HasAsthma" />
-                                    <label class="form-check-label">Asthma</label>
-                                </div>
-                                
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.HasDifficultyBreathing" />
-                                    <label class="form-check-label">Has Difficulty Breathing</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <h6>Pananaklit ng dibdib (Chest pain)</h6>
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.HasChestPain" />
-                            <label class="form-check-label">Pananakit/kabigatan sa dibdib</label>
-                        </div>
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.ChestPainSpreadsToArm" />
-                            <label class="form-check-label">May kumakalat na sakit hanggang braso</label>
-                        </div>
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.NumbnessWhenWalkingFast" />
-                            <label class="form-check-label">Pamamanhid kapag nagmamadali/naglalakad ng mabilis</label>
-                        </div>
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.PainRelievedWithRest" />
-                            <label class="form-check-label">Nawawala ang sakit kapag nakapahinga</label>
-                        </div>
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.LossOfConsciousnessLessThan10Min" />
-                            <label class="form-check-label">Nawawalan ng malay <10 minuto</label>
-                        </div>
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.PainLastsMoreThan30Min" />
-                            <label class="form-check-label">Sakit tumatagal >30 minuto</label>
-                        </div>
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.SeeDoctorIfYes" />
-                            <label class="form-check-label">Kung Oo, magpatingin agad sa doktor</label>
-                        </div>
-                        <div class="form-group mb-3">
-                            <label class="form-label">Doktor</label>
-                            <input type="text" asp-for="NCDRiskAssessment.DoctorName" class="form-control" />
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Step 3: Family History -->
-                <div class="wizard-step d-none" data-step="3">
-                    <h4 class="mb-3">Part III. Assessment of Risk Factors</h4>
-                    <h5 class="mb-3">A. Non-Modifiable Risk Factors</h5>
-                    <div class="mb-4">
-                        <h6>Sakit sa pamilya (Family history):</h6>
-                        <table class="table table-sm">
-                            
-                            <tbody>
-                                <tr>
-                                    <td>Mataas na presyon</td>
-                                    <td><input type="checkbox" asp-for="NCDRiskAssessment.FamilyHistoryHypertensionFather" class="form-check-input" /></td>
-                                   </tr>
-                                <tr>
-                                    <td>Stroke</td>
-                                    <td><input type="checkbox" asp-for="NCDRiskAssessment.FamilyHistoryStrokeFather" class="form-check-input" /></td>
-                                   </tr>
-                                <tr>
-                                    <td>Diabetes</td>
-                                    <td><input type="checkbox" asp-for="NCDRiskAssessment.FamilyHistoryDiabetesFather" class="form-check-input" /></td>
-                                    </tr>
-                                <tr>
-                                    <td>Kanser</td>
-                                    <td><input type="checkbox" asp-for="NCDRiskAssessment.FamilyHistoryCancerFather" class="form-check-input" /></td>
-                                     </tr>
-                                <tr>
-                                    <td>Sakit sa baga na hindi nakakahawa</td>
-                                    <td><input type="checkbox" asp-for="NCDRiskAssessment.FamilyHistoryLungDiseaseFather" class="form-check-input" /></td>
-                                    </tr>
-                                <tr>
-                                    <td>Sakit sa bato</td>
-                                    <td><input type="checkbox" asp-for="NCDRiskAssessment.FamilyHistoryKidneyDiseaseFather" class="form-check-input" /></td>
-                                    </tr>
-                                <tr>
-                                    <td>Sakit sa mata</td>
-                                    <td><input type="checkbox" asp-for="NCDRiskAssessment.FamilyHistoryEyeDiseaseFather" class="form-check-input" /></td>
-                                    </tr>
-                            </tbody>
-                        </table>
-                        <div class="form-group mb-3">
-                            <label class="form-label">Isulat: (Other disease details)</label>
-                            <input type="text" asp-for="NCDRiskAssessment.FamilyOtherDiseaseDetails" class="form-control" />
-                        </div>
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" />
-                            <label class="form-check-label">First degree relatives</label>
-                        </div>
+                    <h4 class="mb-4" style="color: #007bff; border-bottom: 2px solid #dee2e6; padding-bottom: 10px; font-weight: 600;">Part II. Past Medical History</h4>
+                    <div class="form-section" style="background: #fff; padding: 2rem; border: 1px solid #dee2e6; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                         
-                        <!-- ADD: Individual Family History Details -->
-                        <div class="mb-3">
-                            <h6>Individual Family History:</h6>
-                            <table class="table table-sm">
-                               
+                        <h5 class="mb-3" style="color: #495057; font-weight: 600;">1. Ikaw ba ay may sumusunod nakaramdaman?</h5>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="fw-bold" style="width: 25%;">1.1 Karamdaman</th>
+                                        <th class="fw-bold" style="width: 15%;">1.2 Lagyan ng tsek kung may karamdaman</th>
+                                        <th class="fw-bold" style="width: 25%;">1.3 Taon nalaman ang sakit</th>
+                                        <th class="fw-bold" style="width: 35%;">1.4 Ininom na gamot. Isulat ang "Wala" kung walang iniinom</th>
+                                    </tr>
+                                </thead>
                                 <tbody>
                                     <tr>
-                                        <td>Cancer</td>
-                                        <td><input type="checkbox" asp-for="NCDRiskAssessment.FamilyHistoryCancerFather" class="form-check-input" /></td>
-                                         </tr>
+                                        <td>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.HasDiabetes" id="hasDiabetes" />
+                                                <label class="form-check-label fw-bold" for="hasDiabetes">
+                                                    Diabetes (DM)
+                                                </label>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <i class="fas fa-check-circle text-success d-none"></i>
+                                        </td>
+                                        <td>
+                                            <input type="text" asp-for="NCDRiskAssessment.DiabetesYear" class="form-control form-control-sm" placeholder="Year" />
+                                        </td>
+                                        <td>
+                                            <input type="text" asp-for="NCDRiskAssessment.DiabetesMedication" class="form-control form-control-sm" placeholder="Medication or 'Wala'" />
+                                        </td>
+                                    </tr>
                                     <tr>
-                                        <td>Diabetes</td>
-                                        <td><input type="checkbox" asp-for="NCDRiskAssessment.FamilyHistoryDiabetesFather" class="form-check-input" /></td>
-                                       </tr>
+                                        <td>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.HasHypertension" id="hasHypertension" />
+                                                <label class="form-check-label fw-bold" for="hasHypertension">
+                                                    Hypertension (HPN)
+                                                </label>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <i class="fas fa-check-circle text-success d-none"></i>
+                                        </td>
+                                        <td>
+                                            <input type="text" asp-for="NCDRiskAssessment.HypertensionYear" class="form-control form-control-sm" placeholder="Year" />
+                                        </td>
+                                        <td>
+                                            <input type="text" asp-for="NCDRiskAssessment.HypertensionMedication" class="form-control form-control-sm" placeholder="Medication or 'Wala'" />
+                                        </td>
+                                    </tr>
                                     <tr>
-                                        <td>Heart Disease</td>
-                                        <td><input type="checkbox" asp-for="NCDRiskAssessment.FamilyHistoryHeartDiseaseFather" class="form-check-input" /></td>
-                                        </tr>
+                                        <td>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.HasCancer" id="hasCancer" />
+                                                <label class="form-check-label fw-bold" for="hasCancer">
+                                                    Cancer
+                                                </label>
+                                            </div>
+                                            <input type="text" asp-for="NCDRiskAssessment.CancerType" class="form-control form-control-sm" placeholder="specify site" />
+                                        </td>
+                                        <td class="text-center">
+                                            <i class="fas fa-check-circle text-success d-none"></i>
+                                        </td>
+                                        <td>
+                                            <input type="text" asp-for="NCDRiskAssessment.CancerYear" class="form-control form-control-sm" placeholder="Year" />
+                                        </td>
+                                        <td>
+                                            <input type="text" asp-for="NCDRiskAssessment.CancerMedication" class="form-control form-control-sm" placeholder="Medication or 'Wala'" />
+                                        </td>
+                                    </tr>
                                     <tr>
-                                        <td>Lung Disease</td>
-                                        <td><input type="checkbox" asp-for="NCDRiskAssessment.FamilyHistoryLungDiseaseFather" class="form-check-input" /></td>
-                                        </tr>
+                                        <td>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.HasLungDisease" id="hasLungDisease" />
+                                                <label class="form-check-label fw-bold" for="hasLungDisease">
+                                                    Sakit sa baga hindi nakakahawa
+                                                </label>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <i class="fas fa-check-circle text-success d-none"></i>
+                                        </td>
+                                        <td>
+                                            <input type="text" asp-for="NCDRiskAssessment.LungDiseaseYear" class="form-control form-control-sm" placeholder="Year" />
+                                        </td>
+                                        <td>
+                                            <input type="text" asp-for="NCDRiskAssessment.LungDiseaseMedication" class="form-control form-control-sm" placeholder="Medication or 'Wala'" />
+                                        </td>
+                                    </tr>
                                     <tr>
-                                        <td>Stroke</td>
-                                        <td><input type="checkbox" asp-for="NCDRiskAssessment.FamilyHistoryStrokeFather" class="form-check-input" /></td>
-                                         </tr>
+                                        <td>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.HasEyeDisease" id="hasEyeDisease" />
+                                                <label class="form-check-label fw-bold" for="hasEyeDisease">
+                                                    Sakit sa mata
+                                                </label>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <i class="fas fa-check-circle text-success d-none"></i>
+                                        </td>
+                                        <td>
+                                            <input type="text" asp-for="NCDRiskAssessment.EyeDiseaseYear" class="form-control form-control-sm" placeholder="Year" />
+                                        </td>
+                                        <td>
+                                            <input type="text" asp-for="NCDRiskAssessment.EyeDiseaseMedication" class="form-control form-control-sm" placeholder="Medication or 'Wala'" />
+                                        </td>
+                                    </tr>
                                     <tr>
-                                        <td>Kidney Disease</td>
-                                        <td><input type="checkbox" asp-for="NCDRiskAssessment.FamilyHistoryKidneyDiseaseFather" class="form-check-input" /></td>
-                                        </tr>
-                                    <tr>
-                                        <td>Eye Disease</td>
-                                        <td><input type="checkbox" asp-for="NCDRiskAssessment.FamilyHistoryEyeDiseaseFather" class="form-check-input" /></td>
-                                       </tr>
+                                        <td>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.HasAsthma" id="hasAsthma" />
+                                                <label class="form-check-label fw-bold" for="hasAsthma">
+                                                    Asthma
+                                                </label>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.HasDifficultyBreathing" id="hasDifficultyBreathing" />
+                                                <label class="form-check-label fw-bold" for="hasDifficultyBreathing">
+                                                    Has Difficulty Breathing
+                                                </label>
+                                            </div>
+                                        </td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
+                        
+                        <h5 class="mb-3 mt-4" style="color: #495057; font-weight: 600;">2. Pananakit ng dibdib</h5>
+                        
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body p-3">
+                                        <label class="form-label fw-bold">2.1 Nakakaramdam ka ba ng Pananakit o kabigatan sa dibdib? (kung hindi pumunta sa Q2.8, Kapag Oo ituloy lang ang mga sumusunod na tanong.)</label>
+                                        <div class="mt-2">
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.HasChestPain" value="Oo" id="chestPainYes" />
+                                                <label class="form-check-label" for="chestPainYes">Oo</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.HasChestPain" value="Hindi" id="chestPainNo" />
+                                                <label class="form-check-label" for="chestPainNo">Hindi</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body p-3">
+                                        <label class="form-label fw-bold">2.2 Ang sakit ba ay nasa gitna ng dibdib, kaliwang bahagi ng dibdib hanggang sa kaliwang braso?</label>
+                                        <div class="mt-2">
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.ChestPainSpreadsToArm" value="Oo" id="spreadsPainYes" />
+                                                <label class="form-check-label" for="spreadsPainYes">Oo</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.ChestPainSpreadsToArm" value="Hindi" id="spreadsPainNo" />
+                                                <label class="form-check-label" for="spreadsPainNo">Hindi</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body p-3">
+                                        <label class="form-label fw-bold">2.3 Nakakaramdam ka ba ng pamamanhid sa kaliwang braso at/o binti kapag naglalakad ng mabilis o umakyat ng hagdan?</label>
+                                        <div class="mt-2">
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.NumbnessWhenWalkingFast" value="Oo" id="numbnessYes" />
+                                                <label class="form-check-label" for="numbnessYes">Oo</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.NumbnessWhenWalkingFast" value="Hindi" id="numbnessNo" />
+                                                <label class="form-check-label" for="numbnessNo">Hindi</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body p-3">
+                                        <label class="form-label fw-bold">2.4 Nawawala ba ang sakit kapag nakapahinga?</label>
+                                        <div class="mt-2">
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.PainRelievedWithRest" value="Oo" id="painReliefYes" />
+                                                <label class="form-check-label" for="painReliefYes">Oo</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.PainRelievedWithRest" value="Hindi" id="painReliefNo" />
+                                                <label class="form-check-label" for="painReliefNo">Hindi</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body p-3">
+                                        <label class="form-label fw-bold">2.5 Nawawalan ba ng malay na hindi hihigit sa 10 minuto?</label>
+                                        <div class="mt-2">
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.LossOfConsciousnessLessThan10Min" value="Oo" id="consciousnessYes" />
+                                                <label class="form-check-label" for="consciousnessYes">Oo</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.LossOfConsciousnessLessThan10Min" value="Hindi" id="consciousnessNo" />
+                                                <label class="form-check-label" for="consciousnessNo">Hindi</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body p-3">
+                                        <label class="form-label fw-bold">2.6 Kung Oo sa mga tanong sa itaas, magpunta agad sa doktor</label>
+                                        <div class="mt-2">
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.SeeDoctorIfYes" value="Oo" id="seeDoctorYes" />
+                                                <label class="form-check-label" for="seeDoctorYes">Oo</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.SeeDoctorIfYes" value="Hindi" id="seeDoctorNo" />
+                                                <label class="form-check-label" for="seeDoctorNo">Hindi</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body p-3">
+                                        <label class="form-label fw-bold">2.7 Nakakaramdam ka ba ng sakit sa dibdib na tumatagal higit sa 30 minuto?</label>
+                                        <div class="mt-2">
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.PainLastsMoreThan30Min" value="Oo" id="longPainYes" />
+                                                <label class="form-check-label" for="longPainYes">Oo</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.PainLastsMoreThan30Min" value="Hindi" id="longPainNo" />
+                                                <label class="form-check-label" for="longPainNo">Hindi</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-warning mt-3">
+                            <strong><i class="fas fa-exclamation-triangle"></i> Kung Oo sagot sa Q2.4-2.7, maaring may angina o impending heart attack. Dalhin kaagad sa doktor</strong>
+                        </div>
+                        
+                        <div class="card border-0 bg-light mt-3">
+                            <div class="card-body p-3">
+                                <label class="form-label fw-bold">2.8 Nakakaramdam ka ba hirap sa pagsasalita, panghihina ng braso at/o binti o pamamanhid sa kalahating bahagi ng katawan? kung Oo, dalhin agad ang pasyente sa Doktor.</label>
+                                <div class="mt-2">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.HasStrokeSymptoms" value="Oo" id="strokeSymptomsYes" />
+                                        <label class="form-check-label" for="strokeSymptomsYes">Oo</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.HasStrokeSymptoms" value="Hindi" id="strokeSymptomsNo" />
+                                        <label class="form-check-label" for="strokeSymptomsNo">Hindi</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="doctorName" class="form-label fw-bold">Doktor:</label>
+                                    <input type="text" id="doctorName" asp-for="NCDRiskAssessment.DoctorName" class="form-control" placeholder="Doctor's name" />
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
+                </div>
                 
-                <!-- Step 4: Modifiable Risk Factors -->
+                <!-- Step 3: Risk Factors -->
+                <div class="wizard-step d-none" data-step="3">
+                    <h4 class="mb-4" style="color: #007bff; border-bottom: 2px solid #dee2e6; padding-bottom: 10px; font-weight: 600;">Part III. Assessment of Risk Factors</h4>
+                    <div class="form-section" style="background: #fff; padding: 2rem; border: 1px solid #dee2e6; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        
+                        <h5 class="mb-3" style="color: #007bff; font-weight: 600;">A. Non-Modifiable Risk Factors</h5>
+                        <h6 class="mb-3" style="color: #495057;">1. Sakit sa pamilya (first degree relatives)</h6>
+                        
+                        <div class="table-responsive mb-4">
+                            <table class="table table-bordered table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="fw-bold">Family history of:</th>
+                                        <th class="fw-bold text-center" style="width: 20%;">Check if Yes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                  
+                                    <tr>
+                                        <td>Sakit sa puso</td>
+                                        <td class="text-center">
+                                            <div class="form-check d-inline-block">
+                                                <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.FamilyHistoryHeartDiseaseFather" id="familyHeartDisease"
+                                                        />
+                                                <label class="form-check-label" for="familyHeartDisease"></label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Stroke</td>
+                                        <td class="text-center">
+                                            <div class="form-check d-inline-block">
+                                                <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.FamilyHistoryStrokeFather" id="familyStroke"/> 
+                                                          
+                                                <label class="form-check-label" for="familyStroke"></label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Diabetes</td>
+                                        <td class="text-center">
+                                            <div class="form-check d-inline-block">
+                                                <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.FamilyHistoryDiabetesFather" id="familyDiabetes"
+                                                          />
+                                                <label class="form-check-label" for="familyDiabetes"></label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Kanser</td>
+                                        <td class="text-center">
+                                            <div class="form-check d-inline-block">
+                                                <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.FamilyHistoryCancerFather" id="familyCancer"
+                                                          />
+                                                <label class="form-check-label" for="familyCancer"></label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Sakit sa baga na hindi nakakahawa</td>
+                                        <td class="text-center">
+                                            <div class="form-check d-inline-block">
+                                                <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.FamilyHistoryLungDiseaseFather" id="familyLungDisease"
+                                                          />
+                                                <label class="form-check-label" for="familyLungDisease"></label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Sakit sa bato</td>
+                                        <td class="text-center">
+                                            <div class="form-check d-inline-block">
+                                                <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.FamilyHistoryKidneyDiseaseFather" id="familyKidneyDisease"
+                                                          />
+                                                <label class="form-check-label" for="familyKidneyDisease"></label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="familyHistoryOther" class="form-label fw-bold">Iba pang sakit:</label>
+                                    <input type="text" id="familyHistoryOther" asp-for="NCDRiskAssessment.FamilyOtherDiseaseDetails" class="form-control" placeholder="Specify other diseases" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <h5 class="mb-3 mt-4" style="color: #007bff; font-weight: 600;">B. Modifiable Risk Factors</h5>
+                        
+                        <h6 class="mb-3" style="color: #495057;">B.1 Nutrisyon</h6>
+                        
+                        <div class="card border-0 bg-light mb-3">
+                            <div class="card-body p-3">
+                                <label class="form-label fw-bold mb-3">Madalas mo bang kainin ang mga sumusunod?</label>
+                                <div class="row g-2">
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.EatsVegetablesDaily" id="eatsVegetables" />
+                                            <label class="form-check-label" for="eatsVegetables">Gulay</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.EatsFruitsDaily" id="eatsFruits" />
+                                            <label class="form-check-label" for="eatsFruits">Prutas</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.EatsFishDaily" id="eatsFish" />
+                                            <label class="form-check-label" for="eatsFish">Isda</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.EatsMeatDaily" id="eatsMeat" />
+                                            <label class="form-check-label" for="eatsMeat">Karne</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.HasUnhealthyDiet" id="eatsProcessedFood" />
+                                            <label class="form-check-label" for="eatsProcessedFood">Processed food</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card border-0 bg-light mb-4">
+                            <div class="card-body p-3">
+                                <label class="form-label fw-bold mb-3">Kumakain ka ba ng higit sa 2 beses kada linggo ng:</label>
+                                <div class="row g-2">
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.EatsSweetFoodMoreThan2TimesPerWeek" id="eatsSweetFood" />
+                                            <label class="form-check-label" for="eatsSweetFood">Matatamis na pagkain</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.HasHighSaltIntake" id="highSaltIntake" />
+                                            <label class="form-check-label" for="highSaltIntake">Maaalat na pagkain</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.EatsFattyFoodMoreThan2TimesPerWeek" id="eatsFattyFood" />
+                                            <label class="form-check-label" for="eatsFattyFood">Mamantikang pagkain</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h6 class="mb-3" style="color: #495057;">B.2 Alcohol</h6>
+                        <div class="card border-0 bg-light mb-3">
+                            <div class="card-body p-3">
+                                <label class="form-label fw-bold mb-3">Umiinom ka ba ng alak?</label>
+                                <div class="mb-3">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.DrinksAlcohol" value="Oo" id="drinksAlcoholYes" />
+                                        <label class="form-check-label" for="drinksAlcoholYes">Oo</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.DrinksAlcohol" value="Hindi" id="drinksAlcoholNo" />
+                                        <label class="form-check-label" for="drinksAlcoholNo">Hindi</label>
+                                    </div>
+                                </div>
+                                
+                                <label class="form-label fw-bold mb-3">Sa ilang okasyon, ilang bote ng alak ang nainom mo?</label>
+                                <div class="row g-2">
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.AlcoholAmount1Bottle320ml" id="alcohol1bottle" />
+                                            <label class="form-check-label" for="alcohol1bottle">1 bote</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.AlcoholAmount2Bottle640ml" id="alcohol2bottles" />
+                                            <label class="form-check-label" for="alcohol2bottles">2 bote</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.AlcoholAmountLessThan3Shot45ml" id="alcohol3shots" />
+                                            <label class="form-check-label" for="alcohol3shots">3 shot</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.AlcoholFrequency1to3TimesPerWeek" id="alcohol1to2times" />
+                                            <label class="form-check-label" for="alcohol1to2times">1-2 beses/linggo</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.AlcoholFrequencyMoreThan4TimesPerWeek" id="alcohol3to4times" />
+                                            <label class="form-check-label" for="alcohol3to4times">3-4 beses/linggo</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h6 class="mb-3" style="color: #495057;">B.3 Ehersisyo (Physical Activity):</h6>
+                        <div class="card border-0 bg-light mb-3">
+                            <div class="card-body p-3">
+                                <div class="row g-2">
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.ModerateIntensityExercise" id="moderateIntensity"
+                                                   />
+                                            <label class="form-check-label" for="moderateIntensity">Moderate Intensity</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.VigorousIntensityExercise" id="vigorousIntensity"
+                                                   />
+                                            <label class="form-check-label" for="vigorousIntensity">Vigorous Intensity</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.InsufficientPhysicalActivity" id="insufficientActivity"
+                                                   />
+                                            <label class="form-check-label" for="insufficientActivity">Insufficient Physical Activity</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h6 class="mb-3" style="color: #495057;">B.4 Paninigarilyo (Smoking):</h6>
+                        <div class="card border-0 bg-light mb-3">
+                            <div class="card-body p-3">
+                                <label class="form-label fw-bold mb-3">Ikaw ba ay naninigariyo?</label>
+                                <div class="mb-3">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.HasHistoryOfSmoking" value="Oo" id="smokingYes" />
+                                        <label class="form-check-label" for="smokingYes">Oo</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.HasHistoryOfSmoking" value="Hindi" id="smokingNo" />
+                                        <label class="form-check-label" for="smokingNo">Hindi</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="row g-2">
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.FormerSmoker" id="formerSmoker" />
+                                            <label class="form-check-label" for="formerSmoker">Oo pero tumigil na</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.NeverSmokedButExposedToSmoke" id="exposedToSmoke" />
+                                            <label class="form-check-label" for="exposedToSmoke">Hindi, pero lantad sa usok ng sigarilyo</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.Smoked100Sticks" id="smoked100sticks" />
+                                            <label class="form-check-label" for="smoked100sticks">Smoked 100 sticks or more</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h6 class="mb-3" style="color: #495057;">B.5 Stress</h6>
+                        <div class="card border-0 bg-light mb-4">
+                            <div class="card-body p-3">
+                                <label class="form-label fw-bold mb-3">Madalas ka bang stressed?</label>
+                                <div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.HasStress" value="Oo" id="stressYes" />
+                                        <label class="form-check-label" for="stressYes">Oo</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.HasStress" value="Hindi" id="stressNo" />
+                                        <label class="form-check-label" for="stressNo">Hindi</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+                
+                <!-- Step 4: Anthropometric Measurements -->
                 <div class="wizard-step d-none" data-step="4">
-                    <h5 class="mb-3">B. Modifiable Risk Factors</h5>
-                    
-                    <div class="mb-4">
-                        <h6>Nutrisyon (Nutrition):</h6>
-                        <p>Madalas mo bang kainin kada araw?</p>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.EatsVegetablesDaily" />
-                                    <label class="form-check-label">Gulay</label>
-                                </div>
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.EatsFruitsDaily" />
-                                    <label class="form-check-label">Prutas</label>
-                                </div>
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.EatsFishDaily" />
-                                    <label class="form-check-label">Isda</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.EatsMeatDaily" />
-                                    <label class="form-check-label">Karne</label>
-                                </div>
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.HasUnhealthyDiet" />
-                                    <label class="form-check-label">Processed food</label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <p>Kumakain ka ba ng higit sa 2 beses kada linggo ng:</p>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.EatsFattyFoodMoreThan2TimesPerWeek" />
-                                    <label class="form-check-label">Matatabang pagkain</label>
-                                </div>
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.EatsSweetFoodMoreThan2TimesPerWeek" />
-                                    <label class="form-check-label">Matatamis na pagkain</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.EatsOilyFoodMoreThan2TimesPerWeek" />
-                                    <label class="form-check-label">Mamantikang pagkain</label>
-                                </div>
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.HasHighSaltIntake" />
-                                    <label class="form-check-label">With high salt intake</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <h6>Alakhol (Alcohol):</h6>
-                        <div class="mb-2">
-                            <label class="form-label d-block">Umiinom ka ba ng alak?</label>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.DrinksAlcohol" value="true" id="alcoholYes" />
-                                <label class="form-check-label" for="alcoholYes">Oo</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.DrinksAlcohol" value="false" id="alcoholNo" />
-                                <label class="form-check-label" for="alcoholNo">Hindi</label>
-                            </div>
-                        </div>
-                        <div class="form-group mb-3">
-                            <label class="form-label">Kung hindi, gaano katagal ka na tumigil sa pag-inom?</label>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.AlcoholStoppedDuration" value="wala pang 1 taon" />
-                                <label class="form-check-label">Wala pang 1 taon</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.AlcoholStoppedDuration" value="≥ 1 taon" />
-                                <label class="form-check-label">≥ 1 taon</label>
-                            </div>
-                        </div>
-                        
-                        <!-- ADD: Additional Alcohol Consumption Details -->
-                        <div class="form-group mb-3">
-                            <label class="form-label">Alcohol Amount Details:</label>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.AlcoholAmount1Bottle320ml" />
-                                <label class="form-check-label">1 bottle (320 ml)</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.AlcoholAmount2Bottle640ml" />
-                                <label class="form-check-label">2 bottles (640 ml)</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.AlcoholAmountLessThan3Shot45ml" />
-                                <label class="form-check-label">< 3 shots/jigger (45 ml)</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.AlcoholAmount3to4WineGlasses300ml" />
-                                <label class="form-check-label">3-4 wine glasses (300 ml)</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.AlcoholAmountMoreThan4Shots75ml" />
-                                <label class="form-check-label">> 4 shots/jigger (75 ml)</label>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group mb-3">
-                            <label class="form-label">Alcohol Frequency Details:</label>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.AlcoholFrequency1to3TimesPerWeek" />
-                                <label class="form-check-label">1-3 times per week</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.AlcoholFrequencyMoreThan4TimesPerWeek" />
-                                <label class="form-check-label">≥ 4 times per week</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.IsBingeDrinker" />
-                                <label class="form-check-label">Binge Drinker</label>
-                            </div>
-                        </div>
-                        
-                        <p>Kung Oo:</p>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.DrinksBeer" />
-                                    <label class="form-check-label">Beer</label>
-                                </div>
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.DrinksWine" />
-                                    <label class="form-check-label">Wine</label>
-                                </div>
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.DrinksWhiskyGinBrandy" />
-                                    <label class="form-check-label">Whisky/Gin/Brandy</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.AlcoholAmount1Bottle320ml" />
-                                    <label class="form-check-label">1 bote (320 ml)</label>
-                                </div>
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.AlcoholAmount2Bottle640ml" />
-                                    <label class="form-check-label">2 bote (640 ml)</label>
-                                </div>
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.AlcoholAmountLessThan3Shot45ml" />
-                                    <label class="form-check-label"><3 shot/jigger (45 ml)</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.AlcoholAmount3to4WineGlasses300ml" />
-                                    <label class="form-check-label">3–4 wine glasses (300 ml)</label>
-                                </div>
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.AlcoholAmountMoreThan4Shots75ml" />
-                                    <label class="form-check-label">>4 shots/jigger (75 ml)</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.AlcoholFrequency1to3TimesPerWeek" />
-                                    <label class="form-check-label">1–3 beses/linggo</label>
-                                </div>
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.AlcoholFrequencyMoreThan4TimesPerWeek" />
-                                    <label class="form-check-label">≥4 beses/linggo</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.IsBingeDrinker" />
-                            <label class="form-check-label">Binge Drinker</label>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <h6>Ehersisyo (Physical Activity):</h6>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.ModerateIntensityExercise" />
-                                    <label class="form-check-label">Moderate Intensity</label>
-                                </div>
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.VigorousIntensityExercise" />
-                                    <label class="form-check-label">Vigorous Intensity</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.CombinationExercise" />
-                                    <label class="form-check-label">Kombinasyon</label>
-                                </div>
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.InsufficientPhysicalActivity" />
-                                    <label class="form-check-label">Insufficient Physical Activity</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <h6>Paninigarilyo (Smoking):</h6>
-                        <div class="mb-2">
-                            <label class="form-label d-block">Ikaw ba ay naninigarilyo?</label>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.HasHistoryOfSmoking" value="true" id="smokeYes" />
-                                <label class="form-check-label" for="smokeYes">Oo</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.HasHistoryOfSmoking" value="false" id="smokeNo" />
-                                <label class="form-check-label" for="smokeNo">Hindi</label>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.FormerSmoker" />
-                                    <label class="form-check-label">Oo, pero tumigil na</label>
-                                </div>
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.NeverSmokedButExposedToSmoke" />
-                                    <label class="form-check-label">Hindi, pero lantad sa usok ng sigarilyo</label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- ADD: Additional Smoking Details -->
-                        <div class="form-group mb-3">
-                            <label class="form-label">Smoking Details:</label>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.Smoked100Sticks" />
-                                <label class="form-check-label">Smoked 100 sticks or more</label>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <h6>Istres (Stress):</h6>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.HasStress" />
-                                    <label class="form-check-label">Oo</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" />
-                                    <label class="form-check-label">Hindi</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Step 5: Anthropometric Measurements -->
-                <div class="wizard-step d-none" data-step="5">
-                    <h4 class="mb-3">Part IV. Anthropometric Measurement</h4>
-                    <div class="row mb-4">
+                    <h4 class="mb-4" style="color: #007bff; border-bottom: 2px solid #dee2e6; padding-bottom: 10px; font-weight: 600;">Part IV. Anthropometric Measurement</h4>
+                    <div class="form-section" style="background: #fff; padding: 2rem; border: 1px solid #dee2e6; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <div class="row mb-4">
                         <div class="col-md-6">
                             <div class="form-group mb-3">
                                 <label class="form-label">Weight</label>
@@ -707,30 +838,30 @@
                             <div class="col-md-6">
                                 <h6>BMI Status:</h6>
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="BMIStatus" value="Underweight" />
-                                    <label class="form-check-label">Underweight (<18.5)</label>
+                                    <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.BMIStatus" value="Underweight" />
+                                    <label class="form-check-label">Underweight (&lt;18.5)</label>
                                 </div>
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="BMIStatus" value="Normal" />
+                                    <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.BMIStatus" value="Normal" />
                                     <label class="form-check-label">Normal (18.5–22.9)</label>
                                 </div>
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="BMIStatus" value="Overweight" />
+                                    <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.BMIStatus" value="Overweight" />
                                     <label class="form-check-label">Overweight (23–24.9)</label>
                                 </div>
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="BMIStatus" value="Obese" />
+                                    <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.BMIStatus" value="Obese" />
                                     <label class="form-check-label">Obese (≥25)</label>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <h6>WH Status:</h6>
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="WHStatus" value="No risk" />
-                                    <label class="form-check-label">No risk (Male <1.0, Female <0.85)</label>
+                                    <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.WHStatus" value="No risk" />
+                                    <label class="form-check-label">No risk (Male &lt;1.0, Female &lt;0.85)</label>
                                 </div>
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="WHStatus" value="At risk" />
+                                    <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.WHStatus" value="At risk" />
                                     <label class="form-check-label">At risk (Male ≥1.0, Female ≥0.85)</label>
                                 </div>
                             </div>
@@ -753,23 +884,23 @@
                             <div class="col-md-6">
                                 <h6>Status:</h6>
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="BloodSugarStatus" value="Normal" />
-                                    <label class="form-check-label">Normal (<100)</label>
+                                    <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.BloodSugarStatus" value="Normal" />
+                                    <label class="form-check-label">Normal (&lt;100)</label>
                                 </div>
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="BloodSugarStatus" value="Impaired" />
+                                    <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.BloodSugarStatus" value="Impaired" />
                                     <label class="form-check-label">Impaired fasting glucose (100–125)</label>
                                 </div>
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="BloodSugarStatus" value="DM" />
+                                    <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.BloodSugarStatus" value="DM" />
                                     <label class="form-check-label">DM (>126 or RBS ≥200 + symptoms)</label>
                                 </div>
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="BloodSugarStatus" value="Pre-Diabetes" />
+                                    <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.BloodSugarStatus" value="Pre-Diabetes" />
                                     <label class="form-check-label">Pre-Diabetes</label>
                                 </div>
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="BloodSugarStatus" value="DM" />
+                                    <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.BloodSugarStatus" value="DM" />
                                     <label class="form-check-label">DM</label>
                                 </div>
                             </div>
@@ -820,23 +951,23 @@
                             <div class="col-md-6">
                                 <h6>Status:</h6>
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="BPStatus" value="Normal" />
-                                    <label class="form-check-label">Normal (<120/80)</label>
+                                    <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.BPStatus" value="Normal" />
+                                    <label class="form-check-label">Normal (&lt;120/80)</label>
                                 </div>
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="BPStatus" value="Pre-HPN" />
+                                    <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.BPStatus" value="Pre-HPN" />
                                     <label class="form-check-label">Pre-HPN (120–139/80–89)</label>
                                 </div>
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="BPStatus" value="Stage 1" />
+                                    <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.BPStatus" value="Stage 1" />
                                     <label class="form-check-label">Stage 1 (140–159/90–99)</label>
                                 </div>
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="BPStatus" value="Stage 2" />
+                                    <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.BPStatus" value="Stage 2" />
                                     <label class="form-check-label">Stage 2 (≥160/≥100)</label>
                                 </div>
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="BPStatus" value="Elevated" />
+                                    <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.BPStatus" value="Elevated" />
                                     <label class="form-check-label">Elevated BP</label>
                                 </div>
                             </div>
@@ -855,15 +986,15 @@
                             <div class="col-md-6">
                                 <h6>Status:</h6>
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="CholesterolStatus" value="Normal" />
-                                    <label class="form-check-label">Normal (<200)</label>
+                                    <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.CholesterolStatus" value="Normal" />
+                                    <label class="form-check-label">Normal (&lt;200)</label>
                                 </div>
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="CholesterolStatus" value="Elevated" />
+                                    <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.CholesterolStatus" value="Elevated" />
                                     <label class="form-check-label">Elevated (200–239)</label>
                                 </div>
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="CholesterolStatus" value="High" />
+                                    <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.CholesterolStatus" value="High" />
                                     <label class="form-check-label">High (≥240)</label>
                                 </div>
                             </div>
@@ -909,22 +1040,22 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.RiskPercentage" value="<5%" />
-                                    <label class="form-check-label"><5%</label>
+                                    <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.RiskPercentage" value="&lt;5%" />
+                                    <label class="form-check-label">&lt;5%</label>
                                 </div>
                                 <div class="form-check mb-2">
                                     <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.RiskPercentage" value="5–10%" />
                                     <label class="form-check-label">5–10%</label>
                                 </div>
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.RiskPercentage" value="10–<20%" />
-                                    <label class="form-check-label">10–<20%</label>
+                                    <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.RiskPercentage" value="10–&lt;20%" />
+                                    <label class="form-check-label">10–&lt;20%</label>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.RiskPercentage" value="20–<30%" />
-                                    <label class="form-check-label">20–<30%</label>
+                                    <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.RiskPercentage" value="20–&lt;30%" />
+                                    <label class="form-check-label">20–&lt;30%</label>
                                 </div>
                                 <div class="form-check mb-2">
                                     <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.RiskPercentage" value="≥30%" />
@@ -947,11 +1078,13 @@
                         </div>
                     </div>
                 </div>
+                </div>
                 
-                <!-- Step 6: Assessment Information -->
-                <div class="wizard-step d-none" data-step="6">
-                    <h4 class="mb-3">Assessment Information</h4>
-                    <div class="row mb-4">
+                <!-- Step 5: Assessment Information -->
+                <div class="wizard-step d-none" data-step="5">
+                    <h4 class="mb-4" style="color: #007bff; border-bottom: 2px solid #dee2e6; padding-bottom: 10px; font-weight: 600;">Part V. Assessment Information</h4>
+                    <div class="form-section" style="background: #fff; padding: 2rem; border: 1px solid #dee2e6; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <div class="row mb-4">
                         <div class="col-md-6">
                             <div class="form-group mb-3">
                                 <label class="form-label">Interviewed/Assessed by:</label>
@@ -988,17 +1121,18 @@
                 </div>
                 
                 <!-- Navigation Buttons -->
-                <div class="d-flex justify-content-between mt-3">
-                    <button type="button" class="btn btn-outline-secondary" id="btnPrev" disabled>Previous</button>
-                    <div>
-                        <button type="button" class="btn btn-primary" id="btnNext">Next</button>
-                        <button type="submit" class="btn btn-success d-none" id="btnSubmit">Save Changes</button>
+                <div class="d-flex justify-content-between mt-4 p-3 bg-light border rounded" style="display: flex !important; position: relative; z-index: 999; margin-top: 2rem !important;">
+                    <button type="button" class="btn btn-outline-secondary" id="btnPrev" disabled style="visibility: visible !important; display: inline-block !important;">Previous</button>
+                    <div style="display: flex !important; gap: 10px;">
+                        <button type="button" class="btn btn-primary" id="btnNext" style="visibility: visible !important; display: inline-block !important;">Next</button>
+                        <button type="submit" class="btn btn-success d-none" id="btnSubmit" style="visibility: visible !important;">Save Changes</button>
                     </div>
                 </div>
-                <div class="mt-4">
-                    <a href="/Nurse/AppointmentDetails?id=@Model.NCDRiskAssessment.AppointmentId" class="btn btn-secondary">Cancel</a>
+                <div class="mt-3 text-center" style="margin-top: 1rem !important; display: block !important;">
+                    <a href="/Nurse/AppointmentDetails?id=@Model.AppointmentId" class="btn btn-secondary" style="visibility: visible !important; display: inline-block !important;">Cancel</a>
                 </div>
-            </form>
+                
+            @Html.Raw("</form>")
         </div>
     </div>
 </div>
@@ -1006,6 +1140,82 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
+            // DEBUGGING: Log all form field interactions
+            console.log('=== NURSE EDIT FORM DEBUGGING ENABLED ===');
+            
+            // DEBUGGING: Log initial form field values
+            console.log('=== INITIAL FORM FIELD VALUES ===');
+            $('input, select, textarea').each(function() {
+                const fieldName = $(this).attr('name') || $(this).attr('id');
+                const fieldType = $(this).attr('type') || $(this).prop('tagName').toLowerCase();
+                const fieldValue = $(this).val();
+                const isChecked = $(this).is(':checked');
+                
+                if (fieldValue || isChecked) {
+                    console.log(`Initial: ${fieldName} (${fieldType}) = "${fieldValue}" (checked: ${isChecked})`);
+                }
+            });
+            
+            // Log all form field changes
+            $('input, select, textarea').on('change', function() {
+                const fieldName = $(this).attr('name') || $(this).attr('id');
+                const fieldType = $(this).attr('type') || $(this).prop('tagName').toLowerCase();
+                const fieldValue = $(this).val();
+                const isChecked = $(this).is(':checked');
+                
+                console.log(`Field changed: ${fieldName} (${fieldType}) = "${fieldValue}" (checked: ${isChecked})`);
+            });
+            
+            // DEBUGGING: Enhanced checkbox and radio button tracking
+            $('input[type="checkbox"], input[type="radio"]').on('change', function() {
+                const fieldName = $(this).attr('name') || $(this).attr('id');
+                const fieldType = $(this).attr('type');
+                const fieldValue = $(this).val();
+                const isChecked = $(this).is(':checked');
+                const groupName = $(this).attr('name');
+                
+                console.log(`=== ${fieldType.toUpperCase()} CHANGE ===`);
+                console.log(`Field: ${fieldName}`);
+                console.log(`Value: "${fieldValue}"`);
+                console.log(`Checked: ${isChecked}`);
+                console.log(`Group: ${groupName}`);
+                
+                // For radio buttons, show all options in the group
+                if (fieldType === 'radio') {
+                    console.log(`All radio options in group "${groupName}":`);
+                    $(`input[name="${groupName}"]`).each(function() {
+                        console.log(`  - ${$(this).attr('id')}: "${$(this).val()}" (checked: ${$(this).is(':checked')})`);
+                    });
+                }
+                
+                // For checkboxes, show current state
+                if (fieldType === 'checkbox') {
+                    console.log(`Checkbox "${fieldName}" is now ${isChecked ? 'CHECKED' : 'UNCHECKED'}`);
+                }
+            });
+            
+            // DEBUGGING: Track form data before submission
+            function logFormData() {
+                console.log('=== FORM DATA BEFORE SUBMISSION ===');
+                const formData = new FormData(document.getElementById('ncdForm'));
+                
+                // Log all form data
+                for (let [key, value] of formData.entries()) {
+                    console.log(`${key}: "${value}"`);
+                }
+                
+                // Specifically log checkbox and radio button states
+                console.log('=== CHECKBOX AND RADIO STATES ===');
+                $('input[type="checkbox"], input[type="radio"]').each(function() {
+                    const fieldName = $(this).attr('name') || $(this).attr('id');
+                    const fieldValue = $(this).val();
+                    const isChecked = $(this).is(':checked');
+                    const fieldType = $(this).attr('type');
+                    
+                    console.log(`${fieldType.toUpperCase()}: ${fieldName} = "${fieldValue}" (checked: ${isChecked})`);
+                });
+            }
+            
             // Toggle cancer type input visibility
             $('#hasCancer').change(function() {
                 if($(this).is(':checked')) {
@@ -1041,19 +1251,23 @@
             $('#hasCancer').on('change', function(){ toggleSection('#hasCancer', '#cancerTypeDiv'); });
             
             var currentStep = 1;
-            var totalSteps = 6;
+            var totalSteps = 5;
             
             function showStep(n) {
                 $('.wizard-step').addClass('d-none');
                 $('.wizard-step[data-step="' + n + '"]').removeClass('d-none');
-                $('#btnPrev').prop('disabled', n === 1);
-                $('#btnNext').toggle(n < totalSteps);
-                $('#btnSubmit').toggleClass('d-none', n < totalSteps);
+                
+                // Update both top and bottom buttons
+                $('#btnPrev, #btnPrevTop').prop('disabled', n === 1);
+                $('#btnNext, #btnNextTop').toggle(n < totalSteps);
+                $('#btnSubmit, #btnSubmitTop').toggleClass('d-none', n < totalSteps);
+                
                 var pct = Math.round((n/totalSteps)*100);
                 $('#wizardProgress').css('width', pct + '%');
             }
             
-            $('#btnPrev').on('click', function(e){ 
+            // Handle both bottom and top Previous buttons
+            $('#btnPrev, #btnPrevTop').on('click', function(e){ 
                 e.preventDefault(); 
                 if(currentStep > 1){ 
                     currentStep--; 
@@ -1061,7 +1275,8 @@
                 }
             });
             
-            $('#btnNext').on('click', function(e){ 
+            // Handle both bottom and top Next buttons
+            $('#btnNext, #btnNextTop').on('click', function(e){ 
                 e.preventDefault(); 
                 if(currentStep < totalSteps){ 
                     currentStep++; 
@@ -1073,24 +1288,203 @@
             
             // Form validation
             $('#ncdForm').on('submit', function(e) {
+                console.log('=== FORM SUBMISSION DEBUGGING ===');
+                
+                // Call our enhanced form data logging function
+                logFormData();
+                
+                // Additional debugging for specific problematic fields
+                console.log('=== SPECIFIC FIELD DEBUGGING ===');
+                
+                // Debug medical history checkboxes
+                console.log('Medical History Checkboxes:');
+                $('#hasDiabetes, #hasHypertension, #hasCancer, #hasLungDisease, #hasEyeDisease').each(function() {
+                    console.log(`  ${$(this).attr('id')}: checked=${$(this).is(':checked')}, value="${$(this).val()}"`);
+                });
+                
+                // Debug chest pain radio buttons
+                console.log('Chest Pain Radio Buttons:');
+                $('input[name="NCDRiskAssessment.HasChestPain"]').each(function() {
+                    console.log(`  ${$(this).attr('id')}: checked=${$(this).is(':checked')}, value="${$(this).val()}"`);
+                });
+                
+                // Debug alcohol radio buttons
+                console.log('Alcohol Radio Buttons:');
+                $('input[name="NCDRiskAssessment.DrinksAlcohol"]').each(function() {
+                    console.log(`  ${$(this).attr('id')}: checked=${$(this).is(':checked')}, value="${$(this).val()}"`);
+                });
+                
+                // Debug smoking radio buttons
+                console.log('Smoking Radio Buttons:');
+                $('input[name="NCDRiskAssessment.HasHistoryOfSmoking"]').each(function() {
+                    console.log(`  ${$(this).attr('id')}: checked=${$(this).is(':checked')}, value="${$(this).val()}"`);
+                });
+                
+                // Debug stress radio buttons
+                console.log('Stress Radio Buttons:');
+                $('input[name="NCDRiskAssessment.HasStress"]').each(function() {
+                    console.log(`  ${$(this).attr('id')}: checked=${$(this).is(':checked')}, value="${$(this).val()}"`);
+                });
+                
+                // Debug family history checkboxes
+                console.log('Family History Checkboxes:');
+                $('#familyHeartDisease, #familyStroke, #familyDiabetes, #familyCancer, #familyLungDisease, #familyKidneyDisease').each(function() {
+                    console.log(`  ${$(this).attr('id')}: checked=${$(this).is(':checked')}, value="${$(this).val()}"`);
+                });
+                
+                // Debug nutrition checkboxes
+                console.log('Nutrition Checkboxes:');
+                $('#eatsVegetables, #eatsFruits, #eatsFish, #eatsMeat, #eatsProcessedFood').each(function() {
+                    console.log(`  ${$(this).attr('id')}: checked=${$(this).is(':checked')}, value="${$(this).val()}"`);
+                });
+                
+                // Debug anthropometric measurements
+                console.log('Anthropometric Measurements:');
+                $('#NCDRiskAssessment_Height, #NCDRiskAssessment_Weight, #NCDRiskAssessment_BMI, #NCDRiskAssessment_Waist, #NCDRiskAssessment_Hip, #NCDRiskAssessment_WHRatio').each(function() {
+                    console.log(`  ${$(this).attr('id')}: value="${$(this).val()}"`);
+                });
+                
+                // Debug status radio buttons
+                console.log('Status Radio Buttons:');
+                $('input[name="NCDRiskAssessment.BMIStatus"]').each(function() {
+                    console.log(`  ${$(this).attr('id')}: checked=${$(this).is(':checked')}, value="${$(this).val()}"`);
+                });
+                $('input[name="NCDRiskAssessment.WHStatus"]').each(function() {
+                    console.log(`  ${$(this).attr('id')}: checked=${$(this).is(':checked')}, value="${$(this).val()}"`);
+                });
+                $('input[name="NCDRiskAssessment.BloodSugarStatus"]').each(function() {
+                    console.log(`  ${$(this).attr('id')}: checked=${$(this).is(':checked')}, value="${$(this).val()}"`);
+                });
+                $('input[name="NCDRiskAssessment.BPStatus"]').each(function() {
+                    console.log(`  ${$(this).attr('id')}: checked=${$(this).is(':checked')}, value="${$(this).val()}"`);
+                });
+                $('input[name="NCDRiskAssessment.CholesterolStatus"]').each(function() {
+                    console.log(`  ${$(this).attr('id')}: checked=${$(this).is(':checked')}, value="${$(this).val()}"`);
+                });
+                $('input[name="NCDRiskAssessment.RiskPercentage"]').each(function() {
+                    console.log(`  ${$(this).attr('id')}: checked=${$(this).is(':checked')}, value="${$(this).val()}"`);
+                });
+                
+                // Debug blood sugar and urine fields
+                console.log('Blood Sugar and Urine Fields:');
+                $('#NCDRiskAssessment_FastingBloodSugar, #NCDRiskAssessment_RandomBloodSugar, #NCDRiskAssessment_UrineProtein, #NCDRiskAssessment_UrineKetones').each(function() {
+                    console.log(`  ${$(this).attr('id')}: value="${$(this).val()}"`);
+                });
+                
+                // Debug blood pressure fields
+                console.log('Blood Pressure Fields:');
+                $('#NCDRiskAssessment_LeftArmMeanBP, #NCDRiskAssessment_RightArmMeanBP, #NCDRiskAssessment_BaselineBP').each(function() {
+                    console.log(`  ${$(this).attr('id')}: value="${$(this).val()}"`);
+                });
+                
+                // Debug cholesterol field
+                console.log('Cholesterol Field:');
+                $('#NCDRiskAssessment_CholesterolResult').each(function() {
+                    console.log(`  ${$(this).attr('id')}: value="${$(this).val()}"`);
+                });
+                
+                // Debug cancer screening checkboxes
+                console.log('Cancer Screening Checkboxes:');
+                $('#NCDRiskAssessment_BreastCancerScreened, #NCDRiskAssessment_CervicalCancerScreened').each(function() {
+                    console.log(`  ${$(this).attr('id')}: checked=${$(this).is(':checked')}, value="${$(this).val()}"`);
+                });
+                
+                // Debug exercise checkboxes
+                console.log('Exercise Checkboxes:');
+                $('#moderateIntensity, #vigorousIntensity, #insufficientActivity').each(function() {
+                    console.log(`  ${$(this).attr('id')}: checked=${$(this).is(':checked')}, value="${$(this).val()}"`);
+                });
+                
+                // Debug smoking checkboxes
+                console.log('Smoking Checkboxes:');
+                $('#formerSmoker, #exposedToSmoke, #smoked100sticks').each(function() {
+                    console.log(`  ${$(this).attr('id')}: checked=${$(this).is(':checked')}, value="${$(this).val()}"`);
+                });
+                
+                // Log all form data before submission
+                const formData = new FormData(this);
+                console.log('Form data being submitted:');
+                for (let [key, value] of formData.entries()) {
+                    console.log(`${key}: "${value}"`);
+                }
+                
                 var isValid = true;
                 var errorMessage = '';
+                var firstInvalidField = null;
 
                 // Check required fields
                 $('input[required], select[required], textarea[required]').each(function() {
-                    if (!$(this).val()) {
+                    var $field = $(this);
+                    var value = $field.val();
+                    
+                    if (!value || value.trim() === '') {
                         isValid = false;
-                        $(this).addClass('is-invalid');
+                        $field.addClass('is-invalid');
+                        if (!firstInvalidField) {
+                            firstInvalidField = $field;
+                        }
                     } else {
-                        $(this).removeClass('is-invalid');
+                        $field.removeClass('is-invalid');
+                    }
+                });
+
+                // Validate phone format
+                $('input[name*="Telepono"]').each(function() {
+                    var $field = $(this);
+                    var phone = $field.val();
+                    if (phone && phone.length < 11) {
+                        isValid = false;
+                        $field.addClass('is-invalid');
+                        if (!firstInvalidField) {
+                            firstInvalidField = $field;
+                        }
                     }
                 });
 
                 if (!isValid) {
                     e.preventDefault();
-                    alert('Please fill in all required fields.');
+                    console.log('Form validation failed');
+                    
+                    // Scroll to first invalid field
+                    if (firstInvalidField) {
+                        $('html, body').animate({
+                            scrollTop: firstInvalidField.offset().top - 100
+                        }, 500);
+                        
+                        // Show Bootstrap toast with validation error
+                        var toastHtml = '<div class="toast align-items-center text-white bg-danger" role="alert" aria-live="assertive" aria-atomic="true">' +
+                            '<div class="d-flex">' +
+                            '<div class="toast-body">Please fill in all required fields correctly.</div>' +
+                            '<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>' +
+                            '</div>' +
+                            '</div>';
+                        
+                        $('body').append(toastHtml);
+                        $('.toast').toast('show');
+                        
+                        // Remove toast after showing
+                        setTimeout(function() {
+                            $('.toast').remove();
+                        }, 3000);
+                    }
+                } else {
+                    console.log('Form validation passed - submitting');
                 }
             });
+
+            // Real-time validation
+            $('input[required], select[required], textarea[required]').on('blur', function() {
+                var $field = $(this);
+                var value = $field.val();
+                
+                if (!value || value.trim() === '') {
+                    $field.addClass('is-invalid');
+                } else {
+                    $field.removeClass('is-invalid');
+                }
+            });
+            
+            console.log('=== NURSE EDIT FORM DEBUGGING INITIALIZED ===');
         });
     </script>
 }

@@ -16,13 +16,15 @@ namespace Barangay.Models
         // Part I: Demographic-Socio-Economic Profile
         public string? FamilyNo { get; set; }
         public string? IDNo { get; set; }
+        [Required(ErrorMessage = "First name is required")]
         public string? FirstName { get; set; }
         public string? MiddleName { get; set; }
+        [Required(ErrorMessage = "Last name is required")]
         public string? LastName { get; set; }
         public string? Address { get; set; }
         public string? Barangay { get; set; }
         public string? Telepono { get; set; }
-        public string? Birthday { get; set; }
+        public DateTime? Birthday { get; set; }
         public string? Edad { get; set; }
         public string? Kasarian { get; set; }
         public string? Relihiyon { get; set; }
@@ -173,6 +175,9 @@ namespace Barangay.Models
         public string? HasDifficultyBreathing { get; set; } = "false";
         public string? HasAsthma { get; set; } = "false";
         
+        // Stroke Symptoms (Q2.8)
+        public string? HasStrokeSymptoms { get; set; } = "false";
+        
         // Additional health conditions added to existing properties above
         public string? HasEnoughExercise { get; set; } = "false";
         
@@ -298,5 +303,65 @@ namespace Barangay.Models
         public string? ExerciseDuration { get; set; }
         public string? AlcoholFrequency { get; set; }
         public string? HasHighSaltIntake { get; set; } = "false";
+        
+        // Missing form fields that need to be added for complete mapping
+        
+        // Chest Pain Questions (Q2.1-2.8) - Missing mappings
+        public string? Pananakit21 { get; set; } = "false"; // Q2.1 Nakakaramdam ka ba ng Pananakit o kabigatan sa dibdib?
+        public string? Pananakit22 { get; set; } = "false"; // Q2.2 Ang sakit ba ay nasa gitna ng dibdib, kaliwang bahagi ng dibdib hanggang sa kaliwang braso?
+        public string? Pananakit23 { get; set; } = "false"; // Q2.3 Nararamdaman mo ba ito kung nagmamadali o naglalakad ng mabilis o pakiramdam na paakyat?
+        public string? Pananakit24 { get; set; } = "false"; // Q2.4 Napapatigil ka ba sa paglalakad kapag sumasakit ang iyong dibdib?
+        public string? Pananakit25 { get; set; } = "false"; // Q2.5 Nawawala ba ang sakit kapag hindi ka kumikilos o naglalagay ng gamot sa ilalim ng dila?
+        public string? Pananakit26 { get; set; } = "false"; // Q2.6 Nawawala ba ang pananakit sa loob ng 10 minuto?
+        public string? Pananakit27 { get; set; } = "false"; // Q2.7 Nakakaramdam ka ba ng sakit sa dibdib na tumatagal higit sa 30 minuto?
+        public string? Pananakit28 { get; set; } = "false"; // Q2.8 Nakakaramdam ka ba hirap sa pagsasalita, panghihina ng braso at/o binti o pamamanhid sa kalahating bahagi ng katawan?
+        
+        // Nutrition - Missing detailed mappings
+        public string? NutrisyonMadalasGulay { get; set; } = "false"; // Madalas mo bang kainin ang mga sumusunod? - Gulay
+        public string? NutrisyonMadalasPratas { get; set; } = "false"; // Madalas mo bang kainin ang mga sumusunod? - Prutas
+        public string? NutrisyonMadalasIsda { get; set; } = "false"; // Madalas mo bang kainin ang mga sumusunod? - Isda
+        public string? NutrisyonMadalasKarne { get; set; } = "false"; // Madalas mo bang kainin ang mga sumusunod? - Karne
+        public string? NutrisyonKumakainMatatamis { get; set; } = "false"; // Kumakain ka ba ng higit sa 2 beses kada linggo ng - Matatamis na pagkain
+        public string? NutrisyonKumakainMamantika { get; set; } = "false"; // Kumakain ka ba ng higit sa 2 beses kada linggo ng - Mamantikang pagkain
+        
+        // Alcohol - Missing detailed mappings
+        public string? AlcoholInom { get; set; } = "false"; // Umiinom ka ba ng alak?
+        public string? AlchoholTypeBeer { get; set; } = "false"; // Alcohol type - Beer
+        public string? AlchoholTypeWine { get; set; } = "false"; // Alcohol type - Wine
+        public string? AlchoholTypeWhisky { get; set; } = "false"; // Alcohol type - Whisky/Gin/Brandy
+        public string? BeerConsumption1 { get; set; } = "false"; // Beer consumption - 1 bote (320 ml)
+        public string? BeerConsumption2 { get; set; } = "false"; // Beer consumption - 2 bote (640 ml)
+        public string? BeerConsumption3 { get; set; } = "false"; // Beer consumption - ≥ 3 bote
+        public string? WineConsumption1 { get; set; } = "false"; // Wine consumption - ≤ 3 wine glasses (300 ml)
+        public string? WineConsumption2 { get; set; } = "false"; // Wine consumption - > 4 wine glasses
+        public string? WhiskyConsumption1 { get; set; } = "false"; // Whisky consumption - ≤ 3 shots/jigger (75 ml)
+        public string? WhiskyConsumption2 { get; set; } = "false"; // Whisky consumption - ≥ 4 shots / jigger
+        public string? AlcoholOkasyon { get; set; } = "false"; // Sa isang okasyon, ilang bote ng alak ang naiinom mo?
+        
+        // Exercise - Missing detailed mappings
+        public string? EhersisyoRegular { get; set; } = "false"; // May sapat ka bang ehersisyo?
+        public string? EhersisyoDuration { get; set; } = "false"; // Gaano katagal sa isang araw?
+        public string? EhersisyoType { get; set; } = "false"; // Anong klaseng ehersisyo ang ginagawa mo?
+        
+        // Smoking - Missing detailed mappings
+        public string? SigarilyoKadami { get; set; } = "false"; // Gaano kadami ang nauubos sa isang araw?
+        public string? SigarilyoTumigil { get; set; } = "false"; // Tumigil na sa paninigarilyo?
+        public string? SigarilyoUsok { get; set; } = "false"; // Hindi, pero lantad ka ba sa usok ng sigarilyo?
+        public string? SigarilyoSticks { get; set; } = "false"; // Ikaw ba ay nanatili sa usok ng sigarilyo?
+        
+        // Stress - Missing detailed mappings
+        public string? StressMadalas { get; set; } = "false"; // Madalas ka bang ma-stress?
+        public string? StressSino { get; set; } = "false"; // Ano o Sino ang dahilan ng iyong stress?
+        public string? StressEpekto { get; set; } = "false"; // Naepektuhan ba nito ang iyong pang-araw-araw na gawain?
+        
+        // Additional missing fields for complete form mapping
+        public string? HealthFacilityName { get; set; } = "Baesa Health Center"; // Health Facility name
+        public string? DateAssessment { get; set; } = ""; // Date of Assessment
+        
+        // Lung Disease - Missing proper mapping
+        public string? HasLungDiseaseNonInfectious { get; set; } = "false"; // Sakit sa baga hindu nakakahawa
+        
+        // Eye Disease - Missing proper mapping  
+        public string? HasEyeDiseaseCondition { get; set; } = "false"; // Sakit sa mata
     }
 }

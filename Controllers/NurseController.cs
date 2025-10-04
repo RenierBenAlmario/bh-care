@@ -17,14 +17,14 @@ namespace Barangay.Controllers
     [Authorize(Roles = "Nurse")]
     public class NurseController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly EncryptedDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<NurseController> _logger;
         private readonly IPermissionService _permissionService;
         private readonly IDataEncryptionService _encryptionService;
 
         public NurseController(
-            ApplicationDbContext context,
+            EncryptedDbContext context,
             UserManager<ApplicationUser> userManager,
             ILogger<NurseController> logger,
             IPermissionService permissionService,
@@ -75,7 +75,7 @@ namespace Barangay.Controllers
                     FamilyNo = "", // Not available in Patient model
                     Address = appointment.Patient?.Address ?? "",
                     Barangay = "", // Not available in Patient model
-                    Birthday = appointment.Patient?.BirthDate != DateTime.MinValue ? appointment.Patient.BirthDate.ToString("yyyy-MM-dd") : null,
+                    Birthday = appointment.Patient?.BirthDate != DateTime.MinValue ? appointment.Patient.BirthDate : null,
                     Telepono = appointment.Patient?.ContactNumber ?? "",
                     Edad = appointment.Patient?.Age.ToString(),
                     Kasarian = appointment.Patient?.Gender ?? "",
@@ -131,7 +131,7 @@ namespace Barangay.Controllers
                     FamilyNo = model.FamilyNo,
                     Address = model.Address,
                     Barangay = model.Barangay,
-                    Birthday = model.Birthday,
+                    Birthday = model.Birthday?.ToString("yyyy-MM-dd"),
                     Telepono = model.Telepono,
                     Edad = model.Edad,
                     Kasarian = model.Kasarian,
@@ -381,7 +381,7 @@ namespace Barangay.Controllers
                     FamilyNo = assessment.FamilyNo,
                     Address = assessment.Address,
                     Barangay = assessment.Barangay,
-                    Birthday = assessment.Birthday,
+                    Birthday = DateTime.TryParse(assessment.Birthday, out var birthday) ? birthday : null,
                     Telepono = assessment.Telepono,
                     Edad = assessment.Edad,
                     Kasarian = assessment.Kasarian,
@@ -453,7 +453,7 @@ namespace Barangay.Controllers
                     FamilyNo = assessment.FamilyNo,
                     Address = assessment.Address,
                     Barangay = assessment.Barangay,
-                    Birthday = assessment.Birthday,
+                    Birthday = DateTime.TryParse(assessment.Birthday, out var birthday) ? birthday : null,
                     Telepono = assessment.Telepono,
                     Edad = assessment.Edad,
                     Kasarian = assessment.Kasarian,
@@ -532,7 +532,7 @@ namespace Barangay.Controllers
                 assessment.FamilyNo = model.FamilyNo;
                 assessment.Address = model.Address;
                 assessment.Barangay = model.Barangay;
-                assessment.Birthday = model.Birthday;
+                assessment.Birthday = model.Birthday?.ToString("yyyy-MM-dd");
                 assessment.Telepono = model.Telepono;
                 assessment.Edad = model.Edad;
                 assessment.Kasarian = model.Kasarian;

@@ -360,7 +360,7 @@
                             {
                                 foreach (var apt in Model.TodayAppointments)
                                 {
-                                    <div class="appointment-card">
+                                    <div class="appointment-card" data-appointment-id="@apt.Id">
                                         <div class="d-flex justify-content-between align-items-start">
                                             <h6>@(Model.IsDoctor ? apt.PatientName : $"Dr. {apt.Doctor?.FullName}")</h6>
                                             <span class="badge bg-@apt.Status.ToString().ToLower()">@(apt.Status == AppointmentStatus.Pending ? "On-Going" : apt.Status.ToString())</span>
@@ -388,7 +388,7 @@
                             {
                                 foreach (var apt in Model.UpcomingAppointments)
                                 {
-                                    <div class="appointment-card">
+                                    <div class="appointment-card" data-appointment-id="@apt.Id">
                                         <div class="d-flex justify-content-between align-items-start">
                                             <h6>@(Model.IsDoctor ? apt.PatientName : $"Dr. {apt.Doctor?.FullName}")</h6>
                                             <span class="badge bg-@apt.Status.ToString().ToLower()">@(apt.Status == AppointmentStatus.Pending ? "On-Going" : apt.Status.ToString())</span>
@@ -433,7 +433,72 @@
                 </div>
             </div>
         </div>
+
+        <!-- NCD Risk Assessment Section -->
+        @if (Model.IsEligibleForNCDAssessment)
+        {
+            <div class="col-lg-4">
+                <div class="card ncd-assessment-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-heartbeat me-2"></i>
+                            NCD Risk Assessment
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="status-bar">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold">Assessment Status</span>
+                                <span class="badge bg-warning">Not Started</span>
+                            </div>
+                        </div>
+                        
+                        <p class="text-muted mb-3">
+                            Complete your NCD Risk Assessment to help healthcare providers evaluate your risk factors for non-communicable diseases.
+                        </p>
+                        
+                        <div class="d-grid gap-2">
+                            <button id="startNCDAssessmentBtn" class="btn btn-primary">
+                                <i class="fas fa-play me-2"></i>
+                                Start Assessment
+                            </button>
+                            
+                            <button id="ncdNextBtn" class="btn btn-outline-primary" style="display: none;">
+                                <i class="fas fa-arrow-right me-2"></i>
+                                Continue Assessment
+                            </button>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <button id="toggleNcdFormReference" class="btn btn-link btn-sm">
+                                <i class="fa-solid fa-eye me-1"></i> Show Reference Form
+                            </button>
+                        </div>
+                        
+                        <div id="ncdFormReferenceContent" style="display: none;" class="mt-3">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">NCD Risk Assessment Reference</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p class="small text-muted mb-2">
+                                        <strong>Purpose:</strong> Evaluate risk factors for non-communicable diseases including diabetes, hypertension, cancer, and cardiovascular diseases.
+                                    </p>
+                                    <p class="small text-muted mb-2">
+                                        <strong>Duration:</strong> Approximately 10-15 minutes
+                                    </p>
+                                    <p class="small text-muted mb-0">
+                                        <strong>Required:</strong> Personal health information, family history, lifestyle factors
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
     </div>
+</div>
 
 <!-- Add JavaScript for sidebar functionality -->
 <script>
@@ -462,16 +527,45 @@
             const button = document.getElementById(buttonId);
             if (button) {
                 button.addEventListener('click', function(e) {
-                    // Store current appointment ID if available
+                    e.preventDefault();
+                    
+                    // First try to get appointment ID from URL parameters
                     const urlParams = new URLSearchParams(window.location.search);
-                    const appointmentId = urlParams.get('appointmentId');
+                    let appointmentId = urlParams.get('appointmentId');
+                    
+                    // If no appointment ID in URL, try to get it from user's appointments
+                    if (!appointmentId) {
+                        appointmentId = getAppointmentIdFromAppointments();
+                    }
                     
                     if (appointmentId) {
-                        e.preventDefault();
                         window.location.href = `/User/NCDRiskAssessment?appointmentId=${appointmentId}`;
+                    } else {
+                        // If no appointment ID found, show error message
+                        showToast('Please book an appointment first before starting the NCD Risk Assessment.', 'error');
                     }
                 });
             }
+        }
+        
+        // Function to get appointment ID from user's appointments
+        function getAppointmentIdFromAppointments() {
+            // Check today's appointments first
+            const todayAppointments = document.querySelectorAll('#todayAppointments .appointment-card');
+            if (todayAppointments.length > 0) {
+                // Get the first appointment's ID (we'll need to add data attributes)
+                const firstAppointment = todayAppointments[0];
+                return firstAppointment.getAttribute('data-appointment-id');
+            }
+            
+            // Check upcoming appointments
+            const upcomingAppointments = document.querySelectorAll('#upcomingAppointments .appointment-card');
+            if (upcomingAppointments.length > 0) {
+                const firstAppointment = upcomingAppointments[0];
+                return firstAppointment.getAttribute('data-appointment-id');
+            }
+            
+            return null;
         }
         
         // Setup both NCD Assessment buttons
@@ -557,7 +651,7 @@
                 const nameDisplay = isDoctor ? apt.patientName : `Dr. ${apt.doctorName}`;
                 
                 todayContainer.innerHTML += `
-                    <div class="appointment-card">
+                    <div class="appointment-card" data-appointment-id="${apt.id}">
                         <div class="d-flex justify-content-between align-items-start">
                             <h6>${nameDisplay}</h6>
                             <span class="badge bg-${apt.status.toLowerCase()}">${apt.status === 'Pending' ? 'On-Going' : apt.status}</span>
@@ -581,7 +675,7 @@
                 const nameDisplay = isDoctor ? apt.patientName : `Dr. ${apt.doctorName}`;
                 
                 upcomingContainer.innerHTML += `
-                    <div class="appointment-card">
+                    <div class="appointment-card" data-appointment-id="${apt.id}">
                         <div class="d-flex justify-content-between align-items-start">
                             <h6>${nameDisplay}</h6>
                             <span class="badge bg-${apt.status.toLowerCase()}">${apt.status === 'Pending' ? 'On-Going' : apt.status}</span>

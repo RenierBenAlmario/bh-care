@@ -36,10 +36,12 @@ namespace Barangay.Models
         
         // Personal Information 
         [Display(Name = "Full Name")]
+        [Required(ErrorMessage = "Full name is required")]
         public string? FullName { get; set; }
         
         [Display(Name = "Birthday")]
         [DataType(DataType.Date)]
+        [Required(ErrorMessage = "Birthday is required")]
         public DateTime? Birthday { get; set; }
         
         [Display(Name = "Age")]
@@ -53,6 +55,7 @@ namespace Barangay.Models
 
         [Display(Name = "Contact Number")]
         [Phone(ErrorMessage = "Please enter a valid phone number")]
+        [Required(ErrorMessage = "Contact number is required")]
         public string? ContactNumber { get; set; }
         
         [Display(Name = "Religion")]

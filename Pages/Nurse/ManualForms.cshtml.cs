@@ -36,7 +36,7 @@ namespace Barangay.Pages.Nurse
         [BindProperty]
         public ImmunizationRecord FullForm { get; set; } = new();
 
-        public async Task<IActionResult> OnGetAsync()
+        public Task<IActionResult> OnGetAsync()
         {
             // Set default values for both forms
             ShortcutForm.CreatedAt = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");
@@ -50,7 +50,7 @@ namespace Barangay.Pages.Nurse
             FullForm.UpdatedBy = User.Identity?.Name ?? "Unknown";
             FullForm.HealthCenter = "Baesa Health Center";
 
-            return Page();
+            return Task.FromResult<IActionResult>(Page());
         }
 
         public async Task<IActionResult> OnPostShortcutFormAsync()

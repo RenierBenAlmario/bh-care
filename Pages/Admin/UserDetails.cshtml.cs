@@ -673,7 +673,7 @@ namespace Barangay.Pages.Admin
                     }
                     
                     result.IsSuspended = true;
-                    result.SuspensionEndDate = suspension.SuspensionEndDate.Value;
+                    result.SuspensionEndDate = suspension.SuspensionEndDate ?? DateTime.UtcNow;
                 }
                 
                 await _context.SaveChangesAsync();

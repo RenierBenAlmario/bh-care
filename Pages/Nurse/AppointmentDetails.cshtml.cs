@@ -43,12 +43,31 @@ namespace Barangay.Pages.Nurse
 
             try
             {
-                return _encryptionService.DecryptForUser(encryptedValue, User);
+                var decryptedValue = _encryptionService.DecryptForUser(encryptedValue, User);
+                
+                // If decryption returns access denied or the same value, try direct decryption
+                if (decryptedValue == "[ACCESS DENIED]" || decryptedValue == encryptedValue)
+                {
+                    _logger.LogWarning("DecryptForUser failed or returned access denied, trying direct decryption");
+                    decryptedValue = _encryptionService.Decrypt(encryptedValue);
+                }
+                
+                return decryptedValue;
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Failed to decrypt value, returning original");
-                return encryptedValue; // Return original value if decryption fails
+                _logger.LogWarning(ex, "Failed to decrypt value: {EncryptedValue}", encryptedValue?.Substring(0, Math.Min(20, encryptedValue?.Length ?? 0)));
+                
+                // Try direct decryption as fallback
+                try
+                {
+                    return _encryptionService.Decrypt(encryptedValue);
+                }
+                catch (Exception fallbackEx)
+                {
+                    _logger.LogError(fallbackEx, "Direct decryption also failed for value: {EncryptedValue}", encryptedValue?.Substring(0, Math.Min(20, encryptedValue?.Length ?? 0)));
+                    return "[DECRYPTION FAILED]";
+                }
             }
         }
 
@@ -60,6 +79,12 @@ namespace Barangay.Pages.Nurse
         public bool HasNCDAssessment { get; set; }
         public bool HasHEEADSSSAssessment { get; set; }
         public bool HasAdolescentHealthInfo { get; set; }
+
+        // New properties for booking and forms information
+        public string BookedBy { get; set; }
+        public DateTime? BookingDate { get; set; }
+        public List<string> CompletedForms { get; set; } = new List<string>();
+        public List<string> AvailableForms { get; set; } = new List<string>();
 
         [TempData]
         public string StatusMessage { get; set; }
@@ -188,15 +213,19 @@ namespace Barangay.Pages.Nurse
 
                 // Step 5: NCD Risk Assessment Loading
                 _logger.LogInformation("Step 5: Checking for NCD Risk Assessment existence");
+                
+                // Only check by AppointmentId - no fallback to UserId to prevent showing forms from other appointments
                 HasNCDAssessment = await _context.NCDRiskAssessments
                     .AnyAsync(a => a.AppointmentId == id);
-                _logger.LogInformation("NCD Risk Assessment exists: {HasNCDAssessment}", HasNCDAssessment);
+                _logger.LogInformation("NCD Risk Assessment exists by AppointmentId: {HasNCDAssessment}", HasNCDAssessment);
 
                 // Load NCD Risk Assessment if it exists
                 if (HasNCDAssessment)
                 {
                     try {
                         _logger.LogInformation("Loading NCD Risk Assessment from database");
+                        
+                        // Only load by AppointmentId - no fallback to UserId
                         NCDRiskAssessment = await _context.NCDRiskAssessments
                             .Where(a => a.AppointmentId == id)
                             .AsNoTracking()
@@ -212,9 +241,14 @@ namespace Barangay.Pages.Nurse
                         {
                             try
                             {
+                                _logger.LogInformation("Starting NCD Risk Assessment decryption for appointment ID {Id}", id);
+                                _logger.LogInformation("User can decrypt: {CanDecrypt}", _encryptionService.CanUserDecrypt(User));
+                                _logger.LogInformation("User roles: {Roles}", string.Join(", ", User?.Claims?.Where(c => c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Select(c => c.Value) ?? new string[0]));
+                                
                                 NCDRiskAssessment.DecryptSensitiveData(_encryptionService, User);
                                 
                                 // Manual decryption fallback for critical NCD fields using safe decryption
+                                _logger.LogInformation("Decrypting NCD fields individually");
                                 NCDRiskAssessment.FirstName = SafeDecrypt(NCDRiskAssessment.FirstName);
                                 NCDRiskAssessment.MiddleName = SafeDecrypt(NCDRiskAssessment.MiddleName);
                                 NCDRiskAssessment.LastName = SafeDecrypt(NCDRiskAssessment.LastName);
@@ -233,6 +267,9 @@ namespace Barangay.Pages.Nurse
                                 // CreatedAt and UpdatedAt are now DateTime, no decryption needed
                                 
                                 _logger.LogInformation("Successfully loaded and decrypted NCDRiskAssessment data for appointment ID {Id}", id);
+                                _logger.LogInformation("Sample decrypted data - FirstName: {FirstName}, LastName: {LastName}", 
+                                    NCDRiskAssessment.FirstName?.Substring(0, Math.Min(10, NCDRiskAssessment.FirstName?.Length ?? 0)),
+                                    NCDRiskAssessment.LastName?.Substring(0, Math.Min(10, NCDRiskAssessment.LastName?.Length ?? 0)));
                             }
                             catch (Exception ex)
                             {
@@ -253,84 +290,211 @@ namespace Barangay.Pages.Nurse
                 }
                 _logger.LogInformation("Step 5 Complete: NCD Risk Assessment processing");
 
-                // Check for HEEADSSS Assessment existence based on UserId
+                // Check for HEEADSSS Assessment existence based on AppointmentId
                 _logger.LogInformation("Checking for HEEADSSS Assessment for appointment ID: {AppointmentId}", id);
                 
-                // Check if HEEADSSS assessment exists for this patient
+                // Since AppointmentId is encrypted, we need to load all assessments and decrypt to check
                 HasHEEADSSSAssessment = false;
                 HEEADSSSAssessment = null;
 
-                if (appointment.Patient != null)
+                try
+                {
+                    // Load all HEEADSSS assessments and check by decrypting AppointmentId
+                    var allHEEADSSSAssessments = await _context.HEEADSSSAssessments
+                        .AsNoTracking()
+                        .ToListAsync();
+                    
+                    _logger.LogInformation("Found {Count} HEEADSSS assessments in database", allHEEADSSSAssessments.Count);
+                    _logger.LogInformation("Looking for appointment ID: {AppointmentId}", id);
+                    
+                    // Debug: Log all HEEADSSS assessments and their AppointmentIds
+                    for (int i = 0; i < allHEEADSSSAssessments.Count; i++)
+                    {
+                        var assessment = allHEEADSSSAssessments[i];
+                        _logger.LogInformation("HEEADSSS Assessment #{Index}: ID={Id}, AppointmentId='{AppointmentId}', UserId='{UserId}', CreatedAt={CreatedAt}", 
+                            i + 1, assessment.Id, assessment.AppointmentId, assessment.UserId, assessment.CreatedAt);
+                    }
+                    
+                    foreach (var assessment in allHEEADSSSAssessments)
+                    {
+                        try
+                        {
+                            _logger.LogInformation("Checking HEEADSSS Assessment ID: {AssessmentId}, Encrypted AppointmentId: {EncryptedAppId}", 
+                                assessment.Id, assessment.AppointmentId);
+                            
+                            // Try different decryption methods to check AppointmentId
+                            string decryptedAppointmentId = null;
+                            
+                            // First, check if it's encrypted at all
+                            if (_encryptionService.IsEncrypted(assessment.AppointmentId))
+                            {
+                                try
+                                {
+                                    decryptedAppointmentId = _encryptionService.DecryptForUser(assessment.AppointmentId, User);
+                                    _logger.LogInformation("Decrypted using DecryptForUser: {DecryptedAppId}", decryptedAppointmentId);
+                                    
+                                    // Check if the result is still encrypted (double encryption)
+                                    if (_encryptionService.IsEncrypted(decryptedAppointmentId))
+                                    {
+                                        _logger.LogInformation("Result is still encrypted, decrypting again");
+                                        decryptedAppointmentId = _encryptionService.DecryptForUser(decryptedAppointmentId, User);
+                                        _logger.LogInformation("Double decrypted result: {DecryptedAppId}", decryptedAppointmentId);
+                                    }
+                                }
+                                catch (Exception decryptEx)
+                                {
+                                    _logger.LogWarning(decryptEx, "DecryptForUser failed, trying alternative method");
+                                    try
+                                    {
+                                        decryptedAppointmentId = _encryptionService.Decrypt(assessment.AppointmentId);
+                                        _logger.LogInformation("Decrypted using Decrypt: {DecryptedAppId}", decryptedAppointmentId);
+                                        
+                                        // Check if the result is still encrypted
+                                        if (_encryptionService.IsEncrypted(decryptedAppointmentId))
+                                        {
+                                            _logger.LogInformation("Result is still encrypted, decrypting again");
+                                            decryptedAppointmentId = _encryptionService.Decrypt(decryptedAppointmentId);
+                                            _logger.LogInformation("Double decrypted result: {DecryptedAppId}", decryptedAppointmentId);
+                                        }
+                                    }
+                                    catch (Exception decryptEx2)
+                                    {
+                                        _logger.LogWarning(decryptEx2, "Both decryption methods failed");
+                                        decryptedAppointmentId = assessment.AppointmentId; // Use as-is
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                decryptedAppointmentId = assessment.AppointmentId; // Not encrypted
+                                _logger.LogInformation("AppointmentId is not encrypted: {AppointmentId}", decryptedAppointmentId);
+                            }
+                            
+                            _logger.LogInformation("Final decrypted AppointmentId: {DecryptedAppId}", decryptedAppointmentId);
+                            
+                            if (decryptedAppointmentId == id.ToString())
+                            {
+                                _logger.LogInformation("MATCH FOUND! HEEADSSS Assessment ID: {AssessmentId} matches appointment ID: {AppointmentId}", 
+                                    assessment.Id, id);
+                            HasHEEADSSSAssessment = true;
+                                HEEADSSSAssessment = assessment;
+                                break;
+                            }
+                            else
+                            {
+                                _logger.LogInformation("No match - Assessment ID: {AssessmentId}, Expected: {ExpectedId}, Got: {GotId}", 
+                                    assessment.Id, id, decryptedAppointmentId);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning(ex, "Failed to decrypt AppointmentId for HEEADSSS assessment {Id}. AppointmentId: {AppointmentId}", 
+                                assessment.Id, assessment.AppointmentId);
+                            // Continue checking other assessments
+                        }
+                    }
+                    
+                    _logger.LogInformation("HEEADSSS Assessment exists by AppointmentId: {HasHEEADSSSAssessment}", HasHEEADSSSAssessment);
+                    
+                    if (!HasHEEADSSSAssessment)
+                    {
+                        _logger.LogInformation("No HEEADSSS Assessment found for appointment ID: {AppointmentId}. This means either:", id);
+                        _logger.LogInformation("1. No HEEADSSS Assessment has been created for this appointment yet");
+                        _logger.LogInformation("2. The AppointmentId in the database doesn't match the current appointment ID");
+                        _logger.LogInformation("3. There's an issue with the decryption process");
+                        
+                        // Fallback: Check if there's a HEEADSSS Assessment for this patient (UserId) that might be associated with this appointment
+                        if (appointment.Patient != null)
+                        {
+                            _logger.LogInformation("Checking for HEEADSSS Assessment by UserId as fallback: {UserId}", appointment.Patient.UserId);
+                            var fallbackAssessment = await _context.HEEADSSSAssessments
+                                .Where(a => a.UserId == appointment.Patient.UserId)
+                                .OrderByDescending(a => a.CreatedAt)
+                                .FirstOrDefaultAsync();
+                            
+                            if (fallbackAssessment != null)
+                            {
+                                _logger.LogInformation("Found HEEADSSS Assessment by UserId: {AssessmentId}, CreatedAt: {CreatedAt}", 
+                                    fallbackAssessment.Id, fallbackAssessment.CreatedAt);
+                                
+                                // Check if this assessment was created around the same time as the appointment
+                                var timeDifference = Math.Abs((fallbackAssessment.CreatedAt - appointment.CreatedAt).TotalHours);
+                                if (timeDifference <= 24) // Within 24 hours
+                                {
+                                    _logger.LogInformation("Assessment created within 24 hours of appointment, considering it a match");
+                                    HasHEEADSSSAssessment = true;
+                                    HEEADSSSAssessment = fallbackAssessment;
+                                }
+                                else
+                                {
+                                    _logger.LogInformation("Assessment created {Hours} hours apart from appointment, not considering it a match", timeDifference);
+                                }
+                            }
+                            else
+                            {
+                                _logger.LogInformation("No HEEADSSS Assessment found by UserId either");
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error checking for HEEADSSS Assessment for appointment ID: {AppointmentId}", id);
+                    HasHEEADSSSAssessment = false;
+                }
+
+                if (HasHEEADSSSAssessment && HEEADSSSAssessment != null)
                 {
                     try
                     {
                         // Decrypt patient data first (this might already be done above, but ensure it's done safely)
-                        appointment.Patient.DecryptSensitiveData(_encryptionService, User);
+                        if (appointment.Patient != null)
+                        {
+                            appointment.Patient.DecryptSensitiveData(_encryptionService, User);
+                            
+                            // Additional safe decryption for patient critical fields
+                            appointment.Patient.FullName = SafeDecrypt(appointment.Patient.FullName);
+                            appointment.Patient.Address = SafeDecrypt(appointment.Patient.Address);
+                            appointment.Patient.ContactNumber = SafeDecrypt(appointment.Patient.ContactNumber);
+                        }
                         
-                        // Additional safe decryption for patient critical fields
-                        appointment.Patient.FullName = SafeDecrypt(appointment.Patient.FullName);
-                        appointment.Patient.Address = SafeDecrypt(appointment.Patient.Address);
-                        appointment.Patient.ContactNumber = SafeDecrypt(appointment.Patient.ContactNumber);
+                        _logger.LogInformation("Decrypting HEEADSSS Assessment data for appointment ID: {AppointmentId}", id);
                         
-                        _logger.LogInformation("Looking for HEEADSSS Assessment for UserId: {UserId}", appointment.Patient.UserId);
+                        // Log some encrypted values before decryption
+                        _logger.LogInformation("Before decryption - FullName: {FullName}, Age: {Age}, Gender: {Gender}", 
+                            HEEADSSSAssessment.FullName?.Substring(0, Math.Min(20, HEEADSSSAssessment.FullName?.Length ?? 0)) + "...",
+                            HEEADSSSAssessment.Age?.Substring(0, Math.Min(20, HEEADSSSAssessment.Age?.Length ?? 0)) + "...",
+                            HEEADSSSAssessment.Gender?.Substring(0, Math.Min(20, HEEADSSSAssessment.Gender?.Length ?? 0)) + "...");
+                        
+                        // Decrypt the HEEADSSS assessment data
+                        HEEADSSSAssessment.DecryptSensitiveData(_encryptionService, User);
+                        
+                        // Manual decryption fallback for critical fields using safe decryption
+                        HEEADSSSAssessment.FullName = SafeDecrypt(HEEADSSSAssessment.FullName);
+                        HEEADSSSAssessment.Age = SafeDecrypt(HEEADSSSAssessment.Age);
+                        HEEADSSSAssessment.Gender = SafeDecrypt(HEEADSSSAssessment.Gender);
+                        HEEADSSSAssessment.Address = SafeDecrypt(HEEADSSSAssessment.Address);
+                        HEEADSSSAssessment.ContactNumber = SafeDecrypt(HEEADSSSAssessment.ContactNumber);
+                        HEEADSSSAssessment.HomeEnvironment = SafeDecrypt(HEEADSSSAssessment.HomeEnvironment);
+                        HEEADSSSAssessment.FamilyRelationship = SafeDecrypt(HEEADSSSAssessment.FamilyRelationship);
+                        HEEADSSSAssessment.HomeFamilyProblems = SafeDecrypt(HEEADSSSAssessment.HomeFamilyProblems);
+                        HEEADSSSAssessment.HomeParentalListening = SafeDecrypt(HEEADSSSAssessment.HomeParentalListening);
+                        HEEADSSSAssessment.SchoolPerformance = SafeDecrypt(HEEADSSSAssessment.SchoolPerformance);
+                        // AttendanceIssues is now a boolean field, no need to decrypt
+                        HEEADSSSAssessment.CareerPlans = SafeDecrypt(HEEADSSSAssessment.CareerPlans);
+                        HEEADSSSAssessment.EducationCurrentlyStudying = SafeDecrypt(HEEADSSSAssessment.EducationCurrentlyStudying);
+                        HEEADSSSAssessment.Hobbies = SafeDecrypt(HEEADSSSAssessment.Hobbies);
+                        HEEADSSSAssessment.PhysicalActivity = SafeDecrypt(HEEADSSSAssessment.PhysicalActivity);
+                        HEEADSSSAssessment.ScreenTime = SafeDecrypt(HEEADSSSAssessment.ScreenTime);
+                        HEEADSSSAssessment.ActivitiesRegularExercise = SafeDecrypt(HEEADSSSAssessment.ActivitiesRegularExercise);
+                        
+                        _logger.LogInformation("Successfully loaded and decrypted HEEADSSS Assessment data for appointment ID {Id}", id);
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogWarning(ex, "Failed to decrypt patient data for HEEADSSS lookup, continuing anyway");
-                    }
-                    
-                    // Look for HEEADSSS assessment by UserId
-                    var heeadsssAssessment = await _context.HEEADSSSAssessments
-                        .Where(a => a.UserId == appointment.Patient.UserId)
-                        .OrderByDescending(a => a.CreatedAt)
-                        .FirstOrDefaultAsync();
-                    
-                    _logger.LogInformation("HEEADSSS Assessment query result: {AssessmentFound}", heeadsssAssessment != null);
-
-                    if (heeadsssAssessment != null)
-                    {
-                        try
-                        {
-                            _logger.LogInformation("Found HEEADSSS Assessment {Id} for UserId: {UserId}", heeadsssAssessment.Id, appointment.Patient.UserId);
-                            
-                            // Log some encrypted values before decryption
-                            _logger.LogInformation("Before decryption - FullName: {FullName}, Age: {Age}, Gender: {Gender}", 
-                                heeadsssAssessment.FullName?.Substring(0, Math.Min(20, heeadsssAssessment.FullName?.Length ?? 0)) + "...",
-                                heeadsssAssessment.Age?.Substring(0, Math.Min(20, heeadsssAssessment.Age?.Length ?? 0)) + "...",
-                                heeadsssAssessment.Gender?.Substring(0, Math.Min(20, heeadsssAssessment.Gender?.Length ?? 0)) + "...");
-                            
-                            // Decrypt the HEEADSSS assessment data
-                            heeadsssAssessment.DecryptSensitiveData(_encryptionService, User);
-                            
-                            // Manual decryption fallback for critical fields using safe decryption
-                            heeadsssAssessment.FullName = SafeDecrypt(heeadsssAssessment.FullName);
-                            heeadsssAssessment.Age = SafeDecrypt(heeadsssAssessment.Age);
-                            heeadsssAssessment.Gender = SafeDecrypt(heeadsssAssessment.Gender);
-                            heeadsssAssessment.Address = SafeDecrypt(heeadsssAssessment.Address);
-                            heeadsssAssessment.ContactNumber = SafeDecrypt(heeadsssAssessment.ContactNumber);
-                            heeadsssAssessment.HomeEnvironment = SafeDecrypt(heeadsssAssessment.HomeEnvironment);
-                            heeadsssAssessment.FamilyRelationship = SafeDecrypt(heeadsssAssessment.FamilyRelationship);
-                            heeadsssAssessment.HomeFamilyProblems = SafeDecrypt(heeadsssAssessment.HomeFamilyProblems);
-                            heeadsssAssessment.HomeParentalListening = SafeDecrypt(heeadsssAssessment.HomeParentalListening);
-                            heeadsssAssessment.SchoolPerformance = SafeDecrypt(heeadsssAssessment.SchoolPerformance);
-                            // AttendanceIssues is now a boolean field, no need to decrypt
-                            heeadsssAssessment.CareerPlans = SafeDecrypt(heeadsssAssessment.CareerPlans);
-                            heeadsssAssessment.EducationCurrentlyStudying = SafeDecrypt(heeadsssAssessment.EducationCurrentlyStudying);
-                            heeadsssAssessment.Hobbies = SafeDecrypt(heeadsssAssessment.Hobbies);
-                            heeadsssAssessment.PhysicalActivity = SafeDecrypt(heeadsssAssessment.PhysicalActivity);
-                            heeadsssAssessment.ScreenTime = SafeDecrypt(heeadsssAssessment.ScreenTime);
-                            heeadsssAssessment.ActivitiesRegularExercise = SafeDecrypt(heeadsssAssessment.ActivitiesRegularExercise);
-                            
-                            _logger.LogInformation("Successfully loaded and decrypted HEEADSSS Assessment data for appointment ID {Id}", id);
-                            
-                            HasHEEADSSSAssessment = true;
-                            HEEADSSSAssessment = heeadsssAssessment;
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogError(ex, "Failed to decrypt HEEADSSS assessment {Id}", heeadsssAssessment.Id);
-                            HasHEEADSSSAssessment = false;
-                        }
+                        _logger.LogError(ex, "Failed to decrypt HEEADSSS assessment data for appointment ID {Id}", id);
+                        HasHEEADSSSAssessment = false;
+                        HEEADSSSAssessment = null;
                     }
                 }
 
@@ -361,11 +525,9 @@ namespace Barangay.Pages.Nurse
                 HasAdolescentHealthInfo = false;
                 AdolescentHealthInfo = null;
 
-                if (appointment.Patient != null)
-                {
+                // Only check by AppointmentId - no fallback to UserId to prevent showing forms from other appointments
                     var adolescentHealthInfo = await _context.AdolescentHealthInfo
-                        .Where(a => a.UserId == appointment.Patient.UserId)
-                        .OrderByDescending(a => a.CreatedAt)
+                    .Where(a => a.AppointmentId == id.ToString())
                         .FirstOrDefaultAsync();
 
                     if (adolescentHealthInfo != null)
@@ -381,15 +543,79 @@ namespace Barangay.Pages.Nurse
                         {
                             _logger.LogError(ex, "Failed to decrypt Adolescent Health Information {Id}", adolescentHealthInfo.Id);
                             HasAdolescentHealthInfo = false;
-                        }
                     }
                 }
 
                 _logger.LogInformation("Adolescent Health Info found: {HasAdolescentHealthInfo}", HasAdolescentHealthInfo);
                 _logger.LogInformation("Step 7 Complete: Adolescent Health Information processing");
 
-                // Step 8: Complete
-                _logger.LogInformation("Step 8: All processing complete, returning page");
+                // Step 8: Load booking and forms information
+                _logger.LogInformation("Step 8: Loading booking and forms information");
+                
+                // Get booking information
+                if (appointment.Patient != null)
+                {
+                    try
+                    {
+                        // Decrypt patient name if needed
+                        appointment.Patient.DecryptSensitiveData(_encryptionService, User);
+                        BookedBy = appointment.Patient.FullName ?? "Unknown Patient";
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Failed to decrypt patient name for booking info");
+                        BookedBy = "Unknown Patient";
+                    }
+                }
+                else
+                {
+                    BookedBy = "Unknown Patient";
+                }
+                
+                // Use appointment creation date as booking date
+                BookingDate = appointment.CreatedAt;
+                
+                // Populate forms information based on patient age and appointment-specific forms
+                AvailableForms.Clear();
+                CompletedForms.Clear();
+                
+                // Determine which forms are appropriate based on patient age
+                var patientAge = PatientAge;
+                _logger.LogInformation("Patient age for form determination: {PatientAge}", patientAge);
+                
+                // Only show forms that are appropriate for the patient's age
+                if (patientAge >= 20)
+                {
+                    // NCD Risk Assessment is appropriate for patients 20+
+                if (HasNCDAssessment)
+                    CompletedForms.Add("NCD Risk Assessment");
+                else
+                    AvailableForms.Add("NCD Risk Assessment");
+                }
+                else if (patientAge >= 10 && patientAge <= 19)
+                {
+                    // HEEADSSS Assessment is appropriate for patients 10-19
+                if (HasHEEADSSSAssessment)
+                    CompletedForms.Add("HEEADSSS Assessment");
+                else
+                    AvailableForms.Add("HEEADSSS Assessment");
+                }
+                else if (patientAge < 10)
+                {
+                    // Adolescent Health Information might be appropriate for younger patients
+                if (HasAdolescentHealthInfo)
+                    CompletedForms.Add("Adolescent Health Information");
+                else
+                    AvailableForms.Add("Adolescent Health Information");
+                }
+                
+                _logger.LogInformation("Step 8 Complete: Booking and forms information loaded");
+                _logger.LogInformation("Booked by: {BookedBy}, Booking date: {BookingDate}", BookedBy, BookingDate);
+                _logger.LogInformation("Completed forms: {CompletedCount}, Available forms: {AvailableCount}", 
+                    CompletedForms.Count, AvailableForms.Count);
+
+                // Step 9: Complete
+                _logger.LogInformation("Step 9: All processing complete, returning page");
                 _logger.LogInformation("=== Successfully completed appointment details loading for ID: {Id} ===", id);
 
                 return Page();

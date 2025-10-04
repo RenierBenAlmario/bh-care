@@ -19,13 +19,13 @@ namespace Barangay.Controllers
     [Authorize]
     public class UserController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly EncryptedDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<UserController> _logger;
         private readonly IAppointmentService _appointmentService;
 
         public UserController(
-            ApplicationDbContext context,
+            EncryptedDbContext context,
             UserManager<ApplicationUser> userManager,
             ILogger<UserController> logger,
             IAppointmentService appointmentService)
@@ -357,29 +357,21 @@ namespace Barangay.Controllers
                     var affectedRows = await _context.SaveChangesAsync();
                     _logger.LogInformation("SaveChanges affected {AffectedRows} rows", affectedRows);
 
-                    // Verify the appointment was created with a new context
-                    using (var verificationContext = new ApplicationDbContext(
-                        new DbContextOptionsBuilder<ApplicationDbContext>()
-                            .UseSqlServer(connection)
-                            .Options))
+                    // Verify the appointment was created using the existing context
+                    var createdAppointment = await _context.Appointments
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(a => a.Id == appointment.Id);
+
+                    if (createdAppointment == null)
                     {
-                        verificationContext.Database.SetDbConnection(connection);
-                        
-                        var createdAppointment = await verificationContext.Appointments
-                            .AsNoTracking()
-                            .FirstOrDefaultAsync(a => a.Id == appointment.Id);
-
-                        if (createdAppointment == null)
-                        {
-                            _logger.LogError("Failed to verify appointment creation. AppointmentId: {AppointmentId}", 
-                                appointment.Id);
-                            await transaction.RollbackAsync();
-                            throw new Exception("Failed to verify appointment creation");
-                        }
-
-                        _logger.LogInformation("Successfully verified appointment creation. AppointmentId: {AppointmentId}", 
+                        _logger.LogError("Failed to verify appointment creation. AppointmentId: {AppointmentId}", 
                             appointment.Id);
+                        await transaction.RollbackAsync();
+                        throw new Exception("Failed to verify appointment creation");
                     }
+
+                    _logger.LogInformation("Successfully verified appointment creation. AppointmentId: {AppointmentId}", 
+                        appointment.Id);
 
                     await transaction.CommitAsync();
                     _logger.LogInformation("Transaction committed successfully");

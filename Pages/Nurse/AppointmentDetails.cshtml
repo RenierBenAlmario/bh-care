@@ -112,7 +112,83 @@
 
                         <dt class="col-sm-4">Age</dt>
                         <dd class="col-sm-8">@(Model.PatientAge) years</dd>
+
+                        <dt class="col-sm-4">Booked By</dt>
+                        <dd class="col-sm-8">@Model.BookedBy</dd>
+
+                        @if (Model.BookingDate.HasValue)
+                        {
+                            <dt class="col-sm-4">Booking Date</dt>
+                            <dd class="col-sm-8">@Model.BookingDate.Value.ToString("MMM d, yyyy HH:mm")</dd>
+                        }
                     </dl>
+                </div>
+            </div>
+
+            <!-- Forms Summary Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-clipboard-list me-2"></i>
+                        Forms Summary
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.CompletedForms.Any())
+                    {
+                        <div class="mb-3">
+                            <h6 class="text-success mb-2">
+                                <i class="fas fa-check-circle me-1"></i>
+                                Completed Forms (@Model.CompletedForms.Count)
+                            </h6>
+                            <ul class="list-unstyled">
+                                @foreach (var form in Model.CompletedForms)
+                                {
+                                    <li class="mb-1">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        @form
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    @if (Model.AvailableForms.Any())
+                    {
+                        <div class="mb-3">
+                            <h6 class="text-muted mb-2">
+                                <i class="fas fa-plus-circle me-1"></i>
+                                Available Forms (@Model.AvailableForms.Count)
+                            </h6>
+                            <ul class="list-unstyled">
+                                @foreach (var form in Model.AvailableForms)
+                                {
+                                    @* Hide NCD if HEEADSSS exists, hide HEEADSSS if NCD exists *@
+                                    @if ((form == "NCD Risk Assessment" && Model.HasHEEADSSSAssessment) || 
+                                         (form == "HEEADSSS Assessment" && Model.HasNCDAssessment))
+                                    {
+                                        @* Don't show this form in available list due to mutual exclusion *@
+                                    }
+                                    else
+                                    {
+                                        <li class="mb-1">
+                                            <i class="fas fa-circle-notch text-muted me-2"></i>
+                                            @form
+                                        </li>
+                                    }
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    @if (!Model.CompletedForms.Any() && !Model.AvailableForms.Any())
+                    {
+                        <div class="text-center text-muted">
+                            <i class="fas fa-info-circle fa-2x mb-2"></i>
+                            <p>No assessment forms required for this patient's age group</p>
+                            <small>Assessment forms are only required for patients 10 years and older</small>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
@@ -127,28 +203,51 @@
                         <label for="assessmentSelect" class="form-label">Select Assessment Type</label>
                     </div>
                     <ul class="nav nav-tabs mb-3" id="assessmentTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="ncd-tab" data-bs-toggle="tab" data-bs-target="#ncd-content" 
-                                    type="button" role="tab" aria-controls="ncd-content" aria-selected="true">
-                                <strong>NCD Risk Assessment</strong>
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="adolescent-tab" data-bs-toggle="tab" data-bs-target="#adolescent-content" 
-                                    type="button" role="tab" aria-controls="adolescent-content" aria-selected="false">
-                                <strong>Adolescent Health Info</strong>
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="heeadsss-tab" data-bs-toggle="tab" data-bs-target="#heeadsss-content" 
-                                    type="button" role="tab" aria-controls="heeadsss-content" aria-selected="false">
-                                <strong>HEEADSSS Assessment</strong>
-                            </button>
-                        </li>
+                        @if (Model.PatientAge >= 20)
+                        {
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link @(Model.HasNCDAssessment ? "active" : "")" id="ncd-tab" data-bs-toggle="tab" data-bs-target="#ncd-content" 
+                                        type="button" role="tab" aria-controls="ncd-content" aria-selected="@(Model.HasNCDAssessment ? "true" : "false")">
+                                    <strong>NCD Risk Assessment</strong>
+                                    @if (Model.HasNCDAssessment)
+                                    {
+                                        <span class="badge bg-success ms-1">Completed</span>
+                                    }
+                                </button>
+                            </li>
+                        }
+                        @if (Model.PatientAge >= 10 && Model.PatientAge <= 19)
+                        {
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link @(Model.HasHEEADSSSAssessment ? "active" : "")" id="heeadsss-tab" data-bs-toggle="tab" data-bs-target="#heeadsss-content" 
+                                        type="button" role="tab" aria-controls="heeadsss-content" aria-selected="@(Model.HasHEEADSSSAssessment ? "true" : "false")">
+                                    <strong>HEEADSSS Assessment</strong>
+                                    @if (Model.HasHEEADSSSAssessment)
+                                    {
+                                        <span class="badge bg-success ms-1">Completed</span>
+                                    }
+                                </button>
+                            </li>
+                        }
+                        @if (Model.PatientAge < 10)
+                        {
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link @(Model.HasAdolescentHealthInfo ? "active" : "")" id="adolescent-tab" data-bs-toggle="tab" data-bs-target="#adolescent-content" 
+                                        type="button" role="tab" aria-controls="adolescent-content" aria-selected="@(Model.HasAdolescentHealthInfo ? "true" : "false")">
+                                    <strong>Adolescent Health Info</strong>
+                                    @if (Model.HasAdolescentHealthInfo)
+                                    {
+                                        <span class="badge bg-success ms-1">Completed</span>
+                                    }
+                                </button>
+                            </li>
+                        }
                     </ul>
                     <div class="tab-content p-3" id="assessmentTabContent">
                         <!-- NCD Risk Assessment Tab -->
-                        <div class="tab-pane fade show active" id="ncd-content" role="tabpanel" aria-labelledby="ncd-tab">
+                        @if (Model.PatientAge >= 20)
+                        {
+                            <div class="tab-pane fade @(Model.HasNCDAssessment ? "show active" : "")" id="ncd-content" role="tabpanel" aria-labelledby="ncd-tab">
                             @if (Model.HasNCDAssessment)
                             {
                                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -282,10 +381,13 @@
                                     </a>
                                 </div>
                             }
-                        </div>
+                            </div>
+                        }
                         
                         <!-- Adolescent Health Information Tab -->
-                        <div class="tab-pane fade" id="adolescent-content" role="tabpanel" aria-labelledby="adolescent-tab">
+                        @if (Model.PatientAge < 10)
+                        {
+                        <div class="tab-pane fade @(!Model.HasNCDAssessment && !Model.HasHEEADSSSAssessment ? "show active" : "")" id="adolescent-content" role="tabpanel" aria-labelledby="adolescent-tab">
                             @if (Model.HasAdolescentHealthInfo)
                             {
                                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -375,9 +477,12 @@
                                 </div>
                             }
                         </div>
-
+                        }
+                        
                         <!-- HEEADSSS Assessment Tab -->
-                        <div class="tab-pane fade" id="heeadsss-content" role="tabpanel" aria-labelledby="heeadsss-tab">
+                        @if (Model.PatientAge >= 10 && Model.PatientAge <= 19)
+                        {
+                        <div class="tab-pane fade @(Model.HasHEEADSSSAssessment ? "show active" : "")" id="heeadsss-content" role="tabpanel" aria-labelledby="heeadsss-tab">
                             @if (Model.HasHEEADSSSAssessment)
                             {
                                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -503,7 +608,7 @@
                                 
                                 <!-- View Full Assessment Button -->
                                 <div class="text-center mt-4">
-                                    <a href="/Nurse/EditHEEADSSSAssessment?appointmentId=12" class="btn btn-primary">
+                                    <a href="/Nurse/EditHEEADSSSAssessment?appointmentId=@Model.Appointment.Id" class="btn btn-primary">
                                         <i class="fas fa-eye me-1"></i>
                                         View Full Assessment
                                     </a>
@@ -521,7 +626,9 @@
                                     </a>
                                 </div>
                             }
-                        </div>
+                            </div>
+                        }
+                        }
                     </div>
                 </div>
             </div>

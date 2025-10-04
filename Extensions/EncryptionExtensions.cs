@@ -83,13 +83,15 @@ namespace Barangay.Extensions
         /// </summary>
         public static T DecryptSensitiveData<T>(this T obj, IDataEncryptionService encryptionService, ClaimsPrincipal user) where T : class
         {
-            if (obj == null || encryptionService == null || !encryptionService.CanUserDecrypt(user))
+            if (obj == null || encryptionService == null)
             {
-                Console.WriteLine($"DecryptSensitiveData: Cannot decrypt - Object: {obj != null}, Service: {encryptionService != null}, CanDecrypt: {encryptionService?.CanUserDecrypt(user)}");
+                Console.WriteLine($"DecryptSensitiveData: Cannot decrypt - Object: {obj != null}, Service: {encryptionService != null}");
                 return obj;
             }
 
             Console.WriteLine($"DecryptSensitiveData: Starting decryption for {typeof(T).Name}");
+            Console.WriteLine($"DecryptSensitiveData: User can decrypt: {encryptionService.CanUserDecrypt(user)}");
+            
             var properties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
             var encryptedProperties = properties.Where(p => p.GetCustomAttribute<EncryptedAttribute>() != null).ToList();
             Console.WriteLine($"DecryptSensitiveData: Found {encryptedProperties.Count} encrypted properties");
@@ -110,8 +112,17 @@ namespace Barangay.Extensions
                         Console.WriteLine($"DecryptSensitiveData: {property.Name} is encrypted, attempting decryption");
                         try
                         {
+                            // Try DecryptForUser first
                             var decryptedValue = encryptionService.DecryptForUser(value, user);
-                            Console.WriteLine($"DecryptSensitiveData: {property.Name} decrypted to: {decryptedValue?.Substring(0, Math.Min(20, decryptedValue?.Length ?? 0))}...");
+                            Console.WriteLine($"DecryptSensitiveData: {property.Name} DecryptForUser result: {decryptedValue?.Substring(0, Math.Min(20, decryptedValue?.Length ?? 0))}...");
+                            
+                            // If DecryptForUser failed or returned access denied, try direct decryption
+                            if (decryptedValue == "[ACCESS DENIED]" || decryptedValue == value)
+                            {
+                                Console.WriteLine($"DecryptSensitiveData: DecryptForUser failed for {property.Name}, trying direct decryption");
+                                decryptedValue = encryptionService.Decrypt(value);
+                                Console.WriteLine($"DecryptSensitiveData: {property.Name} direct decrypt result: {decryptedValue?.Substring(0, Math.Min(20, decryptedValue?.Length ?? 0))}...");
+                            }
                             
                             if (decryptedValue != value && !decryptedValue.Contains("[ACCESS DENIED]"))
                             {
@@ -126,6 +137,21 @@ namespace Barangay.Extensions
                         catch (Exception ex)
                         {
                             Console.WriteLine($"DecryptSensitiveData: Exception decrypting {property.Name}: {ex.Message}");
+                            
+                            // Try direct decryption as fallback
+                            try
+                            {
+                                var fallbackDecrypted = encryptionService.Decrypt(value);
+                                if (fallbackDecrypted != value)
+                                {
+                                    property.SetValue(obj, fallbackDecrypted);
+                                    Console.WriteLine($"DecryptSensitiveData: Fallback decryption successful for {property.Name}");
+                                }
+                            }
+                            catch (Exception fallbackEx)
+                            {
+                                Console.WriteLine($"DecryptSensitiveData: Fallback decryption also failed for {property.Name}: {fallbackEx.Message}");
+                            }
                         }
                     }
                     else

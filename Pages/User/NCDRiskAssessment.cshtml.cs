@@ -83,7 +83,7 @@ namespace Barangay.Pages.User
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Error getting family number, using default");
-                    string lastNameInitial = !string.IsNullOrEmpty(user.LastName) ? user.LastName.Substring(0, 1) : "X";
+                    string lastNameInitial = !string.IsNullOrEmpty(user.LastName) ? user.LastName.Substring(0, 1).ToUpper() : "X";
                     FamilyNo = $"{lastNameInitial}-001";
                     FamilyNoPreexisting = false;
                 }
@@ -94,7 +94,7 @@ namespace Barangay.Pages.User
                     appointmentIdInt = parsedId;
                 }
 
-                Assessment = new NCDRiskAssessmentViewModel
+                    Assessment = new NCDRiskAssessmentViewModel
                 {
                     AppointmentId = appointmentIdInt,
                     UserId = user.Id,
@@ -102,7 +102,7 @@ namespace Barangay.Pages.User
                     FamilyNo = FamilyNo,
                     Address = user.Address ?? "",
                     Barangay = user.Barangay ?? "160", // Use user's barangay from signup
-                    Birthday = user.BirthDate?.ToString("yyyy-MM-dd"),
+                    Birthday = user.BirthDate,
                     Telepono = user.PhoneNumber ?? "",
                     Kasarian = user.Gender == "Male" ? "Lalaki" : user.Gender == "Female" ? "Babae" : "",
                     FirstName = user.FirstName,
@@ -110,7 +110,10 @@ namespace Barangay.Pages.User
                     LastName = user.LastName,
                     Occupation = user.Occupation,
                     CivilStatus = user.CivilStatus,
-                    Relihiyon = user.Religion
+                    Relihiyon = user.Religion,
+                    InterviewedBy = "", // Initialize empty for user input
+                    Designation = "", // Initialize empty for user input
+                    DoctorName = "" // Initialize empty for user input
                 };
 
                 if (user.BirthDate.HasValue)
@@ -154,10 +157,11 @@ namespace Barangay.Pages.User
                 throw new ArgumentNullException(nameof(user));
             }
 
-            // Check if user already has a family number
+            // Check if user already has a family number - only query essential fields to avoid column errors
             var existingAssessment = await _context.NCDRiskAssessments
                 .Where(a => a.UserId == user.Id && !string.IsNullOrEmpty(a.FamilyNo))
                 .OrderByDescending(a => a.CreatedAt)
+                .Select(a => new { a.Id, a.FamilyNo, a.CreatedAt })
                 .FirstOrDefaultAsync();
 
             if (existingAssessment != null)
@@ -181,32 +185,33 @@ namespace Barangay.Pages.User
             // Generate new family number based on first letter of last name
             string lastNameInitial = (user.LastName?.Length > 0) ? user.LastName.Substring(0, 1).ToUpper() : "X";
             
-            // Find the next sequential number for this letter
-            var existingFamilyNumbers = await _context.NCDRiskAssessments
-                .Where(a => !string.IsNullOrEmpty(a.FamilyNo) && a.FamilyNo.StartsWith($"{lastNameInitial}."))
+            // Get the highest sequence number for this letter from both assessment types
+            var ncdFamilyNos = await _context.NCDRiskAssessments
+                .Where(a => a.FamilyNo != null && a.FamilyNo.StartsWith(lastNameInitial + "-"))
                 .Select(a => a.FamilyNo)
                 .ToListAsync();
-
-            int nextNumber = 1;
-            if (existingFamilyNumbers.Any())
-            {
-                var numbers = existingFamilyNumbers
-                    .Where(fn => fn.StartsWith($"{lastNameInitial}."))
-                    .Select(fn => 
-                    {
-                        var parts = fn.Split('.');
-                        if (parts.Length == 2 && int.TryParse(parts[1], out int num))
-                            return num;
-                        return 0;
-                    })
-                    .Where(num => num > 0)
-                    .OrderByDescending(num => num)
-                    .ToList();
-
-                nextNumber = numbers.Any() ? numbers.First() + 1 : 1;
-            }
-
-            string newFamilyNo = $"{lastNameInitial}.{nextNumber:D3}";
+            
+            int lastNCDNumber = ncdFamilyNos
+                .Select(fn => fn.Substring(2))
+                .Where(n => n.All(char.IsDigit))
+                .Select(n => int.Parse(n))
+                .DefaultIfEmpty(0)
+                .Max();
+                
+            int lastHEEADSSSNumber = await _context.HEEADSSSAssessments
+                .Where(a => a.FamilyNo != null && a.FamilyNo.StartsWith(lastNameInitial + "-"))
+                .Select(a => a.FamilyNo.Substring(2))
+                .Where(n => n.All(char.IsDigit))
+                .Select(n => int.Parse(n))
+                .DefaultIfEmpty(0)
+                .MaxAsync();
+                
+            // Take the highest of the two numbers
+            int lastNumber = Math.Max(lastNCDNumber, lastHEEADSSSNumber);
+            
+            // Generate new family number
+            int newSequence = lastNumber + 1;
+            string newFamilyNo = $"{lastNameInitial}-{newSequence:D3}"; // Format: X-001, X-002, etc.
             return (newFamilyNo, false);
         }
 
@@ -235,63 +240,47 @@ namespace Barangay.Pages.User
                     return new JsonResult(new { success = false, error = "User not found" });
                 }
 
-                // Check if user already has a family number
-                var existingAssessment = await _context.NCDRiskAssessments
-                    .Where(a => a.UserId == user.Id && !string.IsNullOrEmpty(a.FamilyNo))
-                    .OrderByDescending(a => a.CreatedAt)
-                    .FirstOrDefaultAsync();
-
-                if (existingAssessment != null)
+                // Use the last name from the request if provided, otherwise use user's last name
+                string lastName = !string.IsNullOrEmpty(request.LastName) ? request.LastName : user.LastName;
+                if (string.IsNullOrEmpty(lastName))
                 {
-                    // Decrypt FamilyNo if it's encrypted
-                    var decryptedFamilyNo = existingAssessment.FamilyNo;
-                    if (!string.IsNullOrEmpty(decryptedFamilyNo) && _encryptionService.CanUserDecrypt(User))
-                    {
-                        try
-                        {
-                            decryptedFamilyNo = _encryptionService.Decrypt(decryptedFamilyNo);
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogWarning(ex, "Failed to decrypt FamilyNo, using encrypted value");
-                        }
-                    }
-                    return new JsonResult(new { 
-                        success = true, 
-                        familyNo = decryptedFamilyNo, 
-                        isPreexisting = true 
-                    });
+                    return new JsonResult(new { success = false, error = "Last name is required to generate family number" });
                 }
 
                 // Generate new family number based on first letter of last name
-                string lastNameInitial = (user.LastName?.Length > 0) ? user.LastName.Substring(0, 1).ToUpper() : "X";
+                string lastNameInitial = lastName.Substring(0, 1).ToUpper();
                 
-                // Find the next sequential number for this letter
-                var existingFamilyNumbers = await _context.NCDRiskAssessments
-                    .Where(a => !string.IsNullOrEmpty(a.FamilyNo) && a.FamilyNo.StartsWith($"{lastNameInitial}."))
+                // Get the highest sequence number for this letter from both assessment types
+                var ncdFamilyNos = await _context.NCDRiskAssessments
+                    .Where(a => a.FamilyNo != null && a.FamilyNo.StartsWith(lastNameInitial + "-"))
                     .Select(a => a.FamilyNo)
                     .ToListAsync();
-
-                int nextNumber = 1;
-                if (existingFamilyNumbers.Any())
-                {
-                    var numbers = existingFamilyNumbers
-                        .Where(fn => fn.StartsWith($"{lastNameInitial}."))
-                        .Select(fn => 
-                        {
-                            var parts = fn.Split('.');
-                            if (parts.Length == 2 && int.TryParse(parts[1], out int num))
-                                return num;
-                            return 0;
-                        })
-                        .Where(num => num > 0)
-                        .OrderByDescending(num => num)
-                        .ToList();
-
-                    nextNumber = numbers.Any() ? numbers.First() + 1 : 1;
-                }
-
-                string newFamilyNo = $"{lastNameInitial}.{nextNumber:D3}";
+                
+                int lastNCDNumber = ncdFamilyNos
+                    .Select(fn => fn.Substring(2))
+                    .Where(n => n.All(char.IsDigit))
+                    .Select(n => int.Parse(n))
+                    .DefaultIfEmpty(0)
+                    .Max();
+                    
+                var heeadsssFamilyNos = await _context.HEEADSSSAssessments
+                    .Where(a => a.FamilyNo != null && a.FamilyNo.StartsWith(lastNameInitial + "-"))
+                    .Select(a => a.FamilyNo)
+                    .ToListAsync();
+                
+                int lastHEEADSSSNumber = heeadsssFamilyNos
+                    .Select(fn => fn.Substring(2))
+                    .Where(n => n.All(char.IsDigit))
+                    .Select(n => int.Parse(n))
+                    .DefaultIfEmpty(0)
+                    .Max();
+                    
+                // Take the highest of the two numbers
+                int lastNumber = Math.Max(lastNCDNumber, lastHEEADSSSNumber);
+                
+                // Generate new family number
+                int newSequence = lastNumber + 1;
+                string newFamilyNo = $"{lastNameInitial}-{newSequence:D3}"; // Format: X-001, X-002, etc.
                 
                 return new JsonResult(new { 
                     success = true, 
@@ -302,7 +291,7 @@ namespace Barangay.Pages.User
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error generating family number");
-                return new JsonResult(new { success = false, error = ex.Message });
+                return new JsonResult(new { success = false, error = "Error generating family number. Please try again." });
             }
         }
 
@@ -310,6 +299,7 @@ namespace Barangay.Pages.User
         {
             public string LastName { get; set; } = string.Empty;
         }
+
 
         public IActionResult OnGetTestEndpoint()
         {
@@ -334,14 +324,47 @@ namespace Barangay.Pages.User
                 _logger.LogInformation("JSON data length: {Length}", jsonData.Length);
                 _logger.LogInformation("JSON data preview: {Preview}", jsonData.Substring(0, Math.Min(100, jsonData.Length)) + "...");
                 
-                // Deserialize the JSON data
-                var assessment = System.Text.Json.JsonSerializer.Deserialize<NCDRiskAssessmentViewModel>(jsonData, new System.Text.Json.JsonSerializerOptions
+                // Deserialize the JSON data with enhanced error handling
+                NCDRiskAssessmentViewModel assessment;
+                try
                 {
-                    PropertyNameCaseInsensitive = true,
-                    AllowTrailingCommas = true,
-                    ReadCommentHandling = System.Text.Json.JsonCommentHandling.Skip,
-                    Converters = { new FlexibleStringConverter(), new FlexibleIntConverter() }
-                });
+                    assessment = System.Text.Json.JsonSerializer.Deserialize<NCDRiskAssessmentViewModel>(jsonData, new System.Text.Json.JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true,
+                        AllowTrailingCommas = true,
+                        ReadCommentHandling = System.Text.Json.JsonCommentHandling.Skip,
+                        Converters = { new FlexibleStringConverter(), new FlexibleIntConverter(), new FlexibleBooleanConverter() }
+                    });
+                }
+                catch (System.Text.Json.JsonException jsonEx)
+                {
+                    _logger.LogError(jsonEx, "JSON Deserialization Error: {Message}", jsonEx.Message);
+                    _logger.LogError("JSON Path: {Path}", jsonEx.Path);
+                    _logger.LogError("Byte Position: {Position}", jsonEx.BytePositionInLine);
+                    
+                    // Try to identify the problematic field
+                    if (!string.IsNullOrEmpty(jsonEx.Path))
+                    {
+                        _logger.LogError("Problematic field: {Field}", jsonEx.Path);
+                        
+                        // Extract field name from path (e.g., "$.IsSmoker" -> "IsSmoker")
+                        var fieldName = jsonEx.Path.Replace("$.", "").Replace("$", "");
+                        _logger.LogError("Field causing error: {FieldName}", fieldName);
+                        
+                        // Log the JSON around the error position
+                        var startPos = Math.Max(0, (int)jsonEx.BytePositionInLine - 50);
+                        var endPos = Math.Min(jsonData.Length, (int)jsonEx.BytePositionInLine + 50);
+                        var context = jsonData.Substring(startPos, endPos - startPos);
+                        _logger.LogError("JSON context around error: {Context}", context);
+                    }
+                    
+                    return new JsonResult(new { 
+                        success = false, 
+                        error = $"JSON deserialization failed: {jsonEx.Message}",
+                        field = jsonEx.Path?.Replace("$.", ""),
+                        position = jsonEx.BytePositionInLine
+                    });
+                }
                 
                 if (assessment == null)
                 {
@@ -351,6 +374,17 @@ namespace Barangay.Pages.User
                 
                 _logger.LogInformation("Assessment deserialized successfully. UserId: {UserId}, AppointmentId: {AppointmentId}", 
                     assessment.UserId, assessment.AppointmentId);
+                
+                // Enhanced logging for debugging AppointmentId issues
+                _logger.LogInformation("=== NCD ASSESSMENT SUBMISSION DEBUG ===");
+                _logger.LogInformation("Raw AppointmentId from form: {RawAppointmentId}", assessment.AppointmentId);
+                _logger.LogInformation("AppointmentId type: {AppointmentIdType}", assessment.AppointmentId?.GetType().Name);
+                _logger.LogInformation("AppointmentId is null: {IsNull}", assessment.AppointmentId == null);
+                _logger.LogInformation("AppointmentId has value: {HasValue}", assessment.AppointmentId.HasValue);
+                if (assessment.AppointmentId.HasValue)
+                {
+                    _logger.LogInformation("AppointmentId value: {Value}", assessment.AppointmentId.Value);
+                }
                 
                 // Validate required fields
                 if (string.IsNullOrEmpty(assessment.UserId))
@@ -390,7 +424,7 @@ namespace Barangay.Pages.User
                     FamilyNo = assessment.FamilyNo,
                     Address = assessment.Address,
                     Barangay = assessment.Barangay,
-                    Birthday = assessment.Birthday,
+                    Birthday = assessment.Birthday?.ToString("yyyy-MM-dd"),
                     Telepono = assessment.Telepono,
                     Edad = assessment.Edad,
                     Kasarian = assessment.Kasarian,
@@ -515,8 +549,6 @@ namespace Barangay.Pages.User
                     HasStress = assessment.HasStress ?? "false",
                     
                     // Health Conditions
-                    HasDifficultyBreathing = assessment.HasDifficultyBreathing,
-                    HasAsthma = assessment.HasAsthma,
                     
                     // Risk Status
                     RiskStatus = assessment.RiskStatus ?? "Low Risk",
@@ -532,6 +564,30 @@ namespace Barangay.Pages.User
                     // Identity Fields
                     IDNumber = assessment.IDNumber ?? "",
                     IDNo = assessment.IDNo ?? assessment.FamilyNo,
+                    
+                    // Chest Pain Questions (Q2.1-2.8) - Additional mappings
+                    Pananakit21 = assessment.Pananakit21 ?? "false",
+                    Pananakit22 = assessment.Pananakit22 ?? "false",
+                    Pananakit23 = assessment.Pananakit23 ?? "false",
+                    Pananakit24 = assessment.Pananakit24 ?? "false",
+                    Pananakit25 = assessment.Pananakit25 ?? "false",
+                    Pananakit26 = assessment.Pananakit26 ?? "false",
+                    Pananakit27 = assessment.Pananakit27 ?? "false",
+                    Pananakit28 = assessment.Pananakit28 ?? "false",
+                    
+                    // Additional missing fields for complete form mapping
+                    HealthFacilityName = assessment.HealthFacilityName ?? "Baesa Health Center",
+                    DateAssessment = assessment.DateAssessment ?? "",
+                    
+                    // Lung Disease - Proper mapping
+                    HasLungDiseaseNonInfectious = assessment.HasLungDiseaseNonInfectious ?? "false",
+                    
+                    // Eye Disease - Proper mapping  
+                    HasEyeDiseaseCondition = assessment.HasEyeDiseaseCondition ?? "false",
+                    
+                    // Asthma - Proper mapping
+                    HasAsthma = assessment.HasAsthma ?? "false",
+                    HasDifficultyBreathing = assessment.HasDifficultyBreathing ?? "false",
                     
                     // System Fields - These are now string columns for encryption
                     CreatedAt = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),
@@ -807,13 +863,17 @@ namespace Barangay.Pages.User
                 string firstLetter = letterPrefix.Substring(0, 1).ToUpper();
                 
                 // Get the highest sequence number for this letter from both assessment types
-                int lastNCDNumber = await _context.NCDRiskAssessments
+                var ncdFamilyNos = await _context.NCDRiskAssessments
                     .Where(a => a.FamilyNo != null && a.FamilyNo.StartsWith(firstLetter + "-"))
-                    .Select(a => a.FamilyNo.Substring(2))
+                    .Select(a => a.FamilyNo)
+                    .ToListAsync();
+                
+                int lastNCDNumber = ncdFamilyNos
+                    .Select(fn => fn.Substring(2))
                     .Where(n => n.All(char.IsDigit))
                     .Select(n => int.Parse(n))
                     .DefaultIfEmpty(0)
-                    .MaxAsync();
+                    .Max();
                     
                 int lastHEEADSSSNumber = await _context.HEEADSSSAssessments
                     .Where(a => a.FamilyNo != null && a.FamilyNo.StartsWith(firstLetter + "-"))
@@ -918,6 +978,64 @@ namespace Barangay.Pages.User
                 writer.WriteNumberValue(value.Value);
             else
                 writer.WriteNullValue();
+        }
+    }
+    
+    // Custom JSON converter to handle flexible type conversion for bool properties
+    public class FlexibleBooleanConverter : System.Text.Json.Serialization.JsonConverter<bool>
+    {
+        public override bool Read(ref System.Text.Json.Utf8JsonReader reader, Type typeToConvert, System.Text.Json.JsonSerializerOptions options)
+        {
+            if (reader.TokenType == System.Text.Json.JsonTokenType.True)
+            {
+                return true;
+            }
+            else if (reader.TokenType == System.Text.Json.JsonTokenType.False)
+            {
+                return false;
+            }
+            else if (reader.TokenType == System.Text.Json.JsonTokenType.String)
+            {
+                var stringValue = reader.GetString();
+                if (string.IsNullOrEmpty(stringValue))
+                    return false;
+                
+                // Handle various string representations of boolean values
+                if (string.Equals(stringValue, "true", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(stringValue, "1", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(stringValue, "yes", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(stringValue, "on", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+                else if (string.Equals(stringValue, "false", StringComparison.OrdinalIgnoreCase) ||
+                         string.Equals(stringValue, "0", StringComparison.OrdinalIgnoreCase) ||
+                         string.Equals(stringValue, "no", StringComparison.OrdinalIgnoreCase) ||
+                         string.Equals(stringValue, "off", StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+                
+                // If it's a non-empty string that doesn't match boolean patterns, treat as true
+                return !string.IsNullOrWhiteSpace(stringValue);
+            }
+            else if (reader.TokenType == System.Text.Json.JsonTokenType.Number)
+            {
+                return reader.GetInt32() != 0;
+            }
+            else if (reader.TokenType == System.Text.Json.JsonTokenType.Null)
+            {
+                return false;
+            }
+            else
+            {
+                throw new System.Text.Json.JsonException($"Cannot convert {reader.TokenType} to boolean");
+            }
+        }
+
+        public override void Write(System.Text.Json.Utf8JsonWriter writer, bool value, System.Text.Json.JsonSerializerOptions options)
+        {
+            writer.WriteBooleanValue(value);
         }
     }
 }

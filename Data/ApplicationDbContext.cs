@@ -421,6 +421,38 @@ namespace Barangay.Data
 
             builder.Entity<UrlToken>()
                 .HasIndex(ut => ut.IsUsed);
+
+            // Configure HEEADSSSAssessment encrypted columns to use NVARCHAR(MAX)
+            builder.Entity<HEEADSSSAssessment>(entity =>
+            {
+                entity.Property(e => e.Is4Ps)
+                    .HasColumnType("nvarchar(max)");
+                    
+                entity.Property(e => e.IsNHPTS)
+                    .HasColumnType("nvarchar(max)");
+                    
+                entity.Property(e => e.IsPhilHealthBeneficiaryOnly)
+                    .HasColumnType("nvarchar(max)");
+                    
+                entity.Property(e => e.IsOwnPhilHealth)
+                    .HasColumnType("nvarchar(max)");
+                    
+                entity.Property(e => e.PhilHealthPIN)
+                    .HasColumnType("nvarchar(max)");
+
+                // Configure other encrypted fields that might have size issues
+                entity.Property(e => e.FullName)
+                    .HasColumnType("nvarchar(max)");
+                    
+                entity.Property(e => e.AppointmentId)
+                    .HasColumnType("nvarchar(max)");
+                    
+                entity.Property(e => e.HealthFacility)
+                    .HasColumnType("nvarchar(max)");
+                    
+                entity.Property(e => e.FamilyNo)
+                    .HasColumnType("nvarchar(max)");
+            });
         }
     }
 }

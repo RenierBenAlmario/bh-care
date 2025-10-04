@@ -167,9 +167,8 @@ namespace Barangay.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("BirthDate")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime?>("BirthDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("CivilStatus")
                         .HasColumnType("nvarchar(max)");
@@ -704,6 +703,55 @@ namespace Barangay.Migrations
                     b.ToTable("DoctorAvailabilities");
                 });
 
+            modelBuilder.Entity("Barangay.Models.EmailSuspension", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<int>("FailureCount")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("LastFailureDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("SuspensionEndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("SuspensionLevel")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("SuspensionReason")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("SuspensionStartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EmailSuspensions");
+                });
+
             modelBuilder.Entity("Barangay.Models.EmailVerification", b =>
                 {
                     b.Property<int>("Id")
@@ -984,6 +1032,9 @@ namespace Barangay.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("ActivitiesInternetGadgetUse")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ActivitiesParticipation")
                         .HasColumnType("nvarchar(max)");
 
@@ -1011,8 +1062,8 @@ namespace Barangay.Migrations
                     b.Property<string>("AssessmentNotes")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("AttendanceIssues")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool?>("AttendanceIssues")
+                        .HasColumnType("bit");
 
                     b.Property<string>("BMI")
                         .HasColumnType("nvarchar(max)");
@@ -1059,22 +1110,40 @@ namespace Barangay.Migrations
                     b.Property<string>("DrugsIllicitDrugUse")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("DrugsStreetDrugs")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("DrugsTobaccoUse")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("EatingBodyImageSatisfaction")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("EatingDisorderSymptoms")
+                    b.Property<string>("EatingDietPills")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool?>("EatingDisorderSymptoms")
+                        .HasColumnType("bit");
+
                     b.Property<string>("EatingDisorderedEatingBehaviors")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EatingLaxatives")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EatingStarvation")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EatingVomiting")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("EatingWeightComments")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("EducationBullying")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EducationBullyingExperience")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("EducationCurrentlyStudying")
@@ -1089,8 +1158,8 @@ namespace Barangay.Migrations
                     b.Property<string>("EducationWorking")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ExperiencedBullying")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool?>("ExperiencedBullying")
+                        .HasColumnType("bit");
 
                     b.Property<string>("FamilyHistory")
                         .HasColumnType("nvarchar(max)");
@@ -1101,11 +1170,11 @@ namespace Barangay.Migrations
                     b.Property<string>("FamilyRelationship")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("FeelsSafeAtHome")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool?>("FeelsSafeAtHome")
+                        .HasColumnType("bit");
 
-                    b.Property<string>("FeelsSafeAtSchool")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool?>("FeelsSafeAtSchool")
+                        .HasColumnType("bit");
 
                     b.Property<string>("FollowUpDate")
                         .HasColumnType("nvarchar(max)");
@@ -1146,6 +1215,9 @@ namespace Barangay.Migrations
                     b.Property<string>("HomeParentalListening")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("HomeRunawayThoughts")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ImmunizationHPV")
                         .HasColumnType("nvarchar(max)");
 
@@ -1155,11 +1227,23 @@ namespace Barangay.Migrations
                     b.Property<string>("ImmunizationTd")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Is4Ps")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IsNHPTS")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IsOwnPhilHealth")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IsPhilHealthBeneficiaryOnly")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Management")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("MoodChanges")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool?>("MoodChanges")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
@@ -1173,6 +1257,9 @@ namespace Barangay.Migrations
                     b.Property<string>("PersonalStrengths")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("PhilHealthPIN")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("PhysicalActivity")
                         .HasColumnType("nvarchar(max)");
 
@@ -1183,6 +1270,9 @@ namespace Barangay.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RecommendedActions")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReferredBy")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ReferredTo")
@@ -1200,22 +1290,31 @@ namespace Barangay.Migrations
                     b.Property<string>("SafetyRelationshipViolence")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("SafetyWeaponAccess")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("SchoolPerformance")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ScreenTime")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("SelfHarmBehavior")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool?>("SelfHarmBehavior")
+                        .HasColumnType("bit");
 
-                    b.Property<string>("SexualActivity")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool?>("SexualActivity")
+                        .HasColumnType("bit");
 
                     b.Property<string>("SexualOrientation")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("SexualityBisexual")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("SexualityBodyConcerns")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SexualityGay")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SexualityHarassment")
@@ -1225,6 +1324,9 @@ namespace Barangay.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SexualityIntimateRelationships")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SexualityLesbian")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SexualityPartners")
@@ -1257,11 +1359,11 @@ namespace Barangay.Migrations
                     b.Property<string>("SubstanceType")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("SubstanceUse")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool?>("SubstanceUse")
+                        .HasColumnType("bit");
 
-                    b.Property<string>("SuicidalThoughts")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool?>("SuicidalThoughts")
+                        .HasColumnType("bit");
 
                     b.Property<string>("SuicideDepressionFeelings")
                         .HasColumnType("nvarchar(max)");
@@ -1296,8 +1398,8 @@ namespace Barangay.Migrations
                     b.Property<string>("Weight")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("WeightConcerns")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool?>("WeightConcerns")
+                        .HasColumnType("bit");
 
                     b.Property<string>("WorkingDiagnosis")
                         .HasColumnType("nvarchar(max)");
@@ -2028,6 +2130,18 @@ namespace Barangay.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<string>("AlchoholTypeBeer")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("AlchoholTypeWhisky")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("AlchoholTypeWine")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
                     b.Property<string>("AlcoholAmount1Bottle320ml")
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
@@ -2064,6 +2178,18 @@ namespace Barangay.Migrations
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
 
+                    b.Property<string>("AlcoholInom")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("AlcoholOkasyon")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("AlcoholPerOccasion")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
                     b.Property<string>("AlcoholStoppedDuration")
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
@@ -2096,6 +2222,18 @@ namespace Barangay.Migrations
                         .HasColumnType("nvarchar(4000)");
 
                     b.Property<string>("BaselineBP")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("BeerConsumption1")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("BeerConsumption2")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("BeerConsumption3")
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
 
@@ -2164,6 +2302,11 @@ namespace Barangay.Migrations
                         .HasColumnType("nvarchar(4000)");
 
                     b.Property<string>("CreatedAt")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("DateAssessment")
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
 
@@ -2232,6 +2375,18 @@ namespace Barangay.Migrations
                         .HasColumnType("nvarchar(4000)");
 
                     b.Property<string>("Edad")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("EhersisyoDuration")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("EhersisyoRegular")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("EhersisyoType")
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
 
@@ -2427,6 +2582,10 @@ namespace Barangay.Migrations
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
 
+                    b.Property<string>("HasEyeDiseaseCondition")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
                     b.Property<string>("HasHighSaltIntake")
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
@@ -2440,6 +2599,10 @@ namespace Barangay.Migrations
                         .HasColumnType("nvarchar(4000)");
 
                     b.Property<string>("HasLungDisease")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("HasLungDiseaseNonInfectious")
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
 
@@ -2463,6 +2626,10 @@ namespace Barangay.Migrations
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
 
+                    b.Property<string>("HasStrokeSymptoms")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
                     b.Property<string>("HasUnhealthyDiet")
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
@@ -2480,6 +2647,10 @@ namespace Barangay.Migrations
                         .HasColumnType("nvarchar(4000)");
 
                     b.Property<string>("HealthFacility")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("HealthFacilityName")
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
 
@@ -2563,6 +2734,30 @@ namespace Barangay.Migrations
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
 
+                    b.Property<string>("NutrisyonKumakainMamantika")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("NutrisyonKumakainMatatamis")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("NutrisyonMadalasGulay")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("NutrisyonMadalasIsda")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("NutrisyonMadalasKarne")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("NutrisyonMadalasPratas")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
                     b.Property<string>("Occupation")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
@@ -2572,6 +2767,38 @@ namespace Barangay.Migrations
                         .HasColumnType("nvarchar(4000)");
 
                     b.Property<string>("PainRelievedWithRest")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("Pananakit21")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("Pananakit22")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("Pananakit23")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("Pananakit24")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("Pananakit25")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("Pananakit26")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("Pananakit27")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("Pananakit28")
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
 
@@ -2603,6 +2830,22 @@ namespace Barangay.Migrations
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
 
+                    b.Property<string>("SigarilyoKadami")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("SigarilyoSticks")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("SigarilyoTumigil")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("SigarilyoUsok")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
                     b.Property<string>("Smoked100Sticks")
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
@@ -2611,11 +2854,24 @@ namespace Barangay.Migrations
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
 
+                    b.Property<string>("StressEpekto")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("StressMadalas")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("StressSino")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
                     b.Property<string>("Telepono")
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
 
                     b.Property<string>("UpdatedAt")
+                        .IsRequired()
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
 
@@ -2647,6 +2903,22 @@ namespace Barangay.Migrations
                         .HasColumnType("nvarchar(4000)");
 
                     b.Property<string>("Weight")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("WhiskyConsumption1")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("WhiskyConsumption2")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("WineConsumption1")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("WineConsumption2")
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
 

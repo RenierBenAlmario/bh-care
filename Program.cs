@@ -383,33 +383,25 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var appDb = services.GetRequiredService<ApplicationDbContext>();
-        
-        // Check if database can connect and has the expected tables
-        var canConnect = await appDb.Database.CanConnectAsync();
-        if (canConnect)
-        {
-            // Check if AspNetRoles table exists (indicator of Identity tables)
-            var identityTablesExist = await appDb.Database.ExecuteSqlRawAsync(
-                "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'AspNetRoles'") > 0;
-            
-            if (identityTablesExist)
-            {
-                logger.LogInformation("Database schema appears to be up to date. Skipping automatic migrations.");
-            }
-            else
-            {
-                await appDb.Database.MigrateAsync();
-            }
-        }
-        else
+        var pendingApp = await appDb.Database.GetPendingMigrationsAsync();
+        if (pendingApp.Any())
         {
             await appDb.Database.MigrateAsync();
+            logger.LogInformation("Applied {Count} pending migrations for ApplicationDbContext", pendingApp.Count());
         }
 
         var encDb = services.GetRequiredService<EncryptedDbContext>();
-        await encDb.Database.MigrateAsync();
+        var pendingEnc = await encDb.Database.GetPendingMigrationsAsync();
+        if (pendingEnc.Any())
+        {
+            await encDb.Database.MigrateAsync();
+            logger.LogInformation("Applied {Count} pending migrations for EncryptedDbContext", pendingEnc.Count());
+        }
 
-        logger.LogInformation("Database migrations applied successfully for both contexts");
+        if (!pendingApp.Any() && !pendingEnc.Any())
+        {
+            logger.LogInformation("No pending migrations detected at startup");
+        }
     }
     catch (Exception ex)
     {

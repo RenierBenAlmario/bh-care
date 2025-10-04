@@ -120,6 +120,53 @@ namespace Barangay.Pages.User
                     ViewData["PatientBirthdate"] = appointment.DateOfBirth?.ToString("yyyy-MM-dd") ?? DateTime.Today.AddYears(-calculatedAge).ToString("yyyy-MM-dd");
                     
                     _logger.LogInformation($"Using appointment patient info: Name={appointment.PatientName}, CalculatedAge={calculatedAge}, AgeValue={appointment.AgeValue}, DateOfBirth={appointment.DateOfBirth}, Phone={appointment.ContactNumber}");
+                    
+                    // DEBUGGING: Check if there's an existing HEEADSSS assessment for this appointment
+                    _logger.LogInformation("=== CHECKING FOR EXISTING HEEADSSS ASSESSMENT ===");
+                    var existingAssessmentData = await _context.HEEADSSSAssessments
+                        .FirstOrDefaultAsync(a => a.AppointmentId == appointmentId.ToString());
+                    
+                    if (existingAssessmentData != null)
+                    {
+                        _logger.LogInformation("Found existing HEEADSSS assessment with ID: {AssessmentId}", existingAssessmentData.Id);
+                        
+                        // Decrypt the existing assessment data
+                        try
+                        {
+                            existingAssessmentData.DecryptSensitiveData(_encryptionService, User);
+                            _logger.LogInformation("Successfully decrypted existing assessment data");
+                            
+                            // DEBUGGING: Log the decrypted checkbox and radio button values
+                            _logger.LogInformation("=== EXISTING ASSESSMENT DATA (DECRYPTED) ===");
+                            _logger.LogInformation("DRUGS Section:");
+                            _logger.LogInformation("  DrugsTobaccoUse: '{DrugsTobaccoUse}'", existingAssessmentData.DrugsTobaccoUse);
+                            _logger.LogInformation("  DrugsAlcoholUse: '{DrugsAlcoholUse}'", existingAssessmentData.DrugsAlcoholUse);
+                            _logger.LogInformation("  DrugsStreetDrugs: '{DrugsStreetDrugs}'", existingAssessmentData.DrugsStreetDrugs);
+                            
+                            _logger.LogInformation("SEXUALITY Section:");
+                            _logger.LogInformation("  SexualityIntimateRelationships: '{SexualityIntimateRelationships}'", existingAssessmentData.SexualityIntimateRelationships);
+                            _logger.LogInformation("  SexualityPregnancyExperience: '{SexualityPregnancyExperience}'", existingAssessmentData.SexualityPregnancyExperience);
+                            _logger.LogInformation("  SexualitySTIExperience: '{SexualitySTIExperience}'", existingAssessmentData.SexualitySTIExperience);
+                            _logger.LogInformation("  SexualityProtectionUse: '{SexualityProtectionUse}'", existingAssessmentData.SexualityProtectionUse);
+                            
+                            _logger.LogInformation("SEXUALITY Checkboxes:");
+                            _logger.LogInformation("  SexualityGay: '{SexualityGay}'", existingAssessmentData.SexualityGay);
+                            _logger.LogInformation("  SexualityLesbian: '{SexualityLesbian}'", existingAssessmentData.SexualityLesbian);
+                            _logger.LogInformation("  SexualityBisexual: '{SexualityBisexual}'", existingAssessmentData.SexualityBisexual);
+                            
+                            // Store the existing assessment for use in the form
+                            ViewData["ExistingAssessment"] = existingAssessmentData;
+                            _logger.LogInformation("Stored existing assessment in ViewData for form binding");
+                        }
+                        catch (Exception decryptEx)
+                        {
+                            _logger.LogError(decryptEx, "Failed to decrypt existing assessment data");
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogInformation("No existing HEEADSSS assessment found for appointment ID: {AppointmentId}", appointmentId);
+                    }
                 }
                 else
                 {
@@ -147,14 +194,155 @@ namespace Barangay.Pages.User
                 Assessment = new HEEADSSSAssessmentViewModel();
             }
             
-            // Always set these required fields
-            Assessment.UserId = user.Id;
-            Assessment.HealthFacility = HealthFacility;
-            Assessment.FamilyNo = FamilyNo;
-            Assessment.AppointmentId = AppointmentId;
-            Assessment.Age = (ViewData["PatientAge"] as int? ?? 19).ToString(); // Use patient age from appointment
-            Assessment.Birthday = DateTime.Parse(ViewData["PatientBirthdate"] as string ?? DateTime.Today.AddYears(-19).ToString("yyyy-MM-dd")); // Use patient birthdate from appointment
-            Assessment.FullName = ViewData["PatientName"] as string ?? user.FullName; // Use patient name from appointment
+            // Check if we have an existing assessment to populate the form
+            var existingAssessmentFromViewData = ViewData["ExistingAssessment"] as HEEADSSSAssessment;
+            if (existingAssessmentFromViewData != null)
+            {
+                _logger.LogInformation("=== POPULATING FORM WITH EXISTING ASSESSMENT DATA ===");
+                
+                // Map existing assessment data to the view model
+                Assessment.UserId = existingAssessmentFromViewData.UserId ?? user.Id;
+                Assessment.HealthFacility = existingAssessmentFromViewData.HealthFacility ?? HealthFacility;
+                Assessment.FamilyNo = existingAssessmentFromViewData.FamilyNo ?? FamilyNo;
+                Assessment.AppointmentId = existingAssessmentFromViewData.AppointmentId != null ? int.Parse(existingAssessmentFromViewData.AppointmentId) : AppointmentId;
+                Assessment.Age = existingAssessmentFromViewData.Age ?? (ViewData["PatientAge"] as int? ?? 19).ToString();
+                Assessment.Birthday = existingAssessmentFromViewData.Birthday ?? DateTime.Parse(ViewData["PatientBirthdate"] as string ?? DateTime.Today.AddYears(-19).ToString("yyyy-MM-dd"));
+                Assessment.FullName = existingAssessmentFromViewData.FullName ?? ViewData["PatientName"] as string ?? user.FullName;
+                Assessment.Gender = existingAssessmentFromViewData.Gender;
+                Assessment.Address = existingAssessmentFromViewData.Address;
+                Assessment.ContactNumber = existingAssessmentFromViewData.ContactNumber;
+                Assessment.ReferredBy = existingAssessmentFromViewData.ReferredBy;
+                
+                // Map all the HEEADSSS fields
+                Assessment.HomeFamilyProblems = existingAssessmentFromViewData.HomeFamilyProblems;
+                Assessment.HomeParentalListening = existingAssessmentFromViewData.HomeParentalListening;
+                Assessment.HomeRunawayThoughts = existingAssessmentFromViewData.HomeRunawayThoughts;
+                Assessment.HomeParentalBlame = existingAssessmentFromViewData.HomeParentalBlame;
+                Assessment.HomeFamilyChanges = existingAssessmentFromViewData.HomeFamilyChanges;
+                
+                Assessment.EducationCurrentlyStudying = existingAssessmentFromViewData.EducationCurrentlyStudying;
+                Assessment.EducationWorking = existingAssessmentFromViewData.EducationWorking;
+                Assessment.EducationSchoolWorkProblems = existingAssessmentFromViewData.EducationSchoolWorkProblems;
+                Assessment.EducationBullyingExperience = existingAssessmentFromViewData.EducationBullyingExperience;
+                Assessment.EducationBullying = existingAssessmentFromViewData.EducationBullying;
+                
+                Assessment.EatingBodyImageSatisfaction = existingAssessmentFromViewData.EatingBodyImageSatisfaction;
+                Assessment.EatingDisorderedEatingBehaviors = existingAssessmentFromViewData.EatingDisorderedEatingBehaviors;
+                Assessment.EatingWeightComments = existingAssessmentFromViewData.EatingWeightComments;
+                
+                Assessment.ActivitiesParticipation = existingAssessmentFromViewData.ActivitiesParticipation;
+                Assessment.ActivitiesRegularExercise = existingAssessmentFromViewData.ActivitiesRegularExercise;
+                Assessment.ActivitiesInternetGadgetUse = existingAssessmentFromViewData.ActivitiesInternetGadgetUse;
+                Assessment.ActivitiesScreenTime = existingAssessmentFromViewData.ActivitiesScreenTime;
+                
+                // Map checkbox and radio button values
+                Assessment.DrugsTobaccoUse = existingAssessmentFromViewData.DrugsTobaccoUse;
+                Assessment.DrugsAlcoholUse = existingAssessmentFromViewData.DrugsAlcoholUse;
+                Assessment.DrugsStreetDrugs = existingAssessmentFromViewData.DrugsStreetDrugs;
+                
+                Assessment.SexualityHealthConcerns = existingAssessmentFromViewData.SexualityHealthConcerns;
+                Assessment.SexualityIntimateRelationships = existingAssessmentFromViewData.SexualityIntimateRelationships;
+                Assessment.SexualityPartnersCount = existingAssessmentFromViewData.SexualityPartnersCount;
+                Assessment.SexualityPregnancyExperience = existingAssessmentFromViewData.SexualityPregnancyExperience;
+                Assessment.SexualitySTIExperience = existingAssessmentFromViewData.SexualitySTIExperience;
+                Assessment.SexualityProtectionUse = existingAssessmentFromViewData.SexualityProtectionUse;
+                
+                Assessment.SexualityGay = existingAssessmentFromViewData.SexualityGay;
+                Assessment.SexualityLesbian = existingAssessmentFromViewData.SexualityLesbian;
+                Assessment.SexualityBisexual = existingAssessmentFromViewData.SexualityBisexual;
+                
+                Assessment.SafetyPhysicalAbuse = existingAssessmentFromViewData.SafetyPhysicalAbuse;
+                Assessment.SafetyRelationshipViolence = existingAssessmentFromViewData.SafetyRelationshipViolence;
+                Assessment.SafetyProtectiveGear = existingAssessmentFromViewData.SafetyProtectiveGear;
+                Assessment.SafetyWeaponAccess = existingAssessmentFromViewData.SafetyWeaponAccess;
+                Assessment.SafetyGunsAtHome = existingAssessmentFromViewData.SafetyGunsAtHome;
+                
+                Assessment.SuicideDepressionFeelings = existingAssessmentFromViewData.SuicideDepressionFeelings;
+                Assessment.SuicideSelfHarmThoughts = existingAssessmentFromViewData.SuicideSelfHarmThoughts;
+                Assessment.SuicideFamilyHistory = existingAssessmentFromViewData.SuicideFamilyHistory;
+                
+                Assessment.Notes = existingAssessmentFromViewData.Notes;
+                Assessment.AssessedBy = existingAssessmentFromViewData.AssessedBy;
+                
+                // Map new fields from Nurse form
+                Assessment.Height = existingAssessmentFromViewData.Height;
+                Assessment.Weight = existingAssessmentFromViewData.Weight;
+                Assessment.BMI = existingAssessmentFromViewData.BMI;
+                Assessment.BMIUnderweight = existingAssessmentFromViewData.BMIUnderweight?.ToString() == "True" ? "True" : "False";
+                Assessment.BMINormal = existingAssessmentFromViewData.BMINormal?.ToString() == "True" ? "True" : "False";
+                Assessment.BMIOverweight = existingAssessmentFromViewData.BMIOverweight?.ToString() == "True" ? "True" : "False";
+                Assessment.BMIObese = existingAssessmentFromViewData.BMIObese?.ToString() == "True" ? "True" : "False";
+                
+                Assessment.ImmunizationMR = existingAssessmentFromViewData.ImmunizationMR;
+                Assessment.ImmunizationTd = existingAssessmentFromViewData.ImmunizationTd;
+                Assessment.ImmunizationHPV = existingAssessmentFromViewData.ImmunizationHPV;
+                
+                Assessment.DateOfMenarche = existingAssessmentFromViewData.DateOfMenarche;
+                Assessment.AgeOfFirstPregnancy = existingAssessmentFromViewData.AgeOfFirstPregnancy;
+                Assessment.OBScore = existingAssessmentFromViewData.OBScore;
+                
+                Assessment.VitalTemp = existingAssessmentFromViewData.VitalTemp;
+                Assessment.VitalRR = existingAssessmentFromViewData.VitalRR;
+                Assessment.VitalPR = existingAssessmentFromViewData.VitalPR;
+                Assessment.VitalBP = existingAssessmentFromViewData.VitalBP;
+                
+                Assessment.ChiefComplaint = existingAssessmentFromViewData.ChiefComplaint;
+                Assessment.HistoryOfPresentIllness = existingAssessmentFromViewData.HistoryOfPresentIllness;
+                Assessment.PhysicalExaminationFindings = existingAssessmentFromViewData.PhysicalExaminationFindings;
+                Assessment.PastMedicalHistory = existingAssessmentFromViewData.PastMedicalHistory;
+                Assessment.WorkingDiagnosis = existingAssessmentFromViewData.WorkingDiagnosis;
+                Assessment.Management = existingAssessmentFromViewData.Management;
+                Assessment.FamilyHistory = existingAssessmentFromViewData.FamilyHistory;
+                
+                Assessment.ReferredTo = existingAssessmentFromViewData.ReferredTo;
+                Assessment.ReasonForReferral = existingAssessmentFromViewData.ReasonForReferral;
+                Assessment.FollowUpDate = existingAssessmentFromViewData.FollowUpDate;
+                
+                // Map eating habits fields
+                if (!string.IsNullOrEmpty(existingAssessmentFromViewData.EatingVomiting) && _encryptionService.IsEncrypted(existingAssessmentFromViewData.EatingVomiting))
+                {
+                    existingAssessmentFromViewData.EatingVomiting = _encryptionService.DecryptForUser(existingAssessmentFromViewData.EatingVomiting, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessmentFromViewData.EatingDietPills) && _encryptionService.IsEncrypted(existingAssessmentFromViewData.EatingDietPills))
+                {
+                    existingAssessmentFromViewData.EatingDietPills = _encryptionService.DecryptForUser(existingAssessmentFromViewData.EatingDietPills, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessmentFromViewData.EatingLaxatives) && _encryptionService.IsEncrypted(existingAssessmentFromViewData.EatingLaxatives))
+                {
+                    existingAssessmentFromViewData.EatingLaxatives = _encryptionService.DecryptForUser(existingAssessmentFromViewData.EatingLaxatives, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessmentFromViewData.EatingStarvation) && _encryptionService.IsEncrypted(existingAssessmentFromViewData.EatingStarvation))
+                {
+                    existingAssessmentFromViewData.EatingStarvation = _encryptionService.DecryptForUser(existingAssessmentFromViewData.EatingStarvation, User);
+                }
+                Assessment.EatingVomiting = existingAssessmentFromViewData.EatingVomiting;
+                Assessment.EatingDietPills = existingAssessmentFromViewData.EatingDietPills;
+                Assessment.EatingLaxatives = existingAssessmentFromViewData.EatingLaxatives;
+                Assessment.EatingStarvation = existingAssessmentFromViewData.EatingStarvation;
+                
+                Assessment.SexualityHarassment = existingAssessmentFromViewData.SexualityHarassment;
+                
+                _logger.LogInformation("Successfully populated form with existing assessment data");
+                _logger.LogInformation("DRUGS values - Tobacco: '{Tobacco}', Alcohol: '{Alcohol}', Street: '{Street}'", 
+                    Assessment.DrugsTobaccoUse, Assessment.DrugsAlcoholUse, Assessment.DrugsStreetDrugs);
+                _logger.LogInformation("SEXUALITY values - Intimate: '{Intimate}', Pregnancy: '{Pregnancy}', STI: '{STI}', Protection: '{Protection}'", 
+                    Assessment.SexualityIntimateRelationships, Assessment.SexualityPregnancyExperience, Assessment.SexualitySTIExperience, Assessment.SexualityProtectionUse);
+                _logger.LogInformation("SEXUALITY checkboxes - Gay: '{Gay}', Lesbian: '{Lesbian}', Bisexual: '{Bisexual}'", 
+                    Assessment.SexualityGay, Assessment.SexualityLesbian, Assessment.SexualityBisexual);
+            }
+            else
+            {
+                // Always set these required fields for new assessments
+                Assessment.UserId = user.Id;
+                Assessment.HealthFacility = HealthFacility;
+                Assessment.FamilyNo = FamilyNo;
+                Assessment.AppointmentId = AppointmentId;
+                Assessment.Age = (ViewData["PatientAge"] as int? ?? 19).ToString(); // Use patient age from appointment
+                Assessment.Birthday = DateTime.Parse(ViewData["PatientBirthdate"] as string ?? DateTime.Today.AddYears(-19).ToString("yyyy-MM-dd")); // Use patient birthdate from appointment
+                Assessment.FullName = ViewData["PatientName"] as string ?? user.FullName; // Use patient name from appointment
+                
+                _logger.LogInformation("No existing assessment found, using default values");
+            }
             
             _logger.LogInformation("OnGetAsync - Assessment initialized with UserId={UserId}, HealthFacility={HealthFacility}, FamilyNo={FamilyNo}, AppointmentId={AppointmentId}, Age={Age}",
                 Assessment.UserId, Assessment.HealthFacility, Assessment.FamilyNo, Assessment.AppointmentId, Assessment.Age);
@@ -166,15 +354,86 @@ namespace Barangay.Pages.User
         {
             try
             {
-                _logger.LogInformation("Starting HEEADSSS assessment submission");
+                _logger.LogInformation("=== HEEADSSS ASSESSMENT SUBMISSION DEBUGGING STARTED ===");
                 _logger.LogInformation("Request method: {Method}, Content-Type: {ContentType}", Request.Method, Request.ContentType);
                 
                 // Log all form values to help diagnose issues
-                _logger.LogInformation("Form values received:");
+                _logger.LogInformation("=== ALL FORM VALUES RECEIVED ===");
                 foreach (var key in Request.Form.Keys)
                 {
                     _logger.LogInformation("- {Key}: {Value}", key, Request.Form[key].ToString());
                 }
+                
+                // DEBUGGING: Log specific HEEADSSS sections
+                _logger.LogInformation("=== HEEADSSS SECTION-SPECIFIC DEBUGGING ===");
+                
+                // HOME section debugging
+                _logger.LogInformation("HOME Section:");
+                _logger.LogInformation("  HomeFamilyProblems: '{HomeFamilyProblems}'", Request.Form["Assessment.HomeFamilyProblems"].ToString());
+                _logger.LogInformation("  HomeParentalListening: '{HomeParentalListening}'", Request.Form["Assessment.HomeParentalListening"].ToString());
+                _logger.LogInformation("  HomeRunawayThoughts: '{HomeRunawayThoughts}'", Request.Form["Assessment.HomeRunawayThoughts"].ToString());
+                _logger.LogInformation("  HomeFamilyChanges: '{HomeFamilyChanges}'", Request.Form["Assessment.HomeFamilyChanges"].ToString());
+                
+                // EDUCATION section debugging
+                _logger.LogInformation("EDUCATION Section:");
+                _logger.LogInformation("  EducationCurrentlyStudying: '{EducationCurrentlyStudying}'", Request.Form["Assessment.EducationCurrentlyStudying"].ToString());
+                _logger.LogInformation("  EducationWorking: '{EducationWorking}'", Request.Form["Assessment.EducationWorking"].ToString());
+                _logger.LogInformation("  EducationSchoolWorkProblems: '{EducationSchoolWorkProblems}'", Request.Form["Assessment.EducationSchoolWorkProblems"].ToString());
+                _logger.LogInformation("  EducationBullyingExperience: '{EducationBullyingExperience}'", Request.Form["Assessment.EducationBullyingExperience"].ToString());
+                
+                // EATING HABITS section debugging
+                _logger.LogInformation("EATING HABITS Section:");
+                _logger.LogInformation("  EatingBodyImageSatisfaction: '{EatingBodyImageSatisfaction}'", Request.Form["Assessment.EatingBodyImageSatisfaction"].ToString());
+                _logger.LogInformation("  EatingDisorderedEatingBehaviors: '{EatingDisorderedEatingBehaviors}'", Request.Form["Assessment.EatingDisorderedEatingBehaviors"].ToString());
+                _logger.LogInformation("  EatingWeightComments: '{EatingWeightComments}'", Request.Form["Assessment.EatingWeightComments"].ToString());
+                
+                // ACTIVITIES section debugging
+                _logger.LogInformation("ACTIVITIES Section:");
+                _logger.LogInformation("  ActivitiesParticipation: '{ActivitiesParticipation}'", Request.Form["Assessment.ActivitiesParticipation"].ToString());
+                _logger.LogInformation("  ActivitiesRegularExercise: '{ActivitiesRegularExercise}'", Request.Form["Assessment.ActivitiesRegularExercise"].ToString());
+                _logger.LogInformation("  ActivitiesInternetGadgetUse: '{ActivitiesInternetGadgetUse}'", Request.Form["Assessment.ActivitiesInternetGadgetUse"].ToString());
+                
+                // DRUGS section debugging (checkboxes)
+                _logger.LogInformation("DRUGS Section (Checkboxes):");
+                _logger.LogInformation("  DrugsTobaccoUse: '{DrugsTobaccoUse}'", Request.Form["Assessment.DrugsTobaccoUse"].ToString());
+                _logger.LogInformation("  DrugsAlcoholUse: '{DrugsAlcoholUse}'", Request.Form["Assessment.DrugsAlcoholUse"].ToString());
+                _logger.LogInformation("  DrugsStreetDrugs: '{DrugsStreetDrugs}'", Request.Form["Assessment.DrugsStreetDrugs"].ToString());
+                
+                // SEXUALITY section debugging
+                _logger.LogInformation("SEXUALITY Section:");
+                _logger.LogInformation("  SexualityHealthConcerns: '{SexualityHealthConcerns}'", Request.Form["Assessment.SexualityHealthConcerns"].ToString());
+                _logger.LogInformation("  SexualityPartnersCount: '{SexualityPartnersCount}'", Request.Form["Assessment.SexualityPartnersCount"].ToString());
+                
+                // SEXUALITY radio buttons debugging
+                _logger.LogInformation("SEXUALITY Radio Buttons:");
+                _logger.LogInformation("  SexualityIntimateRelationships: '{SexualityIntimateRelationships}'", Request.Form["SexualityIntimateRelationships"].ToString());
+                _logger.LogInformation("  SexualityPregnancyExperience: '{SexualityPregnancyExperience}'", Request.Form["SexualityPregnancyExperience"].ToString());
+                _logger.LogInformation("  SexualitySTIExperience: '{SexualitySTIExperience}'", Request.Form["SexualitySTIExperience"].ToString());
+                _logger.LogInformation("  SexualityProtectionUse: '{SexualityProtectionUse}'", Request.Form["SexualityProtectionUse"].ToString());
+                
+                // SEXUALITY checkboxes debugging
+                _logger.LogInformation("SEXUALITY Checkboxes:");
+                _logger.LogInformation("  SexualityGay: '{SexualityGay}'", Request.Form["Assessment.SexualityGay"].ToString());
+                _logger.LogInformation("  SexualityLesbian: '{SexualityLesbian}'", Request.Form["Assessment.SexualityLesbian"].ToString());
+                _logger.LogInformation("  SexualityBisexual: '{SexualityBisexual}'", Request.Form["Assessment.SexualityBisexual"].ToString());
+                
+                // SAFETY section debugging
+                _logger.LogInformation("SAFETY Section:");
+                _logger.LogInformation("  SafetyPhysicalAbuse: '{SafetyPhysicalAbuse}'", Request.Form["Assessment.SafetyPhysicalAbuse"].ToString());
+                _logger.LogInformation("  SafetyRelationshipViolence: '{SafetyRelationshipViolence}'", Request.Form["Assessment.SafetyRelationshipViolence"].ToString());
+                _logger.LogInformation("  SafetyProtectiveGear: '{SafetyProtectiveGear}'", Request.Form["Assessment.SafetyProtectiveGear"].ToString());
+                _logger.LogInformation("  SafetyWeaponAccess: '{SafetyWeaponAccess}'", Request.Form["Assessment.SafetyWeaponAccess"].ToString());
+                
+                // SUICIDE/DEPRESSION section debugging
+                _logger.LogInformation("SUICIDE/DEPRESSION Section:");
+                _logger.LogInformation("  SuicideDepressionFeelings: '{SuicideDepressionFeelings}'", Request.Form["Assessment.SuicideDepressionFeelings"].ToString());
+                _logger.LogInformation("  SuicideSelfHarmThoughts: '{SuicideSelfHarmThoughts}'", Request.Form["Assessment.SuicideSelfHarmThoughts"].ToString());
+                _logger.LogInformation("  SuicideFamilyHistory: '{SuicideFamilyHistory}'", Request.Form["Assessment.SuicideFamilyHistory"].ToString());
+                
+                // Notes and Assessment fields debugging
+                _logger.LogInformation("Notes and Assessment Fields:");
+                _logger.LogInformation("  Notes: '{Notes}'", Request.Form["Assessment.Notes"].ToString());
+                _logger.LogInformation("  AssessedBy: '{AssessedBy}'", Request.Form["Assessment.AssessedBy"].ToString());
                 
                 // Log specific important fields
                 _logger.LogInformation("Key form fields - UserId: '{UserId}', HealthFacility: '{HealthFacility}', FamilyNo: '{FamilyNo}', AppointmentId: '{AppointmentId}', FullName: '{FullName}'",
@@ -198,7 +457,7 @@ namespace Barangay.Pages.User
                 string familyNo = Request.Form["FamilyNo"].ToString();
                 
                 // Get appointmentId if provided
-                string appointmentId = null;
+                string? appointmentId = null;
                 var appointmentIdFormValue = Request.Form["Assessment.AppointmentId"].ToString();
                 _logger.LogInformation("Received AppointmentId from form: '{AppointmentIdFormValue}'", appointmentIdFormValue);
                 
@@ -337,6 +596,7 @@ namespace Barangay.Pages.User
                     FamilyHistory = GetFormValueOrDefault("Assessment.FamilyHistory"),
                     
                     // Referral information
+                    ReferredBy = GetFormValueOrDefault("Assessment.ReferredBy"),
                     ReferredTo = GetFormValueOrDefault("Assessment.ReferredTo"),
                     ReasonForReferral = GetFormValueOrDefault("Assessment.ReasonForReferral"),
                     FollowUpDate = GetFormValueOrDefault("Assessment.FollowUpDate"),
@@ -346,6 +606,7 @@ namespace Barangay.Pages.User
                     HomeParentalListening = GetFormValueOrDefault("Assessment.HomeParentalListening"),
                     HomeParentalBlame = GetFormValueOrDefault("Assessment.HomeParentalBlame"),
                     HomeFamilyChanges = GetFormValueOrDefault("Assessment.HomeFamilyChanges"),
+                    HomeRunawayThoughts = GetFormValueOrDefault("Assessment.HomeRunawayThoughts"),
                     HomeEnvironment = GetFormValueOrDefault("Assessment.HomeEnvironment", "Not assessed"),
                     FamilyRelationship = GetFormValueOrDefault("Assessment.FamilyRelationship", "Not assessed"),
                     
@@ -353,6 +614,7 @@ namespace Barangay.Pages.User
                     EducationWorking = GetFormValueOrDefault("Assessment.EducationWorking"),
                     EducationSchoolWorkProblems = GetFormValueOrDefault("Assessment.EducationSchoolWorkProblems"),
                     EducationBullying = GetFormValueOrDefault("Assessment.EducationBullying"),
+                    EducationBullyingExperience = GetFormValueOrDefault("Assessment.EducationBullyingExperience"),
                     SchoolPerformance = GetFormValueOrDefault("Assessment.SchoolPerformance", "Not assessed"),
                     AttendanceIssues = GetFormBooleanValueOrDefault("Assessment.AttendanceIssues"),
                     CareerPlans = GetFormValueOrDefault("Assessment.CareerPlans", "Not assessed"),
@@ -368,6 +630,7 @@ namespace Barangay.Pages.User
                     ActivitiesParticipation = GetFormValueOrDefault("Assessment.ActivitiesParticipation"),
                     ActivitiesRegularExercise = GetFormValueOrDefault("Assessment.ActivitiesRegularExercise"),
                     ActivitiesScreenTime = GetFormValueOrDefault("Assessment.ActivitiesScreenTime"),
+                    ActivitiesInternetGadgetUse = GetFormValueOrDefault("Assessment.ActivitiesInternetGadgetUse"),
                     Hobbies = GetFormValueOrDefault("Assessment.Hobbies", "Not assessed"),
                     PhysicalActivity = GetFormValueOrDefault("Assessment.PhysicalActivity", "Not assessed"),
                     ScreenTime = GetFormValueOrDefault("Assessment.ScreenTime", "Not assessed"),
@@ -375,6 +638,7 @@ namespace Barangay.Pages.User
                     DrugsTobaccoUse = GetFormValueOrDefault("Assessment.DrugsTobaccoUse"),
                     DrugsAlcoholUse = GetFormValueOrDefault("Assessment.DrugsAlcoholUse"),
                     DrugsIllicitDrugUse = GetFormValueOrDefault("Assessment.DrugsIllicitDrugUse"),
+                    DrugsStreetDrugs = GetFormValueOrDefault("Assessment.DrugsStreetDrugs"),
                     SubstanceUse = GetFormBooleanValueOrDefault("Assessment.SubstanceUse"),
                     SubstanceType = GetFormValueOrDefault("Assessment.SubstanceType", "Not assessed"),
                     
@@ -391,6 +655,9 @@ namespace Barangay.Pages.User
                     SexualitySTIExperience = GetFormValueOrDefault("Assessment.SexualitySTIExperience"),
                     SexualityProtectionUse = GetFormValueOrDefault("Assessment.SexualityProtectionUse"),
                     SexualityHarassment = GetFormValueOrDefault("Assessment.SexualityHarassment"),
+                    SexualityGay = GetFormValueOrDefault("Assessment.SexualityGay"),
+                    SexualityLesbian = GetFormValueOrDefault("Assessment.SexualityLesbian"),
+                    SexualityBisexual = GetFormValueOrDefault("Assessment.SexualityBisexual"),
                     DatingRelationships = GetFormValueOrDefault("Assessment.DatingRelationships", "Not assessed"),
                     SexualActivity = GetFormBooleanValueOrDefault("Assessment.SexualActivity"),
                     SexualOrientation = GetFormValueOrDefault("Assessment.SexualOrientation", "Not assessed"),
@@ -399,6 +666,7 @@ namespace Barangay.Pages.User
                     SafetyRelationshipViolence = GetFormValueOrDefault("Assessment.SafetyRelationshipViolence"),
                     SafetyProtectiveGear = GetFormValueOrDefault("Assessment.SafetyProtectiveGear"),
                     SafetyGunsAtHome = GetFormValueOrDefault("Assessment.SafetyGunsAtHome"),
+                    SafetyWeaponAccess = GetFormValueOrDefault("Assessment.SafetyWeaponAccess"),
                     FeelsSafeAtHome = GetFormBooleanValueOrDefault("Assessment.FeelsSafeAtHome", true),
                     FeelsSafeAtSchool = GetFormBooleanValueOrDefault("Assessment.FeelsSafeAtSchool", true),
                     ExperiencedBullying = GetFormBooleanValueOrDefault("Assessment.ExperiencedBullying"),
@@ -415,6 +683,12 @@ namespace Barangay.Pages.User
                     SupportSystems = GetFormValueOrDefault("Assessment.SupportSystems", "Not assessed"),
                     CopingMechanisms = GetFormValueOrDefault("Assessment.CopingMechanisms", "Not assessed"),
                     
+                    // EATING HABITS fields
+                    EatingVomiting = GetFormValueOrDefault("Assessment.EatingVomiting"),
+                    EatingDietPills = GetFormValueOrDefault("Assessment.EatingDietPills"),
+                    EatingLaxatives = GetFormValueOrDefault("Assessment.EatingLaxatives"),
+                    EatingStarvation = GetFormValueOrDefault("Assessment.EatingStarvation"),
+                    
                     // Non-nullable fields with default values
                     Notes = GetFormValueOrDefault("Assessment.Notes"),
                     AssessedBy = GetFormValueOrDefault("Assessment.AssessedBy"),
@@ -426,17 +700,37 @@ namespace Barangay.Pages.User
                     UpdatedAt = DateTime.UtcNow
                 };
 
-                // Encrypt sensitive data before saving
-                try
-                {
-                    assessment.EncryptSensitiveData(_encryptionService);
-                    _logger.LogInformation("Assessment data encrypted successfully");
-                }
-                catch (Exception encEx)
-                {
-                    _logger.LogError(encEx, "Encryption failed: {Error}", encEx.Message);
-                    return new JsonResult(new { success = false, error = "Data encryption failed. Please try again." });
-                }
+                // DEBUGGING: Log assessment object before saving
+                _logger.LogInformation("=== ASSESSMENT OBJECT BEFORE SAVING ===");
+                _logger.LogInformation("Assessment ID: {Id}", assessment.Id);
+                _logger.LogInformation("UserId: {UserId}", assessment.UserId);
+                _logger.LogInformation("HealthFacility: {HealthFacility}", assessment.HealthFacility);
+                _logger.LogInformation("FamilyNo: {FamilyNo}", assessment.FamilyNo);
+                _logger.LogInformation("AppointmentId: {AppointmentId}", assessment.AppointmentId);
+                _logger.LogInformation("FullName: {FullName}", assessment.FullName);
+                _logger.LogInformation("Age: {Age}", assessment.Age);
+                _logger.LogInformation("Birthday: {Birthday}", assessment.Birthday);
+                
+                // Log HEEADSSS specific fields
+                _logger.LogInformation("=== HEEADSSS FIELDS BEFORE SAVING ===");
+                _logger.LogInformation("HOME - HomeFamilyProblems: '{HomeFamilyProblems}'", assessment.HomeFamilyProblems);
+                _logger.LogInformation("HOME - HomeParentalListening: '{HomeParentalListening}'", assessment.HomeParentalListening);
+                _logger.LogInformation("HOME - HomeFamilyChanges: '{HomeFamilyChanges}'", assessment.HomeFamilyChanges);
+                _logger.LogInformation("EDUCATION - EducationCurrentlyStudying: '{EducationCurrentlyStudying}'", assessment.EducationCurrentlyStudying);
+                _logger.LogInformation("EDUCATION - EducationWorking: '{EducationWorking}'", assessment.EducationWorking);
+                _logger.LogInformation("EATING - EatingBodyImageSatisfaction: '{EatingBodyImageSatisfaction}'", assessment.EatingBodyImageSatisfaction);
+                _logger.LogInformation("ACTIVITIES - ActivitiesParticipation: '{ActivitiesParticipation}'", assessment.ActivitiesParticipation);
+                _logger.LogInformation("DRUGS - DrugsTobaccoUse: '{DrugsTobaccoUse}'", assessment.DrugsTobaccoUse);
+                _logger.LogInformation("DRUGS - DrugsAlcoholUse: '{DrugsAlcoholUse}'", assessment.DrugsAlcoholUse);
+                _logger.LogInformation("SEXUALITY - SexualityHealthConcerns: '{SexualityHealthConcerns}'", assessment.SexualityHealthConcerns);
+                _logger.LogInformation("SEXUALITY - SexualityIntimateRelationships: '{SexualityIntimateRelationships}'", assessment.SexualityIntimateRelationships);
+                _logger.LogInformation("SAFETY - SafetyPhysicalAbuse: '{SafetyPhysicalAbuse}'", assessment.SafetyPhysicalAbuse);
+                _logger.LogInformation("SUICIDE - SuicideDepressionFeelings: '{SuicideDepressionFeelings}'", assessment.SuicideDepressionFeelings);
+                _logger.LogInformation("NOTES - Notes: '{Notes}'", assessment.Notes);
+                _logger.LogInformation("ASSESSMENT - AssessedBy: '{AssessedBy}'", assessment.AssessedBy);
+                
+                // Note: Encryption is handled automatically by EncryptedDbContext.SaveChangesAsync()
+                _logger.LogInformation("Assessment ready for saving");
                 
                 _context.HEEADSSSAssessments.Add(assessment);
                 
@@ -465,8 +759,39 @@ namespace Barangay.Pages.User
                 // Save to database with better error handling
                 try
                 {
+                    _logger.LogInformation("=== ATTEMPTING DATABASE SAVE ===");
                     var rowsAffected = await _context.SaveChangesAsync();
+                    _logger.LogInformation("=== DATABASE SAVE COMPLETED ===");
                     _logger.LogInformation("HEEADSSS assessment saved successfully with ID: {Id}, rows affected: {RowsAffected}", assessment.Id, rowsAffected);
+                    
+                    // DEBUGGING: Verify the saved data by querying it back
+                    _logger.LogInformation("=== VERIFYING SAVED DATA ===");
+                    var savedAssessment = await _context.HEEADSSSAssessments.FindAsync(assessment.Id);
+                    if (savedAssessment != null)
+                    {
+                        _logger.LogInformation("Saved assessment found with ID: {Id}", savedAssessment.Id);
+                        _logger.LogInformation("Saved UserId: {UserId}", savedAssessment.UserId);
+                        _logger.LogInformation("Saved FullName: {FullName}", savedAssessment.FullName);
+                        _logger.LogInformation("Saved AppointmentId: {AppointmentId}", savedAssessment.AppointmentId);
+                        
+                        // Try to decrypt and verify some key fields
+                        try
+                        {
+                            savedAssessment.DecryptSensitiveData(_encryptionService, User);
+                            _logger.LogInformation("=== DECRYPTED SAVED DATA VERIFICATION ===");
+                            _logger.LogInformation("Decrypted HomeFamilyProblems: '{HomeFamilyProblems}'", savedAssessment.HomeFamilyProblems);
+                            _logger.LogInformation("Decrypted EducationCurrentlyStudying: '{EducationCurrentlyStudying}'", savedAssessment.EducationCurrentlyStudying);
+                            _logger.LogInformation("Decrypted Notes: '{Notes}'", savedAssessment.Notes);
+                        }
+                        catch (Exception decryptEx)
+                        {
+                            _logger.LogWarning(decryptEx, "Could not decrypt saved assessment for verification");
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Could not find saved assessment with ID: {Id}", assessment.Id);
+                    }
                     
                     if (rowsAffected > 0)
                     {
@@ -508,16 +833,16 @@ namespace Barangay.Pages.User
         private async Task<string> GetOrGenerateFamilyNumber(ApplicationUser user)
         {
             // Check if user already has a family number
-            var existingAssessment = await _context.HEEADSSSAssessments
+            var existingAssessmentFromViewData = await _context.HEEADSSSAssessments
                 .Where(a => a.UserId == user.Id)
                 .OrderByDescending(a => a.CreatedAt)
                     .FirstOrDefaultAsync();
 
-            if (existingAssessment != null && !string.IsNullOrEmpty(existingAssessment.FamilyNo))
+            if (existingAssessmentFromViewData != null && !string.IsNullOrEmpty(existingAssessmentFromViewData.FamilyNo))
                 {
                 // Decrypt the existing family number
-                existingAssessment.DecryptSensitiveData(_encryptionService, User);
-                return existingAssessment.FamilyNo;
+                existingAssessmentFromViewData.DecryptSensitiveData(_encryptionService, User);
+                return existingAssessmentFromViewData.FamilyNo;
                 }
 
             // Get the first letter of the user's last name
@@ -525,17 +850,47 @@ namespace Barangay.Pages.User
             var firstLetter = lastName.Substring(0, 1).ToUpper();
 
             // Get the highest sequence number for this letter
-            var lastNumber = await _context.HEEADSSSAssessments
-                .Where(a => a.FamilyNo.StartsWith(firstLetter + "-"))
-                .Select(a => a.FamilyNo.Substring(2))
-                .Where(n => n.All(char.IsDigit))
-                .Select(n => int.Parse(n))
-                    .DefaultIfEmpty(0)
-                .MaxAsync();
-                
-            // Generate new family number
-            var newSequence = lastNumber + 1;
-            return $"{firstLetter}-{newSequence:D3}"; // Format: X-001, X-002, etc.
+            // Since FamilyNo is encrypted, we need to decrypt all records to check for existing numbers
+            var allAssessments = await _context.HEEADSSSAssessments
+                .Where(a => !string.IsNullOrEmpty(a.FamilyNo))
+                .ToListAsync();
+
+            int nextNumber = 1;
+            var existingNumbers = new List<int>();
+
+            foreach (var assessment in allAssessments)
+            {
+                try
+                {
+                    // Decrypt the family number if possible
+                    string decryptedFamilyNo = assessment.FamilyNo;
+                    if (_encryptionService.CanUserDecrypt(User))
+                    {
+                        decryptedFamilyNo = _encryptionService.Decrypt(assessment.FamilyNo);
+                    }
+
+                    // Check if this family number starts with our letter
+                    if (!string.IsNullOrEmpty(decryptedFamilyNo) && decryptedFamilyNo.StartsWith($"{firstLetter}-"))
+                    {
+                        var parts = decryptedFamilyNo.Split('-');
+                        if (parts.Length == 2 && int.TryParse(parts[1], out int num))
+                        {
+                            existingNumbers.Add(num);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to decrypt FamilyNo for HEEADSSS assessment {AssessmentId}", assessment.Id);
+                    // Skip this record if decryption fails
+                }
+            }
+
+            if (existingNumbers.Any())
+            {
+                nextNumber = existingNumbers.Max() + 1;
+            }
+            return $"{firstLetter}-{nextNumber:D3}"; // Format: X-001, X-002, etc.
         }
 
         // Helper method to get form value with default
@@ -660,7 +1015,7 @@ namespace Barangay.Pages.User
                 }
 
                 // Get the patient from the appointment
-                string patientId = null;
+                string? patientId = null;
                 if (AppointmentId.HasValue)
                 {
                     var appointment = await _context.Appointments
@@ -677,15 +1032,15 @@ namespace Barangay.Pages.User
                 string targetUserId = patientId ?? user.Id;
 
                 // Check if patient already has a family number
-                var existingAssessment = await _context.HEEADSSSAssessments
+                var existingAssessmentFromViewData = await _context.HEEADSSSAssessments
                     .Where(a => a.UserId == targetUserId && !string.IsNullOrEmpty(a.FamilyNo))
                     .OrderByDescending(a => a.CreatedAt)
                     .FirstOrDefaultAsync();
 
-                if (existingAssessment != null)
+                if (existingAssessmentFromViewData != null)
                 {
                     // Decrypt FamilyNo if it's encrypted
-                    var decryptedFamilyNo = existingAssessment.FamilyNo;
+                    var decryptedFamilyNo = existingAssessmentFromViewData.FamilyNo;
                     if (!string.IsNullOrEmpty(decryptedFamilyNo) && _encryptionService.CanUserDecrypt(User))
                     {
                         try
@@ -705,7 +1060,7 @@ namespace Barangay.Pages.User
                 }
 
                 // Get patient name for family number generation
-                string patientLastName = null;
+                string? patientLastName = null;
                 if (AppointmentId.HasValue)
                 {
                     var appointment = await _context.Appointments
@@ -716,7 +1071,7 @@ namespace Barangay.Pages.User
                     {
                         // Extract last name from FullName
                         var fullNameParts = appointment.Patient.FullName?.Split(' ');
-                        patientLastName = fullNameParts?.Length > 0 ? fullNameParts.Last() : null;
+                        patientLastName = fullNameParts?.Length > 0 ? fullNameParts[^1] : null;
                     }
                 }
 
@@ -727,28 +1082,45 @@ namespace Barangay.Pages.User
                 string lastNameInitial = (targetLastName?.Length > 0) ? targetLastName.Substring(0, 1).ToUpper() : "X";
                 
                 // Find the next sequential number for this letter
-                var existingFamilyNumbers = await _context.HEEADSSSAssessments
-                    .Where(a => !string.IsNullOrEmpty(a.FamilyNo) && a.FamilyNo.StartsWith($"{lastNameInitial}."))
-                    .Select(a => a.FamilyNo)
+                // Since FamilyNo is encrypted, we need to decrypt all records to check for existing numbers
+                var allAssessments = await _context.HEEADSSSAssessments
+                    .Where(a => !string.IsNullOrEmpty(a.FamilyNo))
                     .ToListAsync();
 
                 int nextNumber = 1;
-                if (existingFamilyNumbers.Any())
-                {
-                    var numbers = existingFamilyNumbers
-                        .Where(fn => fn.StartsWith($"{lastNameInitial}."))
-                        .Select(fn => 
-                        {
-                            var parts = fn.Split('.');
-                            if (parts.Length == 2 && int.TryParse(parts[1], out int num))
-                                return num;
-                            return 0;
-                        })
-                        .Where(num => num > 0)
-                        .OrderByDescending(num => num)
-                        .ToList();
+                var existingNumbers = new List<int>();
 
-                    nextNumber = numbers.Any() ? numbers.First() + 1 : 1;
+                foreach (var assessment in allAssessments)
+                {
+                    try
+                    {
+                        // Decrypt the family number if possible
+                        string decryptedFamilyNo = assessment.FamilyNo;
+                        if (_encryptionService.CanUserDecrypt(User))
+                        {
+                            decryptedFamilyNo = _encryptionService.Decrypt(assessment.FamilyNo);
+                        }
+
+                        // Check if this family number starts with our letter
+                        if (!string.IsNullOrEmpty(decryptedFamilyNo) && decryptedFamilyNo.StartsWith($"{lastNameInitial}."))
+                        {
+                            var parts = decryptedFamilyNo.Split('.');
+                            if (parts.Length == 2 && int.TryParse(parts[1], out int num))
+                            {
+                                existingNumbers.Add(num);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Failed to decrypt FamilyNo for HEEADSSS assessment {AssessmentId}", assessment.Id);
+                        // Skip this record if decryption fails
+                    }
+                }
+
+                if (existingNumbers.Any())
+                {
+                    nextNumber = existingNumbers.Max() + 1;
                 }
 
                 string newFamilyNo = $"{lastNameInitial}.{nextNumber:D3}";

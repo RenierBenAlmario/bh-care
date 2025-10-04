@@ -745,6 +745,11 @@ namespace Barangay.Models
         [Encrypted]
         public string? AlcoholAmountMoreThan4Shots75ml { get; set; } = "false";
 
+        [Display(Name = "Alcohol Per Occasion")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? AlcoholPerOccasion { get; set; }
+
         [Display(Name = "Alcohol Frequency 1-3 Times Per Week")]
         [StringLength(4000)]
         [Encrypted]
@@ -819,6 +824,223 @@ namespace Barangay.Models
         [StringLength(4000)]
         [Encrypted]
         public string? DateOfAssessment { get; set; }
+
+        // Missing form fields that need to be added for complete mapping
+        
+        // Chest Pain Questions (Q2.1-2.8) - Missing mappings
+        [Display(Name = "Pananakit 2.1")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? Pananakit21 { get; set; } = "false"; // Q2.1 Nakakaramdam ka ba ng Pananakit o kabigatan sa dibdib?
+
+        [Display(Name = "Pananakit 2.2")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? Pananakit22 { get; set; } = "false"; // Q2.2 Ang sakit ba ay nasa gitna ng dibdib, kaliwang bahagi ng dibdib hanggang sa kaliwang braso?
+
+        [Display(Name = "Pananakit 2.3")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? Pananakit23 { get; set; } = "false"; // Q2.3 Nararamdaman mo ba ito kung nagmamadali o naglalakad ng mabilis o pakiramdam na paakyat?
+
+        [Display(Name = "Pananakit 2.4")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? Pananakit24 { get; set; } = "false"; // Q2.4 Napapatigil ka ba sa paglalakad kapag sumasakit ang iyong dibdib?
+
+        [Display(Name = "Pananakit 2.5")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? Pananakit25 { get; set; } = "false"; // Q2.5 Nawawala ba ang sakit kapag hindi ka kumikilos o naglalagay ng gamot sa ilalim ng dila?
+
+        [Display(Name = "Pananakit 2.6")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? Pananakit26 { get; set; } = "false"; // Q2.6 Nawawala ba ang pananakit sa loob ng 10 minuto?
+
+        [Display(Name = "Pananakit 2.7")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? Pananakit27 { get; set; } = "false"; // Q2.7 Nakakaramdam ka ba ng sakit sa dibdib na tumatagal higit sa 30 minuto?
+
+        [Display(Name = "Pananakit 2.8")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? Pananakit28 { get; set; } = "false"; // Q2.8 Nakakaramdam ka ba hirap sa pagsasalita, panghihina ng braso at/o binti o pamamanhid sa kalahating bahagi ng katawan?
+        
+        // Nutrition - Missing detailed mappings
+        [Display(Name = "Nutrisyon Madalas Gulay")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? NutrisyonMadalasGulay { get; set; } = "false"; // Madalas mo bang kainin ang mga sumusunod? - Gulay
+
+        [Display(Name = "Nutrisyon Madalas Pratas")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? NutrisyonMadalasPratas { get; set; } = "false"; // Madalas mo bang kainin ang mga sumusunod? - Prutas
+
+        [Display(Name = "Nutrisyon Madalas Isda")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? NutrisyonMadalasIsda { get; set; } = "false"; // Madalas mo bang kainin ang mga sumusunod? - Isda
+
+        [Display(Name = "Nutrisyon Madalas Karne")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? NutrisyonMadalasKarne { get; set; } = "false"; // Madalas mo bang kainin ang mga sumusunod? - Karne
+
+        [Display(Name = "Nutrisyon Kumakain Matatamis")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? NutrisyonKumakainMatatamis { get; set; } = "false"; // Kumakain ka ba ng higit sa 2 beses kada linggo ng - Matatamis na pagkain
+
+        [Display(Name = "Nutrisyon Kumakain Mamantika")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? NutrisyonKumakainMamantika { get; set; } = "false"; // Kumakain ka ba ng higit sa 2 beses kada linggo ng - Mamantikang pagkain
+        
+        // Alcohol - Missing detailed mappings
+        [Display(Name = "Alcohol Inom")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? AlcoholInom { get; set; } = "false"; // Umiinom ka ba ng alak?
+
+        [Display(Name = "Alchohol Type Beer")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? AlchoholTypeBeer { get; set; } = "false"; // Alcohol type - Beer
+
+        [Display(Name = "Alchohol Type Wine")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? AlchoholTypeWine { get; set; } = "false"; // Alcohol type - Wine
+
+        [Display(Name = "Alchohol Type Whisky")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? AlchoholTypeWhisky { get; set; } = "false"; // Alcohol type - Whisky/Gin/Brandy
+
+        [Display(Name = "Beer Consumption 1")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? BeerConsumption1 { get; set; } = "false"; // Beer consumption - 1 bote (320 ml)
+
+        [Display(Name = "Beer Consumption 2")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? BeerConsumption2 { get; set; } = "false"; // Beer consumption - 2 bote (640 ml)
+
+        [Display(Name = "Beer Consumption 3")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? BeerConsumption3 { get; set; } = "false"; // Beer consumption - ≥ 3 bote
+
+        [Display(Name = "Wine Consumption 1")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? WineConsumption1 { get; set; } = "false"; // Wine consumption - ≤ 3 wine glasses (300 ml)
+
+        [Display(Name = "Wine Consumption 2")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? WineConsumption2 { get; set; } = "false"; // Wine consumption - > 4 wine glasses
+
+        [Display(Name = "Whisky Consumption 1")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? WhiskyConsumption1 { get; set; } = "false"; // Whisky consumption - ≤ 3 shots/jigger (75 ml)
+
+        [Display(Name = "Whisky Consumption 2")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? WhiskyConsumption2 { get; set; } = "false"; // Whisky consumption - ≥ 4 shots / jigger
+
+        [Display(Name = "Alcohol Okasyon")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? AlcoholOkasyon { get; set; } = "false"; // Sa isang okasyon, ilang bote ng alak ang naiinom mo?
+        
+        // Exercise - Missing detailed mappings
+        [Display(Name = "Ehersisyo Regular")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? EhersisyoRegular { get; set; } = "false"; // May sapat ka bang ehersisyo?
+
+        [Display(Name = "Ehersisyo Duration")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? EhersisyoDuration { get; set; } = "false"; // Gaano katagal sa isang araw?
+
+        [Display(Name = "Ehersisyo Type")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? EhersisyoType { get; set; } = "false"; // Anong klaseng ehersisyo ang ginagawa mo?
+        
+        // Smoking - Missing detailed mappings
+        [Display(Name = "Sigarilyo Kadami")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? SigarilyoKadami { get; set; } = "false"; // Gaano kadami ang nauubos sa isang araw?
+
+        [Display(Name = "Sigarilyo Tumigil")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? SigarilyoTumigil { get; set; } = "false"; // Tumigil na sa paninigarilyo?
+
+        [Display(Name = "Sigarilyo Usok")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? SigarilyoUsok { get; set; } = "false"; // Hindi, pero lantad ka ba sa usok ng sigarilyo?
+
+        [Display(Name = "Sigarilyo Sticks")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? SigarilyoSticks { get; set; } = "false"; // Ikaw ba ay nanatili sa usok ng sigarilyo?
+        
+        // Stress - Missing detailed mappings
+        [Display(Name = "Stress Madalas")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? StressMadalas { get; set; } = "false"; // Madalas ka bang ma-stress?
+
+        [Display(Name = "Stress Sino")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? StressSino { get; set; } = "false"; // Ano o Sino ang dahilan ng iyong stress?
+
+        [Display(Name = "Stress Epekto")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? StressEpekto { get; set; } = "false"; // Naepektuhan ba nito ang iyong pang-araw-araw na gawain?
+        
+        // Additional missing fields for complete form mapping
+        [Display(Name = "Health Facility Name")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? HealthFacilityName { get; set; } = "Baesa Health Center"; // Health Facility name
+
+        [Display(Name = "Date Assessment")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? DateAssessment { get; set; } = ""; // Date of Assessment
+        
+        // Lung Disease - Missing proper mapping
+        [Display(Name = "Has Lung Disease Non Infectious")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? HasLungDiseaseNonInfectious { get; set; } = "false"; // Sakit sa baga hindu nakakahawa
+        
+        // Eye Disease - Missing proper mapping  
+        [Display(Name = "Has Eye Disease Condition")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? HasEyeDiseaseCondition { get; set; } = "false"; // Sakit sa mata
+        
+        // Stroke Symptoms (Q2.8)
+        [Display(Name = "Has Stroke Symptoms")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? HasStrokeSymptoms { get; set; } = "false"; // Q2.8 Nakakaramdam ka ba hirap sa pagsasalita, panghihina ng braso at/o binti o pamamanhid sa kalahating bahagi ng katawan?
 
     }
 }

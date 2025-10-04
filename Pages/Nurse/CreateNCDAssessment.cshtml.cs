@@ -18,13 +18,13 @@ namespace Barangay.Pages.Nurse
     [Authorize(Roles = "Nurse,Head Nurse")]
     public class CreateNCDAssessmentModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
+        private readonly EncryptedDbContext _context;
         private readonly ILogger<CreateNCDAssessmentModel> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IDataEncryptionService _encryptionService;
 
         public CreateNCDAssessmentModel(
-            ApplicationDbContext context,
+            EncryptedDbContext context,
             ILogger<CreateNCDAssessmentModel> logger,
             UserManager<ApplicationUser> userManager,
             IDataEncryptionService encryptionService)
@@ -302,17 +302,49 @@ else
             var firstLetter = lastName.Substring(0, 1).ToUpper();
 
             // Get the highest sequence number for this letter
-            var lastNumber = await _context.NCDRiskAssessments
-                .Where(a => a.FamilyNo != null && a.FamilyNo.StartsWith(firstLetter + "-"))
-                .Select(a => a.FamilyNo.Substring(2))
-                .Where(n => n.All(char.IsDigit))
-                .Select(n => int.Parse(n))
-                .DefaultIfEmpty(0)
-                .MaxAsync();
+            // Since FamilyNo is encrypted, we need to decrypt all records to check for existing numbers
+            var allAssessments = await _context.NCDRiskAssessments
+                .Where(a => !string.IsNullOrEmpty(a.FamilyNo))
+                .ToListAsync();
+
+            int nextNumber = 1;
+            var existingNumbers = new List<int>();
+
+            foreach (var assessment in allAssessments)
+            {
+                try
+                {
+                    // Decrypt the family number if possible
+                    string decryptedFamilyNo = assessment.FamilyNo;
+                    if (_encryptionService.CanUserDecrypt(User))
+                    {
+                        decryptedFamilyNo = _encryptionService.Decrypt(assessment.FamilyNo);
+                    }
+
+                    // Check if this family number starts with our letter
+                    if (!string.IsNullOrEmpty(decryptedFamilyNo) && decryptedFamilyNo.StartsWith($"{firstLetter}-"))
+                    {
+                        var parts = decryptedFamilyNo.Split('-');
+                        if (parts.Length == 2 && int.TryParse(parts[1], out int num))
+                        {
+                            existingNumbers.Add(num);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to decrypt FamilyNo for NCD assessment {AssessmentId}", assessment.Id);
+                    // Skip this record if decryption fails
+                }
+            }
+
+            if (existingNumbers.Any())
+            {
+                nextNumber = existingNumbers.Max() + 1;
+            }
             
             // Generate new family number
-            var newSequence = lastNumber + 1;
-            return $"{firstLetter}-{newSequence:D3}"; // Format: X-001, X-002, etc.
+            return $"{firstLetter}-{nextNumber:D3}"; // Format: X-001, X-002, etc.
         }
     }
 } 

@@ -14,10 +14,10 @@ namespace Barangay.Controllers
     public class NCDRiskAssessmentController : ControllerBase
     {
         private readonly ILogger<NCDRiskAssessmentController> _logger;
-        private readonly ApplicationDbContext _context;
+        private readonly EncryptedDbContext _context;
         private readonly IDataEncryptionService _encryptionService;
 
-        public NCDRiskAssessmentController(ILogger<NCDRiskAssessmentController> logger, ApplicationDbContext context, IDataEncryptionService encryptionService)
+        public NCDRiskAssessmentController(ILogger<NCDRiskAssessmentController> logger, EncryptedDbContext context, IDataEncryptionService encryptionService)
         {
             _logger = logger;
             _context = context;
@@ -74,7 +74,7 @@ namespace Barangay.Controllers
                     Address = assessment.Address,
                     Barangay = assessment.Barangay,
                     Telepono = assessment.Telepono,
-                    Birthday = assessment.Birthday,
+                    Birthday = assessment.Birthday?.ToString("yyyy-MM-dd"),
                     Edad = assessment.Edad,
                     Kasarian = assessment.Kasarian,
                     Relihiyon = assessment.Relihiyon,

@@ -39,9 +39,9 @@ namespace Barangay.Pages.Nurse
         public string? SuccessMessage { get; set; }
         public string? ErrorMessage { get; set; }
 
-        public async Task<IActionResult> OnGetAsync()
+        public Task<IActionResult> OnGetAsync()
         {
-            return Page();
+            return Task.FromResult<IActionResult>(Page());
         }
 
         public async Task<IActionResult> OnPostSendReminderAsync()

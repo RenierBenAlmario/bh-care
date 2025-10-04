@@ -148,7 +148,7 @@ namespace Barangay.Pages
                     if (user.BirthDate.HasValue)
                     {
                         BookingModel.DateOfBirth = user.BirthDate.Value;
-                        NCDModel.Birthday = user.BirthDate.Value.ToString("yyyy-MM-dd");
+                        NCDModel.Birthday = user.BirthDate.Value;
                         BookingModel.Age = CalculateAge(user.BirthDate.Value);
                     }
                     
@@ -1145,7 +1145,7 @@ namespace Barangay.Pages
                 FamilyNo = model.FamilyNo,
                 Address = model.Address,
                 Barangay = model.Barangay,
-                Birthday = model.Birthday,
+                Birthday = model.Birthday?.ToString("yyyy-MM-dd"),
                 Telepono = model.Telepono,
                 Edad = model.Edad,
                 Kasarian = model.Kasarian,

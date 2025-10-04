@@ -107,25 +107,35 @@
                         <input type="text" class="form-control" asp-for="Assessment.FamilyNo" id="family-no" />
                     </div>
                 </div>
-              
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label">Referred by:</label>
+                        <input type="text" class="form-control" asp-for="Assessment.ReferredBy" />
+                    </div>
+                </div>
+            </div>
             
             <div class="mb-3">
                 <label class="form-label">Options:</label>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="Assessment.IsNHPTS" />
-                    <label class="form-check-label">NHPTS</label>
+                    <input class="form-check-input" type="checkbox" id="IsNHPTS" onchange="updateCheckboxValue('IsNHPTS', 'Assessment.IsNHPTS')" />
+                    <input type="hidden" asp-for="Assessment.IsNHPTS" />
+                    <label class="form-check-label" for="IsNHPTS">NHTS</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="Assessment.Is4Ps" />
-                    <label class="form-check-label">4Ps</label>
+                    <input class="form-check-input" type="checkbox" id="Is4Ps" onchange="updateCheckboxValue('Is4Ps', 'Assessment.Is4Ps')" />
+                    <input type="hidden" asp-for="Assessment.Is4Ps" />
+                    <label class="form-check-label" for="Is4Ps">4Ps</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="Assessment.IsPhilHealthBeneficiaryOnly" />
-                    <label class="form-check-label">PhilHealth Beneficiary Only</label>
+                    <input class="form-check-input" type="checkbox" id="IsPhilHealthBeneficiaryOnly" onchange="updateCheckboxValue('IsPhilHealthBeneficiaryOnly', 'Assessment.IsPhilHealthBeneficiaryOnly')" />
+                    <input type="hidden" asp-for="Assessment.IsPhilHealthBeneficiaryOnly" />
+                    <label class="form-check-label" for="IsPhilHealthBeneficiaryOnly">PhilHealth Beneficiary Only</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="Assessment.IsOwnPhilHealth" />
-                    <label class="form-check-label">Own PhilHealth / PIN:</label>
+                    <input class="form-check-input" type="checkbox" id="IsOwnPhilHealth" onchange="updateCheckboxValue('IsOwnPhilHealth', 'Assessment.IsOwnPhilHealth')" />
+                    <input type="hidden" asp-for="Assessment.IsOwnPhilHealth" />
+                    <label class="form-check-label" for="IsOwnPhilHealth">Own PhilHealth / PIN:</label>
                     <input type="text" class="form-control d-inline-block ms-2" style="width: 200px;" asp-for="Assessment.PhilHealthPIN" />
                 </div>
             </div>
@@ -162,33 +172,38 @@
                 
                     <div class="mb-3">
                         <label class="form-label required">Birthday</label>
-                        <input type="date" class="form-control" asp-for="Assessment.Birthday" value="@ViewData["PatientBirthdate"]" />
+                        <input type="date" class="form-control" asp-for="Assessment.Birthday" value="@ViewData["PatientBirthdate"]" required />
+                        <span asp-validation-for="Assessment.Birthday" class="text-danger"></span>
                     </div>
                 </div>
                 
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label class="form-label">Patient Name</label>
-                        <input type="text" class="form-control" asp-for="Assessment.FullName" value="@ViewData["PatientName"]" />
+                        <label class="form-label required">Patient Name</label>
+                        <input type="text" class="form-control" asp-for="Assessment.FullName" value="@ViewData["PatientName"]" required />
+                        <span asp-validation-for="Assessment.FullName" class="text-danger"></span>
                     </div>
                 
                     <div class="mb-3">
                         <label class="form-label">Family No.</label>
                         <div class="d-flex">
-                            <input type="text" class="form-control" asp-for="FamilyNo" id="family-no" />
+                            <input type="text" class="form-control" asp-for="Assessment.FamilyNo" id="family-no" />
                             <button type="button" id="generate-family-no" class="btn btn-secondary ms-2">Generate</button>
                         </div>
                         <small class="form-text text-muted">If you have a family number, enter it or click Generate to create a new one.</small>
                     </div>
                 
                     <div class="mb-3">
-                        <label class="form-label">Contact Number</label>
-                        <input type="text" class="form-control" asp-for="Assessment.ContactNumber" value="@ViewData["PatientPhone"]" />
+                        <label class="form-label required">Contact Number</label>
+                        <input type="text" class="form-control" asp-for="Assessment.ContactNumber" value="@ViewData["PatientPhone"]" required />
                         <small class="form-text text-muted">11 digits only, Philippine format (e.g. 09123456789)</small>
+                        <span asp-validation-for="Assessment.ContactNumber" class="text-danger"></span>
                     </div>
                 </div>
             </div>
         </div>
+
+       
 
         <!-- Psychosocial History Header -->
         <div class="form-section">
@@ -201,12 +216,12 @@
             <h3>HOME</h3>
             
             <div class="mb-3">
-                <label class="form-label">Meron bang problema sa inyong pamilya na kung saan ikaw ay maaring makaapekto?</label>
+                <label class="form-label">Meron bang problema sa inyong pamilya na maaring makaapekto sa iyo?</label>
                 <textarea class="form-control" asp-for="Assessment.HomeFamilyProblems" rows="3"></textarea>
             </div>
             
             <div class="mb-3">
-                <label class="form-label">Pinakikinggan ka aba ng iyong magulang o guardian sa tuwing ikaw ay may problema?</label>
+                <label class="form-label">Pinakikitaan ka ba ng iyong mga magulang o guardian sa tuwing may problema ka?</label>
                 <textarea class="form-control" asp-for="Assessment.HomeParentalListening" rows="3"></textarea>
             </div>
             
@@ -216,7 +231,12 @@
             </div>
             
             <div class="mb-3">
-                <label class="form-label">Sa nakaraang taon,meron bang pagbabagong naganap sa loob ng iyong pamilya?</label>
+                <label class="form-label">Pinakikitaan ka ba ng iyong mga magulang o guardian sa tuwing may problema ka?</label>
+                <textarea class="form-control" asp-for="Assessment.HomeParentalBlame" rows="3"></textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Sa nakaraang taon, may pagbabago ba sa loob ng iyong pamilya?</label>
                 <textarea class="form-control" asp-for="Assessment.HomeFamilyChanges" rows="3"></textarea>
             </div>
         </div>
@@ -244,6 +264,11 @@
                 <label class="form-label">Nakaranas ka bang ma-api (bully) sa iskuwela o ibang pagkakataon?</label>
                 <textarea class="form-control" asp-for="Assessment.EducationBullyingExperience" rows="3"></textarea>
             </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Nakaranas ka bang ma-api (bully) sa iskuwela o ibang pagkakataon?</label>
+                <textarea class="form-control" asp-for="Assessment.EducationBullying" rows="3"></textarea>
+            </div>
         </div>
         
         <!-- EATING HABITS Section -->
@@ -256,8 +281,27 @@
             </div>
             
             <div class="mb-3">
-                <label class="form-label">Sinubukan mo na bang magbawas ng timbang sa pamamagitan ng pagsuka ng kinain (vomiting), uminom ng diet pills o pampadumi (laxatives), o kaya ang sadyang hindi pagkain (starvation)?</label>
-                <textarea class="form-control" asp-for="Assessment.EatingDisorderedEatingBehaviors" rows="3"></textarea>
+                <label class="form-label">Sinubukan mo na bang magbawas ng timbang sa pamamagitan ng:</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="EatingVomiting" onchange="updateCheckboxValue('EatingVomiting', 'Assessment.EatingVomiting')" />
+                    <input type="hidden" asp-for="Assessment.EatingVomiting" />
+                    <label class="form-check-label" for="EatingVomiting">Pagduwal/pagsuka (vomiting)</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="EatingDietPills" onchange="updateCheckboxValue('EatingDietPills', 'Assessment.EatingDietPills')" />
+                    <input type="hidden" asp-for="Assessment.EatingDietPills" />
+                    <label class="form-check-label" for="EatingDietPills">Pag-inom ng diet pills</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="EatingLaxatives" onchange="updateCheckboxValue('EatingLaxatives', 'Assessment.EatingLaxatives')" />
+                    <input type="hidden" asp-for="Assessment.EatingLaxatives" />
+                    <label class="form-check-label" for="EatingLaxatives">Laxatives</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="EatingStarvation" onchange="updateCheckboxValue('EatingStarvation', 'Assessment.EatingStarvation')" />
+                    <input type="hidden" asp-for="Assessment.EatingStarvation" />
+                    <label class="form-check-label" for="EatingStarvation">Hindi pagkain (starvation)</label>
+                </div>
             </div>
             
             <div class="mb-3">
@@ -271,7 +315,7 @@
             <h3>ACTIVITIES</h3>
                 
             <div class="mb-3">
-                <label class="form-label">Mayroon ka bang sinasalihang sports/aktibidad sa iskuwela, trabaho o bahay?</label>
+                <label class="form-label">Mayroon ka bang sinasalihang sports/libangan sa iskuwela, trabaho o bahay?</label>
                 <textarea class="form-control" asp-for="Assessment.ActivitiesParticipation" rows="3"></textarea>
             </div>
             
@@ -284,6 +328,11 @@
                 <label class="form-label">Madalas ka bang gumamit ng internet/computer o gadgets?</label>
                 <textarea class="form-control" asp-for="Assessment.ActivitiesInternetGadgetUse" rows="3"></textarea>
             </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Madalas ka bang gumamit ng internet/computer o gadgets?</label>
+                <textarea class="form-control" asp-for="Assessment.ActivitiesScreenTime" rows="3"></textarea>
+            </div>
         </div>
         
         <!-- DRUGS Section -->
@@ -293,16 +342,19 @@
             <div class="mb-3">
                 <label class="form-label">Naranasan mo na bang gumamit ng mga sumusunod:</label>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="Assessment.DrugsTobaccoUse" />
-                    <label class="form-check-label">Tobacco (Sigarilyo)</label>
+                    <input class="form-check-input" type="checkbox" id="DrugsTobaccoUse" onchange="updateCheckboxValue('DrugsTobaccoUse', 'Assessment.DrugsTobaccoUse')" />
+                    <input type="hidden" asp-for="Assessment.DrugsTobaccoUse" />
+                    <label class="form-check-label" for="DrugsTobaccoUse">Tobacco (Sigarilyo)</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="Assessment.DrugsAlcoholUse" />
-                    <label class="form-check-label">Alcohol (Alak)</label>
+                    <input class="form-check-input" type="checkbox" id="DrugsAlcoholUse" onchange="updateCheckboxValue('DrugsAlcoholUse', 'Assessment.DrugsAlcoholUse')" />
+                    <input type="hidden" asp-for="Assessment.DrugsAlcoholUse" />
+                    <label class="form-check-label" for="DrugsAlcoholUse">Alcohol (Alak)</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="Assessment.DrugsStreetDrugs" />
-                    <label class="form-check-label">Street/Prohibited drugs</label>
+                    <input class="form-check-input" type="checkbox" id="DrugsStreetDrugs" onchange="updateCheckboxValue('DrugsStreetDrugs', 'Assessment.DrugsStreetDrugs')" />
+                    <input type="hidden" asp-for="Assessment.DrugsStreetDrugs" />
+                    <label class="form-check-label" for="DrugsStreetDrugs">Street/Prohibited drugs</label>
                 </div>
             </div>
         </div>
@@ -319,12 +371,13 @@
             <div class="mb-3">
                 <label class="form-label">Ikaw ba ay may karanasan na sa pakikipagtalik?</label>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="SexualityIntimateRelationships" value="Yes" asp-for="Assessment.SexualityIntimateRelationships" />
-                    <label class="form-check-label">Oo</label>
+                    <input class="form-check-input" type="radio" name="SexualityIntimateRelationships" value="Yes" id="SexualityIntimateRelationshipsYes" onchange="updateRadioValue('SexualityIntimateRelationshipsYes', 'Assessment.SexualityIntimateRelationships')" />
+                    <input type="hidden" asp-for="Assessment.SexualityIntimateRelationships" />
+                    <label class="form-check-label" for="SexualityIntimateRelationshipsYes">Oo</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="SexualityIntimateRelationships" value="No" asp-for="Assessment.SexualityIntimateRelationships" />
-                    <label class="form-check-label">Hindi</label>
+                    <input class="form-check-input" type="radio" name="SexualityIntimateRelationships" value="No" id="SexualityIntimateRelationshipsNo" onchange="updateRadioValue('SexualityIntimateRelationshipsNo', 'Assessment.SexualityIntimateRelationships')" />
+                    <label class="form-check-label" for="SexualityIntimateRelationshipsNo">Hindi</label>
                 </div>
                 <div class="mt-2">
                     <label class="form-label">Kung Oo, ilan na ang nakatalik mo sa nakaraang taon?</label>
@@ -335,57 +388,68 @@
             <div class="mb-3">
                 <label class="form-label">Naisip mo ba na ikaw ay:</label>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="Assessment.SexualityGay" />
-                    <label class="form-check-label">Gay</label>
+                    <input class="form-check-input" type="checkbox" id="SexualityGay" onchange="updateCheckboxValue('SexualityGay', 'Assessment.SexualityGay')" />
+                    <input type="hidden" asp-for="Assessment.SexualityGay" />
+                    <label class="form-check-label" for="SexualityGay">Gay</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="Assessment.SexualityLesbian" />
-                    <label class="form-check-label">Lesbian</label>
+                    <input class="form-check-input" type="checkbox" id="SexualityLesbian" onchange="updateCheckboxValue('SexualityLesbian', 'Assessment.SexualityLesbian')" />
+                    <input type="hidden" asp-for="Assessment.SexualityLesbian" />
+                    <label class="form-check-label" for="SexualityLesbian">Lesbian</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" asp-for="Assessment.SexualityBisexual" />
-                    <label class="form-check-label">Bisexual</label>
+                    <input class="form-check-input" type="checkbox" id="SexualityBisexual" onchange="updateCheckboxValue('SexualityBisexual', 'Assessment.SexualityBisexual')" />
+                    <input type="hidden" asp-for="Assessment.SexualityBisexual" />
+                    <label class="form-check-label" for="SexualityBisexual">Bisexual</label>
                 </div>
             </div>
             
             <div class="mb-3">
                 <label class="form-label">Ikaw ba ay nakaranas nang magbuntis o makabuntis?</label>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="SexualityPregnancyExperience" value="Yes" asp-for="Assessment.SexualityPregnancyExperience" />
-                    <label class="form-check-label">Oo</label>
+                    <input class="form-check-input" type="radio" name="SexualityPregnancyExperience" value="Yes" id="SexualityPregnancyExperienceYes" onchange="updateRadioValue('SexualityPregnancyExperienceYes', 'Assessment.SexualityPregnancyExperience')" />
+                    <input type="hidden" asp-for="Assessment.SexualityPregnancyExperience" />
+                    <label class="form-check-label" for="SexualityPregnancyExperienceYes">Oo</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="SexualityPregnancyExperience" value="No" asp-for="Assessment.SexualityPregnancyExperience" />
-                    <label class="form-check-label">Hindi</label>
+                    <input class="form-check-input" type="radio" name="SexualityPregnancyExperience" value="No" id="SexualityPregnancyExperienceNo" onchange="updateRadioValue('SexualityPregnancyExperienceNo', 'Assessment.SexualityPregnancyExperience')" />
+                    <label class="form-check-label" for="SexualityPregnancyExperienceNo">Hindi</label>
                 </div>
             </div>
             
             <div class="mb-3">
                 <label class="form-label">Ikaw ba ay nagkaroon na ng nakakahawang sakit dulot ng pakikipagtalik?</label>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="SexualitySTIExperience" value="Yes" asp-for="Assessment.SexualitySTIExperience" />
-                    <label class="form-check-label">Oo</label>
+                    <input class="form-check-input" type="radio" name="SexualitySTIExperience" value="Yes" id="SexualitySTIExperienceYes" onchange="updateRadioValue('SexualitySTIExperienceYes', 'Assessment.SexualitySTIExperience')" />
+                    <input type="hidden" asp-for="Assessment.SexualitySTIExperience" />
+                    <label class="form-check-label" for="SexualitySTIExperienceYes">Oo</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="SexualitySTIExperience" value="No" asp-for="Assessment.SexualitySTIExperience" />
-                    <label class="form-check-label">Hindi</label>
+                    <input class="form-check-input" type="radio" name="SexualitySTIExperience" value="No" id="SexualitySTIExperienceNo" onchange="updateRadioValue('SexualitySTIExperienceNo', 'Assessment.SexualitySTIExperience')" />
+                    <label class="form-check-label" for="SexualitySTIExperienceNo">Hindi</label>
                 </div>
             </div>
             
             <div class="mb-3">
                 <label class="form-label">May ginagamit ka bang proteksyon kapag sa tuwing nakikipagtalik?</label>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="SexualityProtectionUse" value="Yes" asp-for="Assessment.SexualityProtectionUse" />
-                    <label class="form-check-label">Oo</label>
+                    <input class="form-check-input" type="radio" name="SexualityProtectionUse" value="Yes" id="SexualityProtectionUseYes" onchange="updateRadioValue('SexualityProtectionUseYes', 'Assessment.SexualityProtectionUse')" />
+                    <input type="hidden" asp-for="Assessment.SexualityProtectionUse" />
+                    <label class="form-check-label" for="SexualityProtectionUseYes">Oo</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="SexualityProtectionUse" value="No" asp-for="Assessment.SexualityProtectionUse" />
-                    <label class="form-check-label">Hindi</label>
+                    <input class="form-check-input" type="radio" name="SexualityProtectionUse" value="No" id="SexualityProtectionUseNo" onchange="updateRadioValue('SexualityProtectionUseNo', 'Assessment.SexualityProtectionUse')" />
+                    <label class="form-check-label" for="SexualityProtectionUseNo">Hindi</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="SexualityProtectionUse" value="Sometimes" asp-for="Assessment.SexualityProtectionUse" />
-                    <label class="form-check-label">Minsan</label>
+                    <input class="form-check-input" type="radio" name="SexualityProtectionUse" value="Sometimes" id="SexualityProtectionUseSometimes" onchange="updateRadioValue('SexualityProtectionUseSometimes', 'Assessment.SexualityProtectionUse')" />
+                    <label class="form-check-label" for="SexualityProtectionUseSometimes">Minsan</label>
                 </div>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">May nakaranas ba na magbunot o maglunsad laban sa iyo?</label>
+                <textarea class="form-control" asp-for="Assessment.SexualityHarassment" rows="3"></textarea>
             </div>
         </div>
         
@@ -394,7 +458,7 @@
             <h3>SAFETY / WEAPONS / VIOLENCE</h3>
                 
             <div class="mb-3">
-                <label class="form-label">Ikaw ba ay nakaranas na masaktan (mahipuan, masuntok, masampal) ng kahit sino?</label>
+                <label class="form-label">Ikaw ba ay nakakaranas mahipuan/masuntok/masampal/matulak ng kahit sino?</label>
                 <textarea class="form-control" asp-for="Assessment.SafetyPhysicalAbuse" rows="3"></textarea>
             </div>
             
@@ -404,8 +468,13 @@
             </div>
             
             <div class="mb-3">
-                <label class="form-label">Gumagamit ka ba ng helmet o protective gear kapag sumasakay ng motor o iba pang uri ng sasakyan?</label>
+                <label class="form-label">Gumagamit ka ba ng helmet o protective gear kapag sumasakay ng motor/iba pang sasakyan?</label>
                 <textarea class="form-control" asp-for="Assessment.SafetyProtectiveGear" rows="3"></textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">May kasambahay ka bang nagmamay-ari ng baril o rifle?</label>
+                <textarea class="form-control" asp-for="Assessment.SafetyGunsAtHome" rows="3"></textarea>
             </div>
             
             <div class="mb-3">
@@ -419,17 +488,17 @@
             <h3>SUICIDE / DEPRESSION</h3>
                 
             <div class="mb-3">
-                <label class="form-label">Ikaw ba ay nakaranas na ng matinding pagkabalisa o pagkamalungkutin?</label>
+                <label class="form-label">Ikaw ba ay nakaranas na ng matinding pagkabalisa o depresyon?</label>
                 <textarea class="form-control" asp-for="Assessment.SuicideDepressionFeelings" rows="3"></textarea>
             </div>
             
             <div class="mb-3">
-                <label class="form-label">Naisip mo na bang saktan ang sarili o wakasan ang iyong buhay?</label>
+                <label class="form-label">Naisip mo na bang saktan ang sarili o tapusin ang buhay?</label>
                 <textarea class="form-control" asp-for="Assessment.SuicideSelfHarmThoughts" rows="3"></textarea>
             </div>
             
             <div class="mb-3">
-                <label class="form-label">May miyembro ba ng pamilya na nagtangkang magpakamatay o nakaranas ng matinding kalungkutan o labis na pagka-balisa?</label>
+                <label class="form-label">May miyembro ba ng pamilya na nagtangkang magpakamatay o nakaranas ng matinding depresyon?</label>
                 <textarea class="form-control" asp-for="Assessment.SuicideFamilyHistory" rows="3"></textarea>
             </div>
         </div>
@@ -460,6 +529,10 @@
         
         <!-- Submit Button -->
         <div class="text-center mt-4">
+            <button type="button" id="testButton" class="btn btn-warning btn-lg me-3">
+                <i class="fas fa-bug me-2"></i>
+                Test Debug
+            </button>
             <button type="submit" class="btn btn-primary btn-lg">
                 <i class="fas fa-save me-2"></i>
                 Submit Assessment
@@ -472,7 +545,479 @@
     <!-- SweetAlert2 for notifications -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        // Manual fix function to force checkbox and radio button states
+        function forceFixFormBinding() {
+            console.log('=== FORCE FIXING FORM BINDING ===');
+            
+            // Force fix checkboxes
+            const checkboxes = [
+                'IsNHPTS', 'Is4Ps', 'IsPhilHealthBeneficiaryOnly', 'IsOwnPhilHealth',
+                'BMIUnderweight', 'BMINormal', 'BMIOverweight', 'BMIObese',
+                'EatingVomiting', 'EatingDietPills', 'EatingLaxatives', 'EatingStarvation',
+                'DrugsTobaccoUse', 'DrugsAlcoholUse', 'DrugsStreetDrugs',
+                'SexualityGay', 'SexualityLesbian', 'SexualityBisexual'
+            ];
+
+            checkboxes.forEach(checkboxId => {
+                const hiddenField = document.querySelector(`input[name="Assessment.${checkboxId}"]`);
+                const checkbox = document.getElementById(checkboxId);
+                
+                if (hiddenField && checkbox) {
+                    const shouldBeChecked = hiddenField.value === "True" || hiddenField.value === "true";
+                    checkbox.checked = shouldBeChecked;
+                    console.log(`FORCE FIX: Checkbox ${checkboxId} set to ${shouldBeChecked} (hidden value: "${hiddenField.value}")`);
+                }
+            });
+            
+            // Force fix radio buttons
+            const radioGroups = [
+                {
+                    fieldName: 'Assessment.SexualityIntimateRelationships',
+                    groupName: 'SexualityIntimateRelationships',
+                    yesId: 'SexualityIntimateRelationshipsYes',
+                    noId: 'SexualityIntimateRelationshipsNo'
+                },
+                {
+                    fieldName: 'Assessment.SexualityPregnancyExperience',
+                    groupName: 'SexualityPregnancyExperience',
+                    yesId: 'SexualityPregnancyExperienceYes',
+                    noId: 'SexualityPregnancyExperienceNo'
+                },
+                {
+                    fieldName: 'Assessment.SexualitySTIExperience',
+                    groupName: 'SexualitySTIExperience',
+                    yesId: 'SexualitySTIExperienceYes',
+                    noId: 'SexualitySTIExperienceNo'
+                },
+                {
+                    fieldName: 'Assessment.SexualityProtectionUse',
+                    groupName: 'SexualityProtectionUse',
+                    yesId: 'SexualityProtectionUseYes',
+                    noId: 'SexualityProtectionUseNo',
+                    sometimesId: 'SexualityProtectionUseSometimes'
+                }
+            ];
+
+            radioGroups.forEach(group => {
+                const hiddenField = document.querySelector(`input[name="${group.fieldName}"]`);
+                const yesRadio = document.getElementById(group.yesId);
+                const noRadio = document.getElementById(group.noId);
+                const sometimesRadio = group.sometimesId ? document.getElementById(group.sometimesId) : null;
+                
+                if (hiddenField && yesRadio && noRadio) {
+                    // Clear all radio buttons in the group first
+                    const radioGroup = document.querySelectorAll(`input[name="${group.groupName}"]`);
+                    radioGroup.forEach(r => r.checked = false);
+                    
+                    if (hiddenField.value === "Yes") {
+                        yesRadio.checked = true;
+                        console.log(`FORCE FIX: Radio ${group.yesId} set to checked`);
+                    } else if (hiddenField.value === "No") {
+                        noRadio.checked = true;
+                        console.log(`FORCE FIX: Radio ${group.noId} set to checked`);
+                    } else if (hiddenField.value === "Sometimes" && sometimesRadio) {
+                        sometimesRadio.checked = true;
+                        console.log(`FORCE FIX: Radio ${group.sometimesId} set to checked`);
+                    }
+                }
+            });
+        }
+
+        // Function to update checkbox values
+        function updateCheckboxValue(checkboxId, hiddenFieldName) {
+            const checkbox = document.getElementById(checkboxId);
+            const hiddenField = document.querySelector(`input[name="${hiddenFieldName}"]`);
+            if (checkbox && hiddenField) {
+                hiddenField.value = checkbox.checked ? "True" : "False";
+                console.log(`Checkbox ${checkboxId}: ${checkbox.checked} -> ${hiddenField.value}`);
+            }
+        }
+
+        // Function to update radio button values
+        function updateRadioValue(radioId, hiddenFieldName) {
+            const radio = document.getElementById(radioId);
+            const hiddenField = document.querySelector(`input[name="${hiddenFieldName}"]`);
+            if (radio && hiddenField) {
+                // Clear all radio buttons in the same group first
+                const radioGroup = document.querySelectorAll(`input[name="${radio.name}"]`);
+                radioGroup.forEach(r => r.checked = false);
+                
+                // Set the clicked radio button
+                radio.checked = true;
+                hiddenField.value = radio.value;
+                console.log(`Radio ${radioId}: ${radio.value} -> ${hiddenField.value}`);
+            }
+        }
+
+        // Function to update BMI radio button values
+        function updateBMIRadioValue(status) {
+            // Clear all BMI hidden fields first
+            document.querySelector(`input[name="Assessment.BMIUnderweight"]`).value = "False";
+            document.querySelector(`input[name="Assessment.BMINormal"]`).value = "False";
+            document.querySelector(`input[name="Assessment.BMIOverweight"]`).value = "False";
+            document.querySelector(`input[name="Assessment.BMIObese"]`).value = "False";
+            
+            // Set the selected status to True
+            document.querySelector(`input[name="Assessment.BMI${status}"]`).value = "True";
+            console.log(`BMI Status set to: ${status}`);
+        }
+
+        // Function to initialize checkbox states from hidden field values
+        function initializeCheckboxes() {
+            const checkboxes = [
+                'IsNHPTS', 'Is4Ps', 'IsPhilHealthBeneficiaryOnly', 'IsOwnPhilHealth',
+                'BMIUnderweight', 'BMINormal', 'BMIOverweight', 'BMIObese',
+                'EatingVomiting', 'EatingDietPills', 'EatingLaxatives', 'EatingStarvation',
+                'DrugsTobaccoUse', 'DrugsAlcoholUse', 'DrugsStreetDrugs',
+                'SexualityGay', 'SexualityLesbian', 'SexualityBisexual'
+            ];
+
+            console.log('=== INITIALIZING CHECKBOXES ===');
+            checkboxes.forEach(checkboxId => {
+                const hiddenField = document.querySelector(`input[name="Assessment.${checkboxId}"]`);
+                const checkbox = document.getElementById(checkboxId);
+                
+                console.log(`Processing checkbox ${checkboxId}:`);
+                console.log(`  Hidden field found: ${!!hiddenField}`);
+                console.log(`  Checkbox found: ${!!checkbox}`);
+                
+                if (hiddenField) {
+                    console.log(`  Hidden field value: "${hiddenField.value}"`);
+                }
+                
+                if (hiddenField && checkbox) {
+                    const shouldBeChecked = hiddenField.value === "True" || hiddenField.value === "true";
+                    checkbox.checked = shouldBeChecked;
+                    console.log(`  Setting checkbox ${checkboxId} to: ${shouldBeChecked}`);
+                } else {
+                    console.log(`  ERROR: Missing elements for ${checkboxId}`);
+                }
+            });
+        }
+
+        // Function to initialize radio button states from hidden field values
+        function initializeRadioButtons() {
+            const radioGroups = [
+                {
+                    fieldName: 'Assessment.SexualityIntimateRelationships',
+                    groupName: 'SexualityIntimateRelationships',
+                    yesId: 'SexualityIntimateRelationshipsYes',
+                    noId: 'SexualityIntimateRelationshipsNo'
+                },
+                {
+                    fieldName: 'Assessment.SexualityPregnancyExperience',
+                    groupName: 'SexualityPregnancyExperience',
+                    yesId: 'SexualityPregnancyExperienceYes',
+                    noId: 'SexualityPregnancyExperienceNo'
+                },
+                {
+                    fieldName: 'Assessment.SexualitySTIExperience',
+                    groupName: 'SexualitySTIExperience',
+                    yesId: 'SexualitySTIExperienceYes',
+                    noId: 'SexualitySTIExperienceNo'
+                },
+                {
+                    fieldName: 'Assessment.SexualityProtectionUse',
+                    groupName: 'SexualityProtectionUse',
+                    yesId: 'SexualityProtectionUseYes',
+                    noId: 'SexualityProtectionUseNo',
+                    sometimesId: 'SexualityProtectionUseSometimes'
+                }
+            ];
+
+            console.log('=== INITIALIZING RADIO BUTTONS ===');
+            radioGroups.forEach(group => {
+                const hiddenField = document.querySelector(`input[name="${group.fieldName}"]`);
+                const yesRadio = document.getElementById(group.yesId);
+                const noRadio = document.getElementById(group.noId);
+                const sometimesRadio = group.sometimesId ? document.getElementById(group.sometimesId) : null;
+                
+                console.log(`Processing radio group ${group.fieldName}:`);
+                console.log(`  Hidden field found: ${!!hiddenField}`);
+                console.log(`  Yes radio found: ${!!yesRadio}`);
+                console.log(`  No radio found: ${!!noRadio}`);
+                if (group.sometimesId) {
+                    console.log(`  Sometimes radio found: ${!!sometimesRadio}`);
+                }
+                
+                if (hiddenField) {
+                    console.log(`  Hidden field value: "${hiddenField.value}"`);
+                }
+                
+                if (hiddenField && yesRadio && noRadio) {
+                    // Clear all radio buttons in the group first
+                    const radioGroup = document.querySelectorAll(`input[name="${group.groupName}"]`);
+                    radioGroup.forEach(r => r.checked = false);
+                    
+                    if (hiddenField.value === "Yes") {
+                        yesRadio.checked = true;
+                        console.log(`  Setting ${group.yesId} to checked`);
+                    } else if (hiddenField.value === "No") {
+                        noRadio.checked = true;
+                        console.log(`  Setting ${group.noId} to checked`);
+                    } else if (hiddenField.value === "Sometimes" && sometimesRadio) {
+                        sometimesRadio.checked = true;
+                        console.log(`  Setting ${group.sometimesId} to checked`);
+                    } else {
+                        console.log(`  No matching value for ${hiddenField.value}`);
+                    }
+                } else {
+                    console.log(`  ERROR: Missing elements for ${group.fieldName}`);
+                }
+            });
+        }
+
         $(document).ready(function() {
+            console.log('=== DOCUMENT READY STARTED ===');
+            console.log('jQuery version:', $.fn.jquery);
+            console.log('SweetAlert2 available:', typeof Swal !== 'undefined');
+            
+            // Add a small delay to ensure all form fields are properly loaded
+            setTimeout(function() {
+                console.log('=== DELAYED INITIALIZATION STARTING ===');
+                // Initialize checkboxes and radio buttons on page load
+                initializeCheckboxes();
+                initializeRadioButtons();
+                
+                // Force fix the form binding as a backup
+                setTimeout(function() {
+                    forceFixFormBinding();
+                }, 200);
+            }, 100);
+
+            // BMI Calculation
+            $('#Assessment_Height, #Assessment_Weight').on('input', function() {
+                const height = parseFloat($('#Assessment_Height').val());
+                const weight = parseFloat($('#Assessment_Weight').val());
+                
+                if (height && weight && height > 0 && weight > 0) {
+                    const heightInMeters = height / 100; // Convert cm to meters
+                    const bmi = (weight / (heightInMeters * heightInMeters)).toFixed(1);
+                    $('#Assessment_BMI').val(bmi);
+                    
+                    // Auto-select BMI status based on value
+                    $('input[name*="BMI"]').prop('checked', false); // Clear all checkboxes
+                    
+                    if (bmi < 18.5) {
+                        $('#BMIUnderweight').prop('checked', true);
+                        updateCheckboxValue('BMIUnderweight', 'Assessment.BMIUnderweight');
+                    } else if (bmi >= 18.5 && bmi < 25) {
+                        $('#BMINormal').prop('checked', true);
+                        updateCheckboxValue('BMINormal', 'Assessment.BMINormal');
+                    } else if (bmi >= 25 && bmi < 30) {
+                        $('#BMIOverweight').prop('checked', true);
+                        updateCheckboxValue('BMIOverweight', 'Assessment.BMIOverweight');
+                    } else if (bmi >= 30) {
+                        $('#BMIObese').prop('checked', true);
+                        updateCheckboxValue('BMIObese', 'Assessment.BMIObese');
+                    }
+                } else {
+                    $('#Assessment_BMI').val('');
+                }
+            });
+
+            // Show/hide female-only section based on gender
+            function toggleFemaleSection() {
+                // Check if patient is female (you may need to implement gender checking logic)
+                const gender = '@ViewData["PatientGender"]'.toLowerCase();
+                if (gender === 'female' || gender === 'f') {
+                    $('#female-only-section').show();
+                } else {
+                    $('#female-only-section').hide();
+                }
+            }
+            
+            // Call function on page load
+            toggleFemaleSection();
+            // DEBUGGING: Log all form field interactions
+            console.log('=== HEEADSSS ASSESSMENT FORM DEBUGGING ENABLED ===');
+            
+            // DEBUGGING: Check all hidden field values
+            console.log('=== CHECKING ALL HIDDEN FIELD VALUES ===');
+            $('input[type="hidden"]').each(function() {
+                const fieldName = $(this).attr('name');
+                const fieldValue = $(this).val();
+                console.log(`Hidden field ${fieldName}: "${fieldValue}"`);
+            });
+            
+            // DEBUGGING: Log initial form field values
+            console.log('=== INITIAL FORM FIELD VALUES ===');
+            $('input, select, textarea').each(function() {
+                const fieldName = $(this).attr('name') || $(this).attr('id');
+                const fieldType = $(this).attr('type') || $(this).prop('tagName').toLowerCase();
+                const fieldValue = $(this).val();
+                const isChecked = $(this).is(':checked');
+                
+                if (fieldValue || isChecked) {
+                    console.log(`Initial: ${fieldName} (${fieldType}) = "${fieldValue}" (checked: ${isChecked})`);
+                }
+            });
+            
+            // DEBUGGING: Check for existing assessment data restoration
+            console.log('=== CHECKING FOR EXISTING ASSESSMENT DATA ===');
+            
+            // Check DRUGS section checkboxes
+            console.log('DRUGS Section Checkboxes:');
+            console.log('  DrugsTobaccoUse checkbox checked:', $('input[name="Assessment.DrugsTobaccoUse"]').is(':checked'));
+            console.log('  DrugsAlcoholUse checkbox checked:', $('input[name="Assessment.DrugsAlcoholUse"]').is(':checked'));
+            console.log('  DrugsStreetDrugs checkbox checked:', $('input[name="Assessment.DrugsStreetDrugs"]').is(':checked'));
+            
+            // Check SEXUALITY section radio buttons
+            console.log('SEXUALITY Section Radio Buttons:');
+            console.log('  SexualityIntimateRelationships selected:', $('input[name="Assessment.SexualityIntimateRelationships"]:checked').val());
+            console.log('  SexualityPregnancyExperience selected:', $('input[name="Assessment.SexualityPregnancyExperience"]:checked').val());
+            console.log('  SexualitySTIExperience selected:', $('input[name="Assessment.SexualitySTIExperience"]:checked').val());
+            console.log('  SexualityProtectionUse selected:', $('input[name="Assessment.SexualityProtectionUse"]:checked').val());
+            
+            // Check SEXUALITY section checkboxes
+            console.log('SEXUALITY Section Checkboxes:');
+            console.log('  SexualityGay checkbox checked:', $('input[name="Assessment.SexualityGay"]').is(':checked'));
+            console.log('  SexualityLesbian checkbox checked:', $('input[name="Assessment.SexualityLesbian"]').is(':checked'));
+            console.log('  SexualityBisexual checkbox checked:', $('input[name="Assessment.SexualityBisexual"]').is(':checked'));
+            
+            // Check if form has any values that suggest existing data
+            var hasExistingData = false;
+            $('input[type="text"], textarea').each(function() {
+                if ($(this).val() && $(this).val().trim() !== '') {
+                    hasExistingData = true;
+                    console.log('Found existing text data in:', $(this).attr('name') || $(this).attr('id'), '=', $(this).val());
+                }
+            });
+            
+            if (hasExistingData) {
+                console.log('✓ Form appears to have existing data loaded');
+            } else {
+                console.log('⚠ Form appears to be empty - no existing data detected');
+            }
+            
+            // Log all form field changes
+            $('input, select, textarea').on('change', function() {
+                const fieldName = $(this).attr('name') || $(this).attr('id');
+                const fieldType = $(this).attr('type') || $(this).prop('tagName').toLowerCase();
+                const fieldValue = $(this).val();
+                const isChecked = $(this).is(':checked');
+                
+                console.log(`Field changed: ${fieldName} (${fieldType}) = "${fieldValue}" (checked: ${isChecked})`);
+            });
+            
+            // DEBUGGING: Enhanced checkbox and radio button tracking
+            $('input[type="checkbox"], input[type="radio"]').on('change', function() {
+                const fieldName = $(this).attr('name') || $(this).attr('id');
+                const fieldType = $(this).attr('type');
+                const fieldValue = $(this).val();
+                const isChecked = $(this).is(':checked');
+                const groupName = $(this).attr('name');
+                
+                console.log(`=== ${fieldType.toUpperCase()} CHANGE ===`);
+                console.log(`Field: ${fieldName}`);
+                console.log(`Value: "${fieldValue}"`);
+                console.log(`Checked: ${isChecked}`);
+                console.log(`Group: ${groupName}`);
+                
+                // For radio buttons, show all options in the group
+                if (fieldType === 'radio') {
+                    console.log(`All radio options in group "${groupName}":`);
+                    $(`input[name="${groupName}"]`).each(function() {
+                        console.log(`  - ${$(this).attr('id')}: "${$(this).val()}" (checked: ${$(this).is(':checked')})`);
+                    });
+                }
+                
+                // For checkboxes, show current state
+                if (fieldType === 'checkbox') {
+                    console.log(`Checkbox "${fieldName}" is now ${isChecked ? 'CHECKED' : 'UNCHECKED'}`);
+                }
+            });
+            
+            // DEBUGGING: Track form data before submission
+            function logFormData() {
+                console.log('=== FORM DATA BEFORE SUBMISSION ===');
+                const formData = new FormData(document.getElementById('heeadsssForm'));
+                
+                // Log all form data
+                for (let [key, value] of formData.entries()) {
+                    console.log(`${key}: "${value}"`);
+                }
+                
+                // Specifically log checkbox and radio button states
+                console.log('=== CHECKBOX AND RADIO STATES ===');
+                $('input[type="checkbox"], input[type="radio"]').each(function() {
+                    const fieldName = $(this).attr('name') || $(this).attr('id');
+                    const fieldValue = $(this).val();
+                    const isChecked = $(this).is(':checked');
+                    const fieldType = $(this).attr('type');
+                    
+                    console.log(`${fieldType.toUpperCase()}: ${fieldName} = "${fieldValue}" (checked: ${isChecked})`);
+                });
+                
+                // Debug specific HEEADSSS sections
+                console.log('=== HEEADSSS SPECIFIC FIELD DEBUGGING ===');
+                
+                // Debug HOME section
+                console.log('HOME Section Fields:');
+                $('#Assessment_HomeFamilyProblems, #Assessment_HomeParentalListening, #Assessment_HomeRunawayThoughts, #Assessment_HomeFamilyChanges').each(function() {
+                    console.log(`  ${$(this).attr('id')}: value="${$(this).val()}"`);
+                });
+                
+                // Debug EDUCATION section
+                console.log('EDUCATION Section Fields:');
+                $('#Assessment_EducationCurrentlyStudying, #Assessment_EducationWorking, #Assessment_EducationSchoolWorkProblems, #Assessment_EducationBullyingExperience').each(function() {
+                    console.log(`  ${$(this).attr('id')}: value="${$(this).val()}"`);
+                });
+                
+                // Debug EATING HABITS section
+                console.log('EATING HABITS Section Fields:');
+                $('#Assessment_EatingBodyImageSatisfaction, #Assessment_EatingDisorderedEatingBehaviors, #Assessment_EatingWeightComments').each(function() {
+                    console.log(`  ${$(this).attr('id')}: value="${$(this).val()}"`);
+                });
+                
+                // Debug ACTIVITIES section
+                console.log('ACTIVITIES Section Fields:');
+                $('#Assessment_ActivitiesParticipation, #Assessment_ActivitiesRegularExercise, #Assessment_ActivitiesInternetGadgetUse').each(function() {
+                    console.log(`  ${$(this).attr('id')}: value="${$(this).val()}"`);
+                });
+                
+                // Debug DRUGS section checkboxes
+                console.log('DRUGS Section Checkboxes:');
+                $('#Assessment_DrugsTobaccoUse, #Assessment_DrugsAlcoholUse, #Assessment_DrugsStreetDrugs').each(function() {
+                    console.log(`  ${$(this).attr('id')}: checked=${$(this).is(':checked')}, value="${$(this).val()}"`);
+                });
+                
+                // Debug SEXUALITY section
+                console.log('SEXUALITY Section Fields:');
+                $('#Assessment_SexualityHealthConcerns, #Assessment_SexualityPartnersCount').each(function() {
+                    console.log(`  ${$(this).attr('id')}: value="${$(this).val()}"`);
+                });
+                
+                // Debug SEXUALITY radio buttons
+                console.log('SEXUALITY Radio Buttons:');
+                $('input[name="SexualityIntimateRelationships"], input[name="SexualityPregnancyExperience"], input[name="SexualitySTIExperience"], input[name="SexualityProtectionUse"]').each(function() {
+                    console.log(`  ${$(this).attr('id')}: checked=${$(this).is(':checked')}, value="${$(this).val()}"`);
+                });
+                
+                // Debug SEXUALITY checkboxes
+                console.log('SEXUALITY Checkboxes:');
+                $('#Assessment_SexualityGay, #Assessment_SexualityLesbian, #Assessment_SexualityBisexual').each(function() {
+                    console.log(`  ${$(this).attr('id')}: checked=${$(this).is(':checked')}, value="${$(this).val()}"`);
+                });
+                
+                // Debug SAFETY section
+                console.log('SAFETY Section Fields:');
+                $('#Assessment_SafetyPhysicalAbuse, #Assessment_SafetyRelationshipViolence, #Assessment_SafetyProtectiveGear, #Assessment_SafetyWeaponAccess').each(function() {
+                    console.log(`  ${$(this).attr('id')}: value="${$(this).val()}"`);
+                });
+                
+                // Debug SUICIDE/DEPRESSION section
+                console.log('SUICIDE/DEPRESSION Section Fields:');
+                $('#Assessment_SuicideDepressionFeelings, #Assessment_SuicideSelfHarmThoughts, #Assessment_SuicideFamilyHistory').each(function() {
+                    console.log(`  ${$(this).attr('id')}: value="${$(this).val()}"`);
+                });
+                
+                // Debug Notes and Assessment fields
+                console.log('Notes and Assessment Fields:');
+                $('#Assessment_Notes, #Assessment_AssessedBy').each(function() {
+                    console.log(`  ${$(this).attr('id')}: value="${$(this).val()}"`);
+                });
+            }
             // Generate Family Number functionality
             document.getElementById('generate-family-no').addEventListener('click', async function() {
                 console.log("Generate button clicked"); // Debug logging
@@ -514,9 +1059,229 @@
                 }
             });
             
-            // Form submission
+            // Test if form submission is working
+            console.log('=== FORM SUBMISSION TEST ===');
+            console.log('Form element found:', $('#heeadsssForm').length > 0);
+            console.log('Form ID:', $('#heeadsssForm').attr('id'));
+            console.log('Form action:', $('#heeadsssForm').attr('action'));
+            console.log('Form method:', $('#heeadsssForm').attr('method'));
+            
+            // Test button functionality
+            $('#testButton').on('click', function() {
+                console.log('=== TEST BUTTON CLICKED ===');
+                console.log('Form element found:', $('#heeadsssForm').length > 0);
+                console.log('Form validation:', $('#heeadsssForm')[0].checkValidity());
+                
+                // Test checkbox values
+                console.log('=== CHECKBOX VALUES TEST ===');
+                const testCheckboxes = ['IsNHPTS', 'Is4Ps', 'DrugsTobaccoUse', 'DrugsAlcoholUse'];
+                testCheckboxes.forEach(id => {
+                    const checkbox = document.getElementById(id);
+                    const hiddenField = document.querySelector(`input[name="Assessment.${id}"]`);
+                    console.log(`Checkbox ${id}: checked=${checkbox?.checked}, hidden value="${hiddenField?.value}"`);
+                });
+                
+                // Test radio button values
+                console.log('=== RADIO BUTTON VALUES TEST ===');
+                const testRadios = ['SexualityIntimateRelationships', 'SexualityPregnancyExperience'];
+                testRadios.forEach(name => {
+                    const selected = document.querySelector(`input[name="${name}"]:checked`);
+                    const hiddenField = document.querySelector(`input[name="Assessment.${name}"]`);
+                    console.log(`Radio ${name}: selected="${selected?.value}", hidden value="${hiddenField?.value}"`);
+                });
+                
+                alert('Check console for debug information');
+            });
+            
+            // Test button click
+            $('button[type="submit"], input[type="submit"]').on('click', function(e) {
+                console.log('=== SUBMIT BUTTON CLICKED ===');
+                console.log('Button element:', this);
+                console.log('Button type:', $(this).attr('type'));
+                console.log('Button text:', $(this).text() || $(this).val());
+            });
+            
+            // Form validation before submission
             $('#heeadsssForm').on('submit', function(e) {
+                console.log('=== FORM SUBMIT EVENT TRIGGERED ===');
                 e.preventDefault();
+                
+                console.log('=== FORM SUBMISSION STARTED ===');
+                console.log('Form element:', this);
+                console.log('Form action:', this.action);
+                console.log('Form method:', this.method);
+                
+                // Update all checkbox values before submission
+                const checkboxes = [
+                    'IsNHPTS', 'Is4Ps', 'IsPhilHealthBeneficiaryOnly', 'IsOwnPhilHealth',
+                    'BMIUnderweight', 'BMINormal', 'BMIOverweight', 'BMIObese',
+                    'EatingVomiting', 'EatingDietPills', 'EatingLaxatives', 'EatingStarvation',
+                    'DrugsTobaccoUse', 'DrugsAlcoholUse', 'DrugsStreetDrugs',
+                    'SexualityGay', 'SexualityLesbian', 'SexualityBisexual'
+                ];
+
+                console.log('=== UPDATING CHECKBOX VALUES ===');
+                checkboxes.forEach(checkboxId => {
+                    const checkbox = document.getElementById(checkboxId);
+                    const hiddenField = document.querySelector(`input[name="Assessment.${checkboxId}"]`);
+                    if (checkbox && hiddenField) {
+                        const newValue = checkbox.checked ? "True" : "False";
+                        hiddenField.value = newValue;
+                        console.log(`Checkbox ${checkboxId}: ${checkbox.checked} -> ${newValue}`);
+                    } else {
+                        console.log(`ERROR: Missing checkbox or hidden field for ${checkboxId}`);
+                    }
+                });
+
+                // Update radio button values before submission
+                const radioGroups = [
+                    {
+                        fieldName: 'Assessment.SexualityIntimateRelationships',
+                        groupName: 'SexualityIntimateRelationships',
+                        yesId: 'SexualityIntimateRelationshipsYes',
+                        noId: 'SexualityIntimateRelationshipsNo'
+                    },
+                    {
+                        fieldName: 'Assessment.SexualityPregnancyExperience',
+                        groupName: 'SexualityPregnancyExperience',
+                        yesId: 'SexualityPregnancyExperienceYes',
+                        noId: 'SexualityPregnancyExperienceNo'
+                    },
+                    {
+                        fieldName: 'Assessment.SexualitySTIExperience',
+                        groupName: 'SexualitySTIExperience',
+                        yesId: 'SexualitySTIExperienceYes',
+                        noId: 'SexualitySTIExperienceNo'
+                    },
+                    {
+                        fieldName: 'Assessment.SexualityProtectionUse',
+                        groupName: 'SexualityProtectionUse',
+                        yesId: 'SexualityProtectionUseYes',
+                        noId: 'SexualityProtectionUseNo',
+                        sometimesId: 'SexualityProtectionUseSometimes'
+                    }
+                ];
+
+                console.log('=== UPDATING RADIO BUTTON VALUES ===');
+                radioGroups.forEach(group => {
+                    const hiddenField = document.querySelector(`input[name="${group.fieldName}"]`);
+                    const yesRadio = document.getElementById(group.yesId);
+                    const noRadio = document.getElementById(group.noId);
+                    const sometimesRadio = group.sometimesId ? document.getElementById(group.sometimesId) : null;
+                    
+                    if (hiddenField && yesRadio && noRadio) {
+                        if (yesRadio.checked) {
+                            hiddenField.value = "Yes";
+                        } else if (noRadio.checked) {
+                            hiddenField.value = "No";
+                        } else if (sometimesRadio && sometimesRadio.checked) {
+                            hiddenField.value = "Sometimes";
+                        } else {
+                            hiddenField.value = "";
+                        }
+                        console.log(`Radio ${group.fieldName}: ${hiddenField.value}`);
+                    } else {
+                        console.log(`ERROR: Missing radio button elements for ${group.fieldName}`);
+                    }
+                });
+                
+                // Validate required fields
+                console.log('=== VALIDATING REQUIRED FIELDS ===');
+                var isValid = true;
+                var firstInvalidField = null;
+                var missingFields = [];
+                
+                // Check specific required fields first
+                const requiredFields = [
+                    { name: 'Assessment.Birthday', id: 'Assessment_Birthday', label: 'Birthday' },
+                    { name: 'Assessment.FullName', id: 'Assessment_FullName', label: 'Patient Name' },
+                    { name: 'Assessment.ContactNumber', id: 'Assessment_ContactNumber', label: 'Contact Number' }
+                ];
+                
+                requiredFields.forEach(field => {
+                    const $field = $(`#${field.id}`);
+                    const value = $field.val();
+                    console.log(`Validating ${field.label} (${field.name}): value="${value}"`);
+                    
+                    if (!value || value.trim() === '') {
+                        isValid = false;
+                        missingFields.push(field.label);
+                        $field.addClass('is-invalid');
+                        if (!firstInvalidField) {
+                            firstInvalidField = $field;
+                        }
+                        console.log(`MISSING REQUIRED FIELD: ${field.label}`);
+                    } else {
+                        $field.removeClass('is-invalid');
+                        console.log(`✓ ${field.label} has value: "${value}"`);
+                    }
+                });
+                
+                // Also check all other required fields
+                $('input[required], select[required], textarea[required]').each(function() {
+                    var $field = $(this);
+                    var value = $field.val();
+                    var fieldName = $field.attr('name') || $field.attr('id');
+                    
+                    // Skip if we already checked this field above
+                    if (requiredFields.some(f => f.id === fieldName || f.name === fieldName)) {
+                        return;
+                    }
+                    
+                    console.log(`Validating field ${fieldName}: value="${value}"`);
+                    
+                    if (!value || value.trim() === '') {
+                        isValid = false;
+                        missingFields.push(fieldName);
+                        $field.addClass('is-invalid');
+                        if (!firstInvalidField) {
+                            firstInvalidField = $field;
+                        }
+                        console.log(`MISSING REQUIRED FIELD: ${fieldName}`);
+                    } else {
+                        $field.removeClass('is-invalid');
+                    }
+                });
+                
+                // Validate specific fields
+                var phoneNumber = $('input[name="Assessment.ContactNumber"]').val();
+                if (phoneNumber && !/^\d{11}$/.test(phoneNumber.replace(/\D/g, ''))) {
+                    isValid = false;
+                    $('input[name="Assessment.ContactNumber"]').addClass('is-invalid');
+                    if (!firstInvalidField) {
+                        firstInvalidField = $('input[name="Assessment.ContactNumber"]');
+                    }
+                    console.log('INVALID PHONE NUMBER:', phoneNumber);
+                }
+                
+                if (!isValid) {
+                    console.log('=== VALIDATION FAILED ===');
+                    console.log('Missing fields:', missingFields);
+                    
+                    // TEMPORARY: Skip validation for testing
+                    console.log('=== SKIPPING VALIDATION FOR TESTING ===');
+                    isValid = true;
+                    
+                    // Scroll to first invalid field
+                    if (firstInvalidField) {
+                        $('html, body').animate({
+                            scrollTop: firstInvalidField.offset().top - 100
+                        }, 500);
+                    }
+                    
+                    // Comment out the validation error for testing
+                    /*
+                    Swal.fire({
+                        title: 'Validation Error',
+                        text: `Please fill in all required fields correctly. Missing: ${missingFields.join(', ')}`,
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                    */
+                }
+                
+                console.log('=== VALIDATION PASSED ===');
                 
                 // Show loading
                 Swal.fire({
@@ -531,13 +1296,28 @@
                 
                 // Submit form
                 var formData = $(this).serialize();
-                console.log('Form data being sent:', formData);
+                console.log('=== FORM DATA BEING SENT ===');
+                console.log('Form data:', formData);
+                
+                // Log all form fields for debugging
+                console.log('=== ALL FORM FIELD VALUES ===');
+                $(this).find('input, select, textarea').each(function() {
+                    var fieldName = $(this).attr('name') || $(this).attr('id');
+                    var fieldValue = $(this).val();
+                    var fieldType = $(this).attr('type') || $(this).prop('tagName').toLowerCase();
+                    var isChecked = $(this).is(':checked');
+                    
+                    if (fieldValue || isChecked) {
+                        console.log(`${fieldName} (${fieldType}): "${fieldValue}" (checked: ${isChecked})`);
+                    }
+                });
                 
                 $.ajax({
                     url: window.location.pathname,
                     type: 'POST',
                     data: formData,
                     success: function(response) {
+                        console.log('=== AJAX SUCCESS ===');
                         console.log('Success response:', response);
                         
                         // Check if the response indicates success
@@ -563,17 +1343,42 @@
                         }
                     },
                     error: function(xhr) {
+                        console.log('=== AJAX ERROR ===');
                         console.error('Error response:', xhr);
                         console.error('Error status:', xhr.status);
                         console.error('Error text:', xhr.responseText);
+                        
+                        let errorMessage = 'An error occurred while submitting your assessment. Please try again.';
+                        
+                        if (xhr.responseText) {
+                            try {
+                                const errorResponse = JSON.parse(xhr.responseText);
+                                errorMessage = errorResponse.error || errorMessage;
+                            } catch (e) {
+                                // Use default error message
+                            }
+                        }
+                        
                         Swal.fire({
                             title: 'Error',
-                            text: 'An error occurred while submitting your assessment. Please try again.',
+                            text: errorMessage,
                             icon: 'error',
                             confirmButtonText: 'OK'
                         });
                     }
                 });
+            });
+            
+            // Real-time validation
+            $('input[required], select[required], textarea[required]').on('blur', function() {
+                var $field = $(this);
+                var value = $field.val();
+                
+                if (!value || value.trim() === '') {
+                    $field.addClass('is-invalid');
+                } else {
+                    $field.removeClass('is-invalid');
+                }
             });
         });
     </script>

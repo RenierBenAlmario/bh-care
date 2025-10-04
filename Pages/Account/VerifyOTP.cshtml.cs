@@ -42,16 +42,16 @@ namespace Barangay.Pages.Account
             public string OTP { get; set; } = string.Empty;
         }
 
-        public async Task<IActionResult> OnGetAsync(string email)
+        public Task<IActionResult> OnGetAsync(string email)
         {
             if (string.IsNullOrEmpty(email))
             {
                 TempData["ErrorMessage"] = "Invalid request. Please start the password reset process again.";
-                return RedirectToPage("./ForgotPassword");
+                return Task.FromResult<IActionResult>(RedirectToPage("./ForgotPassword"));
             }
 
             Email = email;
-            return Page();
+            return Task.FromResult<IActionResult>(Page());
         }
 
         public async Task<IActionResult> OnPostAsync()

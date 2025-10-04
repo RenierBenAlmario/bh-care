@@ -334,8 +334,7 @@ namespace Barangay.Pages.Admin
                 // Map form data to HEEADSSSAssessment properties
                 MapFormDataToHEEADSSS(formData, heeadsssAssessment);
 
-                // Encrypt sensitive data before saving
-                heeadsssAssessment.EncryptSensitiveData(_encryptionService);
+                // Note: Encryption is handled automatically by EncryptedDbContext.SaveChangesAsync()
 
                 // Add to database
                 _context.HEEADSSSAssessments.Add(heeadsssAssessment);

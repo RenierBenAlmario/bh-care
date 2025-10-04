@@ -17,14 +17,14 @@ namespace Barangay.Pages.Nurse
     [Authorize(Roles = "Nurse,Head Nurse")]
     public class PrintNCDAssessmentModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
+        private readonly EncryptedDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<PrintNCDAssessmentModel> _logger;
         private readonly IPermissionService _permissionService;
         private readonly IDataEncryptionService _encryptionService;
 
         public PrintNCDAssessmentModel(
-            ApplicationDbContext context,
+            EncryptedDbContext context,
             UserManager<ApplicationUser> userManager,
             ILogger<PrintNCDAssessmentModel> logger,
             IPermissionService permissionService,
@@ -416,7 +416,7 @@ namespace Barangay.Pages.Nurse
                     FamilyNo = assessment.FamilyNo,
                     Address = assessment.Address,
                     Barangay = assessment.Barangay,
-                    Birthday = assessment.Birthday,
+                    Birthday = DateTime.TryParse(assessment.Birthday, out var birthday) ? birthday : null,
                     Telepono = assessment.Telepono,
                     Edad = assessment.Edad,
                     Kasarian = assessment.Kasarian,

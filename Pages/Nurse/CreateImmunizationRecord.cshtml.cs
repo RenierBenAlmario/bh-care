@@ -30,7 +30,7 @@ namespace Barangay.Pages.Nurse
         [BindProperty]
         public ImmunizationRecord Record { get; set; } = new();
 
-        public async Task<IActionResult> OnGetAsync()
+        public Task<IActionResult> OnGetAsync()
         {
             // Set default values
             Record.HealthCenter = "Baesa Health Center";
@@ -39,7 +39,7 @@ namespace Barangay.Pages.Nurse
             Record.CreatedBy = User.Identity?.Name ?? "Unknown";
             Record.UpdatedBy = User.Identity?.Name ?? "Unknown";
 
-            return Page();
+            return Task.FromResult<IActionResult>(Page());
         }
 
         public async Task<IActionResult> OnPostAsync()

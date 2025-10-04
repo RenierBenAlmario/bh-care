@@ -30,7 +30,7 @@ namespace Barangay.Pages.Nurse
         [BindProperty]
         public ImmunizationShortcutForm Form { get; set; } = new();
 
-        public async Task<IActionResult> OnGetAsync()
+        public Task<IActionResult> OnGetAsync()
         {
             // Set default values
             Form.CreatedAt = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");
@@ -38,7 +38,7 @@ namespace Barangay.Pages.Nurse
             Form.CreatedBy = User.Identity?.Name ?? "Unknown";
             Form.Status = "Pending";
 
-            return Page();
+            return Task.FromResult<IActionResult>(Page());
         }
 
         public async Task<IActionResult> OnPostAsync()

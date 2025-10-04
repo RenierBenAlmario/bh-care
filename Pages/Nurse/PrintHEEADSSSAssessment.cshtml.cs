@@ -58,7 +58,7 @@ namespace Barangay.Pages.Nurse
                 }
 
                 // Get HEEADSSS assessment by UserId (same logic as EditHEEADSSSAssessment)
-                HEEADSSSAssessment existingAssessment = null;
+                HEEADSSSAssessment? existingAssessment = null;
 
                 if (appointment.Patient != null)
                 {

@@ -53,7 +53,7 @@ namespace Barangay.Pages.Nurse
 
                 // Get existing HEEADSSS assessment
                 // Get HEEADSSS assessment by UserId (same logic as AppointmentDetails)
-                HEEADSSSAssessment existingAssessment = null;
+                HEEADSSSAssessment? existingAssessment = null;
                 
                 if (appointment.Patient != null)
                 {
@@ -105,6 +105,26 @@ namespace Barangay.Pages.Nurse
                 if (!string.IsNullOrEmpty(existingAssessment.FamilyNo) && _encryptionService.IsEncrypted(existingAssessment.FamilyNo))
                 {
                     existingAssessment.FamilyNo = _encryptionService.DecryptForUser(existingAssessment.FamilyNo, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessment.IsNHPTS) && _encryptionService.IsEncrypted(existingAssessment.IsNHPTS))
+                {
+                    existingAssessment.IsNHPTS = _encryptionService.DecryptForUser(existingAssessment.IsNHPTS, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessment.Is4Ps) && _encryptionService.IsEncrypted(existingAssessment.Is4Ps))
+                {
+                    existingAssessment.Is4Ps = _encryptionService.DecryptForUser(existingAssessment.Is4Ps, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessment.IsPhilHealthBeneficiaryOnly) && _encryptionService.IsEncrypted(existingAssessment.IsPhilHealthBeneficiaryOnly))
+                {
+                    existingAssessment.IsPhilHealthBeneficiaryOnly = _encryptionService.DecryptForUser(existingAssessment.IsPhilHealthBeneficiaryOnly, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessment.IsOwnPhilHealth) && _encryptionService.IsEncrypted(existingAssessment.IsOwnPhilHealth))
+                {
+                    existingAssessment.IsOwnPhilHealth = _encryptionService.DecryptForUser(existingAssessment.IsOwnPhilHealth, User);
+                }
+                if (!string.IsNullOrEmpty(existingAssessment.PhilHealthPIN) && _encryptionService.IsEncrypted(existingAssessment.PhilHealthPIN))
+                {
+                    existingAssessment.PhilHealthPIN = _encryptionService.DecryptForUser(existingAssessment.PhilHealthPIN, User);
                 }
                 
                 // Measurements and Health Information
@@ -479,14 +499,21 @@ namespace Barangay.Pages.Nurse
                     Address = existingAssessment.Address,
                     ContactNumber = existingAssessment.ContactNumber,
                     
+                    // Health Program Information
+                    IsNHPTS = existingAssessment.IsNHPTS,
+                    Is4Ps = existingAssessment.Is4Ps,
+                    IsPhilHealthBeneficiaryOnly = existingAssessment.IsPhilHealthBeneficiaryOnly,
+                    IsOwnPhilHealth = existingAssessment.IsOwnPhilHealth,
+                    PhilHealthPIN = existingAssessment.PhilHealthPIN,
+                    
                     // Measurements and Health Information
                     Height = existingAssessment.Height,
                     Weight = existingAssessment.Weight,
                     BMI = existingAssessment.BMI,
-                    BMIUnderweight = existingAssessment.BMIUnderweight?.ToString() == "True" ? "True" : "False",
-                    BMINormal = existingAssessment.BMINormal?.ToString() == "True" ? "True" : "False",
-                    BMIOverweight = existingAssessment.BMIOverweight?.ToString() == "True" ? "True" : "False",
-                    BMIObese = existingAssessment.BMIObese?.ToString() == "True" ? "True" : "False",
+                    BMIUnderweight = existingAssessment.BMIUnderweight?.ToString(),
+                    BMINormal = existingAssessment.BMINormal?.ToString(),
+                    BMIOverweight = existingAssessment.BMIOverweight?.ToString(),
+                    BMIObese = existingAssessment.BMIObese?.ToString(),
                     
                     // Immunization Status
                     ImmunizationMR = existingAssessment.ImmunizationMR,
@@ -514,6 +541,7 @@ namespace Barangay.Pages.Nurse
                     FamilyHistory = existingAssessment.FamilyHistory,
                     
                     // Referral Information
+                    ReferredBy = existingAssessment.ReferredBy,
                     ReferredTo = existingAssessment.ReferredTo,
                     ReasonForReferral = existingAssessment.ReasonForReferral,
                     FollowUpDate = existingAssessment.FollowUpDate,
@@ -524,6 +552,7 @@ namespace Barangay.Pages.Nurse
                     HomeFamilyProblems = existingAssessment.HomeFamilyProblems,
                     HomeParentalListening = existingAssessment.HomeParentalListening,
                     HomeParentalBlame = existingAssessment.HomeParentalBlame,
+                    HomeRunawayThoughts = existingAssessment.HomeRunawayThoughts,
                     HomeFamilyChanges = existingAssessment.HomeFamilyChanges,
                     
                     // EDUCATION section
@@ -534,6 +563,7 @@ namespace Barangay.Pages.Nurse
                     EducationWorking = existingAssessment.EducationWorking,
                     EducationSchoolWorkProblems = existingAssessment.EducationSchoolWorkProblems,
                     EducationBullying = existingAssessment.EducationBullying,
+                    EducationBullyingExperience = existingAssessment.EducationBullyingExperience,
                     EducationEmployment = existingAssessment.EducationEmployment,
                     
                     // EATING HABITS section
@@ -544,6 +574,12 @@ namespace Barangay.Pages.Nurse
                     EatingDisorderedEatingBehaviors = existingAssessment.EatingDisorderedEatingBehaviors,
                     EatingWeightComments = existingAssessment.EatingWeightComments,
                     
+                    // Missing eating habits checkbox fields
+                    EatingVomiting = existingAssessment.EatingVomiting,
+                    EatingDietPills = existingAssessment.EatingDietPills,
+                    EatingLaxatives = existingAssessment.EatingLaxatives,
+                    EatingStarvation = existingAssessment.EatingStarvation,
+                    
                     // ACTIVITIES section
                     Hobbies = existingAssessment.Hobbies,
                     PhysicalActivity = existingAssessment.PhysicalActivity,
@@ -551,13 +587,15 @@ namespace Barangay.Pages.Nurse
                     ActivitiesParticipation = existingAssessment.ActivitiesParticipation,
                     ActivitiesRegularExercise = existingAssessment.ActivitiesRegularExercise,
                     ActivitiesScreenTime = existingAssessment.ActivitiesScreenTime,
+                    ActivitiesInternetGadgetUse = existingAssessment.ActivitiesInternetGadgetUse,
                     
                     // DRUGS section
                     SubstanceUse = existingAssessment.SubstanceUse,
                     SubstanceType = existingAssessment.SubstanceType,
-                    DrugsTobaccoUse = existingAssessment.DrugsTobaccoUse == "True" ? "True" : "False",
-                    DrugsAlcoholUse = existingAssessment.DrugsAlcoholUse == "True" ? "True" : "False",
-                    DrugsIllicitDrugUse = existingAssessment.DrugsIllicitDrugUse == "True" ? "True" : "False",
+                    DrugsTobaccoUse = existingAssessment.DrugsTobaccoUse,
+                    DrugsAlcoholUse = existingAssessment.DrugsAlcoholUse,
+                    DrugsIllicitDrugUse = existingAssessment.DrugsIllicitDrugUse,
+                    DrugsStreetDrugs = existingAssessment.DrugsStreetDrugs,
                     
                     // SEXUALITY section
                     DatingRelationships = existingAssessment.DatingRelationships,
@@ -577,6 +615,11 @@ namespace Barangay.Pages.Nurse
                     SexualityProtectionUse = existingAssessment.SexualityProtectionUse,
                     SexualityHarassment = existingAssessment.SexualityHarassment,
                     
+                    // Missing sexuality checkbox fields
+                    SexualityGay = existingAssessment.SexualityGay,
+                    SexualityLesbian = existingAssessment.SexualityLesbian,
+                    SexualityBisexual = existingAssessment.SexualityBisexual,
+                    
                     // SUICIDE/DEPRESSION section
                     MoodChanges = existingAssessment.MoodChanges,
                     SuicidalThoughts = existingAssessment.SuicidalThoughts,
@@ -593,6 +636,7 @@ namespace Barangay.Pages.Nurse
                     SafetyRelationshipViolence = existingAssessment.SafetyRelationshipViolence,
                     SafetyProtectiveGear = existingAssessment.SafetyProtectiveGear,
                     SafetyGunsAtHome = existingAssessment.SafetyGunsAtHome,
+                    SafetyWeaponAccess = existingAssessment.SafetyWeaponAccess,
                     
                     // STRENGTHS section
                     PersonalStrengths = existingAssessment.PersonalStrengths,
@@ -638,7 +682,7 @@ namespace Barangay.Pages.Nurse
                     return RedirectToPage("/Nurse/Appointments");
                 }
 
-                HEEADSSSAssessment existingAssessment = null;
+                HEEADSSSAssessment? existingAssessment = null;
 
                 if (appointment.Patient != null)
                 {
@@ -665,10 +709,19 @@ namespace Barangay.Pages.Nurse
                 existingAssessment.HealthFacility = Assessment.HealthFacility;
                 existingAssessment.FamilyNo = Assessment.FamilyNo;
                 
+                // Health Program Information
+                existingAssessment.IsNHPTS = Assessment.IsNHPTS;
+                existingAssessment.Is4Ps = Assessment.Is4Ps;
+                existingAssessment.IsPhilHealthBeneficiaryOnly = Assessment.IsPhilHealthBeneficiaryOnly;
+                existingAssessment.IsOwnPhilHealth = Assessment.IsOwnPhilHealth;
+                existingAssessment.PhilHealthPIN = Assessment.PhilHealthPIN;
+                
                 // Measurements and Health Information
                 existingAssessment.Height = Assessment.Height;
                 existingAssessment.Weight = Assessment.Weight;
                 existingAssessment.BMI = Assessment.BMI;
+                
+                // BMI Status - only one should be true
                 existingAssessment.BMIUnderweight = Assessment.BMIUnderweight == "True";
                 existingAssessment.BMINormal = Assessment.BMINormal == "True";
                 existingAssessment.BMIOverweight = Assessment.BMIOverweight == "True";
@@ -700,6 +753,7 @@ namespace Barangay.Pages.Nurse
                 existingAssessment.FamilyHistory = Assessment.FamilyHistory;
                 
                 // Referral Information
+                existingAssessment.ReferredBy = Assessment.ReferredBy;
                 existingAssessment.ReferredTo = Assessment.ReferredTo;
                 existingAssessment.ReasonForReferral = Assessment.ReasonForReferral;
                 existingAssessment.FollowUpDate = Assessment.FollowUpDate;
@@ -710,6 +764,7 @@ namespace Barangay.Pages.Nurse
                 existingAssessment.HomeFamilyProblems = Assessment.HomeFamilyProblems;
                 existingAssessment.HomeParentalListening = Assessment.HomeParentalListening;
                 existingAssessment.HomeParentalBlame = Assessment.HomeParentalBlame;
+                existingAssessment.HomeRunawayThoughts = Assessment.HomeRunawayThoughts;
                 existingAssessment.HomeFamilyChanges = Assessment.HomeFamilyChanges;
                 
                 // EDUCATION section
@@ -720,6 +775,7 @@ namespace Barangay.Pages.Nurse
                 existingAssessment.EducationWorking = Assessment.EducationWorking;
                 existingAssessment.EducationSchoolWorkProblems = Assessment.EducationSchoolWorkProblems;
                 existingAssessment.EducationBullying = Assessment.EducationBullying;
+                existingAssessment.EducationBullyingExperience = Assessment.EducationBullyingExperience;
                 existingAssessment.EducationEmployment = Assessment.EducationEmployment;
                 
                 // EATING HABITS section
@@ -730,6 +786,12 @@ namespace Barangay.Pages.Nurse
                 existingAssessment.EatingDisorderedEatingBehaviors = Assessment.EatingDisorderedEatingBehaviors;
                 existingAssessment.EatingWeightComments = Assessment.EatingWeightComments;
                 
+                // Missing eating habits checkbox fields
+                existingAssessment.EatingVomiting = Assessment.EatingVomiting;
+                existingAssessment.EatingDietPills = Assessment.EatingDietPills;
+                existingAssessment.EatingLaxatives = Assessment.EatingLaxatives;
+                existingAssessment.EatingStarvation = Assessment.EatingStarvation;
+                
                 // ACTIVITIES section
                 existingAssessment.Hobbies = Assessment.Hobbies;
                 existingAssessment.PhysicalActivity = Assessment.PhysicalActivity;
@@ -737,6 +799,7 @@ namespace Barangay.Pages.Nurse
                 existingAssessment.ActivitiesParticipation = Assessment.ActivitiesParticipation;
                 existingAssessment.ActivitiesRegularExercise = Assessment.ActivitiesRegularExercise;
                 existingAssessment.ActivitiesScreenTime = Assessment.ActivitiesScreenTime;
+                existingAssessment.ActivitiesInternetGadgetUse = Assessment.ActivitiesInternetGadgetUse;
                 
                 // DRUGS section
                 existingAssessment.SubstanceUse = Assessment.SubstanceUse;
@@ -744,6 +807,7 @@ namespace Barangay.Pages.Nurse
                 existingAssessment.DrugsTobaccoUse = Assessment.DrugsTobaccoUse;
                 existingAssessment.DrugsAlcoholUse = Assessment.DrugsAlcoholUse;
                 existingAssessment.DrugsIllicitDrugUse = Assessment.DrugsIllicitDrugUse;
+                existingAssessment.DrugsStreetDrugs = Assessment.DrugsStreetDrugs;
                 
                 // SEXUALITY section
                 existingAssessment.DatingRelationships = Assessment.DatingRelationships;
@@ -763,6 +827,17 @@ namespace Barangay.Pages.Nurse
                 existingAssessment.SexualityProtectionUse = Assessment.SexualityProtectionUse;
                 existingAssessment.SexualityHarassment = Assessment.SexualityHarassment;
                 
+                // Missing sexuality checkbox fields
+                existingAssessment.SexualityGay = Assessment.SexualityGay;
+                existingAssessment.SexualityLesbian = Assessment.SexualityLesbian;
+                existingAssessment.SexualityBisexual = Assessment.SexualityBisexual;
+                
+                // Missing eating habits checkbox fields
+                existingAssessment.EatingVomiting = Assessment.EatingVomiting;
+                existingAssessment.EatingDietPills = Assessment.EatingDietPills;
+                existingAssessment.EatingLaxatives = Assessment.EatingLaxatives;
+                existingAssessment.EatingStarvation = Assessment.EatingStarvation;
+                
                 // SUICIDE/DEPRESSION section
                 existingAssessment.MoodChanges = Assessment.MoodChanges;
                 existingAssessment.SuicidalThoughts = Assessment.SuicidalThoughts;
@@ -779,6 +854,7 @@ namespace Barangay.Pages.Nurse
                 existingAssessment.SafetyRelationshipViolence = Assessment.SafetyRelationshipViolence;
                 existingAssessment.SafetyProtectiveGear = Assessment.SafetyProtectiveGear;
                 existingAssessment.SafetyGunsAtHome = Assessment.SafetyGunsAtHome;
+                existingAssessment.SafetyWeaponAccess = Assessment.SafetyWeaponAccess;
                 
                 // STRENGTHS section
                 existingAssessment.PersonalStrengths = Assessment.PersonalStrengths;
@@ -793,9 +869,7 @@ namespace Barangay.Pages.Nurse
                 existingAssessment.AssessedBy = Assessment.AssessedBy;
                 existingAssessment.UpdatedAt = DateTime.Now;
 
-                // Encrypt sensitive data before saving
-                existingAssessment.EncryptSensitiveData(_encryptionService);
-
+                // Note: Encryption is handled automatically by EncryptedDbContext.SaveChangesAsync()
                 await _context.SaveChangesAsync();
 
                 _logger.LogInformation("HEEADSSS assessment updated successfully for appointment {AppointmentId}", Assessment.AppointmentId);
@@ -809,6 +883,72 @@ namespace Barangay.Pages.Nurse
                 TempData["StatusMessage"] = "Error: Unable to update assessment.";
                 return Page();
             }
+        }
+
+        // Handler for AJAX calls to generate family number
+        public async Task<IActionResult> OnPostGenerateFamilyNumberAsync([FromBody] GenerateFamilyNumberRequest request)
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return new JsonResult(new { success = false, error = "User not found" });
+                }
+
+                var lastName = request.LastName?.Trim();
+                if (string.IsNullOrEmpty(lastName))
+                {
+                    return new JsonResult(new { success = false, error = "Last name is required" });
+                }
+
+                // Check if a family number already exists for this last name
+                var existingAssessment = await _context.HEEADSSSAssessments
+                    .Where(a => a.FamilyNo != null && !string.IsNullOrEmpty(a.FamilyNo))
+                    .FirstOrDefaultAsync();
+
+                string familyNo;
+                bool isPreexisting = false;
+
+                if (existingAssessment != null && !string.IsNullOrEmpty(existingAssessment.FamilyNo))
+                {
+                    // Decrypt the existing family number to check
+                    var decryptedFamilyNo = _encryptionService.DecryptForUser(existingAssessment.FamilyNo, User);
+                    if (decryptedFamilyNo != null && decryptedFamilyNo.StartsWith($"C-{lastName.ToUpper()}", StringComparison.OrdinalIgnoreCase))
+                    {
+                        familyNo = decryptedFamilyNo;
+                        isPreexisting = true;
+                    }
+                    else
+                    {
+                        // Generate new family number
+                        familyNo = $"C-{lastName.ToUpper()}-{DateTime.Now:yyyyMMddHHmmss}";
+                    }
+                }
+                else
+                {
+                    // Generate new family number
+                    familyNo = $"C-{lastName.ToUpper()}-{DateTime.Now:yyyyMMddHHmmss}";
+                }
+
+                _logger.LogInformation("Generated family number: {FamilyNo} for user {UserId}", familyNo, user.Id);
+
+                return new JsonResult(new { 
+                    success = true, 
+                    familyNo = familyNo,
+                    isPreexisting = isPreexisting
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating family number for user {UserId}", User.FindFirstValue(ClaimTypes.NameIdentifier));
+                return new JsonResult(new { success = false, error = "Failed to generate family number" });
+            }
+        }
+
+        public class GenerateFamilyNumberRequest
+        {
+            public string LastName { get; set; }
         }
     }
 }

@@ -192,8 +192,7 @@ namespace Barangay.Pages.Nurse
                 // Check for critical responses that might need immediate attention
                 bool hasCriticalResponses = Assessment.SuicidalThoughts == true || Assessment.SelfHarmBehavior == true;
                 
-                // Encrypt sensitive data before saving
-                Assessment.EncryptSensitiveData(_encryptionService);
+                // Note: Encryption is handled automatically by EncryptedDbContext.SaveChangesAsync()
                 
                 // Save assessment
                 _context.HEEADSSSAssessments.Add(Assessment);
@@ -266,17 +265,49 @@ namespace Barangay.Pages.Nurse
             var firstLetter = lastName.Substring(0, 1).ToUpper();
 
             // Get the highest sequence number for this letter
-            var lastNumber = await _context.HEEADSSSAssessments
-                .Where(a => a.FamilyNo != null && a.FamilyNo.StartsWith(firstLetter + "-"))
-                .Select(a => a.FamilyNo.Substring(2))
-                .Where(n => n.All(char.IsDigit))
-                .Select(n => int.Parse(n))
-                .DefaultIfEmpty(0)
-                .MaxAsync();
+            // Since FamilyNo is encrypted, we need to decrypt all records to check for existing numbers
+            var allAssessments = await _context.HEEADSSSAssessments
+                .Where(a => !string.IsNullOrEmpty(a.FamilyNo))
+                .ToListAsync();
+
+            int nextNumber = 1;
+            var existingNumbers = new List<int>();
+
+            foreach (var assessment in allAssessments)
+            {
+                try
+                {
+                    // Decrypt the family number if possible
+                    string decryptedFamilyNo = assessment.FamilyNo;
+                    if (_encryptionService.CanUserDecrypt(User))
+                    {
+                        decryptedFamilyNo = _encryptionService.Decrypt(assessment.FamilyNo);
+                    }
+
+                    // Check if this family number starts with our letter
+                    if (!string.IsNullOrEmpty(decryptedFamilyNo) && decryptedFamilyNo.StartsWith($"{firstLetter}-"))
+                    {
+                        var parts = decryptedFamilyNo.Split('-');
+                        if (parts.Length == 2 && int.TryParse(parts[1], out int num))
+                        {
+                            existingNumbers.Add(num);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to decrypt FamilyNo for HEEADSSS assessment {AssessmentId}", assessment.Id);
+                    // Skip this record if decryption fails
+                }
+            }
+
+            if (existingNumbers.Any())
+            {
+                nextNumber = existingNumbers.Max() + 1;
+            }
             
             // Generate new family number
-            var newSequence = lastNumber + 1;
-            return $"{firstLetter}-{newSequence:D3}"; // Format: X-001, X-002, etc.
+            return $"{firstLetter}-{nextNumber:D3}"; // Format: X-001, X-002, etc.
         }
     }
 } 

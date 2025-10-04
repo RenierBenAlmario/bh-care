@@ -159,10 +159,10 @@
                                         </button>
                                         @if (user.Status.ToLower() == "pending")
                                         {
-                                            <button type="button" class="btn action action-secondary btn-sm" data-id="@user.Id">
+                                            <button type="button" class="btn action action-secondary btn-sm btn-action approve" data-id="@user.Id" aria-label="Approve user">
                                                 <i class="fa-solid fa-check"></i> Approve
                                             </button>
-                                            <button type="button" class="btn action action-secondary btn-sm" data-id="@user.Id">
+                                            <button type="button" class="btn action action-secondary btn-sm btn-action reject" data-id="@user.Id" aria-label="Reject user">
                                                 <i class="fa-solid fa-xmark"></i> Reject
                                             </button>
                                         }

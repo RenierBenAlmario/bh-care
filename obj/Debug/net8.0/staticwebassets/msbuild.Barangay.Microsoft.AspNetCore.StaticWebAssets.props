@@ -3648,6 +3648,22 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath($(MSBuildThisFileDirectory)..\staticwebassets\uploads\residency_proofs\cf3ff1eb-2d4d-4bca-8532-6d21f89e24c6_20250614205539.png))</OriginalItemSpec>
     </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath($(MSBuildThisFileDirectory)..\staticwebassets\uploads\residency_proofs\d196aec3-c00c-4c60-b77f-ce5f2afb221e_20251003191212.png))">
+      <SourceType>Package</SourceType>
+      <SourceId>Barangay</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>/</BasePath>
+      <RelativePath>uploads/residency_proofs/d196aec3-c00c-4c60-b77f-ce5f2afb221e_20251003191212.png</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath($(MSBuildThisFileDirectory)..\staticwebassets\uploads\residency_proofs\d196aec3-c00c-4c60-b77f-ce5f2afb221e_20251003191212.png))</OriginalItemSpec>
+    </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath($(MSBuildThisFileDirectory)..\staticwebassets\uploads\residency_proofs\d98c587d-7986-4e9b-b140-67ad9bd3540b_20250920221119.png))">
       <SourceType>Package</SourceType>
       <SourceId>Barangay</SourceId>

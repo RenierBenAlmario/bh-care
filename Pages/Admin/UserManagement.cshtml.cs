@@ -984,7 +984,7 @@ namespace Barangay.Pages.Admin
                 await _context.SaveChangesAsync();
 
                 // Handle suspension logic for rejections
-                SuspensionResult suspensionResult = null;
+                SuspensionResult? suspensionResult = null;
                 if (status.Equals("rejected", StringComparison.OrdinalIgnoreCase))
                 {
                     suspensionResult = await HandleUserSuspension(payload.UserId, user);
@@ -1260,7 +1260,7 @@ namespace Barangay.Pages.Admin
                     }
                     
                     result.IsSuspended = true;
-                    result.SuspensionEndDate = suspension.SuspensionEndDate.Value;
+                    result.SuspensionEndDate = suspension.SuspensionEndDate ?? DateTime.UtcNow;
                 }
                 
                 await _context.SaveChangesAsync();

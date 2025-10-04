@@ -298,7 +298,7 @@
                                     if (Model.SelectedAppointmentId != null)
                                     {
                                         var targetUrl = Model.SelectedPatientAge >= 20
-                                            ? $"/Nurse/CreateNCDAssessment?appointmentId={Model.SelectedAppointmentId}"
+                                            ? $"/Nurse/CreateNCDAssessment/{Model.SelectedAppointmentId}"
                                             : $"/Nurse/CreateHEEADSSSAssessment?appointmentId={Model.SelectedAppointmentId}";
                                         <a class="btn btn-primary" href="@targetUrl">
                                             @(Model.IsFormFilled ? "Update Assessment" : "Fill Out Assessment")

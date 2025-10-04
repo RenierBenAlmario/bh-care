@@ -17,14 +17,14 @@ namespace Barangay.Pages.Nurse
     [Authorize(Roles = "Nurse,Head Nurse")]
     public class EditNCDAssessmentModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
+        private readonly EncryptedDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<EditNCDAssessmentModel> _logger;
         private readonly IPermissionService _permissionService;
         private readonly IDataEncryptionService _encryptionService;
 
         public EditNCDAssessmentModel(
-            ApplicationDbContext context,
+            EncryptedDbContext context,
             UserManager<ApplicationUser> userManager,
             ILogger<EditNCDAssessmentModel> logger,
             IPermissionService permissionService,
@@ -70,19 +70,32 @@ namespace Barangay.Pages.Nurse
                 // Decrypt sensitive data for display
                 try
                 {
+                    _logger.LogInformation("=== DECRYPTION DEBUGGING STARTED ===");
                     _logger.LogInformation("Attempting to decrypt assessment data for user {User}", User.Identity?.Name);
                     _logger.LogInformation("User roles: {Roles}", string.Join(", ", User.Claims.Where(c => c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role").Select(c => c.Value)));
                     _logger.LogInformation("Can user decrypt: {CanDecrypt}", _encryptionService.CanUserDecrypt(User));
                     
-                    // Log some sample encrypted fields before decryption
-                    _logger.LogInformation("Before decryption - FirstName: {FirstName}", assessment.FirstName?.Substring(0, Math.Min(20, assessment.FirstName.Length)) + "...");
-                    _logger.LogInformation("Before decryption - HealthFacility: {HealthFacility}", assessment.HealthFacility?.Substring(0, Math.Min(20, assessment.HealthFacility?.Length ?? 0)) + "...");
+                    // DEBUGGING: Log encrypted values before decryption
+                    _logger.LogInformation("=== ENCRYPTED VALUES BEFORE DECRYPTION ===");
+                    _logger.LogInformation("HasDiabetes: '{HasDiabetes}'", assessment.HasDiabetes?.Substring(0, Math.Min(20, assessment.HasDiabetes?.Length ?? 0)) + "...");
+                    _logger.LogInformation("HasChestPain: '{HasChestPain}'", assessment.HasChestPain?.Substring(0, Math.Min(20, assessment.HasChestPain?.Length ?? 0)) + "...");
+                    _logger.LogInformation("DrinksAlcohol: '{DrinksAlcohol}'", assessment.DrinksAlcohol?.Substring(0, Math.Min(20, assessment.DrinksAlcohol?.Length ?? 0)) + "...");
+                    _logger.LogInformation("HasHistoryOfSmoking: '{HasHistoryOfSmoking}'", assessment.HasHistoryOfSmoking?.Substring(0, Math.Min(20, assessment.HasHistoryOfSmoking?.Length ?? 0)) + "...");
+                    _logger.LogInformation("HasStress: '{HasStress}'", assessment.HasStress?.Substring(0, Math.Min(20, assessment.HasStress?.Length ?? 0)) + "...");
+                    _logger.LogInformation("EatsVegetablesDaily: '{EatsVegetablesDaily}'", assessment.EatsVegetablesDaily?.Substring(0, Math.Min(20, assessment.EatsVegetablesDaily?.Length ?? 0)) + "...");
+                    _logger.LogInformation("FamilyHistoryHeartDiseaseFather: '{FamilyHistoryHeartDiseaseFather}'", assessment.FamilyHistoryHeartDiseaseFather?.Substring(0, Math.Min(20, assessment.FamilyHistoryHeartDiseaseFather?.Length ?? 0)) + "...");
                     
                     assessment.DecryptSensitiveData(_encryptionService, User);
                     
-                    // Log some sample decrypted fields after decryption
-                    _logger.LogInformation("After decryption - FirstName: {FirstName}", assessment.FirstName?.Substring(0, Math.Min(20, assessment.FirstName?.Length ?? 0)) + "...");
-                    _logger.LogInformation("After decryption - HealthFacility: {HealthFacility}", assessment.HealthFacility?.Substring(0, Math.Min(20, assessment.HealthFacility?.Length ?? 0)) + "...");
+                    // DEBUGGING: Log decrypted values after decryption
+                    _logger.LogInformation("=== DECRYPTED VALUES AFTER DECRYPTION ===");
+                    _logger.LogInformation("HasDiabetes: '{HasDiabetes}'", assessment.HasDiabetes);
+                    _logger.LogInformation("HasChestPain: '{HasChestPain}'", assessment.HasChestPain);
+                    _logger.LogInformation("DrinksAlcohol: '{DrinksAlcohol}'", assessment.DrinksAlcohol);
+                    _logger.LogInformation("HasHistoryOfSmoking: '{HasHistoryOfSmoking}'", assessment.HasHistoryOfSmoking);
+                    _logger.LogInformation("HasStress: '{HasStress}'", assessment.HasStress);
+                    _logger.LogInformation("EatsVegetablesDaily: '{EatsVegetablesDaily}'", assessment.EatsVegetablesDaily);
+                    _logger.LogInformation("FamilyHistoryHeartDiseaseFather: '{FamilyHistoryHeartDiseaseFather}'", assessment.FamilyHistoryHeartDiseaseFather);
                     
                     _logger.LogInformation("Assessment data decryption completed successfully");
                     
@@ -227,6 +240,10 @@ namespace Barangay.Pages.Nurse
                     if (!string.IsNullOrEmpty(assessment.AlcoholAmountMoreThan4Shots75ml) && _encryptionService.IsEncrypted(assessment.AlcoholAmountMoreThan4Shots75ml))
                     {
                         assessment.AlcoholAmountMoreThan4Shots75ml = _encryptionService.DecryptForUser(assessment.AlcoholAmountMoreThan4Shots75ml, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.AlcoholPerOccasion) && _encryptionService.IsEncrypted(assessment.AlcoholPerOccasion))
+                    {
+                        assessment.AlcoholPerOccasion = _encryptionService.DecryptForUser(assessment.AlcoholPerOccasion, User);
                     }
                     if (!string.IsNullOrEmpty(assessment.AlcoholFrequency1to3TimesPerWeek) && _encryptionService.IsEncrypted(assessment.AlcoholFrequency1to3TimesPerWeek))
                     {
@@ -657,6 +674,10 @@ namespace Barangay.Pages.Nurse
                     {
                         assessment.HasAsthma = _encryptionService.DecryptForUser(assessment.HasAsthma, User);
                     }
+                    if (!string.IsNullOrEmpty(assessment.HasStrokeSymptoms) && _encryptionService.IsEncrypted(assessment.HasStrokeSymptoms))
+                    {
+                        assessment.HasStrokeSymptoms = _encryptionService.DecryptForUser(assessment.HasStrokeSymptoms, User);
+                    }
                     if (!string.IsNullOrEmpty(assessment.HasNoRegularExercise) && _encryptionService.IsEncrypted(assessment.HasNoRegularExercise))
                     {
                         assessment.HasNoRegularExercise = _encryptionService.DecryptForUser(assessment.HasNoRegularExercise, User);
@@ -747,6 +768,17 @@ namespace Barangay.Pages.Nurse
                 
                 try
                 {
+                    // DEBUGGING: Log values before creating view model
+                    _logger.LogInformation("=== CREATING VIEW MODEL ===");
+                    _logger.LogInformation("Assessment values before view model creation:");
+                    _logger.LogInformation("  HasDiabetes: '{HasDiabetes}'", assessment.HasDiabetes);
+                    _logger.LogInformation("  HasChestPain: '{HasChestPain}'", assessment.HasChestPain);
+                    _logger.LogInformation("  DrinksAlcohol: '{DrinksAlcohol}'", assessment.DrinksAlcohol);
+                    _logger.LogInformation("  HasHistoryOfSmoking: '{HasHistoryOfSmoking}'", assessment.HasHistoryOfSmoking);
+                    _logger.LogInformation("  HasStress: '{HasStress}'", assessment.HasStress);
+                    _logger.LogInformation("  EatsVegetablesDaily: '{EatsVegetablesDaily}'", assessment.EatsVegetablesDaily);
+                    _logger.LogInformation("  FamilyHistoryHeartDiseaseFather: '{FamilyHistoryHeartDiseaseFather}'", assessment.FamilyHistoryHeartDiseaseFather);
+                    
                     // Create complete view model with all fields
                     NCDRiskAssessment = new NCDRiskAssessmentViewModel
                     {
@@ -762,7 +794,7 @@ namespace Barangay.Pages.Nurse
                         IDNumber = assessment.IDNumber,
                         Barangay = assessment.Barangay,
                         Telepono = assessment.Telepono,
-                        Birthday = assessment.Birthday,
+                        Birthday = !string.IsNullOrEmpty(assessment.Birthday) ? DateTime.TryParse(assessment.Birthday, out var birthday) ? birthday : (DateTime?)null : null,
                         Edad = assessment.Edad,
                         Kasarian = assessment.Kasarian,
                         Relihiyon = assessment.Relihiyon,
@@ -789,6 +821,7 @@ namespace Barangay.Pages.Nurse
                         EyeDiseaseMedication = assessment.EyeDiseaseMedication,
                         HasAsthma = assessment.HasAsthma,
                         HasDifficultyBreathing = assessment.HasDifficultyBreathing,
+                        HasStrokeSymptoms = assessment.HasStrokeSymptoms,
                         
                         // Chest Pain and Symptoms
                         HasChestPain = assessment.HasChestPain,
@@ -862,6 +895,7 @@ namespace Barangay.Pages.Nurse
                         AlcoholFrequencyMoreThan4TimesPerWeek = assessment.AlcoholFrequencyMoreThan4TimesPerWeek,
                         IsBingeDrinker = assessment.IsBingeDrinker,
                         AlcoholStoppedDuration = assessment.AlcoholStoppedDuration,
+                        AlcoholPerOccasion = assessment.AlcoholPerOccasion,
                         
                         // Exercise
                         ModerateIntensityExercise = assessment.ModerateIntensityExercise,
@@ -927,10 +961,32 @@ namespace Barangay.Pages.Nurse
                         InterviewedBy = assessment.InterviewedBy,
                         Designation = assessment.Designation,
                         AssessmentDate = assessment.AssessmentDate,
-                        PatientSignature = assessment.PatientSignature
+                        PatientSignature = assessment.PatientSignature,
+                        
+                        // Missing properties
+                        IDNo = assessment.IDNo
                     };
 
                     _logger.LogInformation("Basic view model created successfully");
+                    
+                    // DEBUGGING: Log the view model values after creation
+                    _logger.LogInformation("=== VIEW MODEL VALUES AFTER CREATION ===");
+                    _logger.LogInformation("HasDiabetes: '{HasDiabetes}'", NCDRiskAssessment.HasDiabetes);
+                    _logger.LogInformation("HasChestPain: '{HasChestPain}'", NCDRiskAssessment.HasChestPain);
+                    _logger.LogInformation("DrinksAlcohol: '{DrinksAlcohol}'", NCDRiskAssessment.DrinksAlcohol);
+                    _logger.LogInformation("HasHistoryOfSmoking: '{HasHistoryOfSmoking}'", NCDRiskAssessment.HasHistoryOfSmoking);
+                    _logger.LogInformation("HasStress: '{HasStress}'", NCDRiskAssessment.HasStress);
+                    _logger.LogInformation("EatsVegetablesDaily: '{EatsVegetablesDaily}'", NCDRiskAssessment.EatsVegetablesDaily);
+                    _logger.LogInformation("FamilyHistoryHeartDiseaseFather: '{FamilyHistoryHeartDiseaseFather}'", NCDRiskAssessment.FamilyHistoryHeartDiseaseFather);
+                    
+                    // DEBUGGING: Log the values before normalization
+                    _logger.LogInformation("=== DEBUGGING: Values before normalization ===");
+                    _logger.LogInformation("HasChestPain: '{HasChestPain}'", assessment.HasChestPain);
+                    _logger.LogInformation("ChestPainSpreadsToArm: '{ChestPainSpreadsToArm}'", assessment.ChestPainSpreadsToArm);
+                    _logger.LogInformation("DrinksAlcohol: '{DrinksAlcohol}'", assessment.DrinksAlcohol);
+                    _logger.LogInformation("HasHistoryOfSmoking: '{HasHistoryOfSmoking}'", assessment.HasHistoryOfSmoking);
+                    _logger.LogInformation("HasStress: '{HasStress}'", assessment.HasStress);
+                    _logger.LogInformation("HasStrokeSymptoms: '{HasStrokeSymptoms}'", assessment.HasStrokeSymptoms);
 
                     AppointmentId = appointmentId.Value;
                     UserId = assessment.UserId;
@@ -950,7 +1006,24 @@ namespace Barangay.Pages.Nurse
                         PatientName = "Unknown Patient";
                     }
                     // Normalize legacy boolean-like strings for safe checkbox binding
+                    _logger.LogInformation("Starting normalization process...");
                     NormalizeCheckboxStrings(NCDRiskAssessment);
+                    
+                    // DEBUGGING: Log the values after normalization
+                    _logger.LogInformation("=== DEBUGGING: Values after normalization ===");
+                    _logger.LogInformation("HasDiabetes: '{HasDiabetes}'", NCDRiskAssessment.HasDiabetes);
+                    _logger.LogInformation("HasChestPain: '{HasChestPain}'", NCDRiskAssessment.HasChestPain);
+                    _logger.LogInformation("ChestPainSpreadsToArm: '{ChestPainSpreadsToArm}'", NCDRiskAssessment.ChestPainSpreadsToArm);
+                    _logger.LogInformation("DrinksAlcohol: '{DrinksAlcohol}'", NCDRiskAssessment.DrinksAlcohol);
+                    _logger.LogInformation("HasHistoryOfSmoking: '{HasHistoryOfSmoking}'", NCDRiskAssessment.HasHistoryOfSmoking);
+                    _logger.LogInformation("HasStress: '{HasStress}'", NCDRiskAssessment.HasStress);
+                    _logger.LogInformation("HasStrokeSymptoms: '{HasStrokeSymptoms}'", NCDRiskAssessment.HasStrokeSymptoms);
+                    _logger.LogInformation("EatsVegetablesDaily: '{EatsVegetablesDaily}'", NCDRiskAssessment.EatsVegetablesDaily);
+                    _logger.LogInformation("FamilyHistoryHeartDiseaseFather: '{FamilyHistoryHeartDiseaseFather}'", NCDRiskAssessment.FamilyHistoryHeartDiseaseFather);
+                    _logger.LogInformation("ModerateIntensityExercise: '{ModerateIntensityExercise}'", NCDRiskAssessment.ModerateIntensityExercise);
+                    _logger.LogInformation("FormerSmoker: '{FormerSmoker}'", NCDRiskAssessment.FormerSmoker);
+                    _logger.LogInformation("HasPolyuria: '{HasPolyuria}'", NCDRiskAssessment.HasPolyuria);
+                    _logger.LogInformation("BreastCancerScreened: '{BreastCancerScreened}'", NCDRiskAssessment.BreastCancerScreened);
                 }
                 catch (Exception viewModelEx)
                 {
@@ -972,9 +1045,22 @@ namespace Barangay.Pages.Nurse
         {
             try
             {
+                // DEBUGGING: Log all form data received
+                _logger.LogInformation("=== FORM SUBMISSION DEBUGGING STARTED ===");
+                _logger.LogInformation("ModelState.IsValid: {IsValid}", ModelState.IsValid);
+                
                 if (!ModelState.IsValid)
                 {
                     _logger.LogWarning("Model state is invalid for NCD assessment update");
+                    _logger.LogWarning("ModelState errors:");
+                    foreach (var error in ModelState)
+                    {
+                        if (error.Value.Errors.Count > 0)
+                        {
+                            _logger.LogWarning("Field: {Field}, Errors: {Errors}", 
+                                error.Key, string.Join(", ", error.Value.Errors.Select(e => e.ErrorMessage)));
+                        }
+                    }
                     return Page();
                 }
 
@@ -986,6 +1072,97 @@ namespace Barangay.Pages.Nurse
                 }
 
                 _logger.LogInformation("Processing NCD assessment update for appointment {AppointmentId}", NCDRiskAssessment.AppointmentId);
+                
+                // DEBUGGING: Log received form data
+                _logger.LogInformation("=== RECEIVED FORM DATA ===");
+                _logger.LogInformation("AppointmentId: {AppointmentId}", NCDRiskAssessment.AppointmentId);
+                _logger.LogInformation("UserId: {UserId}", NCDRiskAssessment.UserId);
+                _logger.LogInformation("FirstName: {FirstName}", NCDRiskAssessment.FirstName);
+                _logger.LogInformation("LastName: {LastName}", NCDRiskAssessment.LastName);
+                
+                // DEBUGGING: Log medical history checkboxes
+                _logger.LogInformation("=== MEDICAL HISTORY CHECKBOXES ===");
+                _logger.LogInformation("HasDiabetes: '{HasDiabetes}'", NCDRiskAssessment.HasDiabetes);
+                _logger.LogInformation("HasHypertension: '{HasHypertension}'", NCDRiskAssessment.HasHypertension);
+                _logger.LogInformation("HasCancer: '{HasCancer}'", NCDRiskAssessment.HasCancer);
+                _logger.LogInformation("HasLungDisease: '{HasLungDisease}'", NCDRiskAssessment.HasLungDisease);
+                _logger.LogInformation("HasEyeDisease: '{HasEyeDisease}'", NCDRiskAssessment.HasEyeDisease);
+                _logger.LogInformation("HasAsthma: '{HasAsthma}'", NCDRiskAssessment.HasAsthma);
+                _logger.LogInformation("HasDifficultyBreathing: '{HasDifficultyBreathing}'", NCDRiskAssessment.HasDifficultyBreathing);
+                _logger.LogInformation("HasStrokeSymptoms: '{HasStrokeSymptoms}'", NCDRiskAssessment.HasStrokeSymptoms);
+                
+                // DEBUGGING: Log chest pain radio buttons
+                _logger.LogInformation("=== CHEST PAIN RADIO BUTTONS ===");
+                _logger.LogInformation("HasChestPain: '{HasChestPain}'", NCDRiskAssessment.HasChestPain);
+                _logger.LogInformation("ChestPainSpreadsToArm: '{ChestPainSpreadsToArm}'", NCDRiskAssessment.ChestPainSpreadsToArm);
+                _logger.LogInformation("NumbnessWhenWalkingFast: '{NumbnessWhenWalkingFast}'", NCDRiskAssessment.NumbnessWhenWalkingFast);
+                _logger.LogInformation("PainRelievedWithRest: '{PainRelievedWithRest}'", NCDRiskAssessment.PainRelievedWithRest);
+                _logger.LogInformation("LossOfConsciousnessLessThan10Min: '{LossOfConsciousnessLessThan10Min}'", NCDRiskAssessment.LossOfConsciousnessLessThan10Min);
+                _logger.LogInformation("PainLastsMoreThan30Min: '{PainLastsMoreThan30Min}'", NCDRiskAssessment.PainLastsMoreThan30Min);
+                _logger.LogInformation("SeeDoctorIfYes: '{SeeDoctorIfYes}'", NCDRiskAssessment.SeeDoctorIfYes);
+                
+                // DEBUGGING: Log family history checkboxes
+                _logger.LogInformation("=== FAMILY HISTORY CHECKBOXES ===");
+                _logger.LogInformation("FamilyHistoryHeartDiseaseFather: '{FamilyHistoryHeartDiseaseFather}'", NCDRiskAssessment.FamilyHistoryHeartDiseaseFather);
+                _logger.LogInformation("FamilyHistoryStrokeFather: '{FamilyHistoryStrokeFather}'", NCDRiskAssessment.FamilyHistoryStrokeFather);
+                _logger.LogInformation("FamilyHistoryDiabetesFather: '{FamilyHistoryDiabetesFather}'", NCDRiskAssessment.FamilyHistoryDiabetesFather);
+                _logger.LogInformation("FamilyHistoryCancerFather: '{FamilyHistoryCancerFather}'", NCDRiskAssessment.FamilyHistoryCancerFather);
+                _logger.LogInformation("FamilyHistoryLungDiseaseFather: '{FamilyHistoryLungDiseaseFather}'", NCDRiskAssessment.FamilyHistoryLungDiseaseFather);
+                _logger.LogInformation("FamilyHistoryKidneyDiseaseFather: '{FamilyHistoryKidneyDiseaseFather}'", NCDRiskAssessment.FamilyHistoryKidneyDiseaseFather);
+                
+                // DEBUGGING: Log nutrition checkboxes
+                _logger.LogInformation("=== NUTRITION CHECKBOXES ===");
+                _logger.LogInformation("EatsVegetablesDaily: '{EatsVegetablesDaily}'", NCDRiskAssessment.EatsVegetablesDaily);
+                _logger.LogInformation("EatsFruitsDaily: '{EatsFruitsDaily}'", NCDRiskAssessment.EatsFruitsDaily);
+                _logger.LogInformation("EatsFishDaily: '{EatsFishDaily}'", NCDRiskAssessment.EatsFishDaily);
+                _logger.LogInformation("EatsMeatDaily: '{EatsMeatDaily}'", NCDRiskAssessment.EatsMeatDaily);
+                _logger.LogInformation("HasUnhealthyDiet: '{HasUnhealthyDiet}'", NCDRiskAssessment.HasUnhealthyDiet);
+                _logger.LogInformation("EatsSweetFoodMoreThan2TimesPerWeek: '{EatsSweetFoodMoreThan2TimesPerWeek}'", NCDRiskAssessment.EatsSweetFoodMoreThan2TimesPerWeek);
+                _logger.LogInformation("HasHighSaltIntake: '{HasHighSaltIntake}'", NCDRiskAssessment.HasHighSaltIntake);
+                _logger.LogInformation("EatsFattyFoodMoreThan2TimesPerWeek: '{EatsFattyFoodMoreThan2TimesPerWeek}'", NCDRiskAssessment.EatsFattyFoodMoreThan2TimesPerWeek);
+                
+                // DEBUGGING: Log alcohol radio buttons and checkboxes
+                _logger.LogInformation("=== ALCOHOL RADIO BUTTONS AND CHECKBOXES ===");
+                _logger.LogInformation("DrinksAlcohol: '{DrinksAlcohol}'", NCDRiskAssessment.DrinksAlcohol);
+                _logger.LogInformation("AlcoholAmount1Bottle320ml: '{AlcoholAmount1Bottle320ml}'", NCDRiskAssessment.AlcoholAmount1Bottle320ml);
+                _logger.LogInformation("AlcoholAmount2Bottle640ml: '{AlcoholAmount2Bottle640ml}'", NCDRiskAssessment.AlcoholAmount2Bottle640ml);
+                _logger.LogInformation("AlcoholAmountLessThan3Shot45ml: '{AlcoholAmountLessThan3Shot45ml}'", NCDRiskAssessment.AlcoholAmountLessThan3Shot45ml);
+                _logger.LogInformation("AlcoholFrequency1to3TimesPerWeek: '{AlcoholFrequency1to3TimesPerWeek}'", NCDRiskAssessment.AlcoholFrequency1to3TimesPerWeek);
+                _logger.LogInformation("AlcoholFrequencyMoreThan4TimesPerWeek: '{AlcoholFrequencyMoreThan4TimesPerWeek}'", NCDRiskAssessment.AlcoholFrequencyMoreThan4TimesPerWeek);
+                
+                // DEBUGGING: Log exercise checkboxes
+                _logger.LogInformation("=== EXERCISE CHECKBOXES ===");
+                _logger.LogInformation("ModerateIntensityExercise: '{ModerateIntensityExercise}'", NCDRiskAssessment.ModerateIntensityExercise);
+                _logger.LogInformation("VigorousIntensityExercise: '{VigorousIntensityExercise}'", NCDRiskAssessment.VigorousIntensityExercise);
+                _logger.LogInformation("InsufficientPhysicalActivity: '{InsufficientPhysicalActivity}'", NCDRiskAssessment.InsufficientPhysicalActivity);
+                
+                // DEBUGGING: Log smoking radio buttons and checkboxes
+                _logger.LogInformation("=== SMOKING RADIO BUTTONS AND CHECKBOXES ===");
+                _logger.LogInformation("HasHistoryOfSmoking: '{HasHistoryOfSmoking}'", NCDRiskAssessment.HasHistoryOfSmoking);
+                _logger.LogInformation("FormerSmoker: '{FormerSmoker}'", NCDRiskAssessment.FormerSmoker);
+                _logger.LogInformation("NeverSmokedButExposedToSmoke: '{NeverSmokedButExposedToSmoke}'", NCDRiskAssessment.NeverSmokedButExposedToSmoke);
+                _logger.LogInformation("Smoked100Sticks: '{Smoked100Sticks}'", NCDRiskAssessment.Smoked100Sticks);
+                
+                // DEBUGGING: Log stress radio buttons
+                _logger.LogInformation("=== STRESS RADIO BUTTONS ===");
+                _logger.LogInformation("HasStress: '{HasStress}'", NCDRiskAssessment.HasStress);
+                
+                // DEBUGGING: Log blood sugar checkboxes
+                _logger.LogInformation("=== BLOOD SUGAR CHECKBOXES ===");
+                _logger.LogInformation("HasPolyuria: '{HasPolyuria}'", NCDRiskAssessment.HasPolyuria);
+                _logger.LogInformation("HasPolydipsia: '{HasPolydipsia}'", NCDRiskAssessment.HasPolydipsia);
+                _logger.LogInformation("HasPolyphagia: '{HasPolyphagia}'", NCDRiskAssessment.HasPolyphagia);
+                _logger.LogInformation("HasWeightLoss: '{HasWeightLoss}'", NCDRiskAssessment.HasWeightLoss);
+                
+                // DEBUGGING: Log urine checkboxes
+                _logger.LogInformation("=== URINE CHECKBOXES ===");
+                _logger.LogInformation("HasUrineProtein: '{HasUrineProtein}'", NCDRiskAssessment.HasUrineProtein);
+                _logger.LogInformation("HasUrineKetones: '{HasUrineKetones}'", NCDRiskAssessment.HasUrineKetones);
+                
+                // DEBUGGING: Log cancer screening checkboxes
+                _logger.LogInformation("=== CANCER SCREENING CHECKBOXES ===");
+                _logger.LogInformation("BreastCancerScreened: '{BreastCancerScreened}'", NCDRiskAssessment.BreastCancerScreened);
+                _logger.LogInformation("CervicalCancerScreened: '{CervicalCancerScreened}'", NCDRiskAssessment.CervicalCancerScreened);
 
                 // Find the existing assessment
                 var existingAssessment = await _context.NCDRiskAssessments
@@ -998,8 +1175,12 @@ namespace Barangay.Pages.Nurse
                     return RedirectToPage("/Nurse/AppointmentDetails", new { id = NCDRiskAssessment.AppointmentId });
                 }
 
+                // DEBUGGING: Log before updating assessment data
+                _logger.LogInformation("=== UPDATING ASSESSMENT DATA ===");
+                
                 // Update the assessment with form data
                 // Demographics
+                _logger.LogInformation("Updating demographics...");
                 existingAssessment.HealthFacility = NCDRiskAssessment.HealthFacility;
                 existingAssessment.FamilyNo = NCDRiskAssessment.FamilyNo;
                 existingAssessment.Address = NCDRiskAssessment.Address;
@@ -1008,9 +1189,10 @@ namespace Barangay.Pages.Nurse
                 existingAssessment.MiddleName = NCDRiskAssessment.MiddleName;
                 existingAssessment.DateOfAssessment = NCDRiskAssessment.DateOfAssessment?.ToString("yyyy-MM-dd HH:mm:ss");
                 existingAssessment.IDNumber = NCDRiskAssessment.IDNumber;
+                existingAssessment.IDNo = NCDRiskAssessment.IDNo;
                 existingAssessment.Barangay = NCDRiskAssessment.Barangay;
                 existingAssessment.Telepono = NCDRiskAssessment.Telepono;
-                existingAssessment.Birthday = NCDRiskAssessment.Birthday;
+                existingAssessment.Birthday = NCDRiskAssessment.Birthday?.ToString("yyyy-MM-dd HH:mm:ss");
                 existingAssessment.Edad = NCDRiskAssessment.Edad;
                 existingAssessment.Kasarian = NCDRiskAssessment.Kasarian;
                 existingAssessment.Relihiyon = NCDRiskAssessment.Relihiyon;
@@ -1018,6 +1200,7 @@ namespace Barangay.Pages.Nurse
                 existingAssessment.CivilStatus = NCDRiskAssessment.CivilStatus;
                 
                 // Medical History
+                _logger.LogInformation("Updating medical history...");
                 existingAssessment.HasDiabetes = NCDRiskAssessment.HasDiabetes;
                 existingAssessment.HasHypertension = NCDRiskAssessment.HasHypertension;
                 existingAssessment.HasCancer = NCDRiskAssessment.HasCancer;
@@ -1037,6 +1220,15 @@ namespace Barangay.Pages.Nurse
                 existingAssessment.EyeDiseaseMedication = NCDRiskAssessment.EyeDiseaseMedication;
                 existingAssessment.HasAsthma = NCDRiskAssessment.HasAsthma;
                 existingAssessment.HasDifficultyBreathing = NCDRiskAssessment.HasDifficultyBreathing;
+                existingAssessment.HasStrokeSymptoms = NCDRiskAssessment.HasStrokeSymptoms;
+                
+                // DEBUGGING: Log medical history values after assignment
+                _logger.LogInformation("Medical history values assigned:");
+                _logger.LogInformation("  HasDiabetes: '{HasDiabetes}'", existingAssessment.HasDiabetes);
+                _logger.LogInformation("  HasHypertension: '{HasHypertension}'", existingAssessment.HasHypertension);
+                _logger.LogInformation("  HasCancer: '{HasCancer}'", existingAssessment.HasCancer);
+                _logger.LogInformation("  HasAsthma: '{HasAsthma}'", existingAssessment.HasAsthma);
+                _logger.LogInformation("  HasStrokeSymptoms: '{HasStrokeSymptoms}'", existingAssessment.HasStrokeSymptoms);
                 
                 // Chest Pain and Symptoms
                 existingAssessment.HasChestPain = NCDRiskAssessment.HasChestPain;
@@ -1110,6 +1302,7 @@ namespace Barangay.Pages.Nurse
                 existingAssessment.AlcoholFrequencyMoreThan4TimesPerWeek = NCDRiskAssessment.AlcoholFrequencyMoreThan4TimesPerWeek;
                 existingAssessment.IsBingeDrinker = NCDRiskAssessment.IsBingeDrinker;
                 existingAssessment.AlcoholStoppedDuration = NCDRiskAssessment.AlcoholStoppedDuration;
+                existingAssessment.AlcoholPerOccasion = NCDRiskAssessment.AlcoholPerOccasion;
                 
                 // Exercise
                 existingAssessment.ModerateIntensityExercise = NCDRiskAssessment.ModerateIntensityExercise;
@@ -1177,11 +1370,32 @@ namespace Barangay.Pages.Nurse
                 existingAssessment.AssessmentDate = NCDRiskAssessment.AssessmentDate;
                 existingAssessment.PatientSignature = NCDRiskAssessment.PatientSignature;
 
+                // DEBUGGING: Log values before encryption
+                _logger.LogInformation("=== VALUES BEFORE ENCRYPTION ===");
+                _logger.LogInformation("HasDiabetes: '{HasDiabetes}'", existingAssessment.HasDiabetes);
+                _logger.LogInformation("HasChestPain: '{HasChestPain}'", existingAssessment.HasChestPain);
+                _logger.LogInformation("DrinksAlcohol: '{DrinksAlcohol}'", existingAssessment.DrinksAlcohol);
+                _logger.LogInformation("HasHistoryOfSmoking: '{HasHistoryOfSmoking}'", existingAssessment.HasHistoryOfSmoking);
+                _logger.LogInformation("HasStress: '{HasStress}'", existingAssessment.HasStress);
+                _logger.LogInformation("EatsVegetablesDaily: '{EatsVegetablesDaily}'", existingAssessment.EatsVegetablesDaily);
+                _logger.LogInformation("FamilyHistoryHeartDiseaseFather: '{FamilyHistoryHeartDiseaseFather}'", existingAssessment.FamilyHistoryHeartDiseaseFather);
+
                 // Encrypt sensitive data before saving
                 try
                 {
+                    _logger.LogInformation("Starting encryption process...");
                     existingAssessment.EncryptSensitiveData(_encryptionService);
                     _logger.LogInformation("Assessment data encrypted successfully");
+                    
+                    // DEBUGGING: Log values after encryption
+                    _logger.LogInformation("=== VALUES AFTER ENCRYPTION ===");
+                    _logger.LogInformation("HasDiabetes: '{HasDiabetes}'", existingAssessment.HasDiabetes?.Substring(0, Math.Min(20, existingAssessment.HasDiabetes?.Length ?? 0)) + "...");
+                    _logger.LogInformation("HasChestPain: '{HasChestPain}'", existingAssessment.HasChestPain?.Substring(0, Math.Min(20, existingAssessment.HasChestPain?.Length ?? 0)) + "...");
+                    _logger.LogInformation("DrinksAlcohol: '{DrinksAlcohol}'", existingAssessment.DrinksAlcohol?.Substring(0, Math.Min(20, existingAssessment.DrinksAlcohol?.Length ?? 0)) + "...");
+                    _logger.LogInformation("HasHistoryOfSmoking: '{HasHistoryOfSmoking}'", existingAssessment.HasHistoryOfSmoking?.Substring(0, Math.Min(20, existingAssessment.HasHistoryOfSmoking?.Length ?? 0)) + "...");
+                    _logger.LogInformation("HasStress: '{HasStress}'", existingAssessment.HasStress?.Substring(0, Math.Min(20, existingAssessment.HasStress?.Length ?? 0)) + "...");
+                    _logger.LogInformation("EatsVegetablesDaily: '{EatsVegetablesDaily}'", existingAssessment.EatsVegetablesDaily?.Substring(0, Math.Min(20, existingAssessment.EatsVegetablesDaily?.Length ?? 0)) + "...");
+                    _logger.LogInformation("FamilyHistoryHeartDiseaseFather: '{FamilyHistoryHeartDiseaseFather}'", existingAssessment.FamilyHistoryHeartDiseaseFather?.Substring(0, Math.Min(20, existingAssessment.FamilyHistoryHeartDiseaseFather?.Length ?? 0)) + "...");
                 }
                 catch (Exception encryptEx)
                 {
@@ -1191,6 +1405,7 @@ namespace Barangay.Pages.Nurse
                 }
 
                 // Save changes
+                _logger.LogInformation("Saving changes to database...");
                 await _context.SaveChangesAsync();
                 _logger.LogInformation("NCD assessment updated successfully for appointment {AppointmentId}", NCDRiskAssessment.AppointmentId);
 
@@ -1210,6 +1425,13 @@ namespace Barangay.Pages.Nurse
         {
             if (vm == null) return;
 
+            // DEBUGGING: Log normalization process
+            Console.WriteLine("=== NORMALIZATION DEBUGGING ===");
+            Console.WriteLine($"HasDiabetes before: '{vm.HasDiabetes}'");
+            Console.WriteLine($"HasChestPain before: '{vm.HasChestPain}'");
+            Console.WriteLine($"DrinksAlcohol before: '{vm.DrinksAlcohol}'");
+            Console.WriteLine($"EatsVegetablesDaily before: '{vm.EatsVegetablesDaily}'");
+
             // Medical history
             vm.HasDiabetes = NormalizeBool(vm.HasDiabetes);
             vm.HasHypertension = NormalizeBool(vm.HasHypertension);
@@ -1219,15 +1441,21 @@ namespace Barangay.Pages.Nurse
             vm.HasEyeDisease = NormalizeBool(vm.HasEyeDisease);
             vm.HasAsthma = NormalizeBool(vm.HasAsthma);
             vm.HasDifficultyBreathing = NormalizeBool(vm.HasDifficultyBreathing);
+            vm.HasStrokeSymptoms = NormalizeRadioButton(vm.HasStrokeSymptoms);
+            
+            Console.WriteLine($"HasDiabetes after: '{vm.HasDiabetes}'");
+            Console.WriteLine($"HasChestPain after: '{vm.HasChestPain}'");
+            Console.WriteLine($"DrinksAlcohol after: '{vm.DrinksAlcohol}'");
+            Console.WriteLine($"EatsVegetablesDaily after: '{vm.EatsVegetablesDaily}'");
 
-            // Chest pain items
-            vm.HasChestPain = NormalizeBool(vm.HasChestPain);
-            vm.ChestPainSpreadsToArm = NormalizeBool(vm.ChestPainSpreadsToArm);
-            vm.NumbnessWhenWalkingFast = NormalizeBool(vm.NumbnessWhenWalkingFast);
-            vm.PainRelievedWithRest = NormalizeBool(vm.PainRelievedWithRest);
-            vm.LossOfConsciousnessLessThan10Min = NormalizeBool(vm.LossOfConsciousnessLessThan10Min);
-            vm.PainLastsMoreThan30Min = NormalizeBool(vm.PainLastsMoreThan30Min);
-            vm.SeeDoctorIfYes = NormalizeBool(vm.SeeDoctorIfYes);
+            // Chest pain items - Keep Filipino values for radio buttons
+            vm.HasChestPain = NormalizeRadioButton(vm.HasChestPain);
+            vm.ChestPainSpreadsToArm = NormalizeRadioButton(vm.ChestPainSpreadsToArm);
+            vm.NumbnessWhenWalkingFast = NormalizeRadioButton(vm.NumbnessWhenWalkingFast);
+            vm.PainRelievedWithRest = NormalizeRadioButton(vm.PainRelievedWithRest);
+            vm.LossOfConsciousnessLessThan10Min = NormalizeRadioButton(vm.LossOfConsciousnessLessThan10Min);
+            vm.PainLastsMoreThan30Min = NormalizeRadioButton(vm.PainLastsMoreThan30Min);
+            vm.SeeDoctorIfYes = NormalizeRadioButton(vm.SeeDoctorIfYes);
 
             // Aggregated family history flags
             vm.FamilyHasHypertension = NormalizeBool(vm.FamilyHasHypertension);
@@ -1258,8 +1486,8 @@ namespace Barangay.Pages.Nurse
             vm.EatsOilyFoodMoreThan2TimesPerWeek = NormalizeBool(vm.EatsOilyFoodMoreThan2TimesPerWeek);
             vm.HasHighSaltIntake = NormalizeBool(vm.HasHighSaltIntake);
 
-            // Alcohol details
-            vm.DrinksAlcohol = NormalizeBool(vm.DrinksAlcohol);
+            // Alcohol details - Keep Filipino values for radio buttons
+            vm.DrinksAlcohol = NormalizeRadioButton(vm.DrinksAlcohol);
             vm.DrinksBeer = NormalizeBool(vm.DrinksBeer);
             vm.DrinksWine = NormalizeBool(vm.DrinksWine);
             vm.DrinksWhiskyGinBrandy = NormalizeBool(vm.DrinksWhiskyGinBrandy);
@@ -1280,8 +1508,8 @@ namespace Barangay.Pages.Nurse
             vm.HasEnoughExercise = NormalizeBool(vm.HasEnoughExercise);
             vm.HasNoRegularExercise = NormalizeBool(vm.HasNoRegularExercise);
 
-            // Smoking
-            vm.HasHistoryOfSmoking = NormalizeBool(vm.HasHistoryOfSmoking);
+            // Smoking - Keep Filipino values for radio buttons
+            vm.HasHistoryOfSmoking = NormalizeRadioButton(vm.HasHistoryOfSmoking);
             vm.FormerSmoker = NormalizeBool(vm.FormerSmoker);
             vm.NeverSmokedButExposedToSmoke = NormalizeBool(vm.NeverSmokedButExposedToSmoke);
             vm.Smoked100Sticks = NormalizeBool(vm.Smoked100Sticks);
@@ -1298,14 +1526,18 @@ namespace Barangay.Pages.Nurse
             vm.BreastCancerScreened = NormalizeBool(vm.BreastCancerScreened);
             vm.CervicalCancerScreened = NormalizeBool(vm.CervicalCancerScreened);
 
-            // Stress
-            vm.HasStress = NormalizeBool(vm.HasStress);
+            // Stress - Keep Filipino values for radio buttons
+            vm.HasStress = NormalizeRadioButton(vm.HasStress);
         }
 
         private static string NormalizeBool(string? value)
         {
             if (string.IsNullOrWhiteSpace(value)) return "false";
             var v = value.Trim().ToLowerInvariant();
+            
+            // DEBUGGING: Log normalization process
+            Console.WriteLine($"NormalizeBool: '{value}' -> '{v}'");
+            
             switch (v)
             {
                 case "true":
@@ -1313,6 +1545,7 @@ namespace Barangay.Pages.Nurse
                 case "oo":
                 case "yes":
                 case "mayroon":
+                    Console.WriteLine($"NormalizeBool: '{value}' -> 'true'");
                     return "true";
                 case "false":
                 case "0":
@@ -1320,9 +1553,42 @@ namespace Barangay.Pages.Nurse
                 case "no":
                 case "wala":
                 case "non-smoker":
+                    Console.WriteLine($"NormalizeBool: '{value}' -> 'false'");
                     return "false";
                 default:
+                    Console.WriteLine($"NormalizeBool: '{value}' -> 'false' (default)");
                     return "false";
+            }
+        }
+
+        private static string NormalizeRadioButton(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return "Hindi";
+            var v = value.Trim().ToLowerInvariant();
+            
+            // DEBUGGING: Log normalization process
+            Console.WriteLine($"NormalizeRadioButton: '{value}' -> '{v}'");
+            
+            switch (v)
+            {
+                case "true":
+                case "1":
+                case "oo":
+                case "yes":
+                case "mayroon":
+                    Console.WriteLine($"NormalizeRadioButton: '{value}' -> 'Oo'");
+                    return "Oo";
+                case "false":
+                case "0":
+                case "hindi":
+                case "no":
+                case "wala":
+                case "non-smoker":
+                    Console.WriteLine($"NormalizeRadioButton: '{value}' -> 'Hindi'");
+                    return "Hindi";
+                default:
+                    Console.WriteLine($"NormalizeRadioButton: '{value}' -> 'Hindi' (default)");
+                    return "Hindi";
             }
         }
     }
