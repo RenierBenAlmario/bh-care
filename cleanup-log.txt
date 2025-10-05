@@ -5,10 +5,10 @@ Admin account found with ID: 77119cd4-bd7a-4944-9a6d-3e2a374aee55
 Disabling foreign key constraints...
 Clearing all data...
 
-(0 rows affected)
+(3 rows affected)
 Cleared VitalSigns
 
-(3 rows affected)
+(40 rows affected)
 Cleared StaffPermissions
 
 (0 rows affected)
@@ -17,11 +17,14 @@ Cleared AppointmentAttachments
 (0 rows affected)
 Cleared AppointmentFiles
 
-(0 rows affected)
+(28 rows affected)
 Cleared NCDRiskAssessments
 
 (0 rows affected)
 Cleared PrescriptionMedications
+
+(0 rows affected)
+Cleared EmailSuspensions
 
 (0 rows affected)
 Cleared MedicalHistories
@@ -38,7 +41,7 @@ Cleared ConsultationTimeSlots
 (0 rows affected)
 Cleared FamilyRecords
 
-(0 rows affected)
+(10 rows affected)
 Cleared HEEADSSSAssessments
 
 (0 rows affected)
@@ -56,10 +59,10 @@ Cleared StaffPositions
 (0 rows affected)
 Cleared User
 
-(8 rows affected)
+(37 rows affected)
 Cleared AspNetUserClaims
 
-(0 rows affected)
+(7 rows affected)
 Cleared EmailVerifications
 
 (0 rows affected)
@@ -77,7 +80,7 @@ Cleared VitalSigns_Backup_StringConversion
 (0 rows affected)
 Cleared PatientHistories
 
-(2 rows affected)
+(18 rows affected)
 Cleared AspNetUserRoles
 
 (0 rows affected)
@@ -98,7 +101,7 @@ Cleared Feedbacks
 (0 rows affected)
 Cleared UserSuspensions
 
-(0 rows affected)
+(1 rows affected)
 Cleared GuardianInformation
 
 (0 rows affected)
@@ -110,44 +113,47 @@ Cleared HealthReports
 (0 rows affected)
 Cleared Messages
 
-(0 rows affected)
+(73 rows affected)
 Cleared Notifications
 
-(0 rows affected)
+(5 rows affected)
 Cleared Patients
 
-(1 rows affected)
+(6 rows affected)
 Cleared StaffMembers
 
-(1 rows affected)
+(21 rows affected)
 Cleared __EFMigrationsHistory
 
-(0 rows affected)
+(6 rows affected)
 Cleared UserDocuments
 
 (0 rows affected)
 Cleared RolePermissions
 
-(3 rows affected)
+(36 rows affected)
 Cleared UserPermissions
 
 (0 rows affected)
 Cleared StaffPositionPermission
 
-(0 rows affected)
+(71 rows affected)
 Cleared Appointments
 
 (0 rows affected)
 Cleared FamilyMembers
 
-(0 rows affected)
+(9 rows affected)
 Cleared MedicalRecords
 
-(0 rows affected)
+(9 rows affected)
 Cleared Prescriptions
+
+(0 rows affected)
+Cleared AdolescentHealthInfo
 Clearing all users except admin...
 
-(1 rows affected)
+(12 rows affected)
 Cleared all users (preserved admin account)
 
 (1 rows affected)
