@@ -1323,13 +1323,13 @@ C:\Users\WIN 10\Desktop\BHCARE-main\obj\Debug\net8.0\ref\Barangay.dll
 D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\appsettings.Development.json
 D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\appsettings.json
 D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\appsettings.Production.json
-D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\libman.json
-D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\package.json
 D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\DecryptNCD\bin\Debug\net8.0\DecryptNCD.deps.json
 D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\DecryptNCD\bin\Debug\net8.0\DecryptNCD.runtimeconfig.json
 D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\DecryptNCD\obj\Debug\net8.0\DecryptNCD.sourcelink.json
 D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\DecryptNCD\obj\DecryptNCD.csproj.nuget.dgspec.json
 D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\DecryptNCD\obj\project.assets.json
+D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\libman.json
+D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\package.json
 D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\Properties\launch.json
 D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\Tools\NCDDecryptor\bin\Debug\net8.0\NCDDecryptor.deps.json
 D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\Tools\NCDDecryptor\bin\Debug\net8.0\NCDDecryptor.runtimeconfig.json
@@ -1341,6 +1341,8 @@ D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\SQL\AddGuar
 D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\SQL\AddMissingColumnsGuardianInformation.sql
 D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\SQL\AddMissingColumnsUserPermissions.sql
 D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\SQL\AddMissingHEEADSSSColumns.sql
+D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\SQL\AddMissingNCDFields.sql
+D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\SQL\Add_HasStrokeSymptoms_Field.sql
 D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\SQL\Appointments.sql
 D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\SQL\CheckGuardianInformation.sql
 D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\SQL\CheckGuardianTable.sql
@@ -1362,6 +1364,8 @@ D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\SQL\FixEncr
 D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\SQL\FixEncryptionSchemaWorking.sql
 D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\SQL\FixGuardianInformation.sql
 D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\SQL\FixSpecificUser.sql
+D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\SQL\Fix_COPD_Columns.sql
+D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\SQL\Fix_NCD_Missing_Columns.sql
 D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\SQL\force-cleanup.sql
 D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\SQL\GrantUserDashboardPermission.sql
 D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\SQL\Migration_UpdateNCDRiskAssessment.sql
@@ -1982,7 +1986,3 @@ D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\obj\Debug\net8.0\refint\Bara
 D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\obj\Debug\net8.0\Barangay.pdb
 D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\obj\Debug\net8.0\Barangay.genruntimeconfig.cache
 D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\obj\Debug\net8.0\ref\Barangay.dll
-D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\SQL\AddMissingNCDFields.sql
-D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\SQL\Fix_NCD_Missing_Columns.sql
-D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\SQL\Add_HasStrokeSymptoms_Field.sql
-D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\SQL\Fix_COPD_Columns.sql

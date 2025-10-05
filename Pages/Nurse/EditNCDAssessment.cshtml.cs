@@ -292,7 +292,11 @@ namespace Barangay.Pages.Nurse
                     }
                     if (!string.IsNullOrEmpty(assessment.NeverSmokedButExposedToSmoke) && _encryptionService.IsEncrypted(assessment.NeverSmokedButExposedToSmoke))
                     {
-                        assessment.NeverSmokedButExposedToSmoke = _encryptionService.DecryptForUser(assessment.NeverSmokedButExposedToSmoke, User);
+                        var decryptedValue = _encryptionService.DecryptForUser(assessment.NeverSmokedButExposedToSmoke, User);
+                        _logger.LogInformation("NeverSmokedButExposedToSmoke decryption: Original='{Original}', Decrypted='{Decrypted}'", 
+                            assessment.NeverSmokedButExposedToSmoke?.Substring(0, Math.Min(20, assessment.NeverSmokedButExposedToSmoke?.Length ?? 0)) + "...", 
+                            decryptedValue);
+                        assessment.NeverSmokedButExposedToSmoke = decryptedValue;
                     }
                     if (!string.IsNullOrEmpty(assessment.HasHistoryOfSmoking) && _encryptionService.IsEncrypted(assessment.HasHistoryOfSmoking))
                     {
@@ -784,7 +788,13 @@ namespace Barangay.Pages.Nurse
                     if (!string.IsNullOrEmpty(assessment.FormerSmoker) && _encryptionService.IsEncrypted(assessment.FormerSmoker))
                         assessment.FormerSmoker = _encryptionService.DecryptForUser(assessment.FormerSmoker, User);
                     if (!string.IsNullOrEmpty(assessment.NeverSmokedButExposedToSmoke) && _encryptionService.IsEncrypted(assessment.NeverSmokedButExposedToSmoke))
-                        assessment.NeverSmokedButExposedToSmoke = _encryptionService.DecryptForUser(assessment.NeverSmokedButExposedToSmoke, User);
+                    {
+                        var decryptedValue = _encryptionService.DecryptForUser(assessment.NeverSmokedButExposedToSmoke, User);
+                        _logger.LogInformation("NeverSmokedButExposedToSmoke decryption (second occurrence): Original='{Original}', Decrypted='{Decrypted}'", 
+                            assessment.NeverSmokedButExposedToSmoke?.Substring(0, Math.Min(20, assessment.NeverSmokedButExposedToSmoke?.Length ?? 0)) + "...", 
+                            decryptedValue);
+                        assessment.NeverSmokedButExposedToSmoke = decryptedValue;
+                    }
                     if (!string.IsNullOrEmpty(assessment.HasHistoryOfSmoking) && _encryptionService.IsEncrypted(assessment.HasHistoryOfSmoking))
                         assessment.HasHistoryOfSmoking = _encryptionService.DecryptForUser(assessment.HasHistoryOfSmoking, User);
                     

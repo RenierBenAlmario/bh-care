@@ -216,7 +216,6 @@
                         </div>
                     </div>
                 </div>
-                </div>
 
                 
                 <!-- Step 2: Medical History -->
@@ -514,7 +513,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
                 </div>
                 
                 <!-- Step 3: Risk Factors -->
@@ -826,7 +824,6 @@
                         </div>
                     </div>
                 </div>
-                </div>
                 
                 <!-- Step 4: Anthropometric Measurements -->
                 <div class="wizard-step d-none" data-step="4">
@@ -1109,7 +1106,6 @@
                         </div>
                     </div>
                 </div>
-                </div>
                 
                 <!-- Step 5: Assessment Information -->
                 <div class="wizard-step d-none" data-step="5">
@@ -1123,7 +1119,7 @@
                             </div>
                             <div class="form-group mb-3">
                                 <label class="form-label">Name:</label>
-                                <input type="text" asp-for="NCDRiskAssessment.InterviewedBy" class="form-control" />
+                                <input type="text" asp-for="NCDRiskAssessment.InterviewedBy" class="form-control" readonly />
                             </div>
                             <div class="form-group mb-3">
                                 <label class="form-label">Designation:</label>
@@ -1145,7 +1141,7 @@
                             </div>
                             <div class="form-group mb-3">
                                 <label class="form-label">Signature:</label>
-                                <input type="text" asp-for="NCDRiskAssessment.PatientSignature" class="form-control" />
+                                <input type="text" asp-for="NCDRiskAssessment.PatientSignature" class="form-control" readonly />
                             </div>
                         </div>
                     </div>
@@ -1324,6 +1320,8 @@
             // Handle both bottom and top Previous buttons
             $('#btnPrev, #btnPrevTop').on('click', function(e){ 
                 e.preventDefault(); 
+                e.stopPropagation();
+                console.log('Previous button clicked, current step:', currentStep);
                 if(currentStep > 1){ 
                     currentStep--; 
                     showStep(currentStep); 
@@ -1333,6 +1331,8 @@
             // Handle both bottom and top Next buttons
             $('#btnNext, #btnNextTop').on('click', function(e){ 
                 e.preventDefault(); 
+                e.stopPropagation();
+                console.log('Next button clicked, current step:', currentStep);
                 if(currentStep < totalSteps){ 
                     currentStep++; 
                     showStep(currentStep); 
@@ -1340,6 +1340,26 @@
             });
             
             showStep(1);
+            
+            // Debug: Check if buttons are properly bound
+            console.log('Button elements found:');
+            console.log('btnNext:', $('#btnNext').length);
+            console.log('btnNextTop:', $('#btnNextTop').length);
+            console.log('btnPrev:', $('#btnPrev').length);
+            console.log('btnPrevTop:', $('#btnPrevTop').length);
+            
+            // Additional debugging for button states
+            $('#btnNext, #btnNextTop').each(function() {
+                console.log('Next button state:', {
+                    id: $(this).attr('id'),
+                    visible: $(this).is(':visible'),
+                    enabled: !$(this).prop('disabled'),
+                    type: $(this).attr('type')
+                });
+            });
+            
+            // Force button type to be 'button' to prevent form submission
+            $('#btnNext, #btnNextTop, #btnPrev, #btnPrevTop').attr('type', 'button');
             
             // Form validation
             $('#ncdForm').on('submit', function(e) {
