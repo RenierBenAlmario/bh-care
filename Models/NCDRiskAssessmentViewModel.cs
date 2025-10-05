@@ -43,6 +43,7 @@ namespace Barangay.Models
 
         public string? HasCancer { get; set; } = "false";
         public string? CancerType { get; set; }
+        public string? CancerSite { get; set; }
         public string? CancerYear { get; set; }
         public string? CancerMedication { get; set; }
 
@@ -176,17 +177,17 @@ namespace Barangay.Models
         public string? HasAsthma { get; set; } = "false";
         
         // Stroke Symptoms (Q2.8)
-        public string? HasStrokeSymptoms { get; set; } = "false";
+        public string? HasStrokeSymptoms { get; set; } = "Hindi";
         
         // Additional health conditions added to existing properties above
         public string? HasEnoughExercise { get; set; } = "false";
         
         // Legacy chest pain properties
-        public string? HasChestPain { get; set; } = "false";
+        public string? HasChestPain { get; set; } = "Hindi";
         public string? ChestPainLocation { get; set; } = "false";
         public string? ChestPainWhenWalking { get; set; } = "false";
         public string? StopsWhenPain { get; set; } = "false";
-        public string? PainRelievedWithRest { get; set; } = "false";
+        public string? PainRelievedWithRest { get; set; } = "Hindi";
         public string? PainGoneIn10Min { get; set; } = "false";
         public string? PainMoreThan30Min { get; set; } = "false";
         public string? HasNumbness { get; set; } = "false";
@@ -205,11 +206,11 @@ namespace Barangay.Models
         public string? DateOfAssessmentString { get; set; }
         
         // Chest Pain Details (Q2.1-2.7)
-        public string? ChestPainSpreadsToArm { get; set; } = "false";
-        public string? NumbnessWhenWalkingFast { get; set; } = "false";
-        public string? LossOfConsciousnessLessThan10Min { get; set; } = "false";
-        public string? PainLastsMoreThan30Min { get; set; } = "false";
-        public string? SeeDoctorIfYes { get; set; } = "false";
+        public string? ChestPainSpreadsToArm { get; set; } = "Hindi";
+        public string? NumbnessWhenWalkingFast { get; set; } = "Hindi";
+        public string? LossOfConsciousnessLessThan10Min { get; set; } = "Hindi";
+        public string? PainLastsMoreThan30Min { get; set; } = "Hindi";
+        public string? SeeDoctorIfYes { get; set; } = "Hindi";
         public string? DoctorName { get; set; }
         
         // Nutrition Details
@@ -223,7 +224,7 @@ namespace Barangay.Models
         public string? EatsOilyFoodMoreThan2TimesPerWeek { get; set; } = "false";
         
         // Alcohol Details
-        public string? DrinksAlcohol { get; set; } = "false";
+        public string? DrinksAlcohol { get; set; } = "Hindi";
         public string? DrinksBeer { get; set; } = "false";
         public string? DrinksWine { get; set; } = "false";
         public string? DrinksWhiskyGinBrandy { get; set; } = "false";
@@ -245,10 +246,10 @@ namespace Barangay.Models
         // Smoking Details
         public string? FormerSmoker { get; set; } = "false";
         public string? NeverSmokedButExposedToSmoke { get; set; } = "false";
-        public string? HasHistoryOfSmoking { get; set; } = "false";
+        public string? HasHistoryOfSmoking { get; set; } = "Hindi";
         
         // Stress
-        public string? HasStress { get; set; } = "false";
+        public string? HasStress { get; set; } = "Hindi";
         
         // Anthropometric Measurements
         public string? Weight { get; set; }

@@ -1,0 +1,26 @@
+@page "{appointmentId:int?}"
+@model Barangay.Pages.Doctor.EditNCDAssessmentModel
+@{
+    ViewData["Title"] = "Edit NCD Risk Assessment";
+    Layout = "_DoctorLayout";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="m-0">Edit NCD Risk Assessment</h2>
+        <a href="/Doctor/Consultation?id=@Request.Query["appointmentId"]" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>
+            Back to Consultation
+        </a>
+    </div>
+    
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        Redirecting to NCD Assessment editor...
+    </div>
+    
+    <script>
+        // Redirect to the nurse edit page
+        window.location.href = '/Nurse/EditNCDAssessment?appointmentId=@Request.Query["appointmentId"]';
+    </script>
+</div>

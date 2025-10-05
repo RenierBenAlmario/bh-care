@@ -113,8 +113,12 @@ namespace Barangay.Pages.User
                         calculatedAge = appointment.AgeValue;
                     }
                     
-                    // Use appointment patient information
-                    ViewData["PatientName"] = appointment.PatientName ?? user.FullName;
+                    // Use appointment patient information - prioritize dependent name if available
+                    string correctPatientName = !string.IsNullOrEmpty(appointment.DependentFullName) 
+                        ? appointment.DependentFullName 
+                        : appointment.PatientName ?? user.FullName;
+                    
+                    ViewData["PatientName"] = correctPatientName;
                     ViewData["PatientAge"] = calculatedAge;
                     ViewData["PatientPhone"] = appointment.ContactNumber ?? user.PhoneNumber ?? string.Empty;
                     ViewData["PatientBirthdate"] = appointment.DateOfBirth?.ToString("yyyy-MM-dd") ?? DateTime.Today.AddYears(-calculatedAge).ToString("yyyy-MM-dd");

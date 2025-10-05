@@ -87,6 +87,16 @@ namespace Barangay.Models
         [Encrypted]
         public string? HasCOPD { get; set; } = "false";
 
+        [Display(Name = "COPD Year")]
+        [StringLength(50)]
+        [Encrypted]
+        public string? COPDYear { get; set; }
+
+        [Display(Name = "COPD Medication")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? COPDMedication { get; set; }
+
         [Display(Name = "Has Lung Disease")]
         [StringLength(4000)]
         [Encrypted]
@@ -126,6 +136,11 @@ namespace Barangay.Models
         [StringLength(200)]
         [Encrypted]
         public string? CancerType { get; set; }
+
+        [Display(Name = "Cancer Site")]
+        [StringLength(200)]
+        [Encrypted]
+        public string? CancerSite { get; set; }
 
         // Family History
         [Display(Name = "Family Has Hypertension")]
@@ -204,6 +219,11 @@ namespace Barangay.Models
         [StringLength(4000)]
         [Encrypted]
         public string? SmokingStatus { get; set; }
+
+        [Display(Name = "Smoking Quit Duration")]
+        [StringLength(4000)]
+        [Encrypted]
+        public string? SmokingQuitDuration { get; set; }
 
         [Display(Name = "High Salt Intake")]
         [StringLength(4000)]

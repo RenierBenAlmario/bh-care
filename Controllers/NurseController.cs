@@ -214,13 +214,18 @@ namespace Barangay.Controllers
                 }
 
                 // Create view model with appointment data
+                // Use the correct name - either dependent name or patient name
+                string correctName = !string.IsNullOrEmpty(appointment.DependentFullName) 
+                    ? appointment.DependentFullName 
+                    : appointment.PatientName ?? appointment.Patient?.FullName ?? "";
+                
                 var model = new HEEADSSSAssessmentViewModel
                 {
                     AppointmentId = appointmentId,
                     UserId = appointment.PatientId,
                     HealthFacility = "Barangay Health Center",
                     FamilyNo = "", // Not available in Patient model
-                    FullName = appointment.Patient?.FullName ?? "",
+                    FullName = correctName,
                     Age = appointment.Patient?.Age.ToString(),
                     Gender = appointment.Patient?.Gender ?? "",
                     Address = appointment.Patient?.Address ?? "",

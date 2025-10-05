@@ -116,7 +116,11 @@ namespace Barangay.Pages.Nurse
                     // Decrypt patient data for display
                     appointment.Patient.DecryptSensitiveData(_encryptionService, User);
                     
-                    PatientName = appointment.Patient.FullName;
+                    // Use the correct name - either dependent name or patient name
+                    PatientName = !string.IsNullOrEmpty(appointment.DependentFullName) 
+                        ? appointment.DependentFullName 
+                        : appointment.PatientName ?? appointment.Patient.FullName;
+                    
                     Assessment.UserId = appointment.Patient.UserId;
                     PatientAddress = appointment.Patient.Address;
                     PatientPhone = appointment.Patient.ContactNumber;

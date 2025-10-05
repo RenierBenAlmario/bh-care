@@ -264,6 +264,12 @@ namespace Barangay.Pages.Nurse
                                 NCDRiskAssessment.RiskStatus = SafeDecrypt(NCDRiskAssessment.RiskStatus);
                                 NCDRiskAssessment.AssessmentDate = SafeDecrypt(NCDRiskAssessment.AssessmentDate);
                                 NCDRiskAssessment.DateOfAssessment = SafeDecrypt(NCDRiskAssessment.DateOfAssessment);
+                                
+                                // Decrypt COPD-related fields
+                                NCDRiskAssessment.HasCOPD = SafeDecrypt(NCDRiskAssessment.HasCOPD);
+                                NCDRiskAssessment.COPDMedication = SafeDecrypt(NCDRiskAssessment.COPDMedication);
+                                NCDRiskAssessment.COPDYear = SafeDecrypt(NCDRiskAssessment.COPDYear);
+                                
                                 // CreatedAt and UpdatedAt are now DateTime, no decryption needed
                                 
                                 _logger.LogInformation("Successfully loaded and decrypted NCDRiskAssessment data for appointment ID {Id}", id);
@@ -291,11 +297,14 @@ namespace Barangay.Pages.Nurse
                 _logger.LogInformation("Step 5 Complete: NCD Risk Assessment processing");
 
                 // Check for HEEADSSS Assessment existence based on AppointmentId
-                _logger.LogInformation("Checking for HEEADSSS Assessment for appointment ID: {AppointmentId}", id);
-                
-                // Since AppointmentId is encrypted, we need to load all assessments and decrypt to check
-                HasHEEADSSSAssessment = false;
-                HEEADSSSAssessment = null;
+                // BUT ONLY if the patient is in the appropriate age range (10-19)
+                if (PatientAge >= 10 && PatientAge <= 19)
+                {
+                    _logger.LogInformation("Checking for HEEADSSS Assessment for appointment ID: {AppointmentId} (Patient age: {Age})", id, PatientAge);
+                    
+                    // Since AppointmentId is encrypted, we need to load all assessments and decrypt to check
+                    HasHEEADSSSAssessment = false;
+                    HEEADSSSAssessment = null;
 
                 try
                 {
@@ -404,9 +413,10 @@ namespace Barangay.Pages.Nurse
                         _logger.LogInformation("3. There's an issue with the decryption process");
                         
                         // Fallback: Check if there's a HEEADSSS Assessment for this patient (UserId) that might be associated with this appointment
-                        if (appointment.Patient != null)
+                        // BUT ONLY if the patient is in the appropriate age range (10-19)
+                        if (appointment.Patient != null && PatientAge >= 10 && PatientAge <= 19)
                         {
-                            _logger.LogInformation("Checking for HEEADSSS Assessment by UserId as fallback: {UserId}", appointment.Patient.UserId);
+                            _logger.LogInformation("Checking for HEEADSSS Assessment by UserId as fallback: {UserId} (Patient age: {Age})", appointment.Patient.UserId, PatientAge);
                             var fallbackAssessment = await _context.HEEADSSSAssessments
                                 .Where(a => a.UserId == appointment.Patient.UserId)
                                 .OrderByDescending(a => a.CreatedAt)
@@ -434,6 +444,10 @@ namespace Barangay.Pages.Nurse
                             {
                                 _logger.LogInformation("No HEEADSSS Assessment found by UserId either");
                             }
+                        }
+                        else if (appointment.Patient != null)
+                        {
+                            _logger.LogInformation("Skipping HEEADSSS Assessment fallback check - patient age {Age} is not appropriate for HEEADSSS (should be 10-19)", PatientAge);
                         }
                     }
                 }
@@ -518,6 +532,13 @@ namespace Barangay.Pages.Nurse
                 if (HEEADSSSAssessment != null)
                 {
                     _logger.LogInformation("HEEADSSS Assessment creation date: {Date}", HEEADSSSAssessment.CreatedAt);
+                }
+                }
+                else
+                {
+                    _logger.LogInformation("Skipping HEEADSSS Assessment check - patient age {Age} is not appropriate for HEEADSSS (should be 10-19)", PatientAge);
+                    HasHEEADSSSAssessment = false;
+                    HEEADSSSAssessment = null;
                 }
 
                 // Step 7: Load Adolescent Health Information

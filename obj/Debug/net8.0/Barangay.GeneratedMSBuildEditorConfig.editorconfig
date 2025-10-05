@@ -178,6 +178,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cU3RhZmZQZXJtaXNzaW9ucy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/Imbakan/Last/Last/BHCARE-mainFIXTHIS/BHCARE-main/Pages/Admin/UpdatePatientName.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cVXBkYXRlUGF0aWVudE5hbWUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/Imbakan/Last/Last/BHCARE-mainFIXTHIS/BHCARE-main/Pages/Admin/UploadHEEADSSSFormImage.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cVXBsb2FkSEVFQURTU1NGb3JtSW1hZ2UuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
@@ -240,6 +244,14 @@ build_metadata.AdditionalFiles.CssScope =
 
 [D:/Imbakan/Last/Last/BHCARE-mainFIXTHIS/BHCARE-main/Pages/Doctor/DoctorDashboard.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRG9jdG9yXERvY3RvckRhc2hib2FyZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/Last/Last/BHCARE-mainFIXTHIS/BHCARE-main/Pages/Doctor/EditHEEADSSSAssessment.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRG9jdG9yXEVkaXRIRUVBRFNTU0Fzc2Vzc21lbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Imbakan/Last/Last/BHCARE-mainFIXTHIS/BHCARE-main/Pages/Doctor/EditNCDAssessment.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRG9jdG9yXEVkaXROQ0RBc3Nlc3NtZW50LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/Imbakan/Last/Last/BHCARE-mainFIXTHIS/BHCARE-main/Pages/Doctor/MedicalRecords.cshtml]

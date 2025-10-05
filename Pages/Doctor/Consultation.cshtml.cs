@@ -104,8 +104,18 @@ namespace Barangay.Pages.Doctor
         public List<Barangay.Models.Appointment> ConsultationQueue { get; set; } = new();
         
         public DateTime SelectedDate { get; set; } = DateTimeHelper.Today;
+        
+        // Patient age for assessment type determination
+        public int PatientAge { get; set; }
+        
+        // Flags to track assessment availability
+        public bool HasHEEADSSSAssessment { get; set; } = false;
+        public bool HasNCDAssessment { get; set; } = false;
+        
+        // Property to track who booked the appointment
+        public string BookedBy { get; set; } = string.Empty;
 
-        public async Task<IActionResult> OnGetAsync(string? patientId = null, int? id = null, bool startConsultation = false, string? filterDate = null)
+        public async Task<IActionResult> OnGetAsync(int? id = null, bool startConsultation = false, string? filterDate = null)
         {
             try
             {
@@ -322,7 +332,7 @@ namespace Barangay.Pages.Doctor
                      return RedirectToPage("/Doctor/Appointments");
                 }
 
-                patientId = Appointment.PatientId;
+                var patientId = Appointment.PatientId;
 
                 Patient = await _context.Patients
                     .Include(p => p.User)
@@ -344,7 +354,40 @@ namespace Barangay.Pages.Doctor
                     Patient.User.DecryptSensitiveData(_encryptionService, User);
                 }
 
-                _logger.LogInformation("Patient found: {PatientName}", Patient.FullName);
+                // Decrypt appointment patient name (actual patient) and dependent name
+                if (!string.IsNullOrEmpty(Appointment.PatientName) && _encryptionService.IsEncrypted(Appointment.PatientName))
+                {
+                    Appointment.PatientName = _encryptionService.DecryptForUser(Appointment.PatientName, User);
+                }
+                
+                if (!string.IsNullOrEmpty(Appointment.DependentFullName) && _encryptionService.IsEncrypted(Appointment.DependentFullName))
+                {
+                    Appointment.DependentFullName = _encryptionService.DecryptForUser(Appointment.DependentFullName, User);
+                }
+
+                _logger.LogInformation("Patient found: {PatientName}, Appointment PatientName: {AppointmentPatientName}, DependentFullName: {DependentFullName}", 
+                    Patient.FullName, Appointment.PatientName, Appointment.DependentFullName);
+                
+                // Set the BookedBy information (the person who made the appointment)
+                BookedBy = Patient.FullName ?? "Unknown Patient";
+                
+                // Calculate patient age for assessment type determination
+                // Prioritize appointment age value (age of the actual patient) over booker's age
+                if (Appointment.AgeValue > 0)
+                {
+                    PatientAge = Appointment.AgeValue;
+                    _logger.LogInformation("Using appointment age value (actual patient age): {Age}", PatientAge);
+                }
+                else if (Patient.BirthDate != default(DateTime))
+                {
+                    PatientAge = CalculateAge(Patient.BirthDate);
+                    _logger.LogInformation("Using patient birth date for age calculation: {Age}", PatientAge);
+                }
+                else
+                {
+                    PatientAge = 25; // Default age if not available
+                    _logger.LogWarning("No age information available, using default age: {Age}", PatientAge);
+                }
 
                 // Security check: ensure the doctor is authorized to view this appointment
                 if (Appointment.DoctorId != currentUser.Id && !User.IsInRole("Admin"))
@@ -387,21 +430,96 @@ namespace Barangay.Pages.Doctor
                     record.DecryptSensitiveData(_encryptionService, User);
                 }
 
-                // Load HEEADSSS Assessment data - prioritize by appointment ID, then fallback to user ID
-                _logger.LogInformation("Loading HEEADSSS assessment for appointment {AppointmentId} and patient {PatientId}", AppointmentId, patientId);
+                // Load HEEADSSS Assessment data - Check for existing assessments regardless of age
+                // Age restriction only applies to creating new assessments, not viewing completed ones
+                _logger.LogInformation("Loading HEEADSSS assessment for appointment {AppointmentId} and patient {PatientId} (age: {Age})", AppointmentId, patientId, PatientAge);
                 
-                HEEADSSSAssessment = await _context.HEEADSSSAssessments
-                    .Where(h => h.AppointmentId == AppointmentId.ToString())
-                    .OrderByDescending(h => h.CreatedAt)
-                    .FirstOrDefaultAsync();
-                
-                if (HEEADSSSAssessment == null)
+                // Since AppointmentId is encrypted, we need to load all assessments and decrypt to check
+                HasHEEADSSSAssessment = false;
+                HEEADSSSAssessment = null;
+
+                try
                 {
-                    _logger.LogInformation("No HEEADSSS assessment found for appointment {AppointmentId}, trying user ID {PatientId}", AppointmentId, patientId);
-                    HEEADSSSAssessment = await _context.HEEADSSSAssessments
-                        .Where(h => h.UserId == patientId)
-                        .OrderByDescending(h => h.CreatedAt)
-                        .FirstOrDefaultAsync();
+                    // Load all HEEADSSS assessments and check by decrypting AppointmentId
+                    var allHEEADSSSAssessments = await _context.HEEADSSSAssessments
+                        .AsNoTracking()
+                        .ToListAsync();
+                    
+                    _logger.LogInformation("Found {Count} HEEADSSS assessments in database", allHEEADSSSAssessments.Count);
+                    _logger.LogInformation("Looking for appointment ID: {AppointmentId}", AppointmentId);
+                    
+                    foreach (var assessment in allHEEADSSSAssessments)
+                    {
+                        try
+                        {
+                            _logger.LogInformation("Checking HEEADSSS Assessment ID: {AssessmentId}, Encrypted AppointmentId: {EncryptedAppId}", 
+                                assessment.Id, assessment.AppointmentId);
+                            
+                            // Try different decryption methods to check AppointmentId
+                            string decryptedAppointmentId = null;
+                            
+                            // First, check if it's encrypted at all
+                            if (_encryptionService.IsEncrypted(assessment.AppointmentId))
+                            {
+                                try
+                                {
+                                    decryptedAppointmentId = _encryptionService.DecryptForUser(assessment.AppointmentId, User);
+                                    _logger.LogInformation("Decrypted using DecryptForUser: {DecryptedAppId}", decryptedAppointmentId);
+                                    
+                                    // Check if the result is still encrypted (double encryption)
+                                    if (_encryptionService.IsEncrypted(decryptedAppointmentId))
+                                    {
+                                        _logger.LogInformation("Result is still encrypted, decrypting again");
+                                        decryptedAppointmentId = _encryptionService.DecryptForUser(decryptedAppointmentId, User);
+                                        _logger.LogInformation("Double decrypted: {DecryptedAppId}", decryptedAppointmentId);
+                                    }
+                                }
+                                catch (Exception decryptEx)
+                                {
+                                    _logger.LogWarning(decryptEx, "Failed to decrypt AppointmentId for assessment {AssessmentId}", assessment.Id);
+                                    continue;
+                                }
+                            }
+                            else
+                            {
+                                // Not encrypted, use as-is
+                                decryptedAppointmentId = assessment.AppointmentId;
+                                _logger.LogInformation("AppointmentId not encrypted, using as-is: {DecryptedAppId}", decryptedAppointmentId);
+                            }
+                            
+                            // Check if this assessment matches our appointment
+                            if (int.TryParse(decryptedAppointmentId, out int assessmentAppointmentId) && 
+                                assessmentAppointmentId == AppointmentId)
+                            {
+                                _logger.LogInformation("Found matching HEEADSSS Assessment {AssessmentId} for appointment {AppointmentId}", 
+                                    assessment.Id, AppointmentId);
+                                
+                                HEEADSSSAssessment = assessment;
+                                HasHEEADSSSAssessment = true;
+                                break;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning(ex, "Error processing HEEADSSS Assessment {AssessmentId}", assessment.Id);
+                            continue;
+                        }
+                    }
+                    
+                    if (HEEADSSSAssessment == null)
+                    {
+                        _logger.LogInformation("No HEEADSSS assessment found for appointment {AppointmentId}. Patient age {Age} - assessment may not be appropriate for creation but checking for existing data.", AppointmentId, PatientAge);
+                    }
+                    else
+                    {
+                        _logger.LogInformation("Found existing HEEADSSS assessment for appointment {AppointmentId} - patient age {Age} (assessment was completed previously)", AppointmentId, PatientAge);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error loading HEEADSSS assessments for appointment {AppointmentId}", AppointmentId);
+                    HEEADSSSAssessment = null;
+                    HasHEEADSSSAssessment = false;
                 }
                 
                 if (HEEADSSSAssessment != null)
@@ -449,15 +567,26 @@ namespace Barangay.Pages.Doctor
                     HEEADSSSAssessment.AssessedBy = SafeDecrypt(HEEADSSSAssessment.AssessedBy);
                 }
 
-                // Load NCD Risk Assessment data - prioritize by appointment ID, then fallback to user ID
-                NCDRiskAssessment = await _context.NCDRiskAssessments
-                    .Where(n => n.AppointmentId == AppointmentId)
-                    .OrderByDescending(n => n.CreatedAt)
-                    .FirstOrDefaultAsync()
-                    ?? await _context.NCDRiskAssessments
-                        .Where(n => n.UserId == patientId)
+                // Load NCD Risk Assessment data - ONLY for this specific appointment and appropriate age range
+                if (PatientAge >= 20)
+                {
+                    _logger.LogInformation("Loading NCD Risk Assessment for appointment {AppointmentId} and patient {PatientId} (age: {Age})", AppointmentId, patientId, PatientAge);
+                    
+                    NCDRiskAssessment = await _context.NCDRiskAssessments
+                        .Where(n => n.AppointmentId == AppointmentId)
                         .OrderByDescending(n => n.CreatedAt)
                         .FirstOrDefaultAsync();
+
+                    if (NCDRiskAssessment == null)
+                    {
+                        _logger.LogInformation("No NCD Risk Assessment found for appointment {AppointmentId}. Patient age {Age} is appropriate for NCD but no assessment exists.", AppointmentId, PatientAge);
+                    }
+                }
+                else
+                {
+                    _logger.LogInformation("Skipping NCD Risk Assessment loading - patient age {Age} is not appropriate for NCD (should be 20+)", PatientAge);
+                    NCDRiskAssessment = null;
+                }
 
                 // Decrypt NCD assessment data for display
                 if (NCDRiskAssessment != null)
@@ -498,15 +627,16 @@ namespace Barangay.Pages.Doctor
                     // CreatedAt is now a DateTime, no decryption needed
                 }
 
-                // Load Adolescent Health Information - prioritize by appointment ID, then fallback to user ID
+                // Load Adolescent Health Information - ONLY for this specific appointment
                 AdolescentHealthInfo = await _context.AdolescentHealthInfo
                     .Where(a => a.AppointmentId == AppointmentId.ToString())
                     .OrderByDescending(a => a.CreatedAt)
-                    .FirstOrDefaultAsync()
-                    ?? await _context.AdolescentHealthInfo
-                        .Where(a => a.UserId == patientId)
-                        .OrderByDescending(a => a.CreatedAt)
-                        .FirstOrDefaultAsync();
+                    .FirstOrDefaultAsync();
+
+                if (AdolescentHealthInfo == null)
+                {
+                    _logger.LogInformation("No Adolescent Health Information found for appointment {AppointmentId}. Not showing fallback assessment to avoid confusion.", AppointmentId);
+                }
 
                 // Decrypt Adolescent Health Information data for display
                 if (AdolescentHealthInfo != null)
@@ -555,8 +685,8 @@ namespace Barangay.Pages.Doctor
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error loading consultation data for patient {PatientId}. Exception details: {Message}", 
-                    patientId, ex.Message);
+                _logger.LogError(ex, "Error loading consultation data for appointment {AppointmentId}. Exception details: {Message}", 
+                    AppointmentId, ex.Message);
                 TempData["ErrorMessage"] = "An unexpected error occurred while loading patient consultation data.";
                 return RedirectToPage("/Doctor/Appointments");
             }
@@ -611,7 +741,7 @@ namespace Barangay.Pages.Doctor
             {
                 // If model state is invalid, we need to reload the data for the page
                 // because the properties are not persisted across postbacks.
-                await OnGetAsync(PatientId, AppointmentId); 
+                await OnGetAsync(AppointmentId); 
                 return Page();
             }
 
@@ -619,7 +749,7 @@ namespace Barangay.Pages.Doctor
             if (currentDoctor == null)
             {
                 ModelState.AddModelError("", "Authentication error. Please log in again.");
-                await OnGetAsync(PatientId, AppointmentId);
+                await OnGetAsync(AppointmentId);
                 return Page();
             }
 
@@ -815,7 +945,7 @@ namespace Barangay.Pages.Doctor
                 await transaction.RollbackAsync();
                 TempData["ErrorMessage"] = "A critical error occurred while saving. The operation was cancelled to protect data integrity. Please try again.";
                 // Reload the page data to allow the user to retry
-                await OnGetAsync(PatientId, AppointmentId);
+                await OnGetAsync(AppointmentId);
                 return Page();
             }
         }
@@ -877,6 +1007,15 @@ namespace Barangay.Pages.Doctor
             
             _logger.LogInformation("Successfully identified doctor with ID: {UserId}", userId);
             return userId;
+        }
+
+        // Helper method to calculate age from birth date
+        private static int CalculateAge(DateTime birthDate)
+        {
+            var today = DateTime.Today;
+            var age = today.Year - birthDate.Year;
+            if (birthDate.Date > today.AddYears(-age)) age--;
+            return age;
         }
 
         // Helper method to get doctor ID with fallback options
@@ -1011,14 +1150,9 @@ namespace Barangay.Pages.Doctor
         {
             if (NCDRiskAssessment == null) return false;
 
-            // Check if this assessment is specifically for this appointment
-            if (AppointmentId.HasValue && NCDRiskAssessment.AppointmentId.HasValue)
-            {
-                if (NCDRiskAssessment.AppointmentId != AppointmentId)
-                {
-                    return false; // This assessment is not for this appointment
-                }
-            }
+            // Since we now only load appointment-specific assessments, 
+            // we don't need to check appointment ID matching
+            _logger.LogInformation("Checking NCD Assessment {AssessmentId} for meaningful data", NCDRiskAssessment.Id);
 
             // Check if any meaningful data exists (not just default/empty values or meaningless entries)
             var hasMeaningfulData = false;

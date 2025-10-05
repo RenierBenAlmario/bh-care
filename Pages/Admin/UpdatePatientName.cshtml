@@ -1,0 +1,55 @@
+@page "/Admin/UpdatePatientName"
+@model UpdatePatientNameModel
+@{
+    ViewData["Title"] = "Update Patient Name";
+}
+
+<div class="container mt-4">
+    <h2>Update Patient Name</h2>
+    
+    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+    {
+        <div class="alert @(Model.StatusMessage.Contains("Error") ? "alert-danger" : "alert-success") alert-dismissible fade show" role="alert">
+            @Model.StatusMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
+    <form method="post">
+        <div class="mb-3">
+            <label for="appointmentId" class="form-label">Appointment ID:</label>
+            <input type="number" class="form-control" id="appointmentId" name="appointmentId" value="@Model.AppointmentId" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="newPatientName" class="form-label">New Patient Name:</label>
+            <input type="text" class="form-control" id="newPatientName" name="newPatientName" value="@Model.NewPatientName" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="newDependentName" class="form-label">New Dependent Name (if applicable):</label>
+            <input type="text" class="form-control" id="newDependentName" name="newDependentName" value="@Model.NewDependentName">
+            <div class="form-text">Leave empty if this is not a dependent appointment</div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Update Patient Name</button>
+    </form>
+    
+    @if (Model.CurrentAppointment != null)
+    {
+        <div class="mt-4">
+            <h3>Current Appointment Data</h3>
+            <div class="card">
+                <div class="card-body">
+                    <p><strong>Appointment ID:</strong> @Model.CurrentAppointment.Id</p>
+                    <p><strong>Current Patient Name:</strong> @Model.CurrentPatientName</p>
+                    <p><strong>Current Dependent Name:</strong> @(string.IsNullOrEmpty(Model.CurrentDependentName) ? "None" : Model.CurrentDependentName)</p>
+                    <p><strong>Patient ID:</strong> @Model.CurrentAppointment.PatientId</p>
+                    <p><strong>Status:</strong> @Model.CurrentAppointment.Status</p>
+                    <p><strong>Date:</strong> @Model.CurrentAppointment.AppointmentDate.ToString("MMM dd, yyyy")</p>
+                    <p><strong>Time:</strong> @Model.CurrentAppointment.AppointmentTime.ToString(@"hh\:mm")</p>
+                </div>
+            </div>
+        </div>
+    }
+</div>

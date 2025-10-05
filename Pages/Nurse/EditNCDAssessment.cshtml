@@ -2,7 +2,8 @@
 @model Barangay.Pages.Nurse.EditNCDAssessmentModel
 @{
     ViewData["Title"] = "Edit NCD Risk Assessment";
-    Layout = "_NurseLayout";
+    var isDoctor = User.IsInRole("Doctor") || User.IsInRole("Head Doctor") || User.IsInRole("Admin");
+    Layout = isDoctor ? "_DoctorLayout" : "~/Pages/Shared/_NurseLayout.cshtml";
 }
 
 <div class="container mt-4">
@@ -13,10 +14,20 @@
                 <i class="fas fa-print me-1"></i>
                 Print Form
             </a>
-            <a href="/Nurse/AppointmentDetails?id=@Model.AppointmentId" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-1"></i>
-                Back to Appointment
-            </a>
+            @if (isDoctor)
+            {
+                <a href="/Doctor/Consultation?id=@Model.AppointmentId" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>
+                    Back to Consultation
+                </a>
+            }
+            else
+            {
+                <a href="/Nurse/AppointmentDetails?id=@Model.AppointmentId" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>
+                    Back to Appointment
+                </a>
+            }
         </div>
     </div>
     
@@ -64,7 +75,14 @@
                             </div>
                         </div>
                         <div class="mt-2 text-center">
-                            <a href="/Nurse/AppointmentDetails?id=@Model.AppointmentId" class="btn btn-secondary btn-sm" style="visibility: visible !important; display: inline-block !important;">Cancel</a>
+                            @if (isDoctor)
+                            {
+                                <a href="/Doctor/Consultation?id=@Model.AppointmentId" class="btn btn-secondary btn-sm" style="visibility: visible !important; display: inline-block !important;">Cancel</a>
+                            }
+                            else
+                            {
+                                <a href="/Nurse/AppointmentDetails?id=@Model.AppointmentId" class="btn btn-secondary btn-sm" style="visibility: visible !important; display: inline-block !important;">Cancel</a>
+                            }
                         </div>
                     </div>
                 </div>
@@ -264,7 +282,7 @@
                                                     Cancer
                                                 </label>
                                             </div>
-                                            <input type="text" asp-for="NCDRiskAssessment.CancerType" class="form-control form-control-sm" placeholder="specify site" />
+                                            <input type="text" asp-for="NCDRiskAssessment.CancerSite" class="form-control form-control-sm" placeholder="specify site" />
                                         </td>
                                         <td class="text-center">
                                             <i class="fas fa-check-circle text-success d-none"></i>
@@ -317,22 +335,21 @@
                                     <tr>
                                         <td>
                                             <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.HasAsthma" id="hasAsthma" />
-                                                <label class="form-check-label fw-bold" for="hasAsthma">
-                                                    Asthma
+                                                <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.HasCOPD" id="hasCOPD" />
+                                                <label class="form-check-label fw-bold" for="hasCOPD">
+                                                    COPD (Chronic Obstructive Pulmonary Disease)
                                                 </label>
                                             </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <i class="fas fa-check-circle text-success d-none"></i>
                                         </td>
                                         <td>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" asp-for="NCDRiskAssessment.HasDifficultyBreathing" id="hasDifficultyBreathing" />
-                                                <label class="form-check-label fw-bold" for="hasDifficultyBreathing">
-                                                    Has Difficulty Breathing
-                                                </label>
-                                            </div>
+                                            <input type="text" asp-for="NCDRiskAssessment.COPDYear" class="form-control form-control-sm" placeholder="Year" />
                                         </td>
-                                        <td></td>
-                                        <td></td>
+                                        <td>
+                                            <input type="text" asp-for="NCDRiskAssessment.COPDMedication" class="form-control form-control-sm" placeholder="Medication or 'Wala'" />
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -745,12 +762,26 @@
                                 <label class="form-label fw-bold mb-3">Ikaw ba ay naninigariyo?</label>
                                 <div class="mb-3">
                                     <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.HasHistoryOfSmoking" value="Oo" id="smokingYes" />
+                                        <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.SmokingStatus" value="Smoker" id="smokingYes" />
                                         <label class="form-check-label" for="smokingYes">Oo</label>
                                     </div>
                                     <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.HasHistoryOfSmoking" value="Hindi" id="smokingNo" />
+                                        <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.SmokingStatus" value="Non-smoker" id="smokingNo" />
                                         <label class="form-check-label" for="smokingNo">Hindi</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group conditional-section hidden" id="smoking-quit-duration">
+                                    <label class="form-label fw-bold mb-3">Gaano ka na katagal tumigil sa paninigarilyo?</label>
+                                    <div class="mb-3">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.SmokingQuitDuration" value="wala pang 1 taon" id="quitLessThan1Year" />
+                                            <label class="form-check-label" for="quitLessThan1Year">wala pang 1 taon</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" asp-for="NCDRiskAssessment.SmokingQuitDuration" value=">1 taon" id="quitMoreThan1Year" />
+                                            <label class="form-check-label" for="quitMoreThan1Year">>1 taon</label>
+                                        </div>
                                     </div>
                                 </div>
                                 
@@ -1236,12 +1267,36 @@
                 }
             }
             
+            function initializeSmokingStatus() {
+                // Check initial smoking status and show/hide quit duration section
+                const smokingStatus = $('input[name="NCDRiskAssessment.SmokingStatus"]:checked').val();
+                const quitDurationSection = $('#smoking-quit-duration');
+                
+                if (smokingStatus === 'Non-smoker') {
+                    quitDurationSection.addClass('hidden');
+                } else if (smokingStatus === 'Smoker') {
+                    quitDurationSection.removeClass('hidden');
+                }
+                
+                // Bind change event for smoking status
+                $('input[name="NCDRiskAssessment.SmokingStatus"]').on('change', function() {
+                    if ($(this).val() === 'Non-smoker') {
+                        quitDurationSection.addClass('hidden');
+                    } else if ($(this).val() === 'Smoker') {
+                        quitDurationSection.removeClass('hidden');
+                    }
+                });
+            }
+            
             // Initialize visibility based on current values
             toggleSection('#NCDRiskAssessment_HasDiabetes', '#diabetesFields');
             toggleSection('#NCDRiskAssessment_HasHypertension', '#hypertensionFields');
             toggleSection('#NCDRiskAssessment_HasLungDisease', '#lungDiseaseFields');
             toggleSection('#NCDRiskAssessment_HasEyeDisease', '#eyeDiseaseFields');
             toggleSection('#hasCancer', '#cancerTypeDiv');
+            
+            // Initialize smoking status conditional section
+            initializeSmokingStatus();
             
             // Bind change events
             $('#NCDRiskAssessment_HasDiabetes').on('change', function(){ toggleSection('#NCDRiskAssessment_HasDiabetes', '#diabetesFields'); });
@@ -1399,6 +1454,12 @@
                 console.log('Smoking Checkboxes:');
                 $('#formerSmoker, #exposedToSmoke, #smoked100sticks').each(function() {
                     console.log(`  ${$(this).attr('id')}: checked=${$(this).is(':checked')}, value="${$(this).val()}"`);
+                });
+                
+                // Debug Cancer Site input
+                console.log('Cancer Site Input:');
+                $('#NCDRiskAssessment_CancerSite').each(function() {
+                    console.log(`  ${$(this).attr('id')}: value="${$(this).val()}"`);
                 });
                 
                 // Log all form data before submission

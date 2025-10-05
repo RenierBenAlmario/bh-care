@@ -29,6 +29,62 @@ using Microsoft.AspNetCore.Authorization;
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
+// Check for command line arguments to execute SQL
+if (args.Length > 0 && args[0] == "--add-copd-columns")
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
+    optionsBuilder.UseSqlServer(connectionString);
+    
+    // Create a simple service provider for the required services
+    var services = new ServiceCollection();
+    services.AddSingleton<IDataEncryptionService, DataEncryptionService>();
+    services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+    var serviceProvider = services.BuildServiceProvider();
+    
+    var encryptionService = serviceProvider.GetRequiredService<IDataEncryptionService>();
+    var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
+    
+    using var context = new EncryptedDbContext(optionsBuilder.Options, encryptionService, httpContextAccessor);
+    
+    try
+    {
+        Console.WriteLine("Adding COPDYear column...");
+        await context.Database.ExecuteSqlRawAsync(@"
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('NCDRiskAssessments') AND name = 'COPDYear')
+            BEGIN
+                ALTER TABLE [dbo].[NCDRiskAssessments] ADD [COPDYear] nvarchar(50) NULL;
+                PRINT 'COPDYear column added successfully';
+            END
+            ELSE
+            BEGIN
+                PRINT 'COPDYear column already exists';
+            END
+        ");
+        
+        Console.WriteLine("Adding COPDMedication column...");
+        await context.Database.ExecuteSqlRawAsync(@"
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('NCDRiskAssessments') AND name = 'COPDMedication')
+            BEGIN
+                ALTER TABLE [dbo].[NCDRiskAssessments] ADD [COPDMedication] nvarchar(4000) NULL;
+                PRINT 'COPDMedication column added successfully';
+            END
+            ELSE
+            BEGIN
+                PRINT 'COPDMedication column already exists';
+            END
+        ");
+        
+        Console.WriteLine("Database schema update completed successfully!");
+        return;
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error updating database schema: {ex.Message}");
+        return;
+    }
+}
+
 // Configure logging based on environment
 if (builder.Environment.IsDevelopment())
 {

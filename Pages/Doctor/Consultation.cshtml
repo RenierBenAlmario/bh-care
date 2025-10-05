@@ -127,7 +127,7 @@
                                             <span class="badge @badgeClass">@appointment.Status</span>
                                         </td>
                                         <td>
-                                            <a class="btn btn-sm btn-primary" asp-page="/Doctor/Consultation" asp-route-id="@appointment.Id" asp-route-patientId="@appointment.PatientId" asp-route-startConsultation="true">
+                                            <a class="btn btn-sm btn-primary" asp-page="/Doctor/Consultation" asp-route-id="@appointment.Id" asp-route-startConsultation="true">
                                                 <i class="fas fa-play-circle me-1"></i> Start Consultation
                                             </a>
                                         </td>
@@ -166,16 +166,17 @@
                         </div>
                         <div class="card-body">
                             @{
-                                // Show the actual person booked for the appointment
+                                // Show the actual patient name (not the booker's name)
                                 string patientDisplayName = !string.IsNullOrEmpty(Model.Appointment?.DependentFullName) 
                                     ? Model.Appointment.DependentFullName 
-                                    : Model.Patient?.FullName ?? "Unknown Patient";
+                                    : Model.Appointment?.PatientName ?? "Unknown Patient";
                             }
                             <h4>@patientDisplayName</h4>
                             <p><strong>Address:</strong> @(string.IsNullOrEmpty(Model.Patient?.Address) ? "Not specified" : Model.Patient.Address)</p>
                             <p><strong>Contact #:</strong> @(string.IsNullOrEmpty(Model.Patient?.ContactNumber) ? "Not specified" : Model.Patient.ContactNumber)</p>
                             <p><strong>Emergency Contact #:</strong> @(string.IsNullOrEmpty(Model.Patient?.EmergencyContactNumber) ? "Not specified" : Model.Patient.EmergencyContactNumber)</p>
                             <p><strong>Medical History:</strong> @(string.IsNullOrEmpty(Model.Patient?.MedicalHistory) ? "Not specified" : Model.Patient.MedicalHistory)</p>
+                            <p><strong>Booked By:</strong> @Model.BookedBy</p>
                         </div>
                     </div>
 
@@ -274,7 +275,8 @@
                         </div>
                         <div class="card-body text-center py-3">
                             <i class="fas fa-clipboard-list fa-2x text-muted mb-2"></i>
-                            <p class="text-muted">No HEEADSSS assessment record available for this patient.</p>
+                            <p class="text-muted">No HEEADSSS assessment record available for this appointment.</p>
+                            <small class="text-muted">HEEADSSS assessment is typically for patients aged 10-19 years. This patient is @Model.PatientAge years old.</small>
                         </div>
                     </div>
                 }
@@ -285,7 +287,7 @@
                     <div class="card mb-4">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">NCD Risk Assessment</h5>
-                            <a href="/Doctor/CreateNCDAssessment?appointmentId=@Model.AppointmentId" class="btn btn-sm btn-outline-primary">
+                            <a href="/Doctor/EditNCDAssessment?appointmentId=@Model.AppointmentId" class="btn btn-sm btn-outline-primary">
                                 <i class="fas fa-edit me-1"></i> Edit
                             </a>
                         </div>
@@ -405,7 +407,16 @@
                         </div>
                         <div class="card-body text-center py-3">
                             <i class="fas fa-heartbeat fa-2x text-muted mb-2"></i>
-                            <p class="text-muted">No NCD risk assessment record available for this patient.</p>
+                            @if (Model.PatientAge >= 20)
+                            {
+                                <p class="text-muted">No NCD risk assessment record available for this appointment.</p>
+                                <small class="text-muted">NCD risk assessment is appropriate for patients aged 20+ years.</small>
+                            }
+                            else
+                            {
+                                <p class="text-muted">NCD risk assessment not applicable for this patient.</p>
+                                <small class="text-muted">NCD risk assessment is only for patients aged 20+ years. This patient is @Model.PatientAge years old.</small>
+                            }
                         </div>
                     </div>
                 }
@@ -567,10 +578,10 @@
         <div style="margin-bottom: 20px;">
             <h3 style="border-bottom: 1px solid #ccc; padding-bottom: 5px;">Patient Information</h3>
             @{
-                // Show the actual person booked for the appointment in print summary
+                // Show the actual patient name (not the booker's name) in print summary
                 string printPatientName = !string.IsNullOrEmpty(Model.Appointment?.DependentFullName) 
                     ? Model.Appointment.DependentFullName 
-                    : Model.Patient?.FullName ?? "Not specified";
+                    : Model.Appointment?.PatientName ?? "Not specified";
             }
             <p><strong>Name:</strong> @printPatientName</p>
             <p><strong>Contact:</strong> @(string.IsNullOrEmpty(Model.Patient?.ContactNumber) ? "Not specified" : Model.Patient.ContactNumber)</p>

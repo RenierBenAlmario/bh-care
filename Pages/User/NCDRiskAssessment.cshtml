@@ -212,56 +212,60 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>1.1Karamdaman</th>
-                            <th>1.2 Lagyan ng tsek/ kung may karamdaman</th>
-                            <th>1.3 Taon nalaman ang sakit</th>
-                            <th>1.4 Ininom na gamot. ang "Wala" kung walang iniinom</th>
+                            <th style="width: 25%;">1.1Karamdaman</th>
+                            <th style="width: 20%;">1.2 Lagyan ng tsek/ kung may karamdaman</th>
+                            <th style="width: 25%;">1.3 Taon nalaman ang sakit</th>
+                            <th style="width: 30%;">1.4 Ininom na gamot. ang "Wala" kung walang iniinom</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td>Diabetes (DM)</td>
                             <td><input type="checkbox" name="HasDiabetes" value="true"></td>
-                            <td><input type="text" name="DiabetesYear" placeholder="Year"></td>
-                            <td><input type="text" name="DiabetesMedication" placeholder="Medication"></td>
+                            <td><input type="text" name="DiabetesYear" placeholder="Year" value="@Model.Assessment.DiabetesYear"></td>
+                            <td><input type="text" name="DiabetesMedication" placeholder="Medication" value="@Model.Assessment.DiabetesMedication"></td>
                         </tr>
                         <tr>
                             <td>Hypertension (HPN)</td>
                             <td><input type="checkbox" name="HasHypertension" value="true"></td>
-                            <td><input type="text" name="HypertensionYear" placeholder="Year"></td>
-                            <td><input type="text" name="HypertensionMedication" placeholder="Medication"></td>
-                        </tr>
+                            <td><input type="text" name="HypertensionYear" placeholder="Year" value="@Model.Assessment.HypertensionYear"></td>
+                            <td><input type="text" name="HypertensionMedication" placeholder="Medication" value="@Model.Assessment.HypertensionMedication"></td>
+                        </tr>            
                         <tr>
                             <td>
                                 Cancer
-                                <input type="text" name="CancerType" placeholder="specify site" style="margin-top: 5px; width: 100%;">
+                                <div style="margin-top: 5px;">
+                                    <label>• Isulat ang site/lugar ng Cancer:</label>
+                                    <input type="text" name="CancerSite" placeholder="specify site" style="width: 100%;" value="@Model.Assessment.CancerSite">
+                                </div>
                             </td>
                             <td><input type="checkbox" name="HasCancer" value="true"></td>
-                            <td><input type="text" name="CancerYear" placeholder="Year"></td>
-                            <td><input type="text" name="CancerMedication" placeholder="Medication"></td>
+                            <td><input type="text" name="CancerYear" placeholder="Year" value="@Model.Assessment.CancerYear"></td>
+                            <td><input type="text" name="CancerMedication" placeholder="Medication" value="@Model.Assessment.CancerMedication"></td>
                         </tr>
                         <tr>
                             <td>Sakit sa baga hindi nakakahawa</td>
                             <td><input type="checkbox" name="HasLungDiseaseNonInfectious" value="true"></td>
-                            <td><input type="text" name="LungDiseaseYear" placeholder="Year"></td>
-                            <td><input type="text" name="LungDiseaseMedication" placeholder="Medication"></td>
+                            <td><input type="text" name="LungDiseaseYear" placeholder="Year" value="@Model.Assessment.LungDiseaseYear"></td>
+                            <td><input type="text" name="LungDiseaseMedication" placeholder="Medication" value="@Model.Assessment.LungDiseaseMedication"></td>
                         </tr>
                         <tr>
                             <td>Sakit sa mata</td>
                             <td><input type="checkbox" name="HasEyeDisease" value="true"></td>
-                            <td><input type="text" name="EyeDiseaseYear" placeholder="Year"></td>
-                            <td><input type="text" name="EyeDiseaseMedication" placeholder="Medication"></td>
+                            <td><input type="text" name="EyeDiseaseYear" placeholder="Year" value="@Model.Assessment.EyeDiseaseYear"></td>
+                            <td><input type="text" name="EyeDiseaseMedication" placeholder="Medication" value="@Model.Assessment.EyeDiseaseMedication"></td>
                         </tr>
                         <tr>
-                            <td>
-                                Asthma
-                                <div style="margin-top: 5px;">
-                                    <label><input type="checkbox" name="HasDifficultyBreathing" value="true"> Has Difficulty Breathing</label>
-                                </div>
-                            </td>
-                            <td><input type="checkbox" name="HasAsthma" value="true"></td>
-                            <td><input type="text" name="AsthmaYear" placeholder="Year"></td>
-                            <td><input type="text" name="AsthmaMedication" placeholder="Medication"></td>
+                            <td>COPD (Chronic Obstructive Pulmonary Disease)</td>
+                            <td><input type="checkbox" name="HasCOPD" value="true"></td>
+                            <td><input type="text" name="COPDYear" placeholder="Year" value="@Model.Assessment.COPDYear"></td>
+                            <td><input type="text" name="COPDMedication" placeholder="Medication" value="@Model.Assessment.COPDMedication"></td>
+                        </tr>
+                        <tr>
+                            <td>Sakit sa baga na hindi nakakahawa</td>
+                            <td><input type="checkbox" name="HasLungDisease" value="true"></td>
+                            <td><input type="text" name="LungDiseaseYear" placeholder="Year" value="@Model.Assessment.LungDiseaseYear"></td>
+                            <td><input type="text" name="LungDiseaseMedication" placeholder="Medication" value="@Model.Assessment.LungDiseaseMedication"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -493,6 +497,13 @@
                         <label><input type="radio" name="SmokingStatus" value="Smoker"> Oo</label>
                         <label><input type="radio" name="SmokingStatus" value="Non-smoker"> Hindi</label>
                     </div>
+                    <div class="form-group conditional-section hidden" id="smoking-quit-duration">
+                        <label>Gaano ka na katagal tumigil sa paninigarilyo?</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="SmokingQuitDuration" value="wala pang 1 taon"> wala pang 1 taon</label>
+                            <label><input type="radio" name="SmokingQuitDuration" value=">1 taon"> >1 taon</label>
+                        </div>
+                    </div>
                     <div class="checkbox-group" style="margin-top: 10px;">
                         <label><input type="checkbox" name="FormerSmoker" value="true"> Oo pero tumigil na</label>
                         <label><input type="checkbox" name="NeverSmokedButExposedToSmoke" value="true"> Hindi, pero lantad sa usok ng sigarilyo</label>
@@ -519,6 +530,8 @@
                         <label><input type="radio" name="stress_epekto" value="Hindi"> Hindi</label>
                     </div>
                 </div>
+
+
                 <div class="wizard-nav">
                     <button type="button" class="btn btn-secondary" id="back-3">Back</button>
                     <button type="button" class="btn btn-primary" id="next-3">Review</button>
@@ -621,32 +634,73 @@
                         }
                         
                         // Auto-fill patient information if available
-                        if (data.patient) {
-                            if (data.patient.firstName) document.getElementById('first-name').value = data.patient.firstName;
-                            if (data.patient.middleName) document.getElementById('middle-name').value = data.patient.middleName;
-                            if (data.patient.lastName) document.getElementById('last-name').value = data.patient.lastName;
-                            if (data.patient.address) document.getElementById('address').value = data.patient.address;
-                            if (data.patient.contactNumber) document.getElementById('telefono').value = data.patient.contactNumber;
-                            if (data.patient.birthDate) {
-                                const birthDate = new Date(data.patient.birthDate);
-                                document.getElementById('birthday').value = birthDate.toISOString().split('T')[0];
-                                // Calculate age
-                                const age = calculateAge(birthDate);
-                                document.getElementById('edad').value = age;
-                            }
-                            if (data.patient.gender) {
-                                const genderRadios = document.querySelectorAll('input[name="kasarian"]');
-                                for (let radio of genderRadios) {
-                                    if (radio.value.toLowerCase() === data.patient.gender.toLowerCase()) {
-                                        radio.checked = true;
-                                        break;
+                        // Prioritize dependent name if available, otherwise use patient name
+                        let patientName = data.dependentFullName || data.patientName || '';
+                        let patientData = data.patient || {};
+                        
+                        if (patientName) {
+                            // Parse the patient name into components
+                            const nameParts = patientName.split(' ').filter(part => part.trim() !== '');
+                            if (nameParts.length > 0) {
+                                document.getElementById('first-name').value = nameParts[0];
+                                if (nameParts.length > 1) {
+                                    document.getElementById('last-name').value = nameParts[nameParts.length - 1];
+                                    if (nameParts.length > 2) {
+                                        document.getElementById('middle-name').value = nameParts.slice(1, -1).join(' ');
                                     }
                                 }
                             }
-                            // Check if patient has family number
-                            if (data.patient.familyNo) {
-                                document.getElementById('family-no').value = data.patient.familyNo;
+                        } else if (patientData) {
+                            // Fallback to patient data if no dependent name
+                            if (patientData.firstName) document.getElementById('first-name').value = patientData.firstName;
+                            if (patientData.middleName) document.getElementById('middle-name').value = patientData.middleName;
+                            if (patientData.lastName) document.getElementById('last-name').value = patientData.lastName;
+                        }
+                        
+                        // Use appointment-specific contact info if available
+                        if (data.contactNumber) {
+                            document.getElementById('telefono').value = data.contactNumber;
+                        } else if (patientData.contactNumber) {
+                            document.getElementById('telefono').value = patientData.contactNumber;
+                        }
+                        
+                        // Use appointment-specific address if available
+                        if (data.address) {
+                            document.getElementById('address').value = data.address;
+                        } else if (patientData.address) {
+                            document.getElementById('address').value = patientData.address;
+                        }
+                        
+                        // Handle birth date and age calculation
+                        if (data.dateOfBirth) {
+                            const birthDate = new Date(data.dateOfBirth);
+                            document.getElementById('birthday').value = birthDate.toISOString().split('T')[0];
+                            const age = calculateAge(birthDate);
+                            document.getElementById('edad').value = age;
+                        } else if (data.ageValue && data.ageValue > 0) {
+                            document.getElementById('edad').value = data.ageValue;
+                        } else if (patientData.birthDate) {
+                            const birthDate = new Date(patientData.birthDate);
+                            document.getElementById('birthday').value = birthDate.toISOString().split('T')[0];
+                            const age = calculateAge(birthDate);
+                            document.getElementById('edad').value = age;
+                        }
+                        
+                        // Handle gender
+                        const gender = data.gender || patientData.gender;
+                        if (gender) {
+                            const genderRadios = document.querySelectorAll('input[name="kasarian"]');
+                            for (let radio of genderRadios) {
+                                if (radio.value.toLowerCase() === gender.toLowerCase()) {
+                                    radio.checked = true;
+                                    break;
+                                }
                             }
+                        }
+                        
+                        // Check if patient has family number
+                        if (patientData.familyNo) {
+                            document.getElementById('family-no').value = patientData.familyNo;
                         }
                     })
                     .catch(error => console.error('Error fetching appointment data:', error));
@@ -824,10 +878,10 @@
                 ['Telepono', document.getElementById('telefono').value],
                 ['Diabetes', document.querySelector('input[name="HasDiabetes"]')?.checked ? 'Yes' : 'No'],
                 ['Hypertension', document.querySelector('input[name="HasHypertension"]')?.checked ? 'Yes' : 'No'],
-                ['Cancer', document.querySelector('input[name="HasCancer"]')?.checked ? `Yes (${document.querySelector('input[name="CancerType"]').value})` : 'No'],
-                ['Lung Disease', document.querySelector('input[name="HasLungDiseaseNonInfectious"]')?.checked ? 'Yes' : 'No'],
+                ['Cancer', document.querySelector('input[name="HasCancer"]')?.checked ? `Yes (${document.querySelector('input[name="CancerSite"]').value})` : 'No'],
+                ['Lung Disease', document.querySelector('input[name="HasLungDisease"]')?.checked ? 'Yes' : 'No'],
                 ['Eye Disease', document.querySelector('input[name="HasEyeDisease"]')?.checked ? 'Yes' : 'No'],
-                ['Asthma', document.querySelector('input[name="HasAsthma"]')?.checked ? 'Yes' : 'No'],
+                ['COPD', document.querySelector('input[name="HasCOPD"]')?.checked ? 'Yes' : 'No'],
                 ['Alcohol Status', document.querySelector('input[name="alcohol_inom"]:checked')?.value || 'None'],
                 ['Alcohol Frequency', document.querySelector('input[name="AlcoholFrequency"]:checked')?.value || 'None'],
                 ['Alcohol Per Occasion', document.querySelector('input[name="AlcoholPerOccasion"]:checked')?.value || 'None'],
@@ -835,6 +889,7 @@
                 ['Vigorous Intensity Exercise', document.querySelector('input[name="VigorousIntensityExercise"]')?.checked ? 'Yes' : 'No'],
                 ['Insufficient Physical Activity', document.querySelector('input[name="InsufficientPhysicalActivity"]')?.checked ? 'Yes' : 'No'],
                 ['Smoking Status', document.querySelector('input[name="SmokingStatus"]:checked')?.value || 'Non-smoker'],
+                ['Smoking Quit Duration', document.querySelector('input[name="SmokingQuitDuration"]:checked')?.value || 'N/A'],
                 ['Former Smoker', document.querySelector('input[name="FormerSmoker"]')?.checked ? 'Yes' : 'No'],
                 ['Exposed to Smoke', document.querySelector('input[name="NeverSmokedButExposedToSmoke"]')?.checked ? 'Yes' : 'No'],
                 ['Smoked 100+ Sticks', document.querySelector('input[name="Smoked100Sticks"]')?.checked ? 'Yes' : 'No'],
@@ -1076,6 +1131,10 @@
             data.AlcoholAmountLessThan3Shot45ml = getCheckboxValue('AlcoholAmountLessThan3Shot45ml') === 'true';
             data.AlcoholAmountMoreThan4Shots75ml = getCheckboxValue('AlcoholAmountMoreThan4Shots75ml') === 'true';
             
+            // ADDED: Missing alcohol consumption fields
+            data.BeerConsumption3 = getCheckboxValue('BeerConsumption3') === 'true';
+            data.WineConsumption2 = getCheckboxValue('WineConsumption2') === 'true';
+            
             // FIXED: Correct alcohol frequency mappings - FIXED BOOLEAN VALUES
             const alcoholFreq = getRadioValue('AlcoholFrequency');
             data.AlcoholFrequency1to3TimesPerWeek = alcoholFreq === '1-3 beses/linggo';
@@ -1096,11 +1155,12 @@
 
             // B.4 Paninigarilyo - FIXED BOOLEAN VALUES
             data.SmokingStatus = getRadioValue('SmokingStatus') || 'Non-smoker';
+            data.SmokingQuitDuration = getRadioValue('SmokingQuitDuration');
             data.FormerSmoker = getCheckboxValue('FormerSmoker') === 'true';
             data.NeverSmokedButExposedToSmoke = getCheckboxValue('NeverSmokedButExposedToSmoke') === 'true';
             data.HasHistoryOfSmoking = data.FormerSmoker;
             data.Smoked100Sticks = getCheckboxValue('Smoked100Sticks') === 'true';
-            data.IsSmoker = data.SmokingStatus === 'Current smoker';
+            data.IsSmoker = data.SmokingStatus === 'Smoker';
             
             // ADDED: Missing smoking fields
             data.ExposedToSmoke = data.NeverSmokedButExposedToSmoke;
@@ -1114,6 +1174,34 @@
             data.IsStressed = data.HasStress;
             data.StressCauses = data.StressSino;
             data.StressAffectsDailyLife = data.StressEpekto;
+
+            // B.6 Risk Status - FIXED BOOLEAN VALUES
+            data.HasDiabetes = getCheckboxValue('HasDiabetes') === 'true';
+            data.HasHypertension = getCheckboxValue('HasHypertension') === 'true';
+            data.HasCancer = getCheckboxValue('HasCancer') === 'true';
+            data.CancerSite = getInputValue('cancer-site');
+            data.HasCOPD = getCheckboxValue('HasCOPD') === 'true';
+            data.COPDYear = document.querySelector('input[name="COPDYear"]')?.value || '';
+            data.COPDMedication = document.querySelector('input[name="COPDMedication"]')?.value || '';
+            
+            // DEBUGGING: Log Risk Status fields
+            console.log('=== RISK STATUS FIELDS DEBUGGING ===');
+            console.log('HasDiabetes:', data.HasDiabetes, '(type:', typeof data.HasDiabetes, ')');
+            console.log('HasHypertension:', data.HasHypertension, '(type:', typeof data.HasHypertension, ')');
+            console.log('HasCancer:', data.HasCancer, '(type:', typeof data.HasCancer, ')');
+            console.log('CancerSite:', data.CancerSite, '(type:', typeof data.CancerSite, ')');
+            console.log('HasCOPD:', data.HasCOPD, '(type:', typeof data.HasCOPD, ')');
+            console.log('COPDYear:', data.COPDYear);
+            console.log('COPDMedication:', data.COPDMedication);
+            
+            // DEBUGGING: Log raw checkbox states
+            console.log('=== RAW CHECKBOX STATES ===');
+            console.log('HasDiabetes checkbox checked:', document.querySelector('input[name="HasDiabetes"]')?.checked);
+            console.log('HasHypertension checkbox checked:', document.querySelector('input[name="HasHypertension"]')?.checked);
+            console.log('HasCancer checkbox checked:', document.querySelector('input[name="HasCancer"]')?.checked);
+            console.log('HasCOPD checkbox checked:', document.querySelector('input[name="HasCOPD"]')?.checked);
+            console.log('CancerSite input value:', document.querySelector('input[name="CancerSite"]')?.value);
+            console.log('=== END RISK STATUS DEBUGGING ===');
 
             // --- Set Default/Missing values - FIXED BOOLEAN VALUES ---
             data.PatientSignature = '';
@@ -1129,7 +1217,6 @@
             data.IDNumber = data.FamilyNo;
             data.HealthFacilityName = data.HealthFacility;
             data.DateAssessment = getInputValue('date-assessment');
-            data.HasCOPD = 'false'; // Not in form
 
             // Add appointmentId and userId to the data
             const urlParams = new URLSearchParams(window.location.search);
@@ -1259,7 +1346,7 @@
             // Setup the conditional visibility for each section
             setupConditionalVisibilityGroup('alcohol_inom', ['alcohol-stopped-questions', 'alcohol-questions', 'alcohol-questions-3', 'alcohol-questions-4']);
             // Exercise section now uses checkboxes, no conditional subsections needed
-            // Smoking section now uses checkboxes, no conditional subsections needed
+            setupConditionalVisibilityGroup('SmokingStatus', ['smoking-quit-duration']);
             setupConditionalVisibilityGroup('stress_madalas', ['stress-questions', 'stress-questions-2']);
             
             // Immediately check the current state of radio buttons
@@ -1308,7 +1395,14 @@
                 }
             }
             
-            // Check smoking section - no longer needed since we use checkboxes
+            // Check smoking section
+            const smokingRadios = document.querySelectorAll('input[name="SmokingStatus"]');
+            for (const radio of smokingRadios) {
+                if (radio.checked && radio.value === 'Non-smoker') {
+                    hideGroupSections(['smoking-quit-duration']);
+                    break;
+                }
+            }
             // Check stress section
             const stressRadios = document.querySelectorAll('input[name="stress_madalas"]');
             for (const radio of stressRadios) {
@@ -1375,6 +1469,23 @@
                                     console.log(`Showing section ${section.id} for value: ${this.value}`);
                                     section.classList.remove('hidden');
                                 }
+                            }
+                        });
+                    });
+                });
+            } else if (radioName === 'SmokingStatus') {
+                // Special handling for smoking status section
+                radioButtons.forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        sections.forEach(section => {
+                            if (this.value === 'Non-smoker') {
+                                // Hide smoking quit duration questions for non-smokers
+                                console.log(`Hiding section ${section.id} for value: ${this.value}`);
+                                section.classList.add('hidden');
+                            } else if (this.value === 'Smoker') {
+                                // Show smoking quit duration questions for smokers
+                                console.log(`Showing section ${section.id} for value: ${this.value}`);
+                                section.classList.remove('hidden');
                             }
                         });
                     });

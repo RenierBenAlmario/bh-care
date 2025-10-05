@@ -36,6 +36,11 @@ namespace Barangay.Pages.Nurse
         [BindProperty]
         public HEEADSSSAssessmentViewModel Assessment { get; set; }
 
+        private bool IsDoctorRole()
+        {
+            return User.IsInRole("Doctor") || User.IsInRole("Head Doctor") || User.IsInRole("Admin");
+        }
+
         public async Task<IActionResult> OnGetAsync(int appointmentId)
         {
             try
@@ -48,7 +53,7 @@ namespace Barangay.Pages.Nurse
                 if (appointment == null)
                 {
                     TempData["StatusMessage"] = "Error: Appointment not found.";
-                    return RedirectToPage("/Nurse/Appointments");
+                    return IsDoctorRole() ? RedirectToPage("/Doctor/Consultations") : RedirectToPage("/Nurse/Appointments");
                 }
 
                 // Get existing HEEADSSS assessment
@@ -70,7 +75,7 @@ namespace Barangay.Pages.Nurse
                 if (existingAssessment == null)
                 {
                     TempData["StatusMessage"] = "Error: HEEADSSS assessment not found.";
-                    return RedirectToPage("/Nurse/AppointmentDetails", new { id = appointmentId });
+                    return IsDoctorRole() ? RedirectToPage("/Doctor/Consultation", new { id = appointmentId }) : RedirectToPage("/Nurse/AppointmentDetails", new { id = appointmentId });
                 }
 
                 // Decrypt existing assessment data for editing
@@ -657,7 +662,7 @@ namespace Barangay.Pages.Nurse
             {
                 _logger.LogError(ex, "Error loading HEEADSSS assessment for appointment {AppointmentId}", appointmentId);
                 TempData["StatusMessage"] = "Error: Unable to load assessment.";
-                return RedirectToPage("/Nurse/Appointments");
+                return IsDoctorRole() ? RedirectToPage("/Doctor/Consultations") : RedirectToPage("/Nurse/Appointments");
             }
         }
 
@@ -679,7 +684,7 @@ namespace Barangay.Pages.Nurse
                 if (appointment == null)
                 {
                     TempData["StatusMessage"] = "Error: Appointment not found.";
-                    return RedirectToPage("/Nurse/Appointments");
+                    return IsDoctorRole() ? RedirectToPage("/Doctor/Consultations") : RedirectToPage("/Nurse/Appointments");
                 }
 
                 HEEADSSSAssessment? existingAssessment = null;
@@ -696,7 +701,7 @@ namespace Barangay.Pages.Nurse
                 if (existingAssessment == null)
                 {
                     TempData["StatusMessage"] = "Error: Assessment not found.";
-                    return RedirectToPage("/Nurse/Appointments");
+                    return IsDoctorRole() ? RedirectToPage("/Doctor/Consultations") : RedirectToPage("/Nurse/Appointments");
                 }
 
                 // Update the assessment with all fields
@@ -875,7 +880,7 @@ namespace Barangay.Pages.Nurse
                 _logger.LogInformation("HEEADSSS assessment updated successfully for appointment {AppointmentId}", Assessment.AppointmentId);
                 TempData["StatusMessage"] = "HEEADSSS assessment updated successfully.";
                 
-                return RedirectToPage("/Nurse/AppointmentDetails", new { id = Assessment.AppointmentId ?? 0 });
+                return IsDoctorRole() ? RedirectToPage("/Doctor/Consultation", new { id = Assessment.AppointmentId ?? 0 }) : RedirectToPage("/Nurse/AppointmentDetails", new { id = Assessment.AppointmentId ?? 0 });
             }
             catch (Exception ex)
             {

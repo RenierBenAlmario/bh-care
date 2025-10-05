@@ -14,7 +14,7 @@ using System.Security.Claims;
 
 namespace Barangay.Pages.Nurse
 {
-    [Authorize(Roles = "Nurse,Head Nurse")]
+    [Authorize(Roles = "Nurse,Head Nurse,Doctor,Head Doctor")]
     public class EditNCDAssessmentModel : PageModel
     {
         private readonly EncryptedDbContext _context;
@@ -44,6 +44,11 @@ namespace Barangay.Pages.Nurse
         public string UserId { get; set; }
         public string PatientName { get; set; }
 
+        private bool IsDoctorRole()
+        {
+            return User.IsInRole("Doctor") || User.IsInRole("Head Doctor") || User.IsInRole("Admin");
+        }
+
         public async Task<IActionResult> OnGetAsync(int? appointmentId)
         {
             try
@@ -52,11 +57,11 @@ namespace Barangay.Pages.Nurse
                 {
                     _logger.LogWarning("Appointment ID not provided to EditN assessment");
                     TempData["StatusMessage"] = "Error: Appointment ID must be provided.";
-                    return RedirectToPage("/Nurse/Appointments");
+                    return IsDoctorRole() ? RedirectToPage("/Doctor/Consultations") : RedirectToPage("/Nurse/Appointments");
                 }
                 
-                // Nurses have permission to edit assessments by default
-                _logger.LogInformation("Nurse editing NCD assessment for appointment {AppointmentId}", appointmentId);
+                // Users with appropriate roles have permission to edit assessments
+                _logger.LogInformation("User editing NCD assessment for appointment {AppointmentId}", appointmentId);
 
                 var assessment = await _context.NCDRiskAssessments
                     .FirstOrDefaultAsync(n => n.AppointmentId == appointmentId);
@@ -64,7 +69,7 @@ namespace Barangay.Pages.Nurse
                 if (assessment == null)
                 {
                     TempData["StatusMessage"] = "Error: Assessment not found.";
-                    return RedirectToPage("/Nurse/AppointmentDetails", new { id = appointmentId });
+                    return IsDoctorRole() ? RedirectToPage("/Doctor/Consultation", new { id = appointmentId }) : RedirectToPage("/Nurse/AppointmentDetails", new { id = appointmentId });
                 }
 
                 // Decrypt sensitive data for display
@@ -241,6 +246,14 @@ namespace Barangay.Pages.Nurse
                     {
                         assessment.AlcoholAmountMoreThan4Shots75ml = _encryptionService.DecryptForUser(assessment.AlcoholAmountMoreThan4Shots75ml, User);
                     }
+                    if (!string.IsNullOrEmpty(assessment.BeerConsumption3) && _encryptionService.IsEncrypted(assessment.BeerConsumption3))
+                    {
+                        assessment.BeerConsumption3 = _encryptionService.DecryptForUser(assessment.BeerConsumption3, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.WineConsumption2) && _encryptionService.IsEncrypted(assessment.WineConsumption2))
+                    {
+                        assessment.WineConsumption2 = _encryptionService.DecryptForUser(assessment.WineConsumption2, User);
+                    }
                     if (!string.IsNullOrEmpty(assessment.AlcoholPerOccasion) && _encryptionService.IsEncrypted(assessment.AlcoholPerOccasion))
                     {
                         assessment.AlcoholPerOccasion = _encryptionService.DecryptForUser(assessment.AlcoholPerOccasion, User);
@@ -368,9 +381,21 @@ namespace Barangay.Pages.Nurse
                     {
                         assessment.HasCancer = _encryptionService.DecryptForUser(assessment.HasCancer, User);
                     }
+                    if (!string.IsNullOrEmpty(assessment.CancerSite) && _encryptionService.IsEncrypted(assessment.CancerSite))
+                    {
+                        assessment.CancerSite = _encryptionService.DecryptForUser(assessment.CancerSite, User);
+                    }
                     if (!string.IsNullOrEmpty(assessment.HasCOPD) && _encryptionService.IsEncrypted(assessment.HasCOPD))
                     {
                         assessment.HasCOPD = _encryptionService.DecryptForUser(assessment.HasCOPD, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.COPDYear) && _encryptionService.IsEncrypted(assessment.COPDYear))
+                    {
+                        assessment.COPDYear = _encryptionService.DecryptForUser(assessment.COPDYear, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.COPDMedication) && _encryptionService.IsEncrypted(assessment.COPDMedication))
+                    {
+                        assessment.COPDMedication = _encryptionService.DecryptForUser(assessment.COPDMedication, User);
                     }
                     if (!string.IsNullOrEmpty(assessment.HasLungDisease) && _encryptionService.IsEncrypted(assessment.HasLungDisease))
                     {
@@ -566,6 +591,10 @@ namespace Barangay.Pages.Nurse
                     {
                         assessment.SmokingStatus = _encryptionService.DecryptForUser(assessment.SmokingStatus, User);
                     }
+                    if (!string.IsNullOrEmpty(assessment.SmokingQuitDuration) && _encryptionService.IsEncrypted(assessment.SmokingQuitDuration))
+                    {
+                        assessment.SmokingQuitDuration = _encryptionService.DecryptForUser(assessment.SmokingQuitDuration, User);
+                    }
                     if (!string.IsNullOrEmpty(assessment.HighSaltIntake) && _encryptionService.IsEncrypted(assessment.HighSaltIntake))
                     {
                         assessment.HighSaltIntake = _encryptionService.DecryptForUser(assessment.HighSaltIntake, User);
@@ -612,9 +641,21 @@ namespace Barangay.Pages.Nurse
                     {
                         assessment.HasCancer = _encryptionService.DecryptForUser(assessment.HasCancer, User);
                     }
+                    if (!string.IsNullOrEmpty(assessment.CancerSite) && _encryptionService.IsEncrypted(assessment.CancerSite))
+                    {
+                        assessment.CancerSite = _encryptionService.DecryptForUser(assessment.CancerSite, User);
+                    }
                     if (!string.IsNullOrEmpty(assessment.HasCOPD) && _encryptionService.IsEncrypted(assessment.HasCOPD))
                     {
                         assessment.HasCOPD = _encryptionService.DecryptForUser(assessment.HasCOPD, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.COPDYear) && _encryptionService.IsEncrypted(assessment.COPDYear))
+                    {
+                        assessment.COPDYear = _encryptionService.DecryptForUser(assessment.COPDYear, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.COPDMedication) && _encryptionService.IsEncrypted(assessment.COPDMedication))
+                    {
+                        assessment.COPDMedication = _encryptionService.DecryptForUser(assessment.COPDMedication, User);
                     }
                     if (!string.IsNullOrEmpty(assessment.HasLungDisease) && _encryptionService.IsEncrypted(assessment.HasLungDisease))
                     {
@@ -752,6 +793,178 @@ namespace Barangay.Pages.Nurse
                     {
                         assessment.AppointmentType = _encryptionService.DecryptForUser(assessment.AppointmentType, User);
                     }
+                    
+                    // MISSING DECRYPTION FIELDS - Add these critical missing fields
+                    
+                    // Pananakit (Chest Pain) Questions 2.1-2.8 - These are missing!
+                    if (!string.IsNullOrEmpty(assessment.Pananakit21) && _encryptionService.IsEncrypted(assessment.Pananakit21))
+                    {
+                        assessment.Pananakit21 = _encryptionService.DecryptForUser(assessment.Pananakit21, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.Pananakit22) && _encryptionService.IsEncrypted(assessment.Pananakit22))
+                    {
+                        assessment.Pananakit22 = _encryptionService.DecryptForUser(assessment.Pananakit22, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.Pananakit23) && _encryptionService.IsEncrypted(assessment.Pananakit23))
+                    {
+                        assessment.Pananakit23 = _encryptionService.DecryptForUser(assessment.Pananakit23, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.Pananakit24) && _encryptionService.IsEncrypted(assessment.Pananakit24))
+                    {
+                        assessment.Pananakit24 = _encryptionService.DecryptForUser(assessment.Pananakit24, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.Pananakit25) && _encryptionService.IsEncrypted(assessment.Pananakit25))
+                    {
+                        assessment.Pananakit25 = _encryptionService.DecryptForUser(assessment.Pananakit25, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.Pananakit26) && _encryptionService.IsEncrypted(assessment.Pananakit26))
+                    {
+                        assessment.Pananakit26 = _encryptionService.DecryptForUser(assessment.Pananakit26, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.Pananakit27) && _encryptionService.IsEncrypted(assessment.Pananakit27))
+                    {
+                        assessment.Pananakit27 = _encryptionService.DecryptForUser(assessment.Pananakit27, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.Pananakit28) && _encryptionService.IsEncrypted(assessment.Pananakit28))
+                    {
+                        assessment.Pananakit28 = _encryptionService.DecryptForUser(assessment.Pananakit28, User);
+                    }
+                    
+                    // Nutrition - Missing detailed mappings
+                    if (!string.IsNullOrEmpty(assessment.NutrisyonMadalasGulay) && _encryptionService.IsEncrypted(assessment.NutrisyonMadalasGulay))
+                    {
+                        assessment.NutrisyonMadalasGulay = _encryptionService.DecryptForUser(assessment.NutrisyonMadalasGulay, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.NutrisyonMadalasPratas) && _encryptionService.IsEncrypted(assessment.NutrisyonMadalasPratas))
+                    {
+                        assessment.NutrisyonMadalasPratas = _encryptionService.DecryptForUser(assessment.NutrisyonMadalasPratas, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.NutrisyonMadalasIsda) && _encryptionService.IsEncrypted(assessment.NutrisyonMadalasIsda))
+                    {
+                        assessment.NutrisyonMadalasIsda = _encryptionService.DecryptForUser(assessment.NutrisyonMadalasIsda, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.NutrisyonMadalasKarne) && _encryptionService.IsEncrypted(assessment.NutrisyonMadalasKarne))
+                    {
+                        assessment.NutrisyonMadalasKarne = _encryptionService.DecryptForUser(assessment.NutrisyonMadalasKarne, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.NutrisyonKumakainMatatamis) && _encryptionService.IsEncrypted(assessment.NutrisyonKumakainMatatamis))
+                    {
+                        assessment.NutrisyonKumakainMatatamis = _encryptionService.DecryptForUser(assessment.NutrisyonKumakainMatatamis, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.NutrisyonKumakainMamantika) && _encryptionService.IsEncrypted(assessment.NutrisyonKumakainMamantika))
+                    {
+                        assessment.NutrisyonKumakainMamantika = _encryptionService.DecryptForUser(assessment.NutrisyonKumakainMamantika, User);
+                    }
+                    
+                    // Alcohol - Missing detailed mappings
+                    if (!string.IsNullOrEmpty(assessment.AlcoholInom) && _encryptionService.IsEncrypted(assessment.AlcoholInom))
+                    {
+                        assessment.AlcoholInom = _encryptionService.DecryptForUser(assessment.AlcoholInom, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.AlchoholTypeBeer) && _encryptionService.IsEncrypted(assessment.AlchoholTypeBeer))
+                    {
+                        assessment.AlchoholTypeBeer = _encryptionService.DecryptForUser(assessment.AlchoholTypeBeer, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.AlchoholTypeWine) && _encryptionService.IsEncrypted(assessment.AlchoholTypeWine))
+                    {
+                        assessment.AlchoholTypeWine = _encryptionService.DecryptForUser(assessment.AlchoholTypeWine, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.AlchoholTypeWhisky) && _encryptionService.IsEncrypted(assessment.AlchoholTypeWhisky))
+                    {
+                        assessment.AlchoholTypeWhisky = _encryptionService.DecryptForUser(assessment.AlchoholTypeWhisky, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.BeerConsumption1) && _encryptionService.IsEncrypted(assessment.BeerConsumption1))
+                    {
+                        assessment.BeerConsumption1 = _encryptionService.DecryptForUser(assessment.BeerConsumption1, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.BeerConsumption2) && _encryptionService.IsEncrypted(assessment.BeerConsumption2))
+                    {
+                        assessment.BeerConsumption2 = _encryptionService.DecryptForUser(assessment.BeerConsumption2, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.WineConsumption1) && _encryptionService.IsEncrypted(assessment.WineConsumption1))
+                    {
+                        assessment.WineConsumption1 = _encryptionService.DecryptForUser(assessment.WineConsumption1, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.WhiskyConsumption1) && _encryptionService.IsEncrypted(assessment.WhiskyConsumption1))
+                    {
+                        assessment.WhiskyConsumption1 = _encryptionService.DecryptForUser(assessment.WhiskyConsumption1, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.WhiskyConsumption2) && _encryptionService.IsEncrypted(assessment.WhiskyConsumption2))
+                    {
+                        assessment.WhiskyConsumption2 = _encryptionService.DecryptForUser(assessment.WhiskyConsumption2, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.AlcoholOkasyon) && _encryptionService.IsEncrypted(assessment.AlcoholOkasyon))
+                    {
+                        assessment.AlcoholOkasyon = _encryptionService.DecryptForUser(assessment.AlcoholOkasyon, User);
+                    }
+                    
+                    // Exercise - Missing detailed mappings
+                    if (!string.IsNullOrEmpty(assessment.EhersisyoRegular) && _encryptionService.IsEncrypted(assessment.EhersisyoRegular))
+                    {
+                        assessment.EhersisyoRegular = _encryptionService.DecryptForUser(assessment.EhersisyoRegular, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.EhersisyoDuration) && _encryptionService.IsEncrypted(assessment.EhersisyoDuration))
+                    {
+                        assessment.EhersisyoDuration = _encryptionService.DecryptForUser(assessment.EhersisyoDuration, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.EhersisyoType) && _encryptionService.IsEncrypted(assessment.EhersisyoType))
+                    {
+                        assessment.EhersisyoType = _encryptionService.DecryptForUser(assessment.EhersisyoType, User);
+                    }
+                    
+                    // Smoking - Missing detailed mappings
+                    if (!string.IsNullOrEmpty(assessment.SigarilyoKadami) && _encryptionService.IsEncrypted(assessment.SigarilyoKadami))
+                    {
+                        assessment.SigarilyoKadami = _encryptionService.DecryptForUser(assessment.SigarilyoKadami, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.SigarilyoTumigil) && _encryptionService.IsEncrypted(assessment.SigarilyoTumigil))
+                    {
+                        assessment.SigarilyoTumigil = _encryptionService.DecryptForUser(assessment.SigarilyoTumigil, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.SigarilyoUsok) && _encryptionService.IsEncrypted(assessment.SigarilyoUsok))
+                    {
+                        assessment.SigarilyoUsok = _encryptionService.DecryptForUser(assessment.SigarilyoUsok, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.SigarilyoSticks) && _encryptionService.IsEncrypted(assessment.SigarilyoSticks))
+                    {
+                        assessment.SigarilyoSticks = _encryptionService.DecryptForUser(assessment.SigarilyoSticks, User);
+                    }
+                    
+                    // Stress - Missing detailed mappings
+                    if (!string.IsNullOrEmpty(assessment.StressMadalas) && _encryptionService.IsEncrypted(assessment.StressMadalas))
+                    {
+                        assessment.StressMadalas = _encryptionService.DecryptForUser(assessment.StressMadalas, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.StressSino) && _encryptionService.IsEncrypted(assessment.StressSino))
+                    {
+                        assessment.StressSino = _encryptionService.DecryptForUser(assessment.StressSino, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.StressEpekto) && _encryptionService.IsEncrypted(assessment.StressEpekto))
+                    {
+                        assessment.StressEpekto = _encryptionService.DecryptForUser(assessment.StressEpekto, User);
+                    }
+                    
+                    // Additional missing fields for complete form mapping
+                    if (!string.IsNullOrEmpty(assessment.HealthFacilityName) && _encryptionService.IsEncrypted(assessment.HealthFacilityName))
+                    {
+                        assessment.HealthFacilityName = _encryptionService.DecryptForUser(assessment.HealthFacilityName, User);
+                    }
+                    if (!string.IsNullOrEmpty(assessment.DateAssessment) && _encryptionService.IsEncrypted(assessment.DateAssessment))
+                    {
+                        assessment.DateAssessment = _encryptionService.DecryptForUser(assessment.DateAssessment, User);
+                    }
+                    
+                    // Lung Disease - Missing proper mapping
+                    if (!string.IsNullOrEmpty(assessment.HasLungDiseaseNonInfectious) && _encryptionService.IsEncrypted(assessment.HasLungDiseaseNonInfectious))
+                    {
+                        assessment.HasLungDiseaseNonInfectious = _encryptionService.DecryptForUser(assessment.HasLungDiseaseNonInfectious, User);
+                    }
+                    
+                    // Eye Disease - Missing proper mapping  
+                    if (!string.IsNullOrEmpty(assessment.HasEyeDiseaseCondition) && _encryptionService.IsEncrypted(assessment.HasEyeDiseaseCondition))
+                    {
+                        assessment.HasEyeDiseaseCondition = _encryptionService.DecryptForUser(assessment.HasEyeDiseaseCondition, User);
+                    }
                 }
                 catch (Exception decryptEx)
                 {
@@ -806,9 +1019,12 @@ namespace Barangay.Pages.Nurse
                         HasHypertension = assessment.HasHypertension,
                         HasCancer = assessment.HasCancer,
                         HasCOPD = assessment.HasCOPD,
+                        COPDYear = assessment.COPDYear,
+                        COPDMedication = assessment.COPDMedication,
                         HasLungDisease = assessment.HasLungDisease,
                         HasEyeDisease = assessment.HasEyeDisease,
                         CancerType = assessment.CancerType,
+                        CancerSite = assessment.CancerSite,
                         CancerYear = assessment.CancerYear,
                         CancerMedication = assessment.CancerMedication,
                         DiabetesYear = assessment.DiabetesYear,
@@ -891,6 +1107,8 @@ namespace Barangay.Pages.Nurse
                         AlcoholAmountLessThan3Shot45ml = assessment.AlcoholAmountLessThan3Shot45ml,
                         AlcoholAmount3to4WineGlasses300ml = assessment.AlcoholAmount3to4WineGlasses300ml,
                         AlcoholAmountMoreThan4Shots75ml = assessment.AlcoholAmountMoreThan4Shots75ml,
+                        BeerConsumption3 = assessment.BeerConsumption3,
+                        WineConsumption2 = assessment.WineConsumption2,
                         AlcoholFrequency1to3TimesPerWeek = assessment.AlcoholFrequency1to3TimesPerWeek,
                         AlcoholFrequencyMoreThan4TimesPerWeek = assessment.AlcoholFrequencyMoreThan4TimesPerWeek,
                         IsBingeDrinker = assessment.IsBingeDrinker,
@@ -910,6 +1128,8 @@ namespace Barangay.Pages.Nurse
                         FormerSmoker = assessment.FormerSmoker,
                         NeverSmokedButExposedToSmoke = assessment.NeverSmokedButExposedToSmoke,
                         Smoked100Sticks = assessment.Smoked100Sticks,
+                        SmokingStatus = assessment.SmokingStatus,
+                        SmokingQuitDuration = assessment.SmokingQuitDuration,
                         
                         // Stress
                         HasStress = assessment.HasStress,
@@ -964,8 +1184,75 @@ namespace Barangay.Pages.Nurse
                         PatientSignature = assessment.PatientSignature,
                         
                         // Missing properties
-                        IDNo = assessment.IDNo
+                        IDNo = assessment.IDNo,
+                        
+                        // MISSING VIEWMODEL FIELDS - Add these critical missing fields
+                        
+                        // Pananakit (Chest Pain) Questions 2.1-2.8
+                        Pananakit21 = assessment.Pananakit21,
+                        Pananakit22 = assessment.Pananakit22,
+                        Pananakit23 = assessment.Pananakit23,
+                        Pananakit24 = assessment.Pananakit24,
+                        Pananakit25 = assessment.Pananakit25,
+                        Pananakit26 = assessment.Pananakit26,
+                        Pananakit27 = assessment.Pananakit27,
+                        Pananakit28 = assessment.Pananakit28,
+                        
+                        // Nutrition - Missing detailed mappings
+                        NutrisyonMadalasGulay = assessment.NutrisyonMadalasGulay,
+                        NutrisyonMadalasPratas = assessment.NutrisyonMadalasPratas,
+                        NutrisyonMadalasIsda = assessment.NutrisyonMadalasIsda,
+                        NutrisyonMadalasKarne = assessment.NutrisyonMadalasKarne,
+                        NutrisyonKumakainMatatamis = assessment.NutrisyonKumakainMatatamis,
+                        NutrisyonKumakainMamantika = assessment.NutrisyonKumakainMamantika,
+                        
+                        // Alcohol - Missing detailed mappings
+                        AlcoholInom = assessment.AlcoholInom,
+                        AlchoholTypeBeer = assessment.AlchoholTypeBeer,
+                        AlchoholTypeWine = assessment.AlchoholTypeWine,
+                        AlchoholTypeWhisky = assessment.AlchoholTypeWhisky,
+                        BeerConsumption1 = assessment.BeerConsumption1,
+                        BeerConsumption2 = assessment.BeerConsumption2,
+                        WineConsumption1 = assessment.WineConsumption1,
+                        WhiskyConsumption1 = assessment.WhiskyConsumption1,
+                        WhiskyConsumption2 = assessment.WhiskyConsumption2,
+                        AlcoholOkasyon = assessment.AlcoholOkasyon,
+                        
+                        // Exercise - Missing detailed mappings
+                        EhersisyoRegular = assessment.EhersisyoRegular,
+                        EhersisyoDuration = assessment.EhersisyoDuration,
+                        EhersisyoType = assessment.EhersisyoType,
+                        
+                        // Smoking - Missing detailed mappings
+                        SigarilyoKadami = assessment.SigarilyoKadami,
+                        SigarilyoTumigil = assessment.SigarilyoTumigil,
+                        SigarilyoUsok = assessment.SigarilyoUsok,
+                        SigarilyoSticks = assessment.SigarilyoSticks,
+                        
+                        // Stress - Missing detailed mappings
+                        StressMadalas = assessment.StressMadalas,
+                        StressSino = assessment.StressSino,
+                        StressEpekto = assessment.StressEpekto,
+                        
+                        // Additional missing fields for complete form mapping
+                        HealthFacilityName = assessment.HealthFacilityName,
+                        DateAssessment = assessment.DateAssessment,
+                        
+                        // Lung Disease - Missing proper mapping
+                        HasLungDiseaseNonInfectious = assessment.HasLungDiseaseNonInfectious,
+                        
+                        // Eye Disease - Missing proper mapping  
+                        HasEyeDiseaseCondition = assessment.HasEyeDiseaseCondition
                     };
+
+                    // DEBUGGING: Log Risk Status fields loaded from database
+                    _logger.LogInformation("=== RISK STATUS FIELDS LOADED FROM DATABASE ===");
+                    _logger.LogInformation("HasDiabetes loaded: '{HasDiabetes}'", assessment.HasDiabetes);
+                    _logger.LogInformation("HasHypertension loaded: '{HasHypertension}'", assessment.HasHypertension);
+                    _logger.LogInformation("HasCancer loaded: '{HasCancer}'", assessment.HasCancer);
+                    _logger.LogInformation("CancerSite loaded: '{CancerSite}'", assessment.CancerSite);
+                    _logger.LogInformation("HasCOPD loaded: '{HasCOPD}'", assessment.HasCOPD);
+                    _logger.LogInformation("=== END RISK STATUS LOAD DEBUGGING ===");
 
                     _logger.LogInformation("Basic view model created successfully");
                     
@@ -1037,7 +1324,7 @@ namespace Barangay.Pages.Nurse
             {
                 _logger.LogError(ex, "Error loading NCD assessment for editing, appointment {AppointmentId}", appointmentId);
                 TempData["StatusMessage"] = "Error: Unable to load assessment for editing.";
-                return RedirectToPage("/Nurse/AppointmentDuration", new { id = appointmentId });
+                return IsDoctorRole() ? RedirectToPage("/Doctor/Consultation", new { id = appointmentId }) : RedirectToPage("/Nurse/AppointmentDetails", new { id = appointmentId });
             }
         }
 
@@ -1068,7 +1355,7 @@ namespace Barangay.Pages.Nurse
                 {
                     _logger.LogWarning("Appointment ID is missing from form data");
                     TempData["StatusMessage"] = "Error: Appointment ID is required.";
-                    return RedirectToPage("/Nurse/Appointments");
+                    return IsDoctorRole() ? RedirectToPage("/Doctor/Consultations") : RedirectToPage("/Nurse/Appointments");
                 }
 
                 _logger.LogInformation("Processing NCD assessment update for appointment {AppointmentId}", NCDRiskAssessment.AppointmentId);
@@ -1172,7 +1459,7 @@ namespace Barangay.Pages.Nurse
                 {
                     _logger.LogWarning("No existing NCD assessment found for appointment {AppointmentId}", NCDRiskAssessment.AppointmentId);
                     TempData["StatusMessage"] = "Error: Assessment not found.";
-                    return RedirectToPage("/Nurse/AppointmentDetails", new { id = NCDRiskAssessment.AppointmentId });
+                    return IsDoctorRole() ? RedirectToPage("/Doctor/Consultation", new { id = NCDRiskAssessment.AppointmentId }) : RedirectToPage("/Nurse/AppointmentDetails", new { id = NCDRiskAssessment.AppointmentId });
                 }
 
                 // DEBUGGING: Log before updating assessment data
@@ -1205,9 +1492,12 @@ namespace Barangay.Pages.Nurse
                 existingAssessment.HasHypertension = NCDRiskAssessment.HasHypertension;
                 existingAssessment.HasCancer = NCDRiskAssessment.HasCancer;
                 existingAssessment.HasCOPD = NCDRiskAssessment.HasCOPD;
+                existingAssessment.COPDYear = NCDRiskAssessment.COPDYear;
+                existingAssessment.COPDMedication = NCDRiskAssessment.COPDMedication;
                 existingAssessment.HasLungDisease = NCDRiskAssessment.HasLungDisease;
                 existingAssessment.HasEyeDisease = NCDRiskAssessment.HasEyeDisease;
                 existingAssessment.CancerType = NCDRiskAssessment.CancerType;
+                existingAssessment.CancerSite = NCDRiskAssessment.CancerSite;
                 existingAssessment.CancerYear = NCDRiskAssessment.CancerYear;
                 existingAssessment.CancerMedication = NCDRiskAssessment.CancerMedication;
                 existingAssessment.DiabetesYear = NCDRiskAssessment.DiabetesYear;
@@ -1298,6 +1588,8 @@ namespace Barangay.Pages.Nurse
                 existingAssessment.AlcoholAmountLessThan3Shot45ml = NCDRiskAssessment.AlcoholAmountLessThan3Shot45ml;
                 existingAssessment.AlcoholAmount3to4WineGlasses300ml = NCDRiskAssessment.AlcoholAmount3to4WineGlasses300ml;
                 existingAssessment.AlcoholAmountMoreThan4Shots75ml = NCDRiskAssessment.AlcoholAmountMoreThan4Shots75ml;
+                existingAssessment.BeerConsumption3 = NCDRiskAssessment.BeerConsumption3;
+                existingAssessment.WineConsumption2 = NCDRiskAssessment.WineConsumption2;
                 existingAssessment.AlcoholFrequency1to3TimesPerWeek = NCDRiskAssessment.AlcoholFrequency1to3TimesPerWeek;
                 existingAssessment.AlcoholFrequencyMoreThan4TimesPerWeek = NCDRiskAssessment.AlcoholFrequencyMoreThan4TimesPerWeek;
                 existingAssessment.IsBingeDrinker = NCDRiskAssessment.IsBingeDrinker;
@@ -1317,6 +1609,29 @@ namespace Barangay.Pages.Nurse
                 existingAssessment.FormerSmoker = NCDRiskAssessment.FormerSmoker;
                 existingAssessment.NeverSmokedButExposedToSmoke = NCDRiskAssessment.NeverSmokedButExposedToSmoke;
                 existingAssessment.Smoked100Sticks = NCDRiskAssessment.Smoked100Sticks;
+                existingAssessment.SmokingStatus = NCDRiskAssessment.SmokingStatus;
+                existingAssessment.SmokingQuitDuration = NCDRiskAssessment.SmokingQuitDuration;
+                
+                // Risk Status
+                existingAssessment.HasDiabetes = NCDRiskAssessment.HasDiabetes;
+                existingAssessment.HasHypertension = NCDRiskAssessment.HasHypertension;
+                existingAssessment.HasCancer = NCDRiskAssessment.HasCancer;
+                existingAssessment.CancerSite = NCDRiskAssessment.CancerSite;
+                existingAssessment.HasCOPD = NCDRiskAssessment.HasCOPD;
+                
+                // DEBUGGING: Log Risk Status fields before save
+                _logger.LogInformation("=== RISK STATUS FIELDS UPDATE DEBUGGING ===");
+                _logger.LogInformation("HasDiabetes: '{HasDiabetes}' (from ViewModel: '{ViewModelValue}')", 
+                    existingAssessment.HasDiabetes, NCDRiskAssessment.HasDiabetes);
+                _logger.LogInformation("HasHypertension: '{HasHypertension}' (from ViewModel: '{ViewModelValue}')", 
+                    existingAssessment.HasHypertension, NCDRiskAssessment.HasHypertension);
+                _logger.LogInformation("HasCancer: '{HasCancer}' (from ViewModel: '{ViewModelValue}')", 
+                    existingAssessment.HasCancer, NCDRiskAssessment.HasCancer);
+                _logger.LogInformation("CancerSite: '{CancerSite}' (from ViewModel: '{ViewModelValue}')", 
+                    existingAssessment.CancerSite, NCDRiskAssessment.CancerSite);
+                _logger.LogInformation("HasCOPD: '{HasCOPD}' (from ViewModel: '{ViewModelValue}')", 
+                    existingAssessment.HasCOPD, NCDRiskAssessment.HasCOPD);
+                _logger.LogInformation("=== END RISK STATUS UPDATE DEBUGGING ===");
                 
                 // Stress
                 existingAssessment.HasStress = NCDRiskAssessment.HasStress;
@@ -1369,6 +1684,64 @@ namespace Barangay.Pages.Nurse
                 existingAssessment.Designation = NCDRiskAssessment.Designation;
                 existingAssessment.AssessmentDate = NCDRiskAssessment.AssessmentDate;
                 existingAssessment.PatientSignature = NCDRiskAssessment.PatientSignature;
+                
+                // MISSING UPDATE FIELDS - Add these critical missing fields
+                
+                // Pananakit (Chest Pain) Questions 2.1-2.8
+                existingAssessment.Pananakit21 = NCDRiskAssessment.Pananakit21;
+                existingAssessment.Pananakit22 = NCDRiskAssessment.Pananakit22;
+                existingAssessment.Pananakit23 = NCDRiskAssessment.Pananakit23;
+                existingAssessment.Pananakit24 = NCDRiskAssessment.Pananakit24;
+                existingAssessment.Pananakit25 = NCDRiskAssessment.Pananakit25;
+                existingAssessment.Pananakit26 = NCDRiskAssessment.Pananakit26;
+                existingAssessment.Pananakit27 = NCDRiskAssessment.Pananakit27;
+                existingAssessment.Pananakit28 = NCDRiskAssessment.Pananakit28;
+                
+                // Nutrition - Missing detailed mappings
+                existingAssessment.NutrisyonMadalasGulay = NCDRiskAssessment.NutrisyonMadalasGulay;
+                existingAssessment.NutrisyonMadalasPratas = NCDRiskAssessment.NutrisyonMadalasPratas;
+                existingAssessment.NutrisyonMadalasIsda = NCDRiskAssessment.NutrisyonMadalasIsda;
+                existingAssessment.NutrisyonMadalasKarne = NCDRiskAssessment.NutrisyonMadalasKarne;
+                existingAssessment.NutrisyonKumakainMatatamis = NCDRiskAssessment.NutrisyonKumakainMatatamis;
+                existingAssessment.NutrisyonKumakainMamantika = NCDRiskAssessment.NutrisyonKumakainMamantika;
+                
+                // Alcohol - Missing detailed mappings
+                existingAssessment.AlcoholInom = NCDRiskAssessment.AlcoholInom;
+                existingAssessment.AlchoholTypeBeer = NCDRiskAssessment.AlchoholTypeBeer;
+                existingAssessment.AlchoholTypeWine = NCDRiskAssessment.AlchoholTypeWine;
+                existingAssessment.AlchoholTypeWhisky = NCDRiskAssessment.AlchoholTypeWhisky;
+                existingAssessment.BeerConsumption1 = NCDRiskAssessment.BeerConsumption1;
+                existingAssessment.BeerConsumption2 = NCDRiskAssessment.BeerConsumption2;
+                existingAssessment.WineConsumption1 = NCDRiskAssessment.WineConsumption1;
+                existingAssessment.WhiskyConsumption1 = NCDRiskAssessment.WhiskyConsumption1;
+                existingAssessment.WhiskyConsumption2 = NCDRiskAssessment.WhiskyConsumption2;
+                existingAssessment.AlcoholOkasyon = NCDRiskAssessment.AlcoholOkasyon;
+                
+                // Exercise - Missing detailed mappings
+                existingAssessment.EhersisyoRegular = NCDRiskAssessment.EhersisyoRegular;
+                existingAssessment.EhersisyoDuration = NCDRiskAssessment.EhersisyoDuration;
+                existingAssessment.EhersisyoType = NCDRiskAssessment.EhersisyoType;
+                
+                // Smoking - Missing detailed mappings
+                existingAssessment.SigarilyoKadami = NCDRiskAssessment.SigarilyoKadami;
+                existingAssessment.SigarilyoTumigil = NCDRiskAssessment.SigarilyoTumigil;
+                existingAssessment.SigarilyoUsok = NCDRiskAssessment.SigarilyoUsok;
+                existingAssessment.SigarilyoSticks = NCDRiskAssessment.SigarilyoSticks;
+                
+                // Stress - Missing detailed mappings
+                existingAssessment.StressMadalas = NCDRiskAssessment.StressMadalas;
+                existingAssessment.StressSino = NCDRiskAssessment.StressSino;
+                existingAssessment.StressEpekto = NCDRiskAssessment.StressEpekto;
+                
+                // Additional missing fields for complete form mapping
+                existingAssessment.HealthFacilityName = NCDRiskAssessment.HealthFacilityName;
+                existingAssessment.DateAssessment = NCDRiskAssessment.DateAssessment;
+                
+                // Lung Disease - Missing proper mapping
+                existingAssessment.HasLungDiseaseNonInfectious = NCDRiskAssessment.HasLungDiseaseNonInfectious;
+                
+                // Eye Disease - Missing proper mapping  
+                existingAssessment.HasEyeDiseaseCondition = NCDRiskAssessment.HasEyeDiseaseCondition;
 
                 // DEBUGGING: Log values before encryption
                 _logger.LogInformation("=== VALUES BEFORE ENCRYPTION ===");
@@ -1408,9 +1781,19 @@ namespace Barangay.Pages.Nurse
                 _logger.LogInformation("Saving changes to database...");
                 await _context.SaveChangesAsync();
                 _logger.LogInformation("NCD assessment updated successfully for appointment {AppointmentId}", NCDRiskAssessment.AppointmentId);
+                
+                // DEBUGGING: Log successful update with Risk Status fields
+                _logger.LogInformation("=== RISK STATUS FIELDS UPDATED IN DATABASE ===");
+                _logger.LogInformation("Assessment ID: {Id}", existingAssessment.Id);
+                _logger.LogInformation("HasDiabetes updated: '{HasDiabetes}'", existingAssessment.HasDiabetes);
+                _logger.LogInformation("HasHypertension updated: '{HasHypertension}'", existingAssessment.HasHypertension);
+                _logger.LogInformation("HasCancer updated: '{HasCancer}'", existingAssessment.HasCancer);
+                _logger.LogInformation("CancerSite updated: '{CancerSite}'", existingAssessment.CancerSite);
+                _logger.LogInformation("HasCOPD updated: '{HasCOPD}'", existingAssessment.HasCOPD);
+                _logger.LogInformation("=== END RISK STATUS UPDATE SAVE DEBUGGING ===");
 
                 TempData["StatusMessage"] = "NCD assessment updated successfully.";
-                return RedirectToPage("/Nurse/AppointmentDetails", new { id = NCDRiskAssessment.AppointmentId });
+                return IsDoctorRole() ? RedirectToPage("/Doctor/Consultation", new { id = NCDRiskAssessment.AppointmentId }) : RedirectToPage("/Nurse/AppointmentDetails", new { id = NCDRiskAssessment.AppointmentId });
             }
             catch (Exception ex)
             {
@@ -1528,6 +1911,64 @@ namespace Barangay.Pages.Nurse
 
             // Stress - Keep Filipino values for radio buttons
             vm.HasStress = NormalizeRadioButton(vm.HasStress);
+            
+            // MISSING NORMALIZATION FIELDS - Add these critical missing fields
+            
+            // Pananakit (Chest Pain) Questions 2.1-2.8 - Keep Filipino values for radio buttons
+            vm.Pananakit21 = NormalizeRadioButton(vm.Pananakit21);
+            vm.Pananakit22 = NormalizeRadioButton(vm.Pananakit22);
+            vm.Pananakit23 = NormalizeRadioButton(vm.Pananakit23);
+            vm.Pananakit24 = NormalizeRadioButton(vm.Pananakit24);
+            vm.Pananakit25 = NormalizeRadioButton(vm.Pananakit25);
+            vm.Pananakit26 = NormalizeRadioButton(vm.Pananakit26);
+            vm.Pananakit27 = NormalizeRadioButton(vm.Pananakit27);
+            vm.Pananakit28 = NormalizeRadioButton(vm.Pananakit28);
+            
+            // Nutrition - Missing detailed mappings
+            vm.NutrisyonMadalasGulay = NormalizeBool(vm.NutrisyonMadalasGulay);
+            vm.NutrisyonMadalasPratas = NormalizeBool(vm.NutrisyonMadalasPratas);
+            vm.NutrisyonMadalasIsda = NormalizeBool(vm.NutrisyonMadalasIsda);
+            vm.NutrisyonMadalasKarne = NormalizeBool(vm.NutrisyonMadalasKarne);
+            vm.NutrisyonKumakainMatatamis = NormalizeBool(vm.NutrisyonKumakainMatatamis);
+            vm.NutrisyonKumakainMamantika = NormalizeBool(vm.NutrisyonKumakainMamantika);
+            
+            // Alcohol - Missing detailed mappings - Keep Filipino values for radio buttons
+            vm.AlcoholInom = NormalizeRadioButton(vm.AlcoholInom);
+            vm.AlchoholTypeBeer = NormalizeBool(vm.AlchoholTypeBeer);
+            vm.AlchoholTypeWine = NormalizeBool(vm.AlchoholTypeWine);
+            vm.AlchoholTypeWhisky = NormalizeBool(vm.AlchoholTypeWhisky);
+            vm.BeerConsumption1 = NormalizeBool(vm.BeerConsumption1);
+            vm.BeerConsumption2 = NormalizeBool(vm.BeerConsumption2);
+            vm.WineConsumption1 = NormalizeBool(vm.WineConsumption1);
+            vm.WhiskyConsumption1 = NormalizeBool(vm.WhiskyConsumption1);
+            vm.WhiskyConsumption2 = NormalizeBool(vm.WhiskyConsumption2);
+            vm.AlcoholOkasyon = NormalizeRadioButton(vm.AlcoholOkasyon);
+            
+            // Exercise - Missing detailed mappings
+            vm.EhersisyoRegular = NormalizeBool(vm.EhersisyoRegular);
+            vm.EhersisyoDuration = NormalizeBool(vm.EhersisyoDuration);
+            vm.EhersisyoType = NormalizeBool(vm.EhersisyoType);
+            
+            // Smoking - Missing detailed mappings - Keep Filipino values for radio buttons
+            vm.SigarilyoKadami = NormalizeRadioButton(vm.SigarilyoKadami);
+            vm.SigarilyoTumigil = NormalizeRadioButton(vm.SigarilyoTumigil);
+            vm.SigarilyoUsok = NormalizeBool(vm.SigarilyoUsok);
+            vm.SigarilyoSticks = NormalizeBool(vm.SigarilyoSticks);
+            
+            // Stress - Missing detailed mappings - Keep Filipino values for radio buttons
+            vm.StressMadalas = NormalizeRadioButton(vm.StressMadalas);
+            vm.StressSino = NormalizeBool(vm.StressSino); // This is a text field, not radio button
+            vm.StressEpekto = NormalizeRadioButton(vm.StressEpekto);
+            
+            // Additional missing fields for complete form mapping
+            vm.HealthFacilityName = NormalizeBool(vm.HealthFacilityName); // This is a text field
+            vm.DateAssessment = NormalizeBool(vm.DateAssessment); // This is a text field
+            
+            // Lung Disease - Missing proper mapping
+            vm.HasLungDiseaseNonInfectious = NormalizeBool(vm.HasLungDiseaseNonInfectious);
+            
+            // Eye Disease - Missing proper mapping  
+            vm.HasEyeDiseaseCondition = NormalizeBool(vm.HasEyeDiseaseCondition);
         }
 
         private static string NormalizeBool(string? value)
@@ -1564,6 +2005,14 @@ namespace Barangay.Pages.Nurse
         private static string NormalizeRadioButton(string? value)
         {
             if (string.IsNullOrWhiteSpace(value)) return "Hindi";
+            
+            // If already in correct format, don't normalize
+            if (value == "Oo" || value == "Hindi")
+            {
+                Console.WriteLine($"NormalizeRadioButton: '{value}' -> '{value}' (already correct)");
+                return value;
+            }
+            
             var v = value.Trim().ToLowerInvariant();
             
             // DEBUGGING: Log normalization process

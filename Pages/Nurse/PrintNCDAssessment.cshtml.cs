@@ -147,6 +147,14 @@ namespace Barangay.Pages.Nurse
                 {
                     assessment.HasCOPD = _encryptionService.DecryptForUser(assessment.HasCOPD, User);
                 }
+                if (!string.IsNullOrEmpty(assessment.COPDMedication) && _encryptionService.IsEncrypted(assessment.COPDMedication))
+                {
+                    assessment.COPDMedication = _encryptionService.DecryptForUser(assessment.COPDMedication, User);
+                }
+                if (!string.IsNullOrEmpty(assessment.COPDYear) && _encryptionService.IsEncrypted(assessment.COPDYear))
+                {
+                    assessment.COPDYear = _encryptionService.DecryptForUser(assessment.COPDYear, User);
+                }
                 if (!string.IsNullOrEmpty(assessment.HasLungDisease) && _encryptionService.IsEncrypted(assessment.HasLungDisease))
                 {
                     assessment.HasLungDisease = _encryptionService.DecryptForUser(assessment.HasLungDisease, User);

@@ -94,7 +94,8 @@ namespace Barangay.Pages.User
                     appointmentIdInt = parsedId;
                 }
 
-                    Assessment = new NCDRiskAssessmentViewModel
+                // Initialize with user data first
+                Assessment = new NCDRiskAssessmentViewModel
                 {
                     AppointmentId = appointmentIdInt,
                     UserId = user.Id,
@@ -116,14 +117,69 @@ namespace Barangay.Pages.User
                     DoctorName = "" // Initialize empty for user input
                 };
 
-                if (user.BirthDate.HasValue)
+                // If appointment ID is provided, try to get appointment-specific data
+                if (appointmentIdInt.HasValue)
+                {
+                    try
+                    {
+                        var appointment = await _context.Appointments.FindAsync(appointmentIdInt.Value);
+                        if (appointment != null)
+                        {
+                            _logger.LogInformation("Found appointment {AppointmentId} for NCD assessment", appointmentIdInt.Value);
+                            
+                            // Use appointment patient information - prioritize dependent name if available
+                            string correctPatientName = !string.IsNullOrEmpty(appointment.DependentFullName) 
+                                ? appointment.DependentFullName 
+                                : appointment.PatientName ?? user.FullName;
+                            
+                            // Parse the correct patient name into components
+                            var nameParts = correctPatientName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                            Assessment.FirstName = nameParts.Length > 0 ? nameParts[0] : user.FirstName;
+                            Assessment.LastName = nameParts.Length > 1 ? nameParts[nameParts.Length - 1] : user.LastName;
+                            Assessment.MiddleName = nameParts.Length > 2 ? string.Join(" ", nameParts.Skip(1).Take(nameParts.Length - 2)) : user.MiddleName;
+                            
+                            // Use appointment-specific data if available
+                            if (!string.IsNullOrEmpty(appointment.ContactNumber))
+                                Assessment.Telepono = appointment.ContactNumber;
+                            
+                            if (appointment.DateOfBirth.HasValue)
+                            {
+                                Assessment.Birthday = appointment.DateOfBirth.Value;
+                                var age = CalculateAge(appointment.DateOfBirth.Value);
+                                Assessment.Edad = age.ToString();
+                                CalculatedAge = age;
+                                _logger.LogInformation("Using appointment birthdate, calculated age: {Age}", CalculatedAge);
+                            }
+                            else if (appointment.AgeValue > 0)
+                            {
+                                Assessment.Edad = appointment.AgeValue.ToString();
+                                CalculatedAge = appointment.AgeValue;
+                                _logger.LogInformation("Using appointment age value: {Age}", CalculatedAge);
+                            }
+                            
+                            _logger.LogInformation("Updated NCD assessment with appointment data: Name={CorrectPatientName}, Age={CalculatedAge}", correctPatientName, CalculatedAge);
+                        }
+                        else
+                        {
+                            _logger.LogWarning("Appointment {AppointmentId} not found for NCD assessment", appointmentIdInt.Value);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error loading appointment data for NCD assessment {AppointmentId}", appointmentIdInt.Value);
+                        // Continue with user data if appointment loading fails
+                    }
+                }
+
+                // Set age from user data if not already set from appointment
+                if (user.BirthDate.HasValue && !CalculatedAge.HasValue)
                 {
                     var age = CalculateAge(user.BirthDate.Value);
                     Assessment.Edad = age.ToString();
                     CalculatedAge = age;
-                    _logger.LogInformation("Calculated age: {Age}", CalculatedAge);
+                    _logger.LogInformation("Using user birthdate, calculated age: {Age}", CalculatedAge);
                 }
-                else
+                else if (!CalculatedAge.HasValue)
                 {
                     _logger.LogWarning("Birthday not available for age calculation.");
                 }
@@ -445,9 +501,12 @@ namespace Barangay.Pages.User
                     HypertensionMedication = assessment.HypertensionMedication,
                     HasCancer = assessment.HasCancer,
                     CancerType = assessment.CancerType,
+                    CancerSite = assessment.CancerSite,
                     CancerYear = assessment.CancerYear,
                     CancerMedication = assessment.CancerMedication,
                     HasCOPD = assessment.HasCOPD,
+                    COPDYear = assessment.COPDYear,
+                    COPDMedication = assessment.COPDMedication,
                     HasLungDisease = assessment.HasLungDisease,
                     LungDiseaseYear = assessment.LungDiseaseYear,
                     LungDiseaseMedication = assessment.LungDiseaseMedication,
@@ -535,6 +594,7 @@ namespace Barangay.Pages.User
                     NeverSmokedButExposedToSmoke = assessment.NeverSmokedButExposedToSmoke ?? "false",
                     HasHistoryOfSmoking = assessment.HasHistoryOfSmoking ?? "false",
                     Smoked100Sticks = assessment.Smoked100Sticks ?? "false",
+                    SmokingQuitDuration = assessment.SmokingQuitDuration ?? "",
                     
                     // Nutrition Details
                     EatsVegetablesDaily = assessment.EatsVegetablesDaily ?? "false",
@@ -597,6 +657,15 @@ namespace Barangay.Pages.User
                 _logger.LogInformation("Created NCD entity with UserId: {UserId}, AppointmentId: {AppointmentId}", 
                     ncdEntity.UserId, ncdEntity.AppointmentId);
                 
+                // DEBUGGING: Log Risk Status fields before encryption
+                _logger.LogInformation("=== RISK STATUS FIELDS DEBUGGING (BEFORE ENCRYPTION) ===");
+                _logger.LogInformation("HasDiabetes: '{HasDiabetes}' (type: {Type})", ncdEntity.HasDiabetes, ncdEntity.HasDiabetes?.GetType().Name);
+                _logger.LogInformation("HasHypertension: '{HasHypertension}' (type: {Type})", ncdEntity.HasHypertension, ncdEntity.HasHypertension?.GetType().Name);
+                _logger.LogInformation("HasCancer: '{HasCancer}' (type: {Type})", ncdEntity.HasCancer, ncdEntity.HasCancer?.GetType().Name);
+                _logger.LogInformation("CancerSite: '{CancerSite}' (type: {Type})", ncdEntity.CancerSite, ncdEntity.CancerSite?.GetType().Name);
+                _logger.LogInformation("HasCOPD: '{HasCOPD}' (type: {Type})", ncdEntity.HasCOPD, ncdEntity.HasCOPD?.GetType().Name);
+                _logger.LogInformation("=== END RISK STATUS DEBUGGING ===");
+                
                 // Encrypt sensitive data before saving
                 _logger.LogInformation("Encrypting sensitive data for NCD assessment");
                 try
@@ -620,6 +689,16 @@ namespace Barangay.Pages.User
                 if (rowsAffected > 0)
                 {
                     _logger.LogInformation("NCD Risk Assessment saved successfully with ID: {Id}", ncdEntity.Id);
+                    
+                    // DEBUGGING: Log successful save with Risk Status fields
+                    _logger.LogInformation("=== RISK STATUS FIELDS SAVED TO DATABASE ===");
+                    _logger.LogInformation("Assessment ID: {Id}", ncdEntity.Id);
+                    _logger.LogInformation("HasDiabetes saved: '{HasDiabetes}'", ncdEntity.HasDiabetes);
+                    _logger.LogInformation("HasHypertension saved: '{HasHypertension}'", ncdEntity.HasHypertension);
+                    _logger.LogInformation("HasCancer saved: '{HasCancer}'", ncdEntity.HasCancer);
+                    _logger.LogInformation("CancerSite saved: '{CancerSite}'", ncdEntity.CancerSite);
+                    _logger.LogInformation("HasCOPD saved: '{HasCOPD}'", ncdEntity.HasCOPD);
+                    _logger.LogInformation("=== END RISK STATUS SAVE DEBUGGING ===");
                     
                     // Update appointment status to InProgress after successful form submission (not Completed)
                     if (ncdEntity.AppointmentId.HasValue)

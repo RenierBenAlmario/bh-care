@@ -1985,3 +1985,4 @@ D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\obj\Debug\net8.0\ref\Baranga
 D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\SQL\AddMissingNCDFields.sql
 D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\SQL\Fix_NCD_Missing_Columns.sql
 D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\SQL\Add_HasStrokeSymptoms_Field.sql
+D:\Imbakan\Last\Last\BHCARE-mainFIXTHIS\BHCARE-main\bin\Debug\net8.0\SQL\Fix_COPD_Columns.sql

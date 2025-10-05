@@ -75,8 +75,12 @@ namespace Barangay.Pages.Doctor
                     return NotFound("Appointment not found");
                 }
 
-                // Populate patient information
-                PatientName = $"{appointment.Patient.User.FirstName} {appointment.Patient.User.LastName}";
+                // Populate patient information - use correct name (dependent or patient)
+                string correctPatientName = !string.IsNullOrEmpty(appointment.DependentFullName) 
+                    ? appointment.DependentFullName 
+                    : appointment.PatientName ?? $"{appointment.Patient.User.FirstName} {appointment.Patient.User.LastName}";
+                
+                PatientName = correctPatientName;
                 PatientAddress = appointment.Patient.User.Address ?? "";
                 PatientBarangay = appointment.Patient.User.Barangay ?? "";
                 PatientPhone = appointment.Patient.User.PhoneNumber ?? "";
@@ -139,10 +143,12 @@ namespace Barangay.Pages.Doctor
                 else
                 {
                     _logger.LogInformation("Creating new assessment for appointment {AppointmentId}", appointmentId);
-                    // Initialize new assessment with patient data
-                    Assessment.FirstName = appointment.Patient.User.FirstName ?? "";
-                    Assessment.LastName = appointment.Patient.User.LastName ?? "";
-                    Assessment.MiddleName = appointment.Patient.User.MiddleName ?? "";
+                    // Initialize new assessment with patient data - use correct name
+                    // Parse the correct patient name into first/last name components
+                    var nameParts = correctPatientName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                    Assessment.FirstName = nameParts.Length > 0 ? nameParts[0] : "";
+                    Assessment.LastName = nameParts.Length > 1 ? nameParts[nameParts.Length - 1] : "";
+                    Assessment.MiddleName = nameParts.Length > 2 ? string.Join(" ", nameParts.Skip(1).Take(nameParts.Length - 2)) : "";
                     Assessment.Address = PatientAddress;
                     Assessment.Barangay = PatientBarangay;
                     Assessment.Telepono = PatientPhone;
