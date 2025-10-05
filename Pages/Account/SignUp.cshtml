@@ -447,6 +447,753 @@
                         });
                     }
                 });
+
+                // Comprehensive Form Validation System
+                class SignUpValidator {
+                    constructor() {
+                        this.currentStep = 1;
+                        this.validationErrors = {};
+                        this.init();
+                    }
+
+                    init() {
+                        this.setupStepNavigation();
+                        this.setupRealTimeValidation();
+                        this.setupFormSubmission();
+                        
+                        // Initialize button states
+                        this.updateNextButtonState();
+                        this.updateRegisterButtonState();
+                    }
+
+                    setupStepNavigation() {
+                        // Step 1 to Step 2
+                        document.getElementById('nextToSecurity')?.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            if (this.validateStep1()) {
+                                this.goToStep(2);
+                            }
+                        });
+
+                        // Step 2 to Step 3
+                        document.getElementById('nextToVerification')?.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            if (this.validateStep2()) {
+                                this.goToStep(3);
+                            }
+                        });
+
+                        // Back navigation
+                        document.getElementById('backToPersonal')?.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            this.goToStep(1);
+                        });
+
+                        document.getElementById('backToSecurity')?.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            this.goToStep(2);
+                        });
+                    }
+
+                    setupRealTimeValidation() {
+                        // Username validation
+                        const usernameInput = document.getElementById('Input_Username');
+                        if (usernameInput) {
+                            usernameInput.addEventListener('blur', () => this.validateUsername());
+                            usernameInput.addEventListener('input', () => this.clearError('username'));
+                        }
+
+                        // Email validation
+                        const emailInput = document.getElementById('Input_Email');
+                        if (emailInput) {
+                            emailInput.addEventListener('blur', () => this.validateEmail());
+                            emailInput.addEventListener('input', () => this.clearError('email'));
+                        }
+
+                        // Name validation
+                        ['FirstName', 'LastName'].forEach(field => {
+                            const input = document.getElementById(`Input_${field}`);
+                            if (input) {
+                                input.addEventListener('blur', () => this.validateName(field));
+                                input.addEventListener('input', () => this.clearError(field.toLowerCase()));
+                            }
+                        });
+
+                        // Contact number validation
+                        const contactInput = document.getElementById('Input_ContactNumber');
+                        if (contactInput) {
+                            contactInput.addEventListener('blur', () => this.validateContactNumber());
+                            contactInput.addEventListener('input', () => this.clearError('contactNumber'));
+                        }
+
+                        // Address validation
+                        const addressInput = document.getElementById('Input_Address');
+                        if (addressInput) {
+                            addressInput.addEventListener('blur', () => this.validateAddress());
+                            addressInput.addEventListener('input', () => this.clearError('address'));
+                        }
+
+                        // Age validation
+                        const ageInput = document.getElementById('Input_Age');
+                        if (ageInput) {
+                            ageInput.addEventListener('blur', () => this.validateAge());
+                            ageInput.addEventListener('input', () => this.clearError('age'));
+                        }
+
+                        // Birth date validation
+                        const birthDateInput = document.getElementById('Input_BirthDate');
+                        if (birthDateInput) {
+                            birthDateInput.addEventListener('change', () => this.validateBirthDate());
+                        }
+
+                        // Gender validation
+                        const genderInputs = document.querySelectorAll('input[name="Input.Gender"]');
+                        genderInputs.forEach(input => {
+                            input.addEventListener('change', () => this.validateGender());
+                        });
+
+                        // Password validation
+                        const passwordInput = document.getElementById('password');
+                        if (passwordInput) {
+                            passwordInput.addEventListener('blur', () => this.validatePassword());
+                            passwordInput.addEventListener('input', () => {
+                                this.clearError('password');
+                                this.updatePasswordRequirements(passwordInput.value);
+                            });
+                        }
+
+                        // Confirm password validation
+                        const confirmPasswordInput = document.getElementById('confirmPassword');
+                        if (confirmPasswordInput) {
+                            confirmPasswordInput.addEventListener('blur', () => this.validateConfirmPassword());
+                            confirmPasswordInput.addEventListener('input', () => {
+                                this.clearError('confirmPassword');
+                                this.updateNextButtonState();
+                            });
+                        }
+
+                        // File validation
+                        const fileInput = document.getElementById('residencyProofFile');
+                        if (fileInput) {
+                            fileInput.addEventListener('change', () => this.validateFile());
+                        }
+
+                        // Checkbox validation
+                        const termsCheckbox = document.getElementById('privacyTerms');
+                        const residencyCheckbox = document.getElementById('residencyConfirm');
+                        if (termsCheckbox) {
+                            termsCheckbox.addEventListener('change', () => {
+                                this.validateCheckboxes();
+                                this.updateRegisterButtonState();
+                            });
+                        }
+                        if (residencyCheckbox) {
+                            residencyCheckbox.addEventListener('change', () => {
+                                this.validateCheckboxes();
+                                this.updateRegisterButtonState();
+                            });
+                        }
+                    }
+
+                    setupFormSubmission() {
+                        const form = document.getElementById('signupForm');
+                        if (form) {
+                            form.addEventListener('submit', (e) => {
+                                if (!this.validateAllSteps()) {
+                                    e.preventDefault();
+                                    this.showValidationSummary();
+                                }
+                            });
+                        }
+                    }
+
+                    // Validation Methods
+                    validateUsername() {
+                        const input = document.getElementById('Input_Username');
+                        const value = input?.value?.trim();
+                        
+                        if (!value) {
+                            this.showError('username', 'Username is required');
+                            return false;
+                        }
+                        
+                        if (value.length < 3) {
+                            this.showError('username', 'Username must be at least 3 characters long');
+                            return false;
+                        }
+                        
+                        if (!/^[a-zA-Z0-9_]+$/.test(value)) {
+                            this.showError('username', 'Username can only contain letters, numbers, and underscores');
+                            return false;
+                        }
+                        
+                        this.clearError('username');
+                        return true;
+                    }
+
+                    validateEmail() {
+                        const input = document.getElementById('Input_Email');
+                        const value = input?.value?.trim();
+                        
+                        if (!value) {
+                            this.showError('email', 'Email address is required');
+                            return false;
+                        }
+                        
+                        const emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+                        if (!emailRegex.test(value)) {
+                            this.showError('email', 'Please enter a valid email address');
+                            return false;
+                        }
+                        
+                        this.clearError('email');
+                        return true;
+                    }
+
+                    validateName(field) {
+                        const input = document.getElementById(`Input_${field}`);
+                        const value = input?.value?.trim();
+                        
+                        if (!value) {
+                            this.showError(field.toLowerCase(), `${field} is required`);
+                            return false;
+                        }
+                        
+                        if (value.length < 2) {
+                            this.showError(field.toLowerCase(), `${field} must be at least 2 characters long`);
+                            return false;
+                        }
+                        
+                        if (!/^[a-zA-Z\s'-]+$/.test(value)) {
+                            this.showError(field.toLowerCase(), `${field} can only contain letters, spaces, hyphens, and apostrophes`);
+                            return false;
+                        }
+                        
+                        this.clearError(field.toLowerCase());
+                        return true;
+                    }
+
+                    validateContactNumber() {
+                        const input = document.getElementById('Input_ContactNumber');
+                        const value = input?.value?.trim();
+                        
+                        if (!value) {
+                            this.showError('contactNumber', 'Contact number is required');
+                            return false;
+                        }
+                        
+                        // Remove all non-digit characters for validation
+                        const digits = value.replace(/\D/g, '');
+                        
+                        if (digits.length < 10 || digits.length > 13) {
+                            this.showError('contactNumber', 'Contact number must be 10-13 digits long');
+                            return false;
+                        }
+                        
+                        // Check for dummy numbers (all same digits)
+                        if (/^(\d)\1+$/.test(digits)) {
+                            this.showError('contactNumber', 'Please enter a valid contact number');
+                            return false;
+                        }
+                        
+                        this.clearError('contactNumber');
+                        return true;
+                    }
+
+                    validateAddress() {
+                        const input = document.getElementById('Input_Address');
+                        const value = input?.value?.trim();
+                        
+                        if (!value) {
+                            this.showError('address', 'Complete address is required');
+                            return false;
+                        }
+                        
+                        if (value.length < 10) {
+                            this.showError('address', 'Please provide a more detailed address');
+                            return false;
+                        }
+                        
+                        this.clearError('address');
+                        return true;
+                    }
+
+                    validateAge() {
+                        const input = document.getElementById('Input_Age');
+                        const value = input?.value?.trim();
+                        
+                        if (!value) {
+                            this.showError('age', 'Age is required');
+                            return false;
+                        }
+                        
+                        const age = parseInt(value);
+                        if (isNaN(age) || age < 1 || age > 120) {
+                            this.showError('age', 'Please enter a valid age (1-120)');
+                            return false;
+                        }
+                        
+                        this.clearError('age');
+                        return true;
+                    }
+
+                    validateBirthDate() {
+                        const input = document.getElementById('Input_BirthDate');
+                        const value = input?.value;
+                        
+                        if (!value) {
+                            this.showError('birthDate', 'Birth date is required');
+                            return false;
+                        }
+                        
+                        const birthDate = new Date(value);
+                        const today = new Date();
+                        const age = today.getFullYear() - birthDate.getFullYear();
+                        
+                        if (birthDate > today) {
+                            this.showError('birthDate', 'Birth date cannot be in the future');
+                            return false;
+                        }
+                        
+                        if (age > 120) {
+                            this.showError('birthDate', 'Please enter a valid birth date');
+                            return false;
+                        }
+                        
+                        this.clearError('birthDate');
+                        return true;
+                    }
+
+                    validateGender() {
+                        const genderInputs = document.querySelectorAll('input[name="Input.Gender"]:checked');
+                        
+                        if (genderInputs.length === 0) {
+                            this.showError('gender', 'Please select your gender');
+                            return false;
+                        }
+                        
+                        this.clearError('gender');
+                        return true;
+                    }
+
+                    validatePassword() {
+                        const input = document.getElementById('password');
+                        const value = input?.value;
+                        
+                        if (!value) {
+                            this.showError('password', 'Password is required');
+                            this.updatePasswordRequirements(value);
+                            return false;
+                        }
+                        
+                        if (value.length < 8) {
+                            this.showError('password', 'Password must be at least 8 characters long');
+                            this.updatePasswordRequirements(value);
+                            return false;
+                        }
+                        
+                        const hasUpperCase = /[A-Z]/.test(value);
+                        const hasLowerCase = /[a-z]/.test(value);
+                        const hasNumbers = /\d/.test(value);
+                        const hasSpecialChar = /[!@@#$%^&*(),.?":{}|<>]/.test(value);
+                        
+                        // Update password requirements visual indicators
+                        this.updatePasswordRequirements(value);
+                        
+                        if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSpecialChar) {
+                            this.showError('password', 'Password must contain uppercase, lowercase, number, and special character');
+                            return false;
+                        }
+                        
+                        this.clearError('password');
+                        return true;
+                    }
+
+                    updatePasswordRequirements(password) {
+                        if (!password) {
+                            password = '';
+                        }
+                        
+                        const requirements = {
+                            length: password.length >= 8,
+                            uppercase: /[A-Z]/.test(password),
+                            lowercase: /[a-z]/.test(password),
+                            number: /\d/.test(password),
+                            special: /[!@@#$%^&*(),.?":{}|<>]/.test(password)
+                        };
+                        
+                        // Update visual indicators
+                        Object.keys(requirements).forEach(req => {
+                            const element = document.getElementById(req);
+                            if (element) {
+                                const icon = element.querySelector('i');
+                                if (requirements[req]) {
+                                    icon.className = 'fas fa-check text-success me-1';
+                                } else {
+                                    icon.className = 'fas fa-times text-danger me-1';
+                                }
+                            }
+                        });
+                        
+                        // Update password strength indicator
+                        this.updatePasswordStrength(password);
+                        
+                        // Update Next button state based on requirements
+                        this.updateNextButtonState();
+                    }
+
+                    updateNextButtonState() {
+                        const nextButton = document.getElementById('nextToVerification');
+                        if (!nextButton) return;
+                        
+                        const password = document.getElementById('password')?.value;
+                        const confirmPassword = document.getElementById('confirmPassword')?.value;
+                        
+                        const allRequirementsMet = this.checkAllPasswordRequirements(password);
+                        const passwordsMatch = password && confirmPassword && password === confirmPassword;
+                        
+                        if (allRequirementsMet && passwordsMatch) {
+                            nextButton.disabled = false;
+                            nextButton.classList.remove('btn-secondary');
+                            nextButton.classList.add('btn-primary');
+                        } else {
+                            nextButton.disabled = true;
+                            nextButton.classList.remove('btn-primary');
+                            nextButton.classList.add('btn-secondary');
+                        }
+                    }
+
+                    updateRegisterButtonState() {
+                        const registerButton = document.getElementById('signupButton');
+                        if (!registerButton) return;
+                        
+                        const fileValid = this.validateFile();
+                        const checkboxesValid = this.validateCheckboxes();
+                        
+                        if (fileValid && checkboxesValid) {
+                            registerButton.disabled = false;
+                            registerButton.classList.remove('btn-secondary');
+                            registerButton.classList.add('btn-primary');
+                            registerButton.innerHTML = '<i class="fas fa-user-plus me-2"></i> Register Account';
+                        } else {
+                            registerButton.disabled = true;
+                            registerButton.classList.remove('btn-primary');
+                            registerButton.classList.add('btn-secondary');
+                            registerButton.innerHTML = '<i class="fas fa-lock me-2"></i> Complete Requirements First';
+                        }
+                    }
+
+                    updatePasswordStrength(password) {
+                        const strengthElement = document.getElementById('passwordStrength');
+                        const strengthTextElement = document.querySelector('.password-strength-text');
+                        
+                        if (!password) {
+                            if (strengthElement) strengthElement.style.width = '0%';
+                            if (strengthTextElement) strengthTextElement.textContent = 'Too weak';
+                            return;
+                        }
+                        
+                        const requirements = {
+                            length: password.length >= 8,
+                            uppercase: /[A-Z]/.test(password),
+                            lowercase: /[a-z]/.test(password),
+                            number: /\d/.test(password),
+                            special: /[!@@#$%^&*(),.?":{}|<>]/.test(password)
+                        };
+                        
+                        const metRequirements = Object.values(requirements).filter(Boolean).length;
+                        const strengthPercentage = (metRequirements / 5) * 100;
+                        
+                        if (strengthElement) {
+                            strengthElement.style.width = strengthPercentage + '%';
+                            
+                            // Update color based on strength
+                            strengthElement.className = 'progress-bar';
+                            if (strengthPercentage < 40) {
+                                strengthElement.classList.add('bg-danger');
+                            } else if (strengthPercentage < 80) {
+                                strengthElement.classList.add('bg-warning');
+                            } else {
+                                strengthElement.classList.add('bg-success');
+                            }
+                        }
+                        
+                        if (strengthTextElement) {
+                            if (strengthPercentage < 40) {
+                                strengthTextElement.textContent = 'Very Weak';
+                                strengthTextElement.className = 'password-strength-text text-danger';
+                            } else if (strengthPercentage < 60) {
+                                strengthTextElement.textContent = 'Weak';
+                                strengthTextElement.className = 'password-strength-text text-warning';
+                            } else if (strengthPercentage < 80) {
+                                strengthTextElement.textContent = 'Fair';
+                                strengthTextElement.className = 'password-strength-text text-warning';
+                            } else {
+                                strengthTextElement.textContent = 'Strong';
+                                strengthTextElement.className = 'password-strength-text text-success';
+                            }
+                        }
+                    }
+
+                    validateConfirmPassword() {
+                        const password = document.getElementById('password')?.value;
+                        const confirmPassword = document.getElementById('confirmPassword')?.value;
+                        
+                        if (!confirmPassword) {
+                            this.showError('confirmPassword', 'Please confirm your password');
+                            return false;
+                        }
+                        
+                        if (password !== confirmPassword) {
+                            this.showError('confirmPassword', 'Passwords do not match');
+                            return false;
+                        }
+                        
+                        this.clearError('confirmPassword');
+                        return true;
+                    }
+
+                    validateFile() {
+                        const input = document.getElementById('residencyProofFile');
+                        const file = input?.files[0];
+                        
+                        if (!file) {
+                            this.showError('file', 'Please upload your residency proof document');
+                            this.updateRegisterButtonState();
+                            return false;
+                        }
+                        
+                        const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+                        if (!allowedTypes.includes(file.type)) {
+                            this.showError('file', 'Please upload a PDF, JPG, or PNG file');
+                            this.updateRegisterButtonState();
+                            return false;
+                        }
+                        
+                        const maxSize = 5 * 1024 * 1024; // 5MB
+                        if (file.size > maxSize) {
+                            this.showError('file', 'File size must be less than 5MB');
+                            this.updateRegisterButtonState();
+                            return false;
+                        }
+                        
+                        this.clearError('file');
+                        this.updateRegisterButtonState();
+                        return true;
+                    }
+
+                    validateCheckboxes() {
+                        const termsChecked = document.getElementById('privacyTerms')?.checked;
+                        const residencyChecked = document.getElementById('residencyConfirm')?.checked;
+                        
+                        if (!termsChecked || !residencyChecked) {
+                            this.showError('checkboxes', 'You must agree to the terms and confirm your residency');
+                            this.updateRegisterButtonState();
+                            return false;
+                        }
+                        
+                        this.clearError('checkboxes');
+                        this.updateRegisterButtonState();
+                        return true;
+                    }
+
+                    // Step Validation Methods
+                    validateStep1() {
+                        const isValid = 
+                            this.validateUsername() &&
+                            this.validateEmail() &&
+                            this.validateName('FirstName') &&
+                            this.validateName('LastName') &&
+                            this.validateContactNumber() &&
+                            this.validateAddress() &&
+                            this.validateAge() &&
+                            this.validateBirthDate() &&
+                            this.validateGender();
+                        
+                        if (!isValid) {
+                            this.showStepError('Please fix the errors in Step 1 before proceeding');
+                        }
+                        
+                        return isValid;
+                    }
+
+                    validateStep2() {
+                        const passwordValid = this.validatePassword();
+                        const confirmPasswordValid = this.validateConfirmPassword();
+                        
+                        // Additional check: ensure ALL password requirements are met
+                        const password = document.getElementById('password')?.value;
+                        const allRequirementsMet = this.checkAllPasswordRequirements(password);
+                        
+                        const isValid = passwordValid && confirmPasswordValid && allRequirementsMet;
+                        
+                        if (!isValid) {
+                            if (!allRequirementsMet) {
+                                this.showStepError('Password must meet ALL requirements before proceeding to the next step');
+                            } else {
+                                this.showStepError('Please fix the errors in Step 2 before proceeding');
+                            }
+                        }
+                        
+                        return isValid;
+                    }
+
+                    checkAllPasswordRequirements(password) {
+                        if (!password) return false;
+                        
+                        const requirements = {
+                            length: password.length >= 8,
+                            uppercase: /[A-Z]/.test(password),
+                            lowercase: /[a-z]/.test(password),
+                            number: /\d/.test(password),
+                            special: /[!@@#$%^&*(),.?":{}|<>]/.test(password)
+                        };
+                        
+                        return Object.values(requirements).every(Boolean);
+                    }
+
+                    validateStep3() {
+                        const fileValid = this.validateFile();
+                        const checkboxesValid = this.validateCheckboxes();
+                        
+                        const isValid = fileValid && checkboxesValid;
+                        
+                        if (!isValid) {
+                            this.showStepError('Please complete all requirements before registering your account');
+                        }
+                        
+                        // Update register button state
+                        this.updateRegisterButtonState();
+                        
+                        return isValid;
+                    }
+
+                    validateAllSteps() {
+                        return this.validateStep1() && this.validateStep2() && this.validateStep3();
+                    }
+
+                    // UI Helper Methods
+                    showError(field, message) {
+                        const errorElement = document.getElementById(`${field}Error`);
+                        const inputElement = document.querySelector(`[id*="${field}"], [name*="${field}"]`);
+                        
+                        if (errorElement) {
+                            errorElement.textContent = message;
+                            errorElement.style.display = 'block';
+                        }
+                        
+                        if (inputElement) {
+                            inputElement.classList.add('is-invalid');
+                            inputElement.classList.remove('is-valid');
+                        }
+                        
+                        this.validationErrors[field] = message;
+                    }
+
+                    clearError(field) {
+                        const errorElement = document.getElementById(`${field}Error`);
+                        const inputElement = document.querySelector(`[id*="${field}"], [name*="${field}"]`);
+                        
+                        if (errorElement) {
+                            errorElement.style.display = 'none';
+                        }
+                        
+                        if (inputElement) {
+                            inputElement.classList.remove('is-invalid');
+                            inputElement.classList.add('is-valid');
+                        }
+                        
+                        delete this.validationErrors[field];
+                    }
+
+                    showStepError(message) {
+                        // Create or update step error alert
+                        let alertElement = document.getElementById('stepErrorAlert');
+                        if (!alertElement) {
+                            alertElement = document.createElement('div');
+                            alertElement.id = 'stepErrorAlert';
+                            alertElement.className = 'alert alert-danger mt-3';
+                            alertElement.innerHTML = `<i class="fas fa-exclamation-triangle me-2"></i><span id="stepErrorMessage">${message}</span>`;
+                            
+                            // Insert after the current step content
+                            const currentSection = document.getElementById(`section${this.currentStep}`);
+                            if (currentSection) {
+                                currentSection.appendChild(alertElement);
+                            }
+                        } else {
+                            document.getElementById('stepErrorMessage').textContent = message;
+                        }
+                        
+                        // Auto-hide after 5 seconds
+                        setTimeout(() => {
+                            if (alertElement) {
+                                alertElement.remove();
+                            }
+                        }, 5000);
+                    }
+
+                    showValidationSummary() {
+                        const errorCount = Object.keys(this.validationErrors).length;
+                        if (errorCount > 0) {
+                            alert(`Please fix ${errorCount} error(s) before submitting the form.`);
+                        }
+                    }
+
+                    goToStep(step) {
+                        // Hide all sections
+                        document.querySelectorAll('.section').forEach(section => {
+                            section.classList.add('d-none');
+                        });
+                        
+                        // Show target section
+                        const targetSection = document.getElementById(`section${step}`);
+                        if (targetSection) {
+                            targetSection.classList.remove('d-none');
+                        }
+                        
+                        // Update progress indicators
+                        document.querySelectorAll('.step-indicator').forEach((indicator, index) => {
+                            indicator.classList.remove('active');
+                            if (index < step) {
+                                indicator.classList.add('completed');
+                            }
+                        });
+                        
+                        if (step <= 3) {
+                            document.getElementById(`step${step}Indicator`)?.classList.add('active');
+                        }
+                        
+                        // Update progress bar
+                        const progressBar = document.getElementById('registrationProgress');
+                        if (progressBar) {
+                            progressBar.style.width = `${(step - 1) * 50}%`;
+                        }
+                        
+                        // Update progress text
+                        const progressText = document.getElementById('progressText');
+                        if (progressText) {
+                            const stepTexts = {
+                                1: 'Step 1: Personal Information',
+                                2: 'Step 2: Account Security',
+                                3: 'Step 3: Residency Verification'
+                            };
+                            progressText.textContent = stepTexts[step] || '';
+                        }
+                        
+                        this.currentStep = step;
+                        
+                        // Remove any existing step error alerts
+                        const existingAlert = document.getElementById('stepErrorAlert');
+                        if (existingAlert) {
+                            existingAlert.remove();
+                        }
+                    }
+                }
+
+                // Initialize validator when DOM is loaded
+                document.addEventListener('DOMContentLoaded', function() {
+                    new SignUpValidator();
+                });
             </script>
             
             <div class="text-center mt-3">
@@ -545,6 +1292,144 @@
         </div>
     </div>
     </div>
+
+@section Styles {
+    <style>
+        /* Enhanced validation styles */
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+        
+        .form-control.is-valid {
+            border-color: #28a745;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+        }
+        
+        .invalid-feedback {
+            display: none;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+            color: #dc3545;
+        }
+        
+        .invalid-feedback.show {
+            display: block;
+        }
+        
+        .step-indicator {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .step-indicator.active {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .step-indicator.completed {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .step-indicator:not(.active):not(.completed) {
+            background-color: #e9ecef;
+            color: #6c757d;
+        }
+        
+        .alert-danger {
+            border-left: 4px solid #dc3545;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @@keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .required {
+            color: #dc3545;
+        }
+        
+        /* Button states */
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary:disabled {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            color: #fff;
+        }
+        
+        .btn-secondary:disabled:hover {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+        
+        /* Register button specific styles */
+        #signupButton:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        #signupButton:disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* Loading spinner */
+        .spinner-border-sm {
+            width: 1rem;
+            height: 1rem;
+        }
+        
+        /* File upload validation */
+        .file-info {
+            padding: 0.5rem;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+        }
+        
+        /* Password strength indicator */
+        .password-strength-meter .progress {
+            border-radius: 0.375rem;
+        }
+        
+        .password-strength-text {
+            font-weight: 600;
+        }
+        
+        /* Responsive adjustments */
+        @@media (max-width: 768px) {
+            .step-indicator {
+                font-size: 0.875rem;
+                padding: 0.375rem 0.75rem;
+            }
+            
+            .wizard-progress .d-flex {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+}
 
 @section Scripts {
     <!-- zxcvbn password strength library -->
