@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 
 namespace Barangay.Services
 {
@@ -17,12 +18,14 @@ namespace Barangay.Services
     {
         private readonly IMemoryCache _cache;
         private readonly ILogger<OTPService> _logger;
+        private readonly IConfiguration _configuration;
         private readonly Random _random = new Random();
 
-        public OTPService(IMemoryCache cache, ILogger<OTPService> logger)
+        public OTPService(IMemoryCache cache, ILogger<OTPService> logger, IConfiguration configuration)
         {
             _cache = cache;
             _logger = logger;
+            _configuration = configuration;
         }
 
         public Task<string> GenerateOTPAsync(string email)
@@ -45,6 +48,9 @@ namespace Barangay.Services
                 _cache.Set(cacheKey, otp, TimeSpan.FromMinutes(5));
                 
                 _logger.LogInformation($"Random OTP generated for {email}: {otp}");
+                
+                // Display OTP on console for development/deployment purposes
+                DisplayOTPOnConsole(email, otp);
                 
                 return Task.FromResult(otp);
             }
@@ -141,6 +147,38 @@ namespace Barangay.Services
             {
                 _logger.LogError(ex, $"Error checking OTP requirement for {email}");
                 return Task.FromResult(false);
+            }
+        }
+
+        private void DisplayOTPOnConsole(string email, string otp)
+        {
+            try
+            {
+                // Check if console OTP display is enabled in configuration
+                var enableConsoleOTP = _configuration.GetValue<bool>("OTPSettings:EnableConsoleDisplay", true);
+                
+                if (enableConsoleOTP)
+                {
+                    // Create a visually distinct console output for OTP
+                    Console.WriteLine();
+                    Console.WriteLine("╔══════════════════════════════════════════════════════════════════════════════╗");
+                    Console.WriteLine("║                              OTP VERIFICATION CODE                          ║");
+                    Console.WriteLine("╠══════════════════════════════════════════════════════════════════════════════╣");
+                    Console.WriteLine($"║  Email: {email.PadRight(70)} ║");
+                    Console.WriteLine($"║  OTP Code: {otp.PadRight(66)} ║");
+                    Console.WriteLine($"║  Generated: {DateTime.Now:yyyy-MM-dd HH:mm:ss} UTC".PadRight(78) + " ║");
+                    Console.WriteLine($"║  Expires: {DateTime.Now.AddMinutes(5):yyyy-MM-dd HH:mm:ss} UTC".PadRight(78) + " ║");
+                    Console.WriteLine("╚══════════════════════════════════════════════════════════════════════════════╝");
+                    Console.WriteLine();
+                    
+                    // Also log to structured logging for production monitoring
+                    _logger.LogWarning("OTP_DISPLAY: Email={Email}, OTP={OTP}, GeneratedAt={GeneratedAt}, ExpiresAt={ExpiresAt}", 
+                        email, otp, DateTime.Now, DateTime.Now.AddMinutes(5));
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error displaying OTP on console for {Email}", email);
             }
         }
     }
