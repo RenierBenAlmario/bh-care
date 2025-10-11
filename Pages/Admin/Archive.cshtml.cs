@@ -3,7 +3,10 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Barangay.Data;
 using Barangay.Models;
+using Barangay.Services;
 using System.Text.Json;
+using System;
+using System.Globalization;
 
 namespace Barangay.Pages.Admin
 {
@@ -24,16 +27,79 @@ namespace Barangay.Pages.Admin
     public class ArchiveModel : PageModel
     {
         private readonly ApplicationDbContext _context;
+        private readonly IDataEncryptionService _encryptionService;
 
-        public ArchiveModel(ApplicationDbContext context)
+        public ArchiveModel(ApplicationDbContext context, IDataEncryptionService encryptionService)
         {
             _context = context;
+            _encryptionService = encryptionService;
         }
 
         public List<ImmunizationRecord> ImmunizationRecords { get; set; } = new();
         public List<HEEADSSSAssessment> HEEADSSSAssessments { get; set; } = new();
         public List<NCDRiskAssessment> NCDRiskAssessments { get; set; } = new();
         public List<VitalSign> VitalSigns { get; set; } = new();
+        public List<string> FamilyIdentifiers { get; set; } = new();
+
+        // Helper method to normalize family numbers
+        private string NormalizeFamilyNumber(string familyNumber)
+        {
+            if (string.IsNullOrEmpty(familyNumber))
+                return familyNumber;
+
+            // If it's not encrypted (like a raw GUID), try to convert it to a readable format
+            if (!_encryptionService.IsEncrypted(familyNumber) && familyNumber.Length > 20)
+            {
+                // Check if it looks like a GUID and convert it to a readable format
+                if (Guid.TryParse(familyNumber, out Guid guid))
+                {
+                    // Convert GUID to a more readable format like "GUID-ABCD"
+                    return $"GUID-{guid.ToString().Substring(0, 4).ToUpper()}";
+                }
+            }
+
+            // For encrypted values, decrypt them
+            string decrypted = _encryptionService.Decrypt(familyNumber);
+
+            // If decryption returns the same value, it might already be decrypted or not encrypted
+            if (decrypted == familyNumber)
+            {
+                return familyNumber;
+            }
+
+            return decrypted;
+        }
+
+        // Helper method to create a consistent family key for matching
+        private string CreateFamilyKey(string familyNumber)
+        {
+            if (string.IsNullOrEmpty(familyNumber))
+                return "";
+
+            string normalized = NormalizeFamilyNumber(familyNumber);
+
+            // Create a consistent key for matching similar family numbers
+            // Remove common prefixes/suffixes and normalize case
+            string key = normalized.ToUpper().Trim();
+
+            // Remove common prefixes
+            if (key.StartsWith("FAM")) key = key.Substring(3);
+            if (key.StartsWith("FAMILY")) key = key.Substring(6);
+            if (key.StartsWith("GUID-")) key = key.Substring(5);
+
+            // Remove common suffixes
+            if (key.EndsWith("-FAMILY")) key = key.Substring(0, key.Length - 7);
+            if (key.EndsWith("-GUID")) key = key.Substring(0, key.Length - 5);
+
+            // Extract just the numeric or alphanumeric part
+            var match = System.Text.RegularExpressions.Regex.Match(key, @"([A-Z0-9]+)");
+            if (match.Success)
+            {
+                key = match.Groups[1].Value;
+            }
+
+            return key;
+        }
 
         public async Task OnGetAsync()
         {
@@ -84,28 +150,133 @@ namespace Barangay.Pages.Admin
                 // VitalSigns table doesn't exist yet, continue with empty list
                 VitalSigns = new List<VitalSign>();
             }
+
+            // Extract unique family identifiers from all record types and consolidate them
+            var familyGroups = new Dictionary<string, List<string>>(); // Key: normalized family key, Value: list of original values
+            var familyIdSources = new Dictionary<string, string>(); // Track original encrypted value for each normalized family number
+
+            // Helper function to add family number to groups
+            void AddFamilyNumber(string source, string familyNumber)
+            {
+                if (string.IsNullOrEmpty(familyNumber)) return;
+
+                string normalizedFamilyNumber = NormalizeFamilyNumber(familyNumber);
+                string familyKey = CreateFamilyKey(familyNumber);
+
+                if (!familyGroups.ContainsKey(familyKey))
+                {
+                    familyGroups[familyKey] = new List<string>();
+                }
+                familyGroups[familyKey].Add(normalizedFamilyNumber);
+
+                // Track the original encrypted source for each normalized family number
+                if (!familyIdSources.ContainsKey(normalizedFamilyNumber))
+                {
+                    familyIdSources[normalizedFamilyNumber] = source;
+                }
+            }
+
+            // From ImmunizationRecords
+            foreach (var record in ImmunizationRecords)
+            {
+                AddFamilyNumber($"Immunization:{record.Id}", record.FamilyNumber);
+            }
+
+            // From HEEADSSSAssessments
+            foreach (var record in HEEADSSSAssessments)
+            {
+                AddFamilyNumber($"HEEADSSS:{record.Id}", record.FamilyNo);
+            }
+
+            // From NCDRiskAssessments
+            foreach (var record in NCDRiskAssessments)
+            {
+                AddFamilyNumber($"NCD:{record.Id}", record.FamilyNo);
+            }
+
+            // From VitalSigns (assuming PatientId might be family number)
+            foreach (var record in VitalSigns)
+            {
+                AddFamilyNumber($"VitalSigns:{record.Id}", record.PatientId);
+            }
+
+            // Consolidate family groups - for each group, pick the most representative family number
+            var consolidatedFamilyIds = new List<string>();
+            foreach (var group in familyGroups)
+            {
+                if (group.Value.Any())
+                {
+                    // Pick the first non-empty, non-GUID family number as the primary identifier
+                    string primaryFamilyId = group.Value.FirstOrDefault(id => !string.IsNullOrEmpty(id) && !id.StartsWith("GUID-"));
+                    if (string.IsNullOrEmpty(primaryFamilyId))
+                    {
+                        primaryFamilyId = group.Value.FirstOrDefault();
+                    }
+                    if (!string.IsNullOrEmpty(primaryFamilyId))
+                    {
+                        consolidatedFamilyIds.Add(primaryFamilyId);
+                    }
+                }
+            }
+
+            // Store both the consolidated family numbers and their original encrypted sources
+            FamilyIdentifiers = consolidatedFamilyIds.Distinct().ToList();
+            ViewData["FamilyIdSources"] = familyIdSources;
+            ViewData["FamilyGroups"] = familyGroups;
         }
+
 
         public async Task<IActionResult> OnGetFamilyDetailsAsync(string familyId)
         {
             try
             {
-                // Fetch all records for this family
+                // Normalize the family ID (handle both encrypted and unencrypted cases)
+                string normalizedFamilyId = NormalizeFamilyNumber(familyId);
+                string familyKey = CreateFamilyKey(familyId);
+
+                // Fetch all records for this family using direct property access to avoid LINQ translation issues
+                // First try exact match with normalized family ID
                 var immunizationRecords = await _context.ImmunizationRecords
-                    .Where(r => r.FamilyNumber == familyId)
+                    .Where(r => r.FamilyNumber == normalizedFamilyId)
                     .ToListAsync();
 
                 var heeadsssRecords = await _context.HEEADSSSAssessments
-                    .Where(r => r.FamilyNo == familyId)
+                    .Where(r => r.FamilyNo == normalizedFamilyId)
                     .ToListAsync();
 
                 var ncdRecords = await _context.NCDRiskAssessments
-                    .Where(r => r.FamilyNo == familyId)
+                    .Where(r => r.FamilyNo == normalizedFamilyId)
                     .ToListAsync();
 
                 var vitalSignsRecords = await _context.VitalSigns
-                    .Where(r => r.PatientId == familyId)
+                    .Where(r => r.PatientId == normalizedFamilyId)
                     .ToListAsync();
+
+                // If no exact matches, try to find by family key pattern
+                if (!immunizationRecords.Any() && !heeadsssRecords.Any() && !ncdRecords.Any() && !vitalSignsRecords.Any())
+                {
+                    // Load all records and filter in memory using family key pattern
+                    var allImmunizationRecords = await _context.ImmunizationRecords.ToListAsync();
+                    var allHeeadsssRecords = await _context.HEEADSSSAssessments.ToListAsync();
+                    var allNcdRecords = await _context.NCDRiskAssessments.ToListAsync();
+                    var allVitalSignsRecords = await _context.VitalSigns.ToListAsync();
+
+                    immunizationRecords = allImmunizationRecords
+                        .Where(r => CreateFamilyKey(r.FamilyNumber) == familyKey)
+                        .ToList();
+
+                    heeadsssRecords = allHeeadsssRecords
+                        .Where(r => CreateFamilyKey(r.FamilyNo) == familyKey)
+                        .ToList();
+
+                    ncdRecords = allNcdRecords
+                        .Where(r => CreateFamilyKey(r.FamilyNo) == familyKey)
+                        .ToList();
+
+                    vitalSignsRecords = allVitalSignsRecords
+                        .Where(r => CreateFamilyKey(r.PatientId) == familyKey)
+                        .ToList();
+                }
 
                 // Process records to return readable data
                 var processedImmunizationRecords = ProcessImmunizationRecords(immunizationRecords);
@@ -114,7 +285,7 @@ namespace Barangay.Pages.Admin
                 var processedVitalSignsRecords = ProcessVitalSignsRecords(vitalSignsRecords);
 
                 // Get family info
-                var familyInfo = GetFamilyInfo(immunizationRecords, heeadsssRecords, ncdRecords, vitalSignsRecords);
+                var familyInfo = GetFamilyInfo(immunizationRecords, heeadsssRecords, ncdRecords, vitalSignsRecords, normalizedFamilyId);
 
                 // Calculate statistics
                 var totalRecords = processedImmunizationRecords.Count + processedHeeadsssRecords.Count + 
@@ -141,7 +312,7 @@ namespace Barangay.Pages.Admin
                         ncd = processedNcdRecords,
                         vitalSigns = processedVitalSignsRecords
                     },
-                    familyId = familyId,
+                    familyId = normalizedFamilyId,
                     timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")
                 });
             }
@@ -320,6 +491,7 @@ namespace Barangay.Pages.Admin
             {
                 var processedRecord = new
                 {
+                    // Basic Information (Part I - Profile)
                     Id = record.Id,
                     UserId = record.UserId ?? "N/A",
                     AppointmentId = record.AppointmentId?.ToString() ?? "N/A",
@@ -337,6 +509,9 @@ namespace Barangay.Pages.Admin
                     Relihiyon = record.Relihiyon ?? "N/A",
                     CivilStatus = record.CivilStatus ?? "N/A",
                     Occupation = record.Occupation ?? "N/A",
+                    IDNumber = record.IDNumber ?? "N/A",
+
+                    // Part II - Past Medical History
                     HasDiabetes = record.HasDiabetes,
                     DiabetesYear = record.DiabetesYear?.ToString() ?? "N/A",
                     DiabetesMedication = record.DiabetesMedication ?? "N/A",
@@ -345,31 +520,169 @@ namespace Barangay.Pages.Admin
                     HypertensionMedication = record.HypertensionMedication ?? "N/A",
                     HasCancer = record.HasCancer,
                     CancerType = record.CancerType ?? "N/A",
+                    CancerSite = record.CancerSite ?? "N/A",
                     CancerYear = record.CancerYear?.ToString() ?? "N/A",
                     CancerMedication = record.CancerMedication ?? "N/A",
+                    HasCOPD = record.HasCOPD,
+                    COPDYear = record.COPDYear?.ToString() ?? "N/A",
+                    COPDMedication = record.COPDMedication ?? "N/A",
                     HasLungDisease = record.HasLungDisease,
                     LungDiseaseYear = record.LungDiseaseYear?.ToString() ?? "N/A",
                     LungDiseaseMedication = record.LungDiseaseMedication ?? "N/A",
-                    HasCOPD = record.HasCOPD,
                     HasEyeDisease = record.HasEyeDisease,
+                    EyeDiseaseYear = record.EyeDiseaseYear?.ToString() ?? "N/A",
+                    EyeDiseaseMedication = record.EyeDiseaseMedication ?? "N/A",
+                    HasStrokeSymptoms = record.HasStrokeSymptoms,
+
+                    // Part III - Risk Factors (Nutrition, Alcohol, Exercise, Smoking, Stress)
+                    // Nutrition
+                    EatsMeatDaily = record.EatsMeatDaily,
+                    EatsFishDaily = record.EatsFishDaily,
+                    EatsVegetablesDaily = record.EatsVegetablesDaily,
+                    EatsFruitsDaily = record.EatsFruitsDaily,
+                    EatsFattyFoodMoreThan2TimesPerWeek = record.EatsFattyFoodMoreThan2TimesPerWeek,
+                    EatsOilyFoodMoreThan2TimesPerWeek = record.EatsOilyFoodMoreThan2TimesPerWeek,
+                    EatsSweetFoodMoreThan2TimesPerWeek = record.EatsSweetFoodMoreThan2TimesPerWeek,
+                    HasUnhealthyDiet = record.HasUnhealthyDiet,
+
+                    // Alcohol
+                    DrinksAlcohol = record.DrinksAlcohol,
+                    AlcoholFrequency = record.AlcoholFrequency ?? "N/A",
+                    IsBingeDrinker = record.IsBingeDrinker,
+                    DrinksBeer = record.DrinksBeer,
+                    BeerConsumption1 = record.BeerConsumption1 ?? "N/A",
+                    DrinksWine = record.DrinksWine,
+                    WineConsumption1 = record.WineConsumption1 ?? "N/A",
+                    DrinksWhiskyGinBrandy = record.DrinksWhiskyGinBrandy,
+                    WhiskyConsumption1 = record.WhiskyConsumption1 ?? "N/A",
+                    AlcoholAmount1Bottle320ml = record.AlcoholAmount1Bottle320ml,
+                    AlcoholAmount2Bottle640ml = record.AlcoholAmount2Bottle640ml,
+
+                    // Exercise
                     HasNoRegularExercise = record.HasNoRegularExercise,
+                    HasEnoughExercise = record.HasEnoughExercise,
+                    InsufficientPhysicalActivity = record.InsufficientPhysicalActivity,
+                    CombinationExercise = record.CombinationExercise,
+                    ModerateIntensityExercise = record.ModerateIntensityExercise,
+                    VigorousIntensityExercise = record.VigorousIntensityExercise,
+                    ExerciseDuration = record.ExerciseDuration ?? "N/A",
+
+                    // Smoking
+                    SmokingStatus = record.SmokingStatus ?? "N/A",
+                    HasHistoryOfSmoking = record.HasHistoryOfSmoking,
+                    Smoked100Sticks = record.Smoked100Sticks,
+                    SmokingQuitDuration = record.SmokingQuitDuration ?? "N/A",
+                    FormerSmoker = record.FormerSmoker,
+                    NeverSmokedButExposedToSmoke = record.NeverSmokedButExposedToSmoke,
+
+                    // Stress
+                    HasStress = record.HasStress,
+                    StressMadalas = record.StressMadalas ?? "N/A",
+                    StressSino = record.StressSino ?? "N/A",
+                    StressEpekto = record.StressEpekto ?? "N/A",
+
+                    // Part IV - Anthropometric Measurements
+                    Height = record.Height ?? "N/A",
+                    Weight = record.Weight ?? "N/A",
+                    Waist = record.Waist ?? "N/A",
+                    Hip = record.Hip ?? "N/A",
+                    BMI = record.BMI ?? "N/A",
+                    BMIStatus = record.BMIStatus ?? "N/A",
+                    WHRatio = record.WHRatio ?? "N/A",
+                    WHStatus = record.WHStatus ?? "N/A",
+
+                    // Blood Pressure
+                    BaselineBP = record.BaselineBP ?? "N/A",
+                    BPStatus = record.BPStatus ?? "N/A",
+                    LeftArmMeanBP = record.LeftArmMeanBP ?? "N/A",
+                    RightArmMeanBP = record.RightArmMeanBP ?? "N/A",
+
+                    // Blood Sugar
+                    FastingBloodSugar = record.FastingBloodSugar ?? "N/A",
+                    RandomBloodSugar = record.RandomBloodSugar ?? "N/A",
+                    BloodSugarStatus = record.BloodSugarStatus ?? "N/A",
+
+                    // Cholesterol
+                    CholesterolResult = record.CholesterolResult ?? "N/A",
+                    CholesterolStatus = record.CholesterolStatus ?? "N/A",
+
+                    // Urine Tests
+                    HasUrineProtein = record.HasUrineProtein,
+                    HasUrineKetones = record.HasUrineKetones,
+
+                    // Symptoms
+                    HasChestPain = record.HasChestPain,
+                    ChestPain = record.ChestPain ?? "N/A",
+                    ChestPainLocation = record.ChestPainLocation ?? "N/A",
+                    ChestPainValue = record.ChestPainValue ?? "N/A",
+                    ChestPainSpreadsToArm = record.ChestPainSpreadsToArm,
+                    PainLastsMoreThan30Min = record.PainLastsMoreThan30Min,
+                    PainRelievedWithRest = record.PainRelievedWithRest,
+
+                    HasDifficultyBreathing = record.HasDifficultyBreathing,
+                    HasAsthma = record.HasAsthma,
+                    NumbnessWhenWalkingFast = record.NumbnessWhenWalkingFast,
+                    LossOfConsciousnessLessThan10Min = record.LossOfConsciousnessLessThan10Min,
+
+                    HasPolydipsia = record.HasPolydipsia,
+                    HasPolyphagia = record.HasPolyphagia,
+                    HasPolyuria = record.HasPolyuria,
+                    HasWeightLoss = record.HasWeightLoss,
+
+                    // Part V - Assessment
+                    RiskStatus = record.RiskStatus ?? "N/A",
+                    RiskPercentage = record.RiskPercentage ?? "N/A",
+                    SeeDoctorIfYes = record.SeeDoctorIfYes,
+
+                    // Family History
                     FamilyHistoryDiabetesFather = record.FamilyHistoryDiabetesFather,
                     FamilyHistoryDiabetesMother = record.FamilyHistoryDiabetesMother,
                     FamilyHistoryDiabetesSibling = record.FamilyHistoryDiabetesSibling,
                     FamilyHistoryCancerFather = record.FamilyHistoryCancerFather,
                     FamilyHistoryCancerMother = record.FamilyHistoryCancerMother,
                     FamilyHistoryCancerSibling = record.FamilyHistoryCancerSibling,
+                    FamilyHistoryHeartDiseaseFather = record.FamilyHistoryHeartDiseaseFather,
+                    FamilyHistoryHeartDiseaseMother = record.FamilyHistoryHeartDiseaseMother,
+                    FamilyHistoryHeartDiseaseSibling = record.FamilyHistoryHeartDiseaseSibling,
                     FamilyHistoryStrokeFather = record.FamilyHistoryStrokeFather,
                     FamilyHistoryStrokeMother = record.FamilyHistoryStrokeMother,
                     FamilyHistoryStrokeSibling = record.FamilyHistoryStrokeSibling,
+                    FamilyHistoryLungDiseaseFather = record.FamilyHistoryLungDiseaseFather,
+                    FamilyHistoryLungDiseaseMother = record.FamilyHistoryLungDiseaseMother,
+                    FamilyHistoryLungDiseaseSibling = record.FamilyHistoryLungDiseaseSibling,
+                    FamilyHistoryKidneyDiseaseFather = record.FamilyHistoryKidneyDiseaseFather,
+                    FamilyHistoryKidneyDiseaseMother = record.FamilyHistoryKidneyDiseaseMother,
+                    FamilyHistoryKidneyDiseaseSibling = record.FamilyHistoryKidneyDiseaseSibling,
+                    FamilyHistoryEyeDiseaseFather = record.FamilyHistoryEyeDiseaseFather,
+                    FamilyHistoryEyeDiseaseMother = record.FamilyHistoryEyeDiseaseMother,
+                    FamilyHistoryEyeDiseaseSibling = record.FamilyHistoryEyeDiseaseSibling,
                     FamilyHistoryOtherFather = record.FamilyHistoryOtherFather,
                     FamilyHistoryOtherMother = record.FamilyHistoryOtherMother,
                     FamilyHistoryOtherSibling = record.FamilyHistoryOtherSibling,
+
+                    FamilyHasHypertension = record.FamilyHasHypertension,
+                    FamilyHasHeartDisease = record.FamilyHasHeartDisease,
+                    FamilyHasStroke = record.FamilyHasStroke,
+                    FamilyHasDiabetes = record.FamilyHasDiabetes,
+                    FamilyHasCancer = record.FamilyHasCancer,
+                    FamilyHasKidneyDisease = record.FamilyHasKidneyDisease,
+                    FamilyHasOtherDisease = record.FamilyHasOtherDisease,
+                    FamilyOtherDiseaseDetails = record.FamilyOtherDiseaseDetails ?? "N/A",
+
+                    // Cancer Screening
+                    BreastCancerScreened = record.BreastCancerScreened,
+                    CervicalCancerScreened = record.CervicalCancerScreened,
+                    CancerScreeningStatus = record.CancerScreeningStatus ?? "N/A",
+
+                    // Assessment Details
+                    AssessmentDate = record.AssessmentDate ?? "N/A",
+                    InterviewedBy = record.InterviewedBy ?? "N/A",
+                    DoctorName = record.DoctorName ?? "N/A",
+                    Designation = record.Designation ?? "N/A",
+                    PatientSignature = record.PatientSignature ?? "N/A",
                     CreatedAt = record.CreatedAt ?? "N/A",
                     UpdatedAt = record.UpdatedAt ?? "N/A",
-                    AppointmentType = record.AppointmentType ?? "N/A",
-                    SmokingStatus = record.SmokingStatus ?? "N/A",
-                    RiskStatus = record.RiskStatus ?? "N/A"
+                    AppointmentType = record.AppointmentType ?? "N/A"
                 };
 
                 processedRecords.Add(processedRecord);
@@ -409,62 +722,83 @@ namespace Barangay.Pages.Admin
             List<ImmunizationRecord> immunizationRecords,
             List<HEEADSSSAssessment> heeadsssRecords,
             List<NCDRiskAssessment> ncdRecords,
-            List<VitalSign> vitalSignsRecords)
+            List<VitalSign> vitalSignsRecords,
+            string decryptedFamilyId)
         {
-            // Get family info from the first available record
+            // Consolidate all available family information from all record types
+            var familyInfo = new
+            {
+                familyNumber = decryptedFamilyId,
+                motherName = "Unknown",
+                fatherName = "Unknown",
+                fullName = "Unknown",
+                firstName = "Unknown",
+                lastName = "Unknown",
+                address = "Unknown",
+                barangay = "Unknown",
+                contactNumber = "Unknown",
+                email = "Unknown",
+                recordCount = immunizationRecords.Count + heeadsssRecords.Count + ncdRecords.Count + vitalSignsRecords.Count,
+                lastUpdated = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")
+            };
+
+            // Get family info from ImmunizationRecords (usually most complete)
             if (immunizationRecords.Any())
             {
                 var firstRecord = immunizationRecords.First();
-                return new
+                familyInfo = familyInfo with
                 {
-                    familyNumber = firstRecord.FamilyNumber,
                     motherName = firstRecord.MotherName ?? "Unknown",
                     fatherName = firstRecord.FatherName ?? "Unknown",
                     address = firstRecord.Address ?? "Unknown",
                     barangay = firstRecord.Barangay ?? "Unknown",
-                    contactNumber = firstRecord.ContactNumber ?? "Unknown"
+                    contactNumber = firstRecord.ContactNumber ?? "Unknown",
+                    email = firstRecord.Email ?? "Unknown",
+                    lastUpdated = !string.IsNullOrEmpty(firstRecord.UpdatedAt) ? firstRecord.UpdatedAt : familyInfo.lastUpdated
                 };
             }
 
+            // Supplement with HEEADSSS information if available
             if (heeadsssRecords.Any())
             {
                 var firstRecord = heeadsssRecords.First();
-                return new
+                familyInfo = familyInfo with
                 {
-                    familyNumber = firstRecord.FamilyNo ?? "Unknown",
-                    fullName = firstRecord.FullName ?? "Unknown",
-                    address = firstRecord.Address ?? "Unknown",
-                    contactNumber = firstRecord.ContactNumber ?? "Unknown"
+                    fullName = firstRecord.FullName ?? familyInfo.fullName,
+                    address = firstRecord.Address ?? familyInfo.address,
+                    contactNumber = firstRecord.ContactNumber ?? familyInfo.contactNumber,
+                    lastUpdated = firstRecord.UpdatedAt.HasValue ? firstRecord.UpdatedAt.Value.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture) : familyInfo.lastUpdated
                 };
             }
 
+            // Supplement with NCD information if available
             if (ncdRecords.Any())
             {
                 var firstRecord = ncdRecords.First();
-                return new
+                familyInfo = familyInfo with
                 {
-                    familyNumber = firstRecord.FamilyNo ?? "Unknown",
-                    firstName = firstRecord.FirstName ?? "Unknown",
-                    lastName = firstRecord.LastName ?? "Unknown",
-                    address = firstRecord.Address ?? "Unknown",
-                    barangay = firstRecord.Barangay ?? "Unknown"
+                    firstName = firstRecord.FirstName ?? familyInfo.firstName,
+                    lastName = firstRecord.LastName ?? familyInfo.lastName,
+                    address = firstRecord.Address ?? familyInfo.address,
+                    barangay = firstRecord.Barangay ?? familyInfo.barangay,
+                    lastUpdated = !string.IsNullOrEmpty(firstRecord.UpdatedAt) ? firstRecord.UpdatedAt : familyInfo.lastUpdated
                 };
             }
 
-            if (vitalSignsRecords.Any())
-            {
-                var firstRecord = vitalSignsRecords.First();
-                return new
-                {
-                    patientId = firstRecord.PatientId ?? "Unknown",
-                    recordedAt = firstRecord.RecordedAt.ToString("yyyy-MM-dd HH:mm:ss")
-                };
-            }
-
+            // Add record metadata
             return new
             {
-                familyNumber = "Unknown",
-                message = "No family information available"
+                familyNumber = decryptedFamilyId,
+                familyInfo = familyInfo,
+                recordSummary = new
+                {
+                    immunization = immunizationRecords.Count,
+                    heeadsss = heeadsssRecords.Count,
+                    ncd = ncdRecords.Count,
+                    vitalSigns = vitalSignsRecords.Count,
+                    total = familyInfo.recordCount
+                },
+                message = familyInfo.recordCount > 0 ? $"Found {familyInfo.recordCount} health records for this family" : "No records found for this family"
             };
         }
     }

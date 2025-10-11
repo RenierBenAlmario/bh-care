@@ -324,19 +324,73 @@
         color: #dc3545;
     }
     
-    #ncdFormReferenceContent .card-header {
-        background-color: #1a73e8;
+    /* Welcome Section Styling */
+    .welcome-section {
+        background: linear-gradient(135deg,rgba(253, 125, 20, 0.79) 0%,rgb(226, 114, 22) 100%);
+        padding: 2rem;
+        border-radius: 16px;
         color: white;
+        box-shadow: 0 8px 20px rgba(26, 115, 232, 0.15);
     }
     
+    .welcome-message {
+        font-size: 2rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .welcome-section .text-muted {
+        color: rgba(255, 255, 255, 0.8) !important;
+        font-size: 1.1rem;
+    }
+    
+    /* Enhanced Card Body Styling */
+    .appointments-card .card-body {
+        padding: 2rem;
+        background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+    }
+    
+    .ncd-assessment-card .card-body {
+        padding: 2rem;
+        background: linear-gradient(145deg, #ffffff 0%, #f0f7ff 100%);
+        border-bottom-left-radius: 12px;
+        border-bottom-right-radius: 12px;
+    }
+    
+    /* Appointment columns styling */
+    .appointment-column {
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 12px;
+        padding: 1.5rem;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(26, 115, 232, 0.1);
+    }
+    
+    .appointment-column h6 {
+        color:rgba(253, 125, 20, 0.83);
+        font-weight: 700;
+        border-bottom: 2px solid rgba(26, 115, 232, 0.1);
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.25rem;
+    }
     
 </style>
-
-
 
 <!-- Main Content -->
 <div class="main-content" id="mainContent">
     <div class="container-fluid" id="dashboard-container">
+        
+        <!-- Welcome Greeting -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="welcome-section">
+                    <h2 class="welcome-message">
+                        <i class="fa-solid fa-hand-wave me-2 text-warning"></i>
+                        Welcome, @(Model.CurrentUser?.FirstName ?? Model.CurrentUser?.UserName ?? "User")!
+                    </h2>
+                </div>
+            </div>
+        </div>
 
         <!-- Two-column layout for Appointments and NCD Risk Assessment -->
         <div class="row">

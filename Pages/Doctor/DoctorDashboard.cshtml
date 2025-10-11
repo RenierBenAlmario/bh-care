@@ -109,8 +109,7 @@
                     }
                 </div>
                 <div class="card-footer">
-                    <a href="/Doctor/Appointments" class="btn btn-outline-primary btn-sm">View All Appointments</a>
-                    <a href="/Doctor/PatientResults" class="btn btn-outline-info btn-sm">View Patient Results</a>
+                    <small class="text-muted">Today's appointments are shown above</small>
                 </div>
             </div>
         </div>
@@ -148,9 +147,56 @@
     </div>
 </div>
 
+<!-- First Login Notification Modal -->
+<div class="modal fade" id="firstLoginModal" tabindex="-1" aria-labelledby="firstLoginModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color:rgb(255, 146, 68); color: white;">
+                <h5 class="modal-title" id="firstLoginModalLabel">
+                    <i class="fas fa-shield-alt me-2"></i>Security Notice
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <i class="fas fa-key fa-3x" style="color: #e27e38;"></i>
+                </div>
+                <h6 class="text-center mb-3">Welcome to BH Care!</h6>
+                <p>For security reasons, we recommend changing your default password before continuing to use the system.</p>
+                <div class="alert alert-warning" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Important:</strong> Using a strong, unique password helps protect patient data and system security.
+                </div>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check text-success me-2"></i> Use at least 8 characters</li>
+                    <li><i class="fas fa-check text-success me-2"></i> Include numbers and special characters</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <a href="/Doctor/Settings#security" class="btn btn-primary" style="background-color: #e27e38; border-color: #e27e38;">
+                    <i class="fas fa-key me-2"></i>Change Password Now
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         $(document).ready(function() {
+            console.log('Doctor Dashboard initialized');
+            console.log('IsFirstLogin flag:', '@ViewData["ShowFirstLoginNotification"]');
+            
+            // Show first login notification if needed
+            @if (ViewData["ShowFirstLoginNotification"] as bool? == true)
+            {
+                <text>
+                console.log('Showing first login modal for doctor');
+                var modal = new bootstrap.Modal(document.getElementById('firstLoginModal'));
+                modal.show();
+                </text>
+            }
+
             // Auto refresh every 5 minutes
             setInterval(function() {
                 location.reload();

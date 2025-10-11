@@ -172,8 +172,16 @@ namespace Barangay.ViewComponents
                         });
                     }
                     
-                    // Removed 'Settings' from nurse sidebar per requirement
-                    break;
+// Settings - Allow nurses to access their settings
+navItems.Add(new SidebarMenuItem { 
+    Text = "Settings", 
+    Icon = "cog", 
+    Url = "/Nurse/Settings", 
+    RequiredPermissions = new List<string>(),
+    IsActive = currentPath.Contains("/nurse/settings")
+});
+
+break;
 
                 case "doctor":
                     // Doctor simplified permissions - Check multiple permission variations
@@ -220,6 +228,16 @@ namespace Barangay.ViewComponents
                             IsActive = currentPath.Contains("/doctor/reports")
                         });
                     }
+
+                    // Settings - Allow doctors to access their settings
+                    navItems.Add(new SidebarMenuItem { 
+                        Text = "Settings", 
+                        Icon = "cog", 
+                        Url = "/Doctor/Settings", 
+                        RequiredPermissions = new List<string>(),
+                        IsActive = currentPath.Contains("/doctor/settings")
+                    });
+                    
                     break;
 
                 case "admin":

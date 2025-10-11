@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 
 namespace Barangay.Pages.Nurse
 {
@@ -20,11 +21,13 @@ namespace Barangay.Pages.Nurse
     {
         private readonly Data.ApplicationDbContext _context;
         private readonly IPermissionService _permissionService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public NurseDashboardModel(Data.ApplicationDbContext context, IPermissionService permissionService)
+        public NurseDashboardModel(Data.ApplicationDbContext context, IPermissionService permissionService, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _permissionService = permissionService;
+            _userManager = userManager;
 
             // Initialize properties
             ErrorMessage = string.Empty;
@@ -48,12 +51,15 @@ namespace Barangay.Pages.Nurse
         {
             try
             {
-                // Get current user ID
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (string.IsNullOrEmpty(userId))
+                // Get current user
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
                 {
                     return RedirectToPage("/Account/Login");
                 }
+                
+                // Check if user has never changed their password - show notification
+                ViewData["ShowFirstLoginNotification"] = !user.HasChangedPassword;
                 
                 // Load actual dashboard data from database
                 await LoadDashboardDataAsync();

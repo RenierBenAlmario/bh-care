@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Barangay.Models;
 using Barangay.Data;
 using Barangay.Services;
+using Barangay.Extensions;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
@@ -16,17 +17,20 @@ namespace Barangay.Pages.Account
         private readonly ApplicationDbContext _context;
         private readonly IEmailSender _emailSender;
         private readonly ILogger<ForgotPasswordModel> _logger;
+        private readonly IDataEncryptionService _encryptionService;
 
         public ForgotPasswordModel(
             UserManager<ApplicationUser> userManager,
             ApplicationDbContext context,
             IEmailSender emailSender,
-            ILogger<ForgotPasswordModel> logger)
+            ILogger<ForgotPasswordModel> logger,
+            IDataEncryptionService encryptionService)
         {
             _userManager = userManager;
             _context = context;
             _emailSender = emailSender;
             _logger = logger;
+            _encryptionService = encryptionService;
         }
 
         [BindProperty]
@@ -44,10 +48,11 @@ namespace Barangay.Pages.Account
         {
             try
             {
-                // Find user by email
-                var user = await _userManager.FindByEmailAsync(email);
+                // Find user by email - handle encrypted emails
+                var user = await FindUserByEmailAsync(email);
                 if (user == null)
                 {
+                    _logger.LogWarning($"User not found for email: {email}");
                     return new JsonResult(new { success = false, error = "User not found" });
                 }
 
@@ -55,11 +60,14 @@ namespace Barangay.Pages.Account
                 var otp = GenerateOTP();
                 var otpExpiry = DateTime.UtcNow.AddMinutes(10); // OTP expires in 10 minutes
 
+                // Get the plain text email for OTP record
+                string plainTextEmail = email; // Use the input email since it's already in plain text
+                
                 // Save OTP to database
                 var otpRecord = new PasswordResetOTP
                 {
                     UserId = user.Id,
-                    Email = user.Email!,
+                    Email = plainTextEmail, // Store plain text email for OTP lookup
                     OTP = otp,
                     ExpiresAt = otpExpiry,
                     CreatedAt = DateTime.UtcNow,
@@ -70,7 +78,7 @@ namespace Barangay.Pages.Account
                 await _context.SaveChangesAsync();
 
                 // Send OTP email
-                await SendOTPEmailAsync(user.Email!, otp);
+                await SendOTPEmailAsync(plainTextEmail, otp);
 
                 _logger.LogInformation($"OTP sent to {email} for password reset");
 
@@ -87,10 +95,11 @@ namespace Barangay.Pages.Account
         {
             try
             {
-                // Find user by email
-                var user = await _userManager.FindByEmailAsync(email);
+                // Find user by email - handle encrypted emails
+                var user = await FindUserByEmailAsync(email);
                 if (user == null)
                 {
+                    _logger.LogWarning($"User not found for email: {email}");
                     return new JsonResult(new { success = false, error = "User not found" });
                 }
 
@@ -177,6 +186,56 @@ namespace Barangay.Pages.Account
                 </html>";
 
             await _emailSender.SendEmailAsync(email, subject, message);
+        }
+
+        /// <summary>
+        /// Find user by email, handling both encrypted and plain text emails
+        /// </summary>
+        private async Task<ApplicationUser?> FindUserByEmailAsync(string email)
+        {
+            // First try to find user by plain text email (for backward compatibility)
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user != null)
+            {
+                _logger.LogInformation($"Found user by plain text email: {email}");
+                return user;
+            }
+
+            // If not found, search through all users and decrypt their emails
+            _logger.LogInformation($"Plain text search failed, searching encrypted emails for: {email}");
+            
+            var allUsers = await _context.Users.ToListAsync();
+            foreach (var u in allUsers)
+            {
+                if (!string.IsNullOrEmpty(u.Email))
+                {
+                    string decryptedEmail = u.Email;
+                    
+                    // Check if email is encrypted and decrypt it
+                    if (_encryptionService.IsEncrypted(u.Email))
+                    {
+                        try
+                        {
+                            decryptedEmail = _encryptionService.Decrypt(u.Email);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning(ex, $"Failed to decrypt email for user {u.Id}");
+                            continue;
+                        }
+                    }
+
+                    // Compare decrypted email with the input email (case-insensitive)
+                    if (string.Equals(decryptedEmail, email, StringComparison.OrdinalIgnoreCase))
+                    {
+                        _logger.LogInformation($"Found user by encrypted email match: {email}");
+                        return u;
+                    }
+                }
+            }
+
+            _logger.LogWarning($"No user found with email: {email} (checked both plain text and encrypted)");
+            return null;
         }
     }
 }

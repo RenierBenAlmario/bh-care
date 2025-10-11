@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Security.Claims;
 using Microsoft.Extensions.Logging;
+using Barangay.Services;
 
 namespace Barangay.Pages.Doctor
 {
@@ -18,11 +19,16 @@ namespace Barangay.Pages.Doctor
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<PrintMedicalRecordModel> _logger;
+        private readonly IDataEncryptionService _encryptionService;
 
-        public PrintMedicalRecordModel(ApplicationDbContext context, ILogger<PrintMedicalRecordModel> logger)
+        public PrintMedicalRecordModel(
+            ApplicationDbContext context, 
+            ILogger<PrintMedicalRecordModel> logger,
+            IDataEncryptionService encryptionService)
         {
             _context = context;
             _logger = logger;
+            _encryptionService = encryptionService;
         }
 
         public Patient? Patient { get; set; }
@@ -52,11 +58,17 @@ namespace Barangay.Pages.Doctor
                     return Page();
                 }
 
-                // Get the patient information
+                // Get the patient information and decrypt sensitive data
                 if (medicalRecord.Patient != null)
                 {
                     Patient = await _context.Patients
                         .FirstOrDefaultAsync(p => p.UserId == medicalRecord.PatientId);
+                    
+                    // Decrypt patient sensitive data
+                    if (Patient != null)
+                    {
+                        Patient.DecryptSensitiveData(_encryptionService, User);
+                    }
                 }
 
                 // Map medical record to view model

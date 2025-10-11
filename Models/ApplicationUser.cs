@@ -82,6 +82,13 @@ namespace Barangay.Models
         public bool HasAgreedToTerms { get; set; } = false;
         public DateTime? AgreedAt { get; set; }
         
+        // First login tracking for staff accounts
+        public bool IsFirstLogin { get; set; } = false;
+        
+        // Password change tracking - true if user has ever changed their password from default
+        public bool HasChangedPassword { get; set; } = false;
+        public DateTime? LastPasswordChangeDate { get; set; }
+        
         // Notification settings
         public bool AppointmentReminders { get; set; } = true;
         public bool PrescriptionAlerts { get; set; } = true;

@@ -113,5 +113,64 @@ namespace Barangay.Controllers
                 return StatusCode(500, new { message = "An error occurred while retrieving staff details", error = ex.Message });
             }
         }
+
+        [HttpPost("decrypt")]
+        public async Task<IActionResult> DecryptFamilyRecords([FromBody] DecryptRequest request)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(request.FamilyId) || string.IsNullOrEmpty(request.Password))
+                {
+                    return BadRequest(new { message = "FamilyId and Password are required" });
+                }
+
+                // For now, return a mock response since the actual decryption logic needs to be implemented
+                // This matches the expected response format from the frontend
+                var response = new
+                {
+                    familyName = $"Family {request.FamilyId}",
+                    contentHtml = GenerateMockContentHtml(request.FamilyId),
+                    token = Guid.NewGuid().ToString(),
+                    ttlSeconds = 300 // 5 minutes
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred during decryption", error = ex.Message });
+            }
+        }
+
+        private string GenerateMockContentHtml(string familyId)
+        {
+            return $@"
+                <div class='decrypted-family-content'>
+                    <div class='family-header'>
+                        <h3>Family {familyId} Health Records</h3>
+                        <p class='text-muted'>Successfully decrypted on {DateTime.Now:yyyy-MM-dd HH:mm:ss}</p>
+                    </div>
+                    <div class='record-sections'>
+                        <div class='record-section'>
+                            <h4><i class='fas fa-syringe'></i> Immunization Records</h4>
+                            <p>Sample immunization data for Family {familyId}</p>
+                        </div>
+                        <div class='record-section'>
+                            <h4><i class='fas fa-user-md'></i> HEEADSSS Assessments</h4>
+                            <p>Sample HEEADSSS data for Family {familyId}</p>
+                        </div>
+                        <div class='record-section'>
+                            <h4><i class='fas fa-heartbeat'></i> NCD Risk Assessments</h4>
+                            <p>Sample NCD data for Family {familyId}</p>
+                        </div>
+                    </div>
+                </div>";
+        }
+    }
+
+    public class DecryptRequest
+    {
+        public string FamilyId { get; set; }
+        public string Password { get; set; }
     }
 } 

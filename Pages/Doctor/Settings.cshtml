@@ -1,0 +1,414 @@
+@page
+@model Barangay.Pages.Doctor.SettingsModel
+@{
+    ViewData["Title"] = "Settings";
+    Layout = "_DoctorLayout";
+    ViewData["ShowDashboardNav"] = true;
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="fa-solid fa-gear me-3 fs-4"></i>
+                    <div>
+                        <strong>Account Settings</strong>
+                        <p class="mb-0">Manage your account preferences and personal information.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @Model.StatusMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Settings Menu</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush" id="settings-tab" role="tablist">
+                        <a class="list-group-item list-group-item-action active" id="personal-tab" data-bs-toggle="list" href="#personal" role="tab">
+                            <i class="fa-solid fa-user me-2"></i> Personal Details
+                        </a>
+                        <a class="list-group-item list-group-item-action" id="security-tab" data-bs-toggle="list" href="#security" role="tab">
+                            <i class="fa-solid fa-lock me-2"></i> Security
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-body">
+                    <div class="tab-content">
+                        <!-- Personal Details -->
+                        <div class="tab-pane fade show active" id="personal" role="tabpanel">
+                            <h4 class="mb-4">Personal Details</h4>
+                            <form method="post">
+                                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                
+                                <div class="mb-3">
+                                    <label asp-for="StaffProfile.Name" class="form-label"></label>
+                                    <input asp-for="StaffProfile.Name" class="form-control">
+                                    <span asp-validation-for="StaffProfile.Name" class="text-danger"></span>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label asp-for="StaffProfile.Email" class="form-label"></label>
+                                        <input asp-for="StaffProfile.Email" class="form-control">
+                                        <span asp-validation-for="StaffProfile.Email" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label asp-for="StaffProfile.ContactNumber" class="form-label"></label>
+                                        <input asp-for="StaffProfile.ContactNumber" class="form-control" placeholder="09XX-XXX-XXXX">
+                                        <span asp-validation-for="StaffProfile.ContactNumber" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa-solid fa-floppy-disk me-2"></i> Save Changes
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Security Settings -->
+                        <div class="tab-pane fade" id="security" role="tabpanel">
+                            <h4 class="mb-4">Security Settings</h4>
+                            
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Change Password</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form method="post" asp-page-handler="ChangePassword">
+                                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                        
+                                        <div class="mb-3">
+                                            <label asp-for="PasswordModel.OldPassword" class="form-label"></label>
+                                            <div class="input-group">
+                                                <input asp-for="PasswordModel.OldPassword" class="form-control" type="password" id="oldPassword">
+                                                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('oldPassword', this)">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
+                                            <span asp-validation-for="PasswordModel.OldPassword" class="text-danger"></span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label asp-for="PasswordModel.NewPassword" class="form-label"></label>
+                                            <div class="input-group">
+                                                <input asp-for="PasswordModel.NewPassword" class="form-control" type="password" id="newPassword">
+                                                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('newPassword', this)">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
+                                            <span asp-validation-for="PasswordModel.NewPassword" class="text-danger"></span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label asp-for="PasswordModel.ConfirmPassword" class="form-label"></label>
+                                            <div class="input-group">
+                                                <input asp-for="PasswordModel.ConfirmPassword" class="form-control" type="password" id="confirmPassword">
+                                                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('confirmPassword', this)">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
+                                            <span asp-validation-for="PasswordModel.ConfirmPassword" class="text-danger"></span>
+                                        </div>
+                                        <button type="button" id="requestOtpBtn" class="btn btn-primary">
+                                            <i class="fa-solid fa-key me-2"></i> Update Password
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- OTP Verification Modal -->
+<div class="modal fade" id="otpModal" tabindex="-1" aria-labelledby="otpModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #e27e38; color: white;">
+                <h5 class="modal-title" id="otpModalLabel">
+                    <i class="fas fa-shield-alt me-2"></i>Verify Your Identity
+                </h5>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <i class="fas fa-envelope fa-3x" style="color: #e27e38;"></i>
+                </div>
+                <h6 class="text-center mb-3">Enter Verification Code</h6>
+                <p class="text-center text-muted">We've sent a 6-digit code to your email address. Please enter it below to verify your identity.</p>
+                
+                <div id="otpError" class="alert alert-danger d-none" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <span id="otpErrorMessage"></span>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="otpCode" class="form-label">Verification Code</label>
+                    <input type="text" class="form-control form-control-lg text-center" id="otpCode" maxlength="6" placeholder="000000" style="letter-spacing: 0.5em; font-size: 1.5rem;">
+                    <small class="text-muted">Code expires in <span id="otpTimer">5:00</span></small>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-primary" id="verifyOtpBtn" style="background-color: #e27e38; border-color: #e27e38;">
+                        <i class="fas fa-check me-2"></i>Verify & Update Password
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" id="resendOtpBtn">
+                        <i class="fas fa-redo me-2"></i>Resend Code
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- First Login Notification Modal -->
+<div class="modal fade" id="firstLoginModal" tabindex="-1" aria-labelledby="firstLoginModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #e27e38; color: white;">
+                <h5 class="modal-title" id="firstLoginModalLabel">
+                    <i class="fas fa-shield-alt me-2"></i>Security Notice
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <i class="fas fa-key fa-3x" style="color: #e27e38;"></i>
+                </div>
+                <h6 class="text-center mb-3">Welcome to BH Care System!</h6>
+                <p>For security reasons, we recommend changing your default password before continuing to use the system.</p>
+                <div class="alert alert-warning" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Important:</strong> Using a strong, unique password helps protect patient data and system security.
+                </div>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check text-success me-2"></i> Use at least 8 characters</li>
+                    <li><i class="fas fa-check text-success me-2"></i> Include numbers and special characters</li>
+                    <li><i class="fas fa-check text-success me-2"></i> Make it unique to this system</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Remind Me Later
+                </button>
+                <button type="button" class="btn btn-primary" onclick="goToSecurityTab()" style="background-color: #e27e38; border-color: #e27e38;">
+                    <i class="fas fa-key me-2"></i>Change Password Now
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Password toggle functionality
+        function togglePassword(fieldId, button) {
+            const field = document.getElementById(fieldId);
+            const icon = button.querySelector('i');
+            
+            if (field.type === 'password') {
+                field.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                field.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // Keep the active tab selected after form submit
+        $(document).ready(function() {
+            var activeTab = sessionStorage.getItem('activeDoctorSettingsTab');
+            if (activeTab) {
+                $('#settings-tab a[href="' + activeTab + '"]').tab('show');
+            }
+
+            $('#settings-tab a').on('click', function(e) {
+                sessionStorage.setItem('activeDoctorSettingsTab', $(e.target).attr('href'));
+            });
+
+            // Show first login notification if needed - DISABLED (shown on Dashboard instead)
+            /*
+            @if (ViewData["ShowFirstLoginNotification"] as bool? == true)
+            {
+                <text>
+                showFirstLoginNotification();
+                </text>
+            }
+            */
+        });
+
+        function showFirstLoginNotification() {
+            const modal = new bootstrap.Modal(document.getElementById('firstLoginModal'));
+            modal.show();
+        }
+
+        function goToSecurityTab() {
+            $('#security-tab').click();
+            $('#firstLoginModal').modal('hide');
+        }
+
+        // OTP Verification System
+        let otpTimer;
+        let otpTimeRemaining = 300; // 5 minutes in seconds
+
+        // Request OTP when Update Password button is clicked
+        $('#requestOtpBtn').on('click', function() {
+            // Validate form first
+            const oldPassword = $('#oldPassword').val();
+            const newPassword = $('#newPassword').val();
+            const confirmPassword = $('#confirmPassword').val();
+
+            if (!oldPassword || !newPassword || !confirmPassword) {
+                alert('Please fill in all password fields.');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                alert('New password and confirmation do not match.');
+                return;
+            }
+
+            // Request OTP
+            requestOTP();
+        });
+
+        function requestOTP() {
+            $('#requestOtpBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Sending code...');
+
+            $.ajax({
+                url: '/Doctor/Settings?handler=RequestOTP',
+                type: 'POST',
+                headers: {
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Show OTP modal
+                        $('#otpModal').modal('show');
+                        startOTPTimer();
+                        $('#requestOtpBtn').prop('disabled', false).html('<i class="fa-solid fa-key me-2"></i>Update Password');
+                    } else {
+                        alert('Failed to send verification code: ' + response.message);
+                        $('#requestOtpBtn').prop('disabled', false).html('<i class="fa-solid fa-key me-2"></i>Update Password');
+                    }
+                },
+                error: function() {
+                    alert('An error occurred while sending the verification code.');
+                    $('#requestOtpBtn').prop('disabled', false).html('<i class="fa-solid fa-key me-2"></i>Update Password');
+                }
+            });
+        }
+
+        function startOTPTimer() {
+            otpTimeRemaining = 300; // Reset to 5 minutes
+            updateTimerDisplay();
+            
+            otpTimer = setInterval(function() {
+                otpTimeRemaining--;
+                updateTimerDisplay();
+                
+                if (otpTimeRemaining <= 0) {
+                    clearInterval(otpTimer);
+                    $('#otpError').removeClass('d-none');
+                    $('#otpErrorMessage').text('Verification code has expired. Please request a new code.');
+                    $('#verifyOtpBtn').prop('disabled', true);
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(otpTimeRemaining / 60);
+            const seconds = otpTimeRemaining % 60;
+            $('#otpTimer').text(minutes + ':' + (seconds < 10 ? '0' : '') + seconds);
+        }
+
+        // Verify OTP and update password
+        $('#verifyOtpBtn').on('click', function() {
+            const otpCode = $('#otpCode').val();
+            
+            if (!otpCode || otpCode.length !== 6) {
+                $('#otpError').removeClass('d-none');
+                $('#otpErrorMessage').text('Please enter a valid 6-digit code.');
+                return;
+            }
+
+            $('#verifyOtpBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Verifying...');
+
+            $.ajax({
+                url: '/Doctor/Settings?handler=VerifyOTPAndChangePassword',
+                type: 'POST',
+                headers: {
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                data: {
+                    otpCode: otpCode,
+                    oldPassword: $('#oldPassword').val(),
+                    newPassword: $('#newPassword').val(),
+                    confirmPassword: $('#confirmPassword').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        clearInterval(otpTimer);
+                        $('#otpModal').modal('hide');
+                        location.reload();
+                    } else {
+                        $('#otpError').removeClass('d-none');
+                        $('#otpErrorMessage').text(response.message);
+                        $('#verifyOtpBtn').prop('disabled', false).html('<i class="fas fa-check me-2"></i>Verify & Update Password');
+                    }
+                },
+                error: function() {
+                    $('#otpError').removeClass('d-none');
+                    $('#otpErrorMessage').text('An error occurred. Please try again.');
+                    $('#verifyOtpBtn').prop('disabled', false).html('<i class="fas fa-check me-2"></i>Verify & Update Password');
+                }
+            });
+        });
+
+        // Resend OTP
+        $('#resendOtpBtn').on('click', function() {
+            clearInterval(otpTimer);
+            $('#otpCode').val('');
+            $('#otpError').addClass('d-none');
+            $('#verifyOtpBtn').prop('disabled', false);
+            requestOTP();
+        });
+
+        // Auto-focus and format OTP input
+        $('#otpCode').on('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            if (this.value.length === 6) {
+                $('#otpError').addClass('d-none');
+            }
+        });
+
+        // Clear OTP modal when closed
+        $('#otpModal').on('hidden.bs.modal', function() {
+            clearInterval(otpTimer);
+            $('#otpCode').val('');
+            $('#otpError').addClass('d-none');
+            $('#verifyOtpBtn').prop('disabled', false).html('<i class="fas fa-check me-2"></i>Verify & Update Password');
+        });
+    </script>
+}

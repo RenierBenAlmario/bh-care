@@ -935,9 +935,9 @@ namespace Barangay.Pages.Doctor
                 }
 
                 TempData["SuccessMessage"] = "Consultation completed and all records saved successfully.";
-                // Set a flag so the Appointments page can show a link to Monthly Reports
+                // Set a flag so the Dashboard page can show consultation completion
                 TempData["AfterConsultation"] = "1";
-                return RedirectToPage("/Doctor/Appointments");
+                return RedirectToPage("/Doctor/DoctorDashboard");
             }
             catch (Exception ex)
             {

@@ -519,7 +519,8 @@ namespace Barangay.Pages.Admin
                         IsActive = StaffMember.IsActive,
                         JoinDate = DateTime.Now,
                         Status = "Verified", // Set as verified since added by admin
-                        BirthDate = DateTime.Now.AddYears(-25) // Set a default birth date (25 years ago)
+                        BirthDate = DateTime.Now.AddYears(-25), // Set a default birth date (25 years ago)
+                        IsFirstLogin = true // Require password change on first login
                     };
 
                     // Populate FirstName, MiddleName, LastName, and Name from the provided full name

@@ -121,10 +121,10 @@
             color: #ffffff;
         }
         
-        .minimal-sidebar .nav-link.active .nav-icon,
-        .minimal-sidebar .nav-link.active:hover .nav-icon {
-            background-color: #ffffff;
-            color: #E76F2B; /* match orange-accent */
+        .user-theme .minimal-sidebar .nav-link.active .nav-icon,
+        .user-theme .minimal-sidebar .nav-link.active:hover .nav-icon {
+            background-color: #ffffff !important;
+            color: #8B4513 !important; /* much darker brown-orange for better visibility */
         }
         
         .minimal-sidebar .nav-link:hover {
@@ -132,34 +132,52 @@
             color: #ffffff;
         }
         
-        .minimal-sidebar .nav-link.active {
-            background-color: rgba(0, 0, 0, 0.15); /* darker band for contrast on orange */
-            color: #ffffff;
-            font-weight: 500;
+        .user-theme .minimal-sidebar .nav-link.active {
+            background-color: rgba(0, 0, 0, 0.15) !important; /* darker band for contrast on orange */
+            color: #ffffff !important;
+            font-weight: 500 !important;
         }
 
         /* Add visible active indicator */
-        .minimal-sidebar .nav-link.active::before {
+        .user-theme .minimal-sidebar .nav-link.active::before {
             content: "";
             position: absolute;
             left: 0;
             top: 0;
             bottom: 0;
             width: 3px;
-            background-color: #ffffff;
+            background-color: #ffffff !important;
         }
 
-        /* Ensure the active icon is clearly visible */
-        .minimal-sidebar .nav-link .nav-icon i {
-            color: inherit;
+        /* Ensure the active icon is clearly visible - Override user-theme.css with maximum specificity */
+        body.user-theme .minimal-sidebar.app-sidebar .nav-link .nav-icon i {
+            color: inherit !important;
         }
-        .minimal-sidebar .nav-link.active .nav-icon {
-            background-color: #ffffff;
-            color: #E76F2B;
-            box-shadow: 0 0 0 2px rgba(255,255,255,0.85);
+        body.user-theme .minimal-sidebar.app-sidebar .nav-link.active .nav-icon {
+            background-color: #ffffff !important;
+            color: #8B4513 !important;
+            box-shadow: 0 0 0 2px rgba(255,255,255,0.95) !important;
         }
-        .minimal-sidebar .nav-link.active .nav-icon i {
-            color: #E76F2B !important;
+        body.user-theme .minimal-sidebar.app-sidebar .nav-link.active .nav-icon i {
+            color: #8B4513 !important;
+            font-weight: 700 !important;
+            opacity: 1 !important;
+        }
+        body.user-theme .minimal-sidebar.app-sidebar .nav-link.active:hover .nav-icon i {
+            color: #8B4513 !important;
+            font-weight: 700 !important;
+            opacity: 1 !important;
+        }
+        
+        /* Alternative approach - target by ID for maximum specificity */
+        #sidebar .nav-link.active .nav-icon i {
+            color: #8B4513 !important;
+            font-weight: 700 !important;
+            opacity: 1 !important;
+        }
+        #sidebar .nav-link.active .nav-icon {
+            background-color: #ffffff !important;
+            color: #8B4513 !important;
         }
         
         /* Content area - maximize space */

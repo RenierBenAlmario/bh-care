@@ -212,10 +212,16 @@ namespace Barangay.Migrations
                     b.Property<bool>("HasAgreedToTerms")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("HasChangedPassword")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("HealthTips")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsFirstLogin")
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("JoinDate")
@@ -227,6 +233,9 @@ namespace Barangay.Migrations
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastPasswordChangeDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");

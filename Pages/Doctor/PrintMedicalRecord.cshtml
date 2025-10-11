@@ -14,98 +14,207 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
+        @@page {
+            size: A4;
+            margin: 1.5cm;
+        }
+        
         body {
             padding: 20px;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f8f9fa;
-            color: #333;
+            color: #212529;
+            line-height: 1.6;
         }
+        
         .page-container {
+            max-width: 210mm;
+            margin: 0 auto;
             background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 40px;
         }
+        
         .header {
             text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #e9ecef;
+            margin-bottom: 35px;
+            padding-bottom: 25px;
+            border-bottom: 3px solid #0070c0;
         }
+        
         .header h1 {
-            margin: 0;
+            margin: 0 0 10px 0;
             color: #0070c0;
             font-weight: 700;
+            font-size: 28px;
+            letter-spacing: 0.5px;
         }
-        .header-logo {
-            max-width: 80px;
-            margin-bottom: 10px;
-        }
+        
         .header p {
             margin: 5px 0;
             color: #6c757d;
+            font-size: 14px;
         }
-        .section {
-            margin-bottom: 25px;
-        }
-        .section-title {
-            font-weight: bold;
-            border-bottom: 1px solid #dee2e6;
-            padding-bottom: 8px;
-            margin-bottom: 15px;
-            color: #0070c0;
-        }
-        .field-name {
+        
+        .record-id {
+            display: inline-block;
+            background-color: #e7f3ff;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
             font-weight: 600;
-            width: 150px;
-            display: inline-block;
-            vertical-align: top;
+            color: #0070c0;
+            margin-top: 10px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+        
+        .section-title {
+            font-weight: 700;
+            font-size: 16px;
+            color: #0070c0;
+            border-bottom: 2px solid #0070c0;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .info-row {
+            display: table;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+        
+        .field-name {
+            display: table-cell;
+            font-weight: 600;
+            width: 180px;
+            padding-right: 15px;
             color: #495057;
+            vertical-align: top;
         }
+        
         .field-value {
-            display: inline-block;
-            max-width: calc(100% - 160px);
-            line-height: 1.5;
+            display: table-cell;
+            color: #212529;
+            vertical-align: top;
         }
+        
         .content-section {
-            margin: 15px 0;
-            padding: 15px;
-            background-color: #f8f8f8;
-            border-radius: 5px;
+            margin: 12px 0;
+            padding: 18px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
             border-left: 4px solid #0070c0;
+            min-height: 50px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
         }
+        
+        .content-section p {
+            margin: 0;
+            line-height: 1.8;
+        }
+        
+        .assessment-label {
+            font-weight: 700;
+            color: #495057;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        table thead {
+            background-color: #0070c0;
+            color: white;
+        }
+        
+        table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        
         .footer {
             margin-top: 50px;
             text-align: center;
-            font-size: 12px;
+            font-size: 11px;
             color: #6c757d;
-            padding-top: 20px;
-            border-top: 1px solid #dee2e6;
+            padding-top: 25px;
+            border-top: 2px solid #dee2e6;
+            page-break-inside: avoid;
         }
+        
+        .footer p {
+            margin: 5px 0;
+        }
+        
         .btn-action {
             margin-right: 10px;
         }
+        
         .action-buttons {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            text-align: center;
         }
-        .record-id {
-            background-color: #e9ecef;
-            padding: 5px 10px;
+        
+        .badge {
+            padding: 6px 12px;
             border-radius: 4px;
-            font-family: monospace;
+            font-size: 12px;
+            font-weight: 600;
         }
+        
         @@media print {
             body {
                 padding: 0;
                 background-color: #fff;
             }
+            
             .page-container {
                 box-shadow: none;
-                padding: 0;
+                padding: 20px;
+                max-width: 100%;
             }
+            
             .no-print {
                 display: none !important;
+            }
+            
+            .section {
+                page-break-inside: avoid;
+            }
+            
+            .content-section {
+                background-color: #f8f9fa !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            table thead {
+                background-color: #0070c0 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
         }
     </style>
@@ -139,80 +248,72 @@
                 
                 <div class="section">
                     <div class="section-title">Patient Information</div>
-                    <div class="row mb-2">
-                        <div class="col-md-6">
-                            <span class="field-name">Name:</span>
-                            <span class="field-value fw-bold">@Model.Patient?.FullName</span>
-                        </div>
-                        <div class="col-md-6">
-                            <span class="field-name">Contact:</span>
-                            <span class="field-value">@Model.Patient?.ContactNumber</span>
-                        </div>
+                    <div class="info-row">
+                        <span class="field-name">Name:</span>
+                        <span class="field-value"><strong>@Model.Patient?.FullName</strong></span>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <span class="field-name">Age/Gender:</span>
-                            <span class="field-value">@Model.Patient?.Age years, @Model.Patient?.Gender</span>
-                        </div>
-                        <div class="col-md-6">
-                            <span class="field-name">Address:</span>
-                            <span class="field-value">@Model.Patient?.Address</span>
-                        </div>
+                    <div class="info-row">
+                        <span class="field-name">Contact Number:</span>
+                        <span class="field-value">@Model.Patient?.ContactNumber</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="field-name">Age / Gender:</span>
+                        <span class="field-value">@Model.Patient?.Age years, @Model.Patient?.Gender</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="field-name">Address:</span>
+                        <span class="field-value">@Model.Patient?.Address</span>
                     </div>
                 </div>
                 
                 <div class="section">
                     <div class="section-title">Medical Record Details</div>
-                    <div class="row mb-2">
-                        <div class="col-md-6">
-                            <span class="field-name">Date:</span>
-                            <span class="field-value">@Model.Record.Date.ToString("MMMM dd, yyyy")</span>
-                        </div>
-                        <div class="col-md-6">
-                            <span class="field-name">Type:</span>
-                            <span class="field-value">@Model.Record.Type</span>
-                        </div>
+                    <div class="info-row">
+                        <span class="field-name">Date:</span>
+                        <span class="field-value">@Model.Record.Date.ToString("MMMM dd, yyyy")</span>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <span class="field-name">Status:</span>
-                            <span class="field-value">
-                                <span class="badge bg-@(Model.Record.Status == "Completed" ? "success" : 
-                                                      Model.Record.Status == "In Progress" ? "warning" : 
-                                                      Model.Record.Status == "Cancelled" ? "danger" : "secondary")">
-                                    @(string.IsNullOrEmpty(Model.Record.Status) ? "Not specified" : Model.Record.Status)
-                                </span>
+                    <div class="info-row">
+                        <span class="field-name">Type:</span>
+                        <span class="field-value">@Model.Record.Type</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="field-name">Status:</span>
+                        <span class="field-value">
+                            <span class="badge bg-@(Model.Record.Status == "Completed" ? "success" : 
+                                                  Model.Record.Status == "In Progress" ? "warning" : 
+                                                  Model.Record.Status == "Cancelled" ? "danger" : "secondary")">
+                                @(string.IsNullOrEmpty(Model.Record.Status) ? "Active" : Model.Record.Status)
                             </span>
-                        </div>
-                        <div class="col-md-6">
-                            <span class="field-name">Attending Doctor:</span>
-                            <span class="field-value">Dr. @Model.Record.DoctorName</span>
-                        </div>
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="field-name">Attending Doctor:</span>
+                        <span class="field-value">Dr. @Model.Record.DoctorName</span>
                     </div>
                 </div>
                 
                 <div class="section">
                     <div class="section-title">Medical Assessment</div>
                     <div class="mb-3">
-                        <p class="fw-bold mb-1">Chief Complaint:</p>
+                        <div class="assessment-label">📋 Chief Complaint:</div>
                         <div class="content-section">
                             @(string.IsNullOrEmpty(Model.Record.ChiefComplaint) ? "No chief complaint recorded" : Model.Record.ChiefComplaint)
                         </div>
                     </div>
                     <div class="mb-3">
-                        <p class="fw-bold mb-1">Diagnosis:</p>
+                        <div class="assessment-label">🩺 Diagnosis:</div>
                         <div class="content-section">
                             @(string.IsNullOrEmpty(Model.Record.Diagnosis) ? "No diagnosis recorded" : Model.Record.Diagnosis)
                         </div>
                     </div>
                     <div class="mb-3">
-                        <p class="fw-bold mb-1">Treatment Plan:</p>
+                        <div class="assessment-label">💊 Treatment Plan:</div>
                         <div class="content-section">
                             @(string.IsNullOrEmpty(Model.Record.Treatment) ? "No treatment plan recorded" : Model.Record.Treatment)
                         </div>
                     </div>
-                    <div>
-                        <p class="fw-bold mb-1">Notes:</p>
+                    <div class="mb-3">
+                        <div class="assessment-label">📝 Notes:</div>
                         <div class="content-section">
                             @(string.IsNullOrEmpty(Model.Record.Notes) ? "No additional notes" : Model.Record.Notes)
                         </div>
@@ -223,19 +324,19 @@
                 {
                     <div class="section">
                         <div class="section-title">Prescribed Medications</div>
-                        <table class="table table-striped table-bordered">
-                            <thead class="table-primary">
+                        <table class="table">
+                            <thead>
                                 <tr>
-                                    <th>Medication</th>
-                                    <th>Dosage</th>
-                                    <th>Instructions</th>
+                                    <th style="width: 35%;">Medication</th>
+                                    <th style="width: 20%;">Dosage</th>
+                                    <th style="width: 45%;">Instructions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach (var med in Model.Medications)
                                 {
                                     <tr>
-                                        <td>@med.MedicationName</td>
+                                        <td><strong>@med.MedicationName</strong></td>
                                         <td>@med.Dosage</td>
                                         <td>@med.Instructions</td>
                                     </tr>

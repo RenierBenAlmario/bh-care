@@ -169,6 +169,12 @@ namespace Barangay.Pages.Account
 
         private IActionResult? GetDashboardRedirect(ApplicationUser user, IList<string> roles)
         {
+            _logger.LogInformation("GetDashboardRedirect called for user {Email} with IsFirstLogin={IsFirstLogin}, Roles={Roles}", 
+                user.Email, user.IsFirstLogin, string.Join(",", roles));
+            
+            // Note: First-login notifications will be handled in dashboard layouts
+            // No forced redirect - better UX with dashboard notifications
+            
             if (roles.Contains("Admin"))
             {
                 return RedirectToPage("/Admin/AdminDashboard");
@@ -340,6 +346,8 @@ namespace Barangay.Pages.Account
                     
                     var roles = await _userManager.GetRolesAsync(user);
                     _logger.LogInformation($"User roles: {string.Join(", ", roles)}");
+                    _logger.LogInformation($"User IsFirstLogin: {user.IsFirstLogin}");
+                    _logger.LogInformation($"User Email: {user.Email}, UserName: {user.UserName}");
 
                     var claims = new List<Claim>
                     {

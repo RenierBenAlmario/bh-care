@@ -51,6 +51,9 @@ namespace Barangay.Pages.Doctor
             DoctorEmail = user.Email;
             DoctorSpecialization = user.Specialization ?? "General Practitioner";
 
+            // Check if user has never changed their password - show notification
+            ViewData["ShowFirstLoginNotification"] = !user.HasChangedPassword;
+
             var today = DateTime.Now.Date;
 
             var appointmentsQuery = _context.Appointments

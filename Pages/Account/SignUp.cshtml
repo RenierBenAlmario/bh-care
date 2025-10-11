@@ -1192,12 +1192,151 @@
 
                 // Initialize validator when DOM is loaded
                 document.addEventListener('DOMContentLoaded', function() {
+                    console.log('DOM Content Loaded - initializing SignUp page');
                     new SignUpValidator();
+                    
+                    // Initialize password toggle functionality with delay to ensure DOM is ready
+                    setTimeout(() => {
+                        setupPasswordToggle();
+                        initPasswordToggles();
+                        initPasswordTogglesSimple();
+                    }, 500);
+                });
+                
+                // Password toggle functionality
+                function setupPasswordToggle() {
+                    console.log('Setting up password toggle functionality');
+                    const toggleButtons = document.querySelectorAll('.toggle-password');
+                    console.log('Found toggle buttons:', toggleButtons.length);
+                    
+                    toggleButtons.forEach((button, index) => {
+                        console.log(`Setting up button ${index}:`, button);
+                        
+                        // Remove any existing listeners to avoid duplicates
+                        button.replaceWith(button.cloneNode(true));
+                        const newButton = document.querySelectorAll('.toggle-password')[index];
+                        
+                        newButton.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            console.log('Password toggle clicked');
+                            
+                            // Find the password input in the same input group
+                            const inputGroup = this.closest('.input-group');
+                            const passwordInput = inputGroup.querySelector('input[type="password"], input[type="text"]');
+                            const icon = this.querySelector('i');
+                            
+                            console.log('Input group:', inputGroup);
+                            console.log('Password input:', passwordInput);
+                            console.log('Icon:', icon);
+                            
+                            if (passwordInput && icon) {
+                                if (passwordInput.type === 'password') {
+                                    passwordInput.type = 'text';
+                                    icon.classList.remove('fa-eye');
+                                    icon.classList.add('fa-eye-slash');
+                                    this.setAttribute('aria-label', 'Hide password');
+                                    console.log('Password shown');
+                                } else {
+                                    passwordInput.type = 'password';
+                                    icon.classList.remove('fa-eye-slash');
+                                    icon.classList.add('fa-eye');
+                                    this.setAttribute('aria-label', 'Show password');
+                                    console.log('Password hidden');
+                                }
+                            } else {
+                                console.error('Could not find password input or icon');
+                            }
+                        });
+                    });
+                }
+                
+                // Alternative direct implementation in case the function approach doesn't work
+                function initPasswordToggles() {
+                    // Direct event listeners for specific IDs
+                    const togglePassword = document.getElementById('togglePassword');
+                    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+                    
+                    if (togglePassword) {
+                        togglePassword.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            const passwordInput = document.getElementById('password');
+                            const icon = this.querySelector('i');
+                            
+                            if (passwordInput.type === 'password') {
+                                passwordInput.type = 'text';
+                                icon.classList.remove('fa-eye');
+                                icon.classList.add('fa-eye-slash');
+                            } else {
+                                passwordInput.type = 'password';
+                                icon.classList.remove('fa-eye-slash');
+                                icon.classList.add('fa-eye');
+                            }
+                        });
+                    }
+                    
+                    if (toggleConfirmPassword) {
+                        toggleConfirmPassword.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            const confirmPasswordInput = document.getElementById('confirmPassword');
+                            const icon = this.querySelector('i');
+                            
+                            if (confirmPasswordInput.type === 'password') {
+                                confirmPasswordInput.type = 'text';
+                                icon.classList.remove('fa-eye');
+                                icon.classList.add('fa-eye-slash');
+                            } else {
+                                confirmPasswordInput.type = 'password';
+                                icon.classList.remove('fa-eye-slash');
+                                icon.classList.add('fa-eye');
+                            }
+                        });
+                    }
+                }
+                
+                // Robust password toggle implementation
+                document.addEventListener('DOMContentLoaded', function() {
+                    const passwordField = document.getElementById('password');
+                    const confirmPasswordField = document.getElementById('confirmPassword');
+                    const togglePasswordBtn = document.getElementById('togglePassword');
+                    const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPassword');
+
+                    if (togglePasswordBtn && passwordField) {
+                        togglePasswordBtn.onclick = function(event) {
+                            event.preventDefault();
+                            const icon = togglePasswordBtn.querySelector('i');
+                            if (passwordField.type === 'password') {
+                                passwordField.type = 'text';
+                                if (icon) icon.className = 'fas fa-eye-slash';
+                                togglePasswordBtn.setAttribute('aria-label', 'Hide password');
+                            } else {
+                                passwordField.type = 'password';
+                                if (icon) icon.className = 'fas fa-eye';
+                                togglePasswordBtn.setAttribute('aria-label', 'Show password');
+                            }
+                        };
+                    }
+
+                    if (toggleConfirmPasswordBtn && confirmPasswordField) {
+                        toggleConfirmPasswordBtn.onclick = function(event) {
+                            event.preventDefault();
+                            const icon = toggleConfirmPasswordBtn.querySelector('i');
+                            if (confirmPasswordField.type === 'password') {
+                                confirmPasswordField.type = 'text';
+                                if (icon) icon.className = 'fas fa-eye-slash';
+                                toggleConfirmPasswordBtn.setAttribute('aria-label', 'Hide password');
+                            } else {
+                                confirmPasswordField.type = 'password';
+                                if (icon) icon.className = 'fas fa-eye';
+                                toggleConfirmPasswordBtn.setAttribute('aria-label', 'Show password');
+                            }
+                        };
+                    }
                 });
             </script>
             
-            <div class="text-center mt-3">
-                <span class="text-dark">Already have an account?</span> <a asp-area="" asp-controller="Home" asp-action="Index" class="login-link">Log In</a>
+                    <div class="text-center mt-3">
+                <span class="text-dark">Already have an account?</span> <a asp-page="/Account/Login" class="login-link">Log In</a>
             </div>
             
 
@@ -1326,7 +1465,7 @@
         }
         
         .step-indicator.active {
-            background-color: #007bff;
+            background-color:rgb(255, 115, 0);
             color: white;
         }
         

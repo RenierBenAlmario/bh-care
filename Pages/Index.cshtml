@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model Barangay.Pages.IndexModel
 @{
     ViewData["Title"] = "Home";
@@ -22,6 +22,115 @@
             color: #1565C0 !important;
             text-decoration: none !important;
         }
+
+        /* How It Works Popup Styles */
+        .how-it-works-popup .modal-content {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+
+        .how-it-works-popup .modal-header {
+            background: linear-gradient(135deg,rgb(253, 137, 41) 0%,rgb(253, 155, 63) 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+        }
+
+        .how-it-works-popup .modal-title {
+            color: white !important;
+        }
+
+        .how-it-works-popup .btn-close {
+            filter: invert(1);
+            opacity: 0.8;
+        }
+
+        .how-it-works-popup .btn-close:hover {
+            opacity: 1;
+        }
+
+        .popup-steps-container {
+            display: grid;
+            gap: 1.5rem;
+            padding: 1rem 0;
+        }
+
+        .popup-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(26, 115, 232, 0.05);
+            border-radius: 12px;
+            border-left: 4px solidrgb(214, 126, 26);
+            transition: all 0.3s ease;
+        }
+
+        .popup-step:hover {
+            background: rgba(26, 115, 232, 0.1);
+            transform: translateX(5px);
+        }
+
+        .popup-step-number {
+            min-width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg,rgb(214, 130, 21) 0%,rgb(244, 137, 66) 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 12px rgba(232, 126, 26, 0.3);
+        }
+
+        .popup-step-content h5 {
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .popup-step-content p {
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        /* Animation for popup steps */
+        .popup-step {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .popup-step:nth-child(1) { animation-delay: 0.1s; }
+        .popup-step:nth-child(2) { animation-delay: 0.2s; }
+        .popup-step:nth-child(3) { animation-delay: 0.3s; }
+        .popup-step:nth-child(4) { animation-delay: 0.4s; }
+
+        @@keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Mobile responsiveness */
+        @@media (max-width: 768px) {
+            .how-it-works-popup .modal-dialog {
+                margin: 1rem;
+            }
+            
+            .popup-step {
+                flex-direction: column;
+                text-align: center;
+                gap: 0.75rem;
+            }
+            
+            .popup-step-number {
+                align-self: center;
+            }
+        }
     </style>
 }
 
@@ -42,9 +151,12 @@
                 <h1 class="text-white hero-title">Barangay Health Care</h1>
                 <p class="text-white hero-text">A community-based health information system for Barangay 158, 159, 160, 161, designed to provide accessible health services to all selected barangays.</p>
                 <div class="hero-buttons">
-                    <a asp-page="/Account/SignUp" class="btn btn-light btn-lg signup-btn">
+                    <a asp-page="/Account/SignUp" class="btn btn-light btn-lg signup-btn me-3">
                         <i class="fas fa-user-plus me-2"></i>Register Now
                     </a>
+                    <button type="button" class="btn btn-outline-light btn-lg" data-bs-toggle="modal" data-bs-target="#howItWorksModal">
+                        <i class="fas fa-question-circle me-2"></i>How It Works
+                    </button>
                 </div>
             </div>
             <div class="col-md-6">
@@ -72,7 +184,10 @@
                                         <i class="fas fa-lock"></i>
                                     </span>
                                 </div>
-                                <input asp-for="Input.Password" class="form-control" type="password" aria-label="Password" placeholder="Enter your password" />
+                                <input asp-for="Input.Password" class="form-control" type="password" aria-label="Password" placeholder="Enter your password" id="loginPassword" />
+<button class="btn btn-outline-secondary toggle-password" type="button" id="toggleLoginPassword" tabindex="0" aria-label="Toggle password visibility">
+    <i class="fas fa-eye"></i>
+</button>
                             </div>
                             <span asp-validation-for="Input.Password" class="text-danger"></span>
                         </div>
@@ -117,9 +232,6 @@
                             </div>
                         }
                     </form>
-                    <div class="signup-link">
-                        <span class="text-dark">Don't have an account?</span> <a asp-page="/Account/SignUp" class="btn btn-outline-primary">Sign Up</a>
-                    </div>
                 </div>
             </div>
         </div>
@@ -165,49 +277,72 @@
     </div>
 </section>
 
-<!-- How It Works Section -->
-<section class="how-it-works-section" id="how-it-works">
-    <div class="container py-5">
-        <h2 class="section-title">
-            <i class="fas fa-question-circle me-2"></i>
-            How It Works
-        </h2>
-        <div class="steps-container">
-            <div class="step">
-                <div class="step-number">1</div>
-                <div class="step-content">
-                    <h3>Register</h3>
-                    <p class="text-dark">Sign up with your details and upload your Barangay clearance for verification.</p>
-                </div>
+<!-- How It Works Popup Modal -->
+<div class="modal fade" id="howItWorksModal" tabindex="-1" aria-labelledby="howItWorksModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content how-it-works-popup">
+            <div class="modal-header border-0">
+                <h4 class="modal-title fw-bold" id="howItWorksModalLabel">
+                    <i class="fas fa-question-circle me-2 text-primary"></i>
+                    How It Works
+                </h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="step">
-                <div class="step-number">2</div>
-                <div class="step-content">
-                    <h3>Verification</h3>
-                    <p class="text-dark">Wait for admin approval after identity and residency verification.</p>
-                </div>
-            </div>
-            <div class="step">
-                <div class="step-number">3</div>
-                <div class="step-content">
-                    <h3>Book Appointment</h3>
-                    <p class="text-dark">Schedule appointments with doctors and nurses based on availability.</p>
-                </div>
-            </div>
-            <div class="step">
-                <div class="step-number">4</div>
-                <div class="step-content">
-                    <h3>Get Care</h3>
-                    <p class="text-dark">Visit the Barangay Health Center on your appointment date to receive care.</p>
+            <div class="modal-body">
+                <div class="popup-steps-container">
+                    <div class="popup-step">
+                        <div class="popup-step-number">1</div>
+                        <div class="popup-step-content">
+                            <h5 class="text-primary fw-bold">Register</h5>
+                            <p class="text-muted mb-0">Sign up with your details and upload your Barangay clearance for verification.</p>
+                        </div>
+                    </div>
+                    <div class="popup-step">
+                        <div class="popup-step-number">2</div>
+                        <div class="popup-step-content">
+                            <h5 class="text-primary fw-bold">Verification</h5>
+                            <p class="text-muted mb-0">Wait for admin approval after identity and residency verification.</p>
+                        </div>
+                    </div>
+                    <div class="popup-step">
+                        <div class="popup-step-number">3</div>
+                        <div class="popup-step-content">
+                            <h5 class="text-primary fw-bold">Book Appointment</h5>
+                            <p class="text-muted mb-0">Schedule appointments with doctors and nurses based on availability.</p>
+                        </div>
+                    </div>
+                    <div class="popup-step">
+                        <div class="popup-step-number">4</div>
+                        <div class="popup-step-content">
+                            <h5 class="text-primary fw-bold">Get Care</h5>
+                            <p class="text-muted mb-0">Visit the Barangay Health Center on your appointment date to receive care.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</section>
+</div>
 
 @section Scripts {
     <script>
         $(document).ready(function() {
+            // Toggle password visibility for landing page login
+            const pwd = document.getElementById('loginPassword');
+            const btn = document.getElementById('toggleLoginPassword');
+            if (pwd && btn) {
+                btn.onclick = function(e) {
+                    e.preventDefault();
+                    const icon = btn.querySelector('i');
+                    if (pwd.type === 'password') {
+                        pwd.type = 'text';
+                        icon.className = 'fas fa-eye-slash';
+                    } else {
+                        pwd.type = 'password';
+                        icon.className = 'fas fa-eye';
+                    }
+                }
+            }
             // Clear any cached email values to prevent admin@example.com from appearing
             $('input[name="Input.Email"]').val('');
             
@@ -215,6 +350,9 @@
             @if (isLoggedIn) {
                 <text>$('body').addClass('logged-in');</text>
             }
+            
+            // Smart "How It Works" popup for new visitors
+            showHowItWorksPopup();
             
             // Prevent admin users from submitting home page login form
             $("#loginForm").on("submit", function(e) {
@@ -270,5 +408,36 @@
                 }, 300 + (index * 200));
             });
         });
+
+        // Smart popup function for "How It Works"
+        function showHowItWorksPopup() {
+            // Only show to non-authenticated users (new visitors)
+            @if (!isLoggedIn) {
+                <text>
+                // Check if user has seen the popup before (localStorage)
+                const hasSeenPopup = localStorage.getItem('bhcare_howItWorks_seen');
+                
+                if (!hasSeenPopup) {
+                    // Show popup after 4 seconds delay (gives users time to orient)
+                    setTimeout(function() {
+                        // Double-check user hasn't navigated away or logged in
+                        if (window.location.pathname === '/' && !document.body.classList.contains('logged-in')) {
+                            $('#howItWorksModal').modal('show');
+                            
+                            // Mark as seen when modal is shown
+                            $('#howItWorksModal').on('shown.bs.modal', function() {
+                                localStorage.setItem('bhcare_howItWorks_seen', 'true');
+                            });
+                            
+                            // Optional: Remove the flag after 24 hours so returning users see it again
+                            setTimeout(function() {
+                                localStorage.removeItem('bhcare_howItWorks_seen');
+                            }, 24 * 60 * 60 * 1000); // 24 hours
+                        }
+                    }, 4000); // 4 second delay
+                }
+                </text>
+            }
+        }
     </script>
 }

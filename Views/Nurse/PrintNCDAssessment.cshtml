@@ -166,6 +166,11 @@
             <span class="form-label">Hanapbuhay (Occupation):</span>
             <input asp-for="Occupation" class="form-input" />
         </div>
+        
+        <div class="form-row">
+            <span class="form-label">Risk Status:</span>
+            <input asp-for="RiskStatus" class="form-input" />
+        </div>
     </div>
 
     <!-- Part II: Past Medical History -->
@@ -211,6 +216,99 @@
             <input asp-for="DiabetesMedication" class="form-input" placeholder="Diabetes Medication" />
             <input asp-for="HypertensionMedication" class="form-input" placeholder="Hypertension Medication" />
             <input asp-for="CancerMedication" class="form-input" placeholder="Cancer Medication" />
+        </div>
+        
+        <!-- Part II: Chest Pain Assessment Questions (2.1-2.7) -->
+        <div class="section-title">PART II. CHEST PAIN ASSESSMENT</div>
+        <p><strong>2. Mga Tanong tungkol sa Pananakit ng Dibdib (Chest Pain Questions)</strong></p>
+        
+        <div class="form-row">
+            <span class="form-label">2.1 Nakakaramdam ka ba ng pananakit o kabigatan sa dibdib?</span>
+            <div class="checkbox-group">
+                <input asp-for="HasChestPain" type="radio" value="Oo" name="HasChestPain" />
+                <label>Oo</label>
+            </div>
+            <div class="checkbox-group">
+                <input asp-for="HasChestPain" type="radio" value="Hindi" name="HasChestPain" />
+                <label>Hindi</label>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">2.2 Ang sakit ba ay kumakalat sa balikat, bago hanggang sa kaliwang braso?</span>
+            <div class="checkbox-group">
+                <input asp-for="ChestPainSpreadsToArm" type="radio" value="Oo" name="ChestPainSpreadsToArm" />
+                <label>Oo</label>
+            </div>
+            <div class="checkbox-group">
+                <input asp-for="ChestPainSpreadsToArm" type="radio" value="Hindi" name="ChestPainSpreadsToArm" />
+                <label>Hindi</label>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">2.3 Nagiging manhid ka ba kapag mabilis kang naglalakad o umakyat sa hagdan?</span>
+            <div class="checkbox-group">
+                <input asp-for="NumbnessWhenWalkingFast" type="radio" value="Oo" name="NumbnessWhenWalkingFast" />
+                <label>Oo</label>
+            </div>
+            <div class="checkbox-group">
+                <input asp-for="NumbnessWhenWalkingFast" type="radio" value="Hindi" name="NumbnessWhenWalkingFast" />
+                <label>Hindi</label>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">2.4 Nagiging ok ka ba sa saglit na pahinga kapag sumasakit ang dibdib mo?</span>
+            <div class="checkbox-group">
+                <input asp-for="PainRelievedWithRest" type="radio" value="Oo" name="PainRelievedWithRest" />
+                <label>Oo</label>
+            </div>
+            <div class="checkbox-group">
+                <input asp-for="PainRelievedWithRest" type="radio" value="Hindi" name="PainRelievedWithRest" />
+                <label>Hindi</label>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">2.5 Nawalaan ka ba ng malay hanggang sa 10 minuto?</span>
+            <div class="checkbox-group">
+                <input asp-for="LossOfConsciousnessLessThan10Min" type="radio" value="Oo" name="LossOfConsciousnessLessThan10Min" />
+                <label>Oo</label>
+            </div>
+            <div class="checkbox-group">
+                <input asp-for="LossOfConsciousnessLessThan10Min" type="radio" value="Hindi" name="LossOfConsciousnessLessThan10Min" />
+                <label>Hindi</label>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">2.6 Nakipag-usap ka ba sa doktor tungkol sa ganitong pangyayari sa nakaraan?</span>
+            <div class="checkbox-group">
+                <input asp-for="SeeDoctorIfYes" type="radio" value="Oo" name="SeeDoctorIfYes" />
+                <label>Oo</label>
+            </div>
+            <div class="checkbox-group">
+                <input asp-for="SeeDoctorIfYes" type="radio" value="Hindi" name="SeeDoctorIfYes" />
+                <label>Hindi</label>
+            </div>
+        </div>
+        
+        <div class="form-row" style="margin-left: 20px;">
+            <span class="form-label">Kung oo, pangalan ng doktor:</span>
+            <input asp-for="DoctorName" class="form-input" />
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">2.7 Nakakaramdam ka ba ng sakit sa dibdib na tumatagal higit sa 30 minuto?</span>
+            <div class="checkbox-group">
+                <input asp-for="PainLastsMoreThan30Min" type="radio" value="Oo" name="PainLastsMoreThan30Min" />
+                <label>Oo</label>
+            </div>
+            <div class="checkbox-group">
+                <input asp-for="PainLastsMoreThan30Min" type="radio" value="Hindi" name="PainLastsMoreThan30Min" />
+                <label>Hindi</label>
+            </div>
         </div>
     </div>
 
@@ -347,8 +445,66 @@
         <p><strong>1. Ikaw ba ay naninigarilyo? (Do you smoke?)</strong></p>
         
         <div class="form-row">
-            <span class="form-label">Smoking Status:</span>
-            <input asp-for="SmokingStatus" class="form-input" />
+            <div class="checkbox-group">
+                <input asp-for="IsSmoker" type="radio" value="true" name="SmokingStatus" />
+                <label>Oo (Yes) - Current smoker</label>
+            </div>
+            <div class="checkbox-group">
+                <input asp-for="FormerSmoker" type="radio" value="true" name="SmokingStatus" />
+                <label>Tumigil na sa paninigarilyo (Former smoker)</label>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="checkbox-group">
+                <input asp-for="NeverSmokedButExposedToSmoke" type="radio" value="true" name="SmokingStatus" />
+                <label>Hindi, pero lantad ka ba sa usok ng sigarilyo? (Never smoked but exposed to smoke)</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="radio" name="SmokingStatus" value="never" />
+                <label>Hindi kailanman (Never smoked)</label>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">Gaano kadami ang nauubos mo sa isang araw? (Number of sticks per day):</span>
+            <input asp-for="SmokingSticksPerDay" class="form-input" />
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">Gaano katagal ka nang naninigarilyo? (How long have you been smoking?):</span>
+            <input asp-for="SmokingDuration" class="form-input" />
+        </div>
+        
+        <div class="section-title">B.5 Stress</div>
+        <p><strong>1. Madalas ka bang ma-stress? (Do you often feel stressed?)</strong></p>
+        
+        <div class="form-row">
+            <div class="checkbox-group">
+                <input asp-for="HasStress" type="radio" value="Oo" name="HasStress" />
+                <label>Oo (Yes)</label>
+            </div>
+            <div class="checkbox-group">
+                <input asp-for="HasStress" type="radio" value="Hindi" name="HasStress" />
+                <label>Hindi (No)</label>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">2. Ano o Sino ang dahilan ng iyong stress? (What or who causes your stress?):</span>
+            <input asp-for="StressCauses" class="form-input" style="width: 400px;" />
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">3. Nakakaapekto ba nito ang iyong pang-araw-araw na gawain? (Does it affect your daily activities?):</span>
+            <div class="checkbox-group">
+                <input asp-for="StressAffectsDailyLife" type="radio" value="true" name="StressAffectsDailyLife" />
+                <label>Oo (Yes)</label>
+            </div>
+            <div class="checkbox-group">
+                <input asp-for="StressAffectsDailyLife" type="radio" value="false" name="StressAffectsDailyLife" />
+                <label>Hindi (No)</label>
+            </div>
         </div>
     </div>
 
@@ -358,45 +514,152 @@
         
         <div class="section-title">4.1 Anthropometric Measurement</div>
         <div class="form-row">
-            <span class="form-label">Weight:</span>
-            <input type="text" class="form-input" />
-            <span class="form-label">Height:</span>
-            <input type="text" class="form-input" />
+            <span class="form-label">Weight (kg):</span>
+            <input asp-for="Weight" class="form-input" />
+            <span class="form-label">Height (cm):</span>
+            <input asp-for="Height" class="form-input" />
             <span class="form-label">BMI:</span>
-            <input type="text" class="form-input" />
+            <input asp-for="BMI" class="form-input" />
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">BMI Status:</span>
+            <div class="checkbox-group">
+                <input type="checkbox" name="BMIStatus" value="Normal" />
+                <label>Normal (18.5-22.9)</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" name="BMIStatus" value="Overweight" />
+                <label>Overweight (≥23 - 24.9)</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" name="BMIStatus" value="Obese" />
+                <label>Obese (≥ 25)</label>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">Waist (cm):</span>
+            <input asp-for="Waist" class="form-input" />
+            <span class="form-label">Hip (cm):</span>
+            <input asp-for="Hip" class="form-input" />
+            <span class="form-label">WHR:</span>
+            <input asp-for="WHRatio" class="form-input" />
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">WHR Status:</span>
+            <div class="checkbox-group">
+                <input type="checkbox" name="WHRStatus" value="AtRisk" />
+                <label>At risk - Male: ≥ 1.0 cm, Female: ≥ 0.85 cm</label>
+            </div>
         </div>
         
         <div class="section-title">4.2 Blood Sugar</div>
         <div class="form-row">
             <span class="form-label">Fasting Blood Sugar (CBG):</span>
-            <input type="text" class="form-input" />
+            <input asp-for="FastingBloodSugar" class="form-input" />
             <span class="form-label">Random Blood Sugar:</span>
-            <input type="text" class="form-input" />
+            <input asp-for="RandomBloodSugar" class="form-input" />
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">Blood Sugar Status:</span>
+            <div class="checkbox-group">
+                <input type="checkbox" name="BloodSugarStatus" value="Normal" />
+                <label>Normal (< 100 mg/dL)</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" name="BloodSugarStatus" value="PreDiabetes" />
+                <label>Pre-Diabetes (100-125 mg/dL)</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" name="BloodSugarStatus" value="DM" />
+                <label>DM (≥126 mg/dL)</label>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">Classic Diabetes Symptoms:</span>
+            <div class="checkbox-group">
+                <input asp-for="HasPolyuria" type="checkbox" />
+                <label>Polyuria</label>
+            </div>
+            <div class="checkbox-group">
+                <input asp-for="HasPolydipsia" type="checkbox" />
+                <label>Polydipsia</label>
+            </div>
+            <div class="checkbox-group">
+                <input asp-for="HasPolyphagia" type="checkbox" />
+                <label>Polyphagia</label>
+            </div>
+            <div class="checkbox-group">
+                <input asp-for="HasWeightLoss" type="checkbox" />
+                <label>Weight loss</label>
+            </div>
         </div>
         
         <div class="section-title">4.3 Blood Pressure</div>
         <div class="form-row">
             <span class="form-label">Left arm mean BP:</span>
-            <input type="text" class="form-input" />
+            <input asp-for="LeftArmMeanBP" class="form-input" />
             <span class="form-label">Right arm mean BP:</span>
-            <input type="text" class="form-input" />
+            <input asp-for="RightArmMeanBP" class="form-input" />
+            <span class="form-label">Baseline BP:</span>
+            <input asp-for="BaselineBP" class="form-input" />
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">BP Status:</span>
+            <div class="checkbox-group">
+                <input type="checkbox" name="BPStatus" value="Normal" />
+                <label>Normal (< 120 mmHg/< 80 mmHg)</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" name="BPStatus" value="Elevated" />
+                <label>Elevated BP (120-139 mmHg/80-89 mmHg)</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" name="BPStatus" value="Stage1" />
+                <label>Stage 1 HTN (140-159 mmHg/90-99 mmHg)</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" name="BPStatus" value="Stage2" />
+                <label>Stage 2 (≥160 mmHg/≥100 mmHg)</label>
+            </div>
         </div>
         
         <div class="section-title">4.4 Cholesterol Level</div>
         <div class="form-row">
             <span class="form-label">Result:</span>
-            <input type="text" class="form-input" />
+            <input asp-for="CholesterolResult" class="form-input" />
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">Cholesterol Status:</span>
+            <div class="checkbox-group">
+                <input type="checkbox" name="CholesterolStatus" value="Normal" />
+                <label>Normal (< 200 mg/dL)</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" name="CholesterolStatus" value="Elevated" />
+                <label>Elevated, mayos at risk (200-239/100 mg)</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" name="CholesterolStatus" value="High" />
+                <label>High (≥240/100 mg and above)</label>
+            </div>
         </div>
         
         <div class="section-title">4.5 Urine Dipstick Test</div>
         <div class="form-row">
             <span class="form-label">Protein:</span>
             <div class="checkbox-group">
-                <input type="checkbox" />
+                <input asp-for="HasUrineProtein" type="radio" value="false" name="UrineProtein" />
                 <label>(-) urine protein</label>
             </div>
             <div class="checkbox-group">
-                <input type="checkbox" />
+                <input asp-for="HasUrineProtein" type="radio" value="true" name="UrineProtein" />
                 <label>(+) urine protein</label>
             </div>
         </div>
@@ -404,11 +667,11 @@
         <div class="form-row">
             <span class="form-label">Ketones:</span>
             <div class="checkbox-group">
-                <input type="checkbox" />
+                <input asp-for="HasUrineKetones" type="radio" value="false" name="UrineKetones" />
                 <label>(-) urine ketones</label>
             </div>
             <div class="checkbox-group">
-                <input type="checkbox" />
+                <input asp-for="HasUrineKetones" type="radio" value="true" name="UrineKetones" />
                 <label>(+) urine ketones</label>
             </div>
         </div>
@@ -416,24 +679,51 @@
         <div class="section-title">4.6 Risk Profile (For Doctors Only)</div>
         <div class="form-row">
             <div class="checkbox-group">
-                <input type="checkbox" />
+                <input asp-for="RiskPercentage" type="radio" value="<5%" name="RiskPercentage" />
                 <label>&lt;5%</label>
             </div>
             <div class="checkbox-group">
-                <input type="checkbox" />
+                <input asp-for="RiskPercentage" type="radio" value="5-<10%" name="RiskPercentage" />
                 <label>5-&lt;10%</label>
             </div>
             <div class="checkbox-group">
-                <input type="checkbox" />
+                <input asp-for="RiskPercentage" type="radio" value="10%-<20%" name="RiskPercentage" />
                 <label>10%-&lt;20%</label>
             </div>
             <div class="checkbox-group">
-                <input type="checkbox" />
+                <input asp-for="RiskPercentage" type="radio" value="20-<30%" name="RiskPercentage" />
                 <label>20-&lt;30%</label>
             </div>
             <div class="checkbox-group">
-                <input type="checkbox" />
+                <input asp-for="RiskPercentage" type="radio" value=">30%" name="RiskPercentage" />
                 <label>&gt;30% risk</label>
+            </div>
+        </div>
+        
+        <div class="section-title">4.7 Cancer Screening (Babae na 30 years old and above)</div>
+        <p><strong>1. Ikaw ba ay na-screen na sa Breast/Cervical Cancer?</strong></p>
+        
+        <div class="form-row">
+            <span class="form-label">Breast Cancer Screening:</span>
+            <div class="checkbox-group">
+                <input asp-for="BreastCancerScreened" type="radio" value="true" name="BreastCancerScreened" />
+                <label>Oo (operatiba ang mga) / Yes</label>
+            </div>
+            <div class="checkbox-group">
+                <input asp-for="BreastCancerScreened" type="radio" value="false" name="BreastCancerScreened" />
+                <label>Hindi (walang)</label>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <span class="form-label">Cervical Cancer Screening:</span>
+            <div class="checkbox-group">
+                <input asp-for="CervicalCancerScreened" type="radio" value="true" name="CervicalCancerScreened" />
+                <label>Oo (operatiba ang mga) / Yes</label>
+            </div>
+            <div class="checkbox-group">
+                <input asp-for="CervicalCancerScreened" type="radio" value="false" name="CervicalCancerScreened" />
+                <label>Hindi (walang)</label>
             </div>
         </div>
     </div>
@@ -442,22 +732,22 @@
     <div class="form-section">
         <div class="form-row">
             <span class="form-label">Interviewed/Assessed by:</span>
-            <input type="text" class="form-input" />
+            <input asp-for="InterviewedBy" class="form-input" />
         </div>
         
         <div class="form-row">
             <span class="form-label">Designation:</span>
-            <input type="text" class="form-input" />
+            <input asp-for="Designation" class="form-input" />
         </div>
         
         <div class="form-row">
             <span class="form-label">Date:</span>
-            <input type="text" class="form-input" value="@DateTime.Now.ToString("MM/dd/yyyy")" />
+            <input asp-for="AssessmentDate" class="form-input" value="@DateTime.Now.ToString("MM/dd/yyyy")" />
         </div>
         
         <div class="form-row">
             <span class="form-label">Signature of Patient:</span>
-            <input type="text" class="form-input" />
+            <input asp-for="PatientSignature" class="form-input" />
         </div>
     </div>
 
